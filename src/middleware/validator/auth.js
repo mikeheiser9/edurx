@@ -1,6 +1,6 @@
 import joi from "joi";
 import { returnAppropriateError } from "../../util/commonFunctions.js";
-import { validateField } from "../../util/constant.js";
+import { roleHaveNpiInfo, validateField } from "../../util/constant.js";
 function addRequiredIfApplicable(req, baseValidation) {
   if (req.body.role.trim() == "student") {
     return baseValidation;
@@ -12,13 +12,13 @@ export const signUpFieldValidator = async (req, res, next) => {
     const { email, password,stringPrefixJoiValidation } = validateField;
     const schema = joi.object(
       {
-      first_name: addRequiredIfApplicable(req,stringPrefixJoiValidation.alphanum().min(2).max(200)),
-      last_name: addRequiredIfApplicable(req,stringPrefixJoiValidation.min(2).max(200)),
+      first_name:stringPrefixJoiValidation.alphanum().min(2).max(200),
+      last_name:stringPrefixJoiValidation.alphanum().min(2).max(200),
       email,
       password,
       confirm_password: joi.valid(joi.ref("password")).required().options({  messages: { "any.only": "{{#label}} must be same as password" },}),
       role: stringPrefixJoiValidation.required().min(3),
-      ...(req.body.role.trim() != "student" && {
+      ...(roleHaveNpiInfo.includes(req.body.role.trim()) && {
         npi_number: stringPrefixJoiValidation.length(10).required(),
         npi_designation: stringPrefixJoiValidation.min(2).max(200).required(),
       }),

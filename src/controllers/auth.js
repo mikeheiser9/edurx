@@ -16,7 +16,7 @@ export const signUp=async(req,res)=>{
             }
             else
             {
-                // will send the user to page where they can enter the code and have facility to resend the code sent code is expired
+                // will send the user to page where they can enter the code and have facility to resend the code if expired
                 return generalResponse(res,200,'error','confirm your email',null,false);  
             }
         }
@@ -46,24 +46,32 @@ export const signIn=async(req,res)=>{
     try {
         req.body=trimFields(req.body);
         const user=await findUserByEmail(req.body.email)
-        if(user && user.verified_account)
+        if(user)
         {
-            const pass=bcrypt.compareSync(req.body.password,user.password)
-            if(pass)
+            if(!user.verified_account)
             {
-                const jwtPayload={email:user.email,role:user.role}
-                const secret=process.env.JWT_SECRET || "my_jwt_secret";
-                const token= jwt.sign(jwtPayload,secret)
-                return generalResponse(res,200,'success',null,{token},true);  
+                // will send the user to page where they can enter the code and have facility to resend the code if expired
+                return generalResponse(res,400,'error','confirm your email',null,false);  
             }
             else
             {
-                return generalResponse(res,400,'error','invalid credentials...!',null,true);  
+                const pass=bcrypt.compareSync(req.body.password,user.password)
+                if(pass)
+                {
+                    const jwtPayload={email:user.email,role:user.role}
+                    const secret=process.env.JWT_SECRET || "my_jwt_secret";
+                    const token= jwt.sign(jwtPayload,secret)
+                    return generalResponse(res,200,'success',null,{token},true);  
+                }
+                else
+                {
+                    return generalResponse(res,400,'error','invalid credentials...!',null,true);  
+                }
             }
         }
         else
         {
-            return generalResponse(res,400,'error','invalid credentials or your account is not verified...!',null,true);  
+            return generalResponse(res,400,'error','invalid credentials...!',null,true);  
         }
     } catch (error) {
         return generalResponse(res,400,'error','something went wrong....',null,true);  

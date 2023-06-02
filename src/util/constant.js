@@ -6,3 +6,4 @@ export const validateField={
     stringPrefixJoiValidation:joi.string().trim()
 }
 
+export const roleHaveNpiInfo=["RDN","NDTR"]
