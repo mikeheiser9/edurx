@@ -2,6 +2,7 @@ import bcrypt from "bcrypt"
 import { findUserByEmail, storeUserRegistrationInfoInDb, updateUser, userExistWithEmail } from "../repository/user.js";
 import { generalResponse, prepareVerificationCodeForEmailConfirmation, trimFields } from "../util/commonFunctions.js"
 import sgMail from "@sendgrid/mail"
+import { taxonomyCodeToProfessionalMapping } from "../util/constant.js";
 import jwt from "jsonwebtoken"
 export const signUp=async(req,res)=>{
     try {
@@ -22,6 +23,10 @@ export const signUp=async(req,res)=>{
         }
         const hiiMessageActor=req.body.role=="student" ? req.body.email : req.body.first_name+" "+req.body.last_name
         const {mail,codeExpireTime,randomCode}=prepareVerificationCodeForEmailConfirmation(hiiMessageActor,req.body.email)
+        if(req.body.role=="professional")
+        {
+            req.body.npi_designation=req.body.npi_designation.map((designation)=>taxonomyCodeToProfessionalMapping[designation])
+        }
         await storeUserRegistrationInfoInDb({...req.body,verification_code_expiry_time:codeExpireTime,verification_code:randomCode})
         if(process.env.ENVIRONMENT=="production")
         {
