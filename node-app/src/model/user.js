@@ -89,7 +89,20 @@ const userSchema = new Schema(
     timestamps: { createdAt: "joined" },
     statics: {
       findByEmail(email,excludeAttributeList) {
-        return this.findOne({ email: email },excludeAttributeList);
+        if(excludeAttributeList)
+        {
+          let attribute
+          if(excludeAttributeList.type=="exclude")
+          {
+            attribute=`-${excludeAttributeList.attribute.join(" -")}`
+          }
+          else
+          {
+            attribute=excludeAttributeList.attribute.join(" ")
+          }
+          return this.findOne({ email: email },attribute);
+        }
+        return this.findOne({ email: email });
       },
     },
   }

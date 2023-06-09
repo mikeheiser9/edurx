@@ -13,25 +13,25 @@ export const signUpFieldValidator = async (req, res, next) => {
     const { email, password,stringPrefixJoiValidation } = validateField;
     const schema = joi.object(
       {
-      first_name:stringPrefixJoiValidation.alphanum().min(2).max(200),
-      last_name:stringPrefixJoiValidation.alphanum().min(2).max(200),
+      first_name:stringPrefixJoiValidation.alphanum().min(2).max(200).allow(""),
+      last_name:stringPrefixJoiValidation.alphanum().min(2).max(200).allow(""),
       email,
       password,
       confirm_password: joi.valid(joi.ref("password")).required().options({  messages: { "any.only": "{{#label}} must be same as password" },}),
       role: stringPrefixJoiValidation.min(3).valid(...roles.slice(2)).required(),
       ...(req.body.role.trim()=="professional" && {
         npi_number: stringPrefixJoiValidation.length(10).required(),
-        npi_designation: joi.array().min(1).items(stringPrefixJoiValidation.valid(...roleTaxonomyCode)).required(),
+        npi_designation: joi.array().min(1).items(stringPrefixJoiValidation.valid(...roleTaxonomyCode)).options({stripUnknown:{arrays:true}}).required(),
       }),
       addresses: addRequiredIfApplicable(req, joi.array().min(1).max(2)),
-      city: addRequiredIfApplicable(req, stringPrefixJoiValidation.min(2).max(50)),
-      state: addRequiredIfApplicable(req, stringPrefixJoiValidation.min(2).max(50)),
-      zip_code: addRequiredIfApplicable(req, stringPrefixJoiValidation),
+      city:stringPrefixJoiValidation.allow(""),
+      state:stringPrefixJoiValidation.allow(""),
+      zip_code:stringPrefixJoiValidation.allow(""),
     });
     await schema.validateAsync(req.body);
     next();
   } catch (error) {
-    console.log("error",error);
+    console.log("err");
     returnAppropriateError(res, error);
   }
 };

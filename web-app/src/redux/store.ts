@@ -1,6 +1,6 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import persistReducer from "redux-persist/es/persistReducer";
-import storage from "redux-persist/lib/storage"
+import storage from "redux-persist/es/storage"
 import userReducer from "./ducks/user.duck"
 import persistStore from "redux-persist/es/persistStore";
 const persistConfig={

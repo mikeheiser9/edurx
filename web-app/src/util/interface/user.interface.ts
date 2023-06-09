@@ -14,10 +14,13 @@ export interface commonRegistrationField extends userLoginField{
 
 export interface professionalUserRegistrationField extends commonRegistrationField
 {
-    addresses:string,
+    addresses:string[],
     city:string,
     state:string,
     zip_code:string,
     npi_number:string
-    npi_designation:string[]
+    npi_designation:string[],
+    npiReturnFullName:string,
+    taxonomy:string,
+    organization:string
 }

@@ -5,3 +5,7 @@ export const validateField={
     password:Yup.string().required(),
     stringPrefixJoiValidation:Yup.string().trim()
 }
+export const taxonomyCodeToProfessionalMapping={
+    "133V00000X":"RDN",
+    "136A00000X":"NDTR"
+}

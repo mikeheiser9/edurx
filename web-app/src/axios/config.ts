@@ -11,21 +11,14 @@ export const axiosParse=(store:AppDispatch)=>{
     })
     axios.interceptors.response.use((response)=>{
         return response
-    },(error)=>{
-        const status=error?.response?.status
-        if(status==400)
-        {
-
-        }
-        else if(status==403)
+    },(e)=>{
+        const status=e?.response?.status
+        if(status==403)
         {
             store.dispatch(removeToken());
             store.dispatch(removeUserDetail())
         }
-        else
-        {
-            return error.response.data;
-        }
+        e.response? e.response : Promise.reject(new Error(e))
     })
 }
 export const axiosGet=(url:string)=>{

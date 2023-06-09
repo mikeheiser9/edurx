@@ -50,7 +50,7 @@ export const signUp=async(req,res)=>{
 export const signIn=async(req,res)=>{
     try {
         req.body=trimFields(req.body);
-        const user=await findUserByEmail(req.body.email)
+        let user=await findUserByEmail(req.body.email,{type:"include",attribute:["first_name","last_name","email","role","npi_designation","joined","verified_account","password"]})
         if(user)
         {
             if(!user.verified_account)
@@ -66,7 +66,8 @@ export const signIn=async(req,res)=>{
                     const jwtPayload={email:user.email,role:user.role}
                     const secret=process.env.JWT_SECRET || "my_jwt_secret";
                     const token= jwt.sign(jwtPayload,secret)
-                    return generalResponse(res,200,'success',null,{token},true);  
+                    user.password=""
+                    return generalResponse(res,200,'success',null,{token,details:user},true);  
                 }
                 else
                 {
@@ -79,6 +80,7 @@ export const signIn=async(req,res)=>{
             return generalResponse(res,400,'error','invalid credentials...!',null,true);  
         }
     } catch (error) {
+        console.log({error});
         return generalResponse(res,400,'error','something went wrong....',null,true);  
     }
 }
@@ -161,7 +163,7 @@ export const verifyCode=async(req,res)=>{
                     {
                         return generalResponse(res,400,'error','your code is expired...!',null,true);
                     }
-                    return generalResponse(res,400,'error','wrong code entered...!',null,true);
+                    return generalResponse(res,401,'error','wrong code entered...!',null,true);
                 }
             }
             else
