@@ -12,3 +12,7 @@ export const signUp=<T>(data:T)=>{
 export const verifyConfirmationCode=<T>(data:T)=>{
    return axiosPost('/auth/verify_verification_code',data)
 }
+
+export const generateVerificationCode=<T>(data:T)=>{
+   return axiosPost('/auth/send_verification_code',data)
+}

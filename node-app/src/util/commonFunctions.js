@@ -17,7 +17,7 @@ export const generalResponse=(res,statusCode,response_type,message,data,toast)=>
 }
 
 export const generateRandomAlphanumericCharacterOfLengthTillTenDigit=(length)=>{
-   return Math.random().toString(36).substring(2,length+2);
+   return Math.random().toString(36).substring(2,length+2).toLocaleUpperCase();
 }
 
 export const prepareMail=(to,subject,text,html)=>{
@@ -33,7 +33,7 @@ export const prepareMail=(to,subject,text,html)=>{
 export const prepareVerificationCodeForEmailConfirmation=(fullName,email)=>{
         const currentTime=new Date().getTime();
         const codeExpireTime=currentTime+(1000*60*5)
-        const randomCode=generateRandomAlphanumericCharacterOfLengthTillTenDigit(7);
+        const randomCode=generateRandomAlphanumericCharacterOfLengthTillTenDigit(6);
         const html=`<label>Hii ${fullName}</label><br><br>Here is Your EduRx email confirmation code&nbsp;<b>${randomCode}<br><br>EduRx Team</b>`
         const mail= prepareMail(email,'code for confirmation of your email for registration','email confirmation code',html)
         return {mail,codeExpireTime,randomCode}
