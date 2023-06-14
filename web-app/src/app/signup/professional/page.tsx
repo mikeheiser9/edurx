@@ -7,17 +7,18 @@ import {
   taxonomyCodeToProfessionalMapping,
   validateField,
 } from "@/util/interface/constant";
-import { useState } from "react";
-import { signUp, verifyConfirmationCode } from "@/service/auth.service";
+import React, { useState } from "react";
+import { login, signUp, verifyConfirmationCode } from "@/service/auth.service";
 import axios from "axios";
 
-interface professionalAccountSignUpField extends professionalUserRegistrationField {
-    code:string
+interface professionalAccountSignUpField
+  extends professionalUserRegistrationField {
+  code: string;
 }
 export default function SignUp() {
   const [currentStep, setCurrentStep] = useState(0);
   const { stringPrefixJoiValidation, password } = validateField;
-  const formInitialValues:professionalAccountSignUpField  = {
+  const formInitialValues: professionalAccountSignUpField = {
     email: "",
     password: "",
     confirm_password: "",
@@ -70,10 +71,10 @@ export default function SignUp() {
   ];
   const handleAskNpi = async (
     actions: FormikHelpers<professionalAccountSignUpField>,
-    npiNumber:string
+    npiNumber: string
   ) => {
     const res = await axios.post(
-     process.env.NEXT_PUBLIC_NPI_REGISTRY_CMS as string,
+      process.env.NEXT_PUBLIC_NPI_REGISTRY_CMS as string,
       {
         data: {
           number: npiNumber,
@@ -120,12 +121,42 @@ export default function SignUp() {
     }
   };
 
+  const handleUserExists = async (
+    values: professionalAccountSignUpField,
+    actions: FormikHelpers<professionalAccountSignUpField>
+  ) => {
+    const payload = {
+      email: values.email,
+      password: values.password,
+    };
+    await login(payload)
+      .then(async (response) => {
+        if (response.status == 400) {
+          // user is new and can proceed further
+          setCurrentStep((prevStep) => prevStep + 1);
+        } else if (
+          response.status === 200 &&
+          response?.data?.data?.details?.verified_account
+        ) {
+          // user already verified
+          actions.setFieldError(
+            "email",
+            "This email address is already registered with us"
+          );
+        }
+      })
+      .catch((error) => console.log(error))
+      .finally(() => actions.setSubmitting(false));
+  };
+
   const _handleSubmit = async (
     values: professionalAccountSignUpField,
     actions: FormikHelpers<professionalAccountSignUpField>
   ) => {
-    if (currentStep == 1) {
-      await handleAskNpi(actions,values.npi_number);
+    if (currentStep === 0) {
+      await handleUserExists(values, actions);
+    } else if (currentStep == 1) {
+      await handleAskNpi(actions, values.npi_number);
     } else if (currentStep == 2) {
       // can store the data into the google sheet
       actions.setTouched({});
@@ -190,10 +221,14 @@ export default function SignUp() {
 
   const BasicDetail = () => {
     return (
-      <div>
-        <h1>Create Account</h1>
-        <div>
-          <InputField name="first_name" placeholder="First name" type="text" />
+      <React.Fragment>
+        <div className="grid grid-cols-2 gap-2">
+          <InputField
+            className="flex-1"
+            name="first_name"
+            placeholder="First name"
+            type="text"
+          />
           <InputField name="last_name" placeholder="Last name" type="text" />
         </div>
         <InputField name="email" placeholder="Email address" type="text" />
@@ -203,152 +238,132 @@ export default function SignUp() {
           placeholder="Confirm Password"
           type="password"
         />
-      </div>
+      </React.Fragment>
     );
   };
 
   const AskNpiNumber = () => {
     return (
-      <div className="flex justify-center ">
-        <div>
-          <h1>Enter NPI</h1>
-          <div>
-            <label className="text-sm">
-              EduRx is a curated community of medical professionals in order to
-              ensure quality discussion and information please validate your NPI
-              License below.
-            </label>
-          </div>
-          <div>
-            <InputField
-              name="npi_number"
-              placeholder="License Number"
-              type="text"
-            />
-          </div>
+      <React.Fragment>
+        <p className="text-sm opacity-50 text-white text-center px-16 pb-6">
+          EduRx is a curated community of medical professionals in order to
+          ensure quality discussion and information please validate your NPI
+          License below.
+        </p>
+        <div className="px-8">
+          <InputField
+            name="npi_number"
+            placeholder="License Number"
+            type="text"
+          />
         </div>
-      </div>
+      </React.Fragment>
     );
   };
 
   const NpiDetailsNotAcceptableFound = () => {
     return (
-      <div className="flex justify-center ">
-        <div>
-          <h1>Oops! Looks like you're a little early! </h1>
-          <div>
-            <label className="text-sm">
-              EduRx is new and building! We are excited to be creating a hub for
-              all medical professionals to come together. However we are not
-              accepting accounts for your specific taxonomy right now. Please
-              enter your email below to stay up to date with out latest news and
-              find out when EduRx launches for you!
-            </label>
-          </div>
-        </div>
+      <div className="px-6">
+        <p className="text-sm opacity-50 text-center">
+          EduRx is new and building! We are excited to be creating a hub for all
+          medical professionals to come together. However we are not accepting
+          accounts for your specific taxonomy right now. Please enter your email
+          below to stay up to date with out latest news and find out when EduRx
+          launches for you!
+        </p>
       </div>
     );
   };
 
   const NpiDetailsShow = () => {
     return (
-      <div className="flex justify-center ">
+      <React.Fragment>
         <div>
-          <h1>Your Information</h1>
-          <div>
-            <label>
-              Please confirm the following information is accurate and up to
-              date.Note: you wil be able to add additional licenses and info
-              later
-            </label>
-          </div>
-          <div>
-            <button
-              onClick={() => setCurrentStep((currentStep) => currentStep + 1)}
-            >
-              Edit Info
-            </button>
-          </div>
-          <div>
-            {npiReturnVariables.map((variable) => {
-              return (
-                <div>
-                  <label>{variable.label}</label>
-                  <Field
-                    name={variable.fieldName}
-                    component={({ field }: any) => (
-                      <div>
-                        <label>
-                          {variable.fieldName != "addresses"
-                            ? field.value
-                            : field.value[0]}
-                        </label>
-                      </div>
-                    )}
-                  ></Field>
-                </div>
-              );
-            })}
-          </div>
+          <label>
+            Please confirm the following information is accurate and up to
+            date.Note: you wil be able to add additional licenses and info later
+          </label>
         </div>
-      </div>
+        <div>
+          <button
+            onClick={() => setCurrentStep((currentStep) => currentStep + 1)}
+          >
+            Edit Info
+          </button>
+        </div>
+        <div>
+          {npiReturnVariables.map((variable) => {
+            return (
+              <div>
+                <label>{variable.label}</label>
+                <Field
+                  name={variable.fieldName}
+                  component={({ field }: any) => (
+                    <div>
+                      <label>
+                        {variable.fieldName != "addresses"
+                          ? field.value
+                          : field.value[0]}
+                      </label>
+                    </div>
+                  )}
+                ></Field>
+              </div>
+            );
+          })}
+        </div>
+      </React.Fragment>
     );
   };
 
   const NpiDetailsEdit = () => {
     return (
-      <div className="flex justify-center ">
-        <h1>Edit Information</h1>
+      <React.Fragment>
+        <InputField
+          name="addresses.0"
+          placeholder="Address Line 1"
+          type="text"
+        />
+        <InputField
+          name="addresses.1"
+          placeholder="Address Line 2"
+          type="text"
+        />
         <div>
-          <InputField
-            name="addresses.0"
-            placeholder="Address Line 1"
-            type="text"
-          />
-          <InputField
-            name="addresses.1"
-            placeholder="Address Line 2"
-            type="text"
-          />
-          <div>
-            <InputField name="city" placeholder="City" type="text" />
-            <InputField name="state" placeholder="State" type="text" />
-          </div>
-          <InputField name="zip_code" placeholder="Zip Code" type="text" />
+          <InputField name="city" placeholder="City" type="text" />
+          <InputField name="state" placeholder="State" type="text" />
         </div>
-      </div>
+        <InputField name="zip_code" placeholder="Zip Code" type="text" />
+      </React.Fragment>
     );
   };
 
   const VerifyEmail = () => {
     return (
-      <div className="flex justify-center ">
-        <label className="text-lg">Enter Verification Code</label>
-        <div>
-          <Field
-            name="email"
-            component={({ field }: any) => (
-              <div>
-                <label>{`we send an email to ${field.value} Please enter it below to complete email verification.`}</label>
-              </div>
-            )}
-          ></Field>
-          <InputField
-            name="code"
-            placeholder="Enter Verification Code"
-            type="text"
-          />
-        </div>
-      </div>
+      <React.Fragment>
+        <Field
+          name="email"
+          component={({ field }: any) => (
+            <div>
+              <label>{`we send an email to ${field.value} Please enter it below to complete email verification.`}</label>
+            </div>
+          )}
+        ></Field>
+        <InputField
+          name="code"
+          placeholder="Enter Verification Code"
+          type="text"
+        />
+      </React.Fragment>
     );
   };
 
   const RegistrationConfirmationMessage = () => {
     return (
-      <div className="flex justify-center ">
+      <React.Fragment>
         <label className="text-lg">Create Account</label>
         <div>Congrats Your email has been verified</div>
-      </div>
+      </React.Fragment>
     );
   };
 
@@ -382,9 +397,25 @@ export default function SignUp() {
       return "Verify";
     } else if (currentStep == 6) {
       return "Done";
+    } else if (currentStep === 0) {
+      return "Register";
     } else {
       return "next";
     }
+  };
+
+  const getStepBasedTitle = () => {
+    return currentStep === 1
+      ? "Enter NPI"
+      : currentStep === 2
+      ? "Oops! Looks like you’re a little early!"
+      : currentStep === 3
+      ? "Your Information"
+      : currentStep === 4
+      ? "Edit Information"
+      : currentStep === 5
+      ? "Verify Email"
+      : "Create Account";
   };
 
   return (
@@ -395,12 +426,17 @@ export default function SignUp() {
         onSubmit={_handleSubmit}
       >
         {({ isSubmitting }) => (
-          <div className="flex justify-center ">
+          <div className="flex flex-col items-center p-4">
+            <h1 className="text-white text-center tracking-wider text-4xl my-4 font-serif font-semibold">
+              {getStepBasedTitle()}
+            </h1>
             <Form>
-              {_renderComponentStepWise(currentStep)}
-              <div>
+              <div className="flex flex-col gap-2 text-white m-[5%]">
+                {_renderComponentStepWise(currentStep)}
+              </div>
+              <div className="m-2 flex justify-center">
                 <button
-                  className="border border-slate-300 hover:border-indigo-300"
+                  className="bg-[#FDCD26] rounded p-2 m-auto w-1/2 text-lg hover:bg-yellow-500"
                   type="submit"
                   disabled={isSubmitting}
                 >
