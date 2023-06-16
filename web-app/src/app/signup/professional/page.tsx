@@ -1,6 +1,6 @@
 "use client";
 import InputField from "@/components/input";
-import { Field, Form, Formik, FormikHelpers } from "formik";
+import { ErrorMessage, Field, Form, Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import { professionalUserRegistrationField } from "../../../util/interface/user.interface";
 import {
@@ -10,12 +10,21 @@ import {
 import React, { useState } from "react";
 import { login, signUp, verifyConfirmationCode } from "@/service/auth.service";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+import {
+  AccountCreationSucceed,
+  BasicDetails,
+  RegistrationConfirmationMessage,
+  VerifyEmail,
+} from "../commonBlocks";
 
 interface professionalAccountSignUpField
   extends professionalUserRegistrationField {
   code: string;
+  isUserExist: boolean;
 }
 export default function SignUp() {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const { stringPrefixJoiValidation, password } = validateField;
   const formInitialValues: professionalAccountSignUpField = {
@@ -35,6 +44,7 @@ export default function SignUp() {
     taxonomy: "",
     organization: "",
     code: "",
+    isUserExist: false,
   };
 
   const validationSchema = [
@@ -73,14 +83,17 @@ export default function SignUp() {
     actions: FormikHelpers<professionalAccountSignUpField>,
     npiNumber: string
   ) => {
-    const res = await axios.post(
-      process.env.NEXT_PUBLIC_NPI_REGISTRY_CMS as string,
+    const res = await axios.get(
+      process.env.NEXT_PUBLIC_NPI_REGSITRY_CMS as string,
       {
-        data: {
+        params: {
           number: npiNumber,
+          version: "2.1",
         },
       }
     );
+    console.log(res);
+
     if (res.data) {
       if (res.data?.taxonomies) {
         const validNpiCode = Object.keys(taxonomyCodeToProfessionalMapping);
@@ -117,7 +130,7 @@ export default function SignUp() {
         actions.setSubmitting(false);
       }
     } else {
-      actions.setFieldError("npi_number", "invalid NPI. Please try again...");
+      actions.setFieldError("npi_number", "Invalid NPI. Please try again...");
     }
   };
 
@@ -131,7 +144,7 @@ export default function SignUp() {
     };
     await login(payload)
       .then(async (response) => {
-        if (response.status == 400) {
+        if (response.status === 401) {
           // user is new and can proceed further
           setCurrentStep((prevStep) => prevStep + 1);
         } else if (
@@ -140,8 +153,8 @@ export default function SignUp() {
         ) {
           // user already verified
           actions.setFieldError(
-            "email",
-            "This email address is already registered with us"
+            "isUserExist",
+            "That email address is already registered with EduRx"
           );
         }
       })
@@ -212,34 +225,16 @@ export default function SignUp() {
       } else {
         actions.setFieldError("code", "incorrect code, Please try again");
       }
+    } else if (currentStep === 6) {
+      setCurrentStep((preStep) => preStep + 1);
+      setTimeout(() => {
+        router.push("/");
+      }, 2000);
     } else {
       setCurrentStep((preStep) => preStep + 1);
       actions.setTouched({});
       actions.setSubmitting(false);
     }
-  };
-
-  const BasicDetail = () => {
-    return (
-      <React.Fragment>
-        <div className="grid grid-cols-2 gap-2">
-          <InputField
-            className="flex-1"
-            name="first_name"
-            placeholder="First name"
-            type="text"
-          />
-          <InputField name="last_name" placeholder="Last name" type="text" />
-        </div>
-        <InputField name="email" placeholder="Email address" type="text" />
-        <InputField name="password" placeholder="Password" type="password" />
-        <InputField
-          name="confirm_password"
-          placeholder="Confirm Password"
-          type="password"
-        />
-      </React.Fragment>
-    );
   };
 
   const AskNpiNumber = () => {
@@ -277,25 +272,26 @@ export default function SignUp() {
 
   const NpiDetailsShow = () => {
     return (
-      <React.Fragment>
-        <div>
-          <label>
-            Please confirm the following information is accurate and up to
-            date.Note: you wil be able to add additional licenses and info later
-          </label>
-        </div>
-        <div>
-          <button
-            onClick={() => setCurrentStep((currentStep) => currentStep + 1)}
-          >
-            Edit Info
-          </button>
-        </div>
-        <div>
-          {npiReturnVariables.map((variable) => {
+      <div className="px-6 text-center">
+        <p className="text-sm opacity-50">
+          Please confirm the following information is accurate and up to date.
+          Note: you will be able to add additional licenses and info later.
+        </p>
+        <div className="bg-[#FDCD2640] mt-4 text-white rounded flex flex-col gap-2 p-2">
+          <div className="flex justify-end w-full relative">
+            <div className="absolute text-xs text-primary">
+              <button
+                onClick={() => setCurrentStep((currentStep) => currentStep + 1)}
+                className=""
+              >
+                Edit Info
+              </button>
+            </div>
+          </div>
+          {npiReturnVariables.map((variable, index: number) => {
             return (
-              <div>
-                <label>{variable.label}</label>
+              <div key={index}>
+                <label className="text-xs opacity-50">{variable.label}</label>
                 <Field
                   name={variable.fieldName}
                   component={({ field }: any) => (
@@ -312,7 +308,7 @@ export default function SignUp() {
             );
           })}
         </div>
-      </React.Fragment>
+      </div>
     );
   };
 
@@ -329,7 +325,7 @@ export default function SignUp() {
           placeholder="Address Line 2"
           type="text"
         />
-        <div>
+        <div className="grid grid-cols-2 gap-4">
           <InputField name="city" placeholder="City" type="text" />
           <InputField name="state" placeholder="State" type="text" />
         </div>
@@ -338,39 +334,10 @@ export default function SignUp() {
     );
   };
 
-  const VerifyEmail = () => {
-    return (
-      <React.Fragment>
-        <Field
-          name="email"
-          component={({ field }: any) => (
-            <div>
-              <label>{`we send an email to ${field.value} Please enter it below to complete email verification.`}</label>
-            </div>
-          )}
-        ></Field>
-        <InputField
-          name="code"
-          placeholder="Enter Verification Code"
-          type="text"
-        />
-      </React.Fragment>
-    );
-  };
-
-  const RegistrationConfirmationMessage = () => {
-    return (
-      <React.Fragment>
-        <label className="text-lg">Create Account</label>
-        <div>Congrats Your email has been verified</div>
-      </React.Fragment>
-    );
-  };
-
   const _renderComponentStepWise = (currentStep: number) => {
     switch (currentStep) {
       case 0:
-        return <BasicDetail />;
+        return <BasicDetails />;
       case 1:
         return <AskNpiNumber />;
       case 2:
@@ -383,6 +350,8 @@ export default function SignUp() {
         return <VerifyEmail />;
       case 6:
         return <RegistrationConfirmationMessage />;
+      case 7:
+        return <AccountCreationSucceed />;
       default:
         return <></>;
     }
@@ -390,17 +359,13 @@ export default function SignUp() {
 
   const renderButtonLabelBasedOnStep = () => {
     if (currentStep == 4) {
-      return "Register";
-    } else if (currentStep == 2) {
+      return "save";
+    } else if (currentStep == 2 || currentStep == 5) {
       return "Submit";
-    } else if (currentStep == 5) {
-      return "Verify";
-    } else if (currentStep == 6) {
-      return "Done";
-    } else if (currentStep === 0) {
+    } else if (currentStep === 0 || currentStep === 3) {
       return "Register";
     } else {
-      return "next";
+      return "Next";
     }
   };
 
@@ -414,7 +379,7 @@ export default function SignUp() {
       : currentStep === 4
       ? "Edit Information"
       : currentStep === 5
-      ? "Verify Email"
+      ? "Enter Verification Code"
       : "Create Account";
   };
 
@@ -431,18 +396,24 @@ export default function SignUp() {
               {getStepBasedTitle()}
             </h1>
             <Form>
-              <div className="flex flex-col gap-2 text-white m-[5%]">
+              <div className="flex flex-col gap-4 text-white m-[5%]">
                 {_renderComponentStepWise(currentStep)}
               </div>
               <div className="m-2 flex justify-center">
                 <button
-                  className="bg-[#FDCD26] rounded p-2 m-auto w-1/2 text-lg hover:bg-yellow-500"
+                  className="bg-primary rounded p-2 m-auto w-1/2 text-lg hover:bg-yellow-500"
                   type="submit"
                   disabled={isSubmitting}
+                  hidden={currentStep === 7}
                 >
                   {renderButtonLabelBasedOnStep()}
                 </button>
               </div>
+              <ErrorMessage
+                name="isUserExist"
+                className="text-white text-sm opacity-50 text-center m-2 animate-fade-in-down"
+                component="div"
+              />
             </Form>
           </div>
         )}

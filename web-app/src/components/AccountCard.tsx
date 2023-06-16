@@ -11,7 +11,7 @@ interface componentProps {
 export const AccountCard = (props: componentProps) => {
   return (
     <div
-      className={`flex flex-col items-center bg-[#FDCD26] p-4 ${
+      className={`flex flex-col items-center bg-primary p-4 ${
         props.isDisabled ? "cursor-not-allowed opacity-60" : ""
       }`}
       onClick={() => {

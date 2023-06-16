@@ -1,5 +1,4 @@
 "use client";
-import CommonUI from "@/components/commonUI";
 import { useRouter } from "next/navigation";
 import ProfessionalImg from "@/assets/icons/user.svg";
 import StudentImg from "@/assets/icons/student.svg";
