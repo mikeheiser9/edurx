@@ -71,13 +71,13 @@ export const signIn=async(req,res)=>{
                 }
                 else
                 {
-                    return generalResponse(res,400,'error','invalid credentials...!',null,true);  
+                    return generalResponse(res,400,'error','incorrect password...!',null,true);  
                 }
             }
         }
         else
         {
-            return generalResponse(res,400,'error','invalid credentials...!',null,true);  
+            return generalResponse(res,401,'unAuthorized','user is unauthorized',null,true);  
         }
     } catch (error) {
         console.log({error});
