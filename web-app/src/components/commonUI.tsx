@@ -5,7 +5,7 @@ interface propsType {
   clickHandle?: (a: string) => void;
   fields: JSX.Element;
 }
-export default function CommonUI(props: propsType) {
+export default function CommonUI(props: propsType): React.JSX.Element {
   const { type, title, button, clickHandle, fields } = props;
   return (
     <div className="flex justify-center bg-[#20201E] lg:w-1/4 rounded-2xl overflow-hidden">

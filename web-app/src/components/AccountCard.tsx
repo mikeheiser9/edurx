@@ -8,7 +8,7 @@ interface componentProps {
   onClick: () => void;
 }
 
-export const AccountCard = (props: componentProps) => {
+export const AccountCard = (props: componentProps): React.JSX.Element => {
   return (
     <div
       className={`flex flex-col items-center bg-primary p-4 ${

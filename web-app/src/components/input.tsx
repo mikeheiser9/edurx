@@ -1,6 +1,6 @@
 "use client";
 import { useField } from "formik";
-
+import React from "react";
 interface InputFieldType {
   label?: string;
   name: string;
@@ -9,8 +9,14 @@ interface InputFieldType {
   className?: string;
   icon?: React.JSX.Element;
 }
-export default function InputField({ label, icon, ...props }: InputFieldType) {
+
+export default function InputField({
+  label,
+  icon,
+  ...props
+}: InputFieldType): React.JSX.Element {
   const [field, meta] = useField(props);
+
   return (
     <>
       {label && <label>{label}</label>}

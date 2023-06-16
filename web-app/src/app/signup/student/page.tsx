@@ -144,7 +144,7 @@ export default function () {
           setCurrentStep((prevStep: number) => prevStep + 1);
           setTimeout(() => {
             router.push("/");
-          }, 3000);
+          }, 1000);
         } else if (res.status === 401) {
           actions.setFieldError("otp", "Incorrect code, please try again");
         } else {
@@ -277,7 +277,7 @@ export default function () {
   const stepWiseRenderer = (
     currentStep: number,
     values: studentSignUpSchema
-  ) => {
+  ): React.JSX.Element | null => {
     switch (currentStep) {
       case 0:
         return <BasicDetails />;
@@ -312,7 +312,7 @@ export default function () {
       : "Next";
   };
 
-  const getHeadTitle = (step: number, values: studentSignUpSchema) => {
+  const getHeadTitle = (step: number, values: studentSignUpSchema): string => {
     return step === 1
       ? values.isEduVerified
         ? "Confirm University"

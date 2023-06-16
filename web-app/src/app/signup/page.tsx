@@ -10,6 +10,12 @@ import React from "react";
 
 export default function ChooseAccountType() {
   const router = useRouter();
+  interface accountTypes {
+    title: string;
+    icon: string;
+    isDisabled: boolean;
+    type: string;
+  }
   const accountTypes = [
     {
       title: "Professional Account",
@@ -49,7 +55,7 @@ export default function ChooseAccountType() {
       </div>
 
       <div className="grid-cols-2 grid gap-1">
-        {accountTypes?.map((item, index: number) => (
+        {accountTypes?.map((item: accountTypes, index: number) => (
           <AccountCard
             key={index}
             icon={item.icon}

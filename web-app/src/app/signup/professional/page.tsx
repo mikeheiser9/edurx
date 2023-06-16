@@ -2,14 +2,21 @@
 import InputField from "@/components/input";
 import { ErrorMessage, Field, Form, Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";
-import { professionalUserRegistrationField } from "../../../util/interface/user.interface";
+import {
+  professionalUserRegistrationField,
+  userLoginField,
+} from "../../../util/interface/user.interface";
 import {
   taxonomyCodeToProfessionalMapping,
   validateField,
 } from "@/util/interface/constant";
 import React, { useState } from "react";
-import { login, signUp, verifyConfirmationCode } from "@/service/auth.service";
-import axios from "axios";
+import {
+  login,
+  npiNumberLookup,
+  signUp,
+  verifyConfirmationCode,
+} from "@/service/auth.service";
 import { useRouter } from "next/navigation";
 import {
   AccountCreationSucceed,
@@ -20,12 +27,12 @@ import {
 
 interface professionalAccountSignUpField
   extends professionalUserRegistrationField {
-  code: string;
+  otp: string;
   isUserExist: boolean;
 }
 export default function SignUp() {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState<number>(0);
   const { stringPrefixJoiValidation, password } = validateField;
   const formInitialValues: professionalAccountSignUpField = {
     email: "",
@@ -43,7 +50,7 @@ export default function SignUp() {
     npiReturnFullName: "",
     taxonomy: "",
     organization: "",
-    code: "",
+    otp: "",
     isUserExist: false,
   };
 
@@ -69,9 +76,20 @@ export default function SignUp() {
       addresses: Yup.array().min(1).required(),
     }),
     Yup.object({
-      code: stringPrefixJoiValidation.required(),
+      otp: Yup.string()
+        .required()
+        .matches(
+          new RegExp("^[a-zA-Z0-9]{6}$"),
+          "Please enter a valid verification code"
+        ),
     }),
   ];
+
+  const capitalizeString = (str: string): string => {
+    return str
+      .toLowerCase()
+      .replace(/(?:^|\s)\S/g, (char) => char.toUpperCase());
+  };
 
   const npiReturnVariables = [
     { fieldName: "npiReturnFullName", label: "Full Name" },
@@ -83,27 +101,29 @@ export default function SignUp() {
     actions: FormikHelpers<professionalAccountSignUpField>,
     npiNumber: string
   ) => {
-    const res = await axios.get(
-      process.env.NEXT_PUBLIC_NPI_REGSITRY_CMS as string,
-      {
-        params: {
-          number: npiNumber,
-          version: "2.1",
-        },
-      }
-    );
-    console.log(res);
+    const npiRes = await npiNumberLookup(npiNumber as string);
+    const res: {
+      data: any;
+      isValid: boolean;
+    } = {
+      data: npiRes?.data?.data?.results?.[0] || null,
+      isValid: npiRes?.data?.data?.result_count > 0,
+    };
 
-    if (res.data) {
+    if (res.data && res.isValid) {
       if (res.data?.taxonomies) {
         const validNpiCode = Object.keys(taxonomyCodeToProfessionalMapping);
-        const exists = res.data.taxonomies
+        const exists: boolean = res.data.taxonomies
           .map((taxonomy: any) => taxonomy.code)
           .some((code: string) => validNpiCode.includes(code));
         if (exists) {
           actions.setFieldValue(
             npiReturnVariables[0].fieldName,
-            `${res?.data?.basic?.firstName}${res?.data?.basic?.lastName}`
+            `${res?.data?.basic?.name_prefix || ""} ${
+              res?.data?.basic?.first_name || "-"
+            } ${res?.data?.basic?.middle_name || "-"} ${
+              res?.data?.basic?.last_name || "-"
+            }`
           );
           actions.setFieldValue(
             npiReturnVariables[1].fieldName,
@@ -111,20 +131,23 @@ export default function SignUp() {
           );
           actions.setFieldValue(
             npiReturnVariables[2].fieldName,
-            res?.data?.organization
+            res?.data?.organization || "-"
           );
-          actions.setFieldValue(`${npiReturnVariables[3].fieldName}.0`, [
-            res.data?.addresses?.[0].addressLine1,
-          ]);
+          actions.setFieldValue(
+            `${npiReturnVariables[3].fieldName}`,
+            res.data?.addresses?.map((address: string) =>
+              Object.values(address)
+            )
+          );
           actions.setFieldValue(
             "npi_designation",
-            res.data.taxonomies.map((taxonomy: any) => {
+            res.data.taxonomies.map((taxonomy: { code: string }) => {
               return taxonomy.code;
             })
           );
-          setCurrentStep((curStep) => curStep + 2);
+          setCurrentStep((curStep: number) => curStep + 2);
         } else {
-          setCurrentStep((curStep) => curStep + 1);
+          setCurrentStep((curStep: number) => curStep + 1);
         }
         actions.setTouched({});
         actions.setSubmitting(false);
@@ -138,7 +161,7 @@ export default function SignUp() {
     values: professionalAccountSignUpField,
     actions: FormikHelpers<professionalAccountSignUpField>
   ) => {
-    const payload = {
+    const payload: userLoginField = {
       email: values.email,
       password: values.password,
     };
@@ -156,6 +179,9 @@ export default function SignUp() {
             "isUserExist",
             "That email address is already registered with EduRx"
           );
+        } else if (response.status === 400 && !response.data.toast) {
+          // user verification pending
+          setCurrentStep(5);
         }
       })
       .catch((error) => console.log(error))
@@ -193,7 +219,7 @@ export default function SignUp() {
         email,
         password,
         confirm_password,
-        addresses,
+        addresses: addresses?.map((address) => address?.toString()) || [],
         first_name,
         last_name,
         npi_designation,
@@ -218,26 +244,26 @@ export default function SignUp() {
     } else if (currentStep == 5) {
       const res = await verifyConfirmationCode({
         email: values.email,
-        code: values.code,
+        code: values.otp,
       });
       if (res?.data?.response_type == "success") {
         setCurrentStep((pre) => pre + 1);
       } else {
-        actions.setFieldError("code", "incorrect code, Please try again");
+        actions.setFieldError("otp", "incorrect code, Please try again");
       }
     } else if (currentStep === 6) {
       setCurrentStep((preStep) => preStep + 1);
       setTimeout(() => {
         router.push("/");
-      }, 2000);
+      }, 1000);
     } else {
-      setCurrentStep((preStep) => preStep + 1);
+      setCurrentStep((preStep: number) => preStep + 1);
       actions.setTouched({});
       actions.setSubmitting(false);
     }
   };
 
-  const AskNpiNumber = () => {
+  const AskNpiNumber = (): React.JSX.Element => {
     return (
       <React.Fragment>
         <p className="text-sm opacity-50 text-white text-center px-16 pb-6">
@@ -256,7 +282,7 @@ export default function SignUp() {
     );
   };
 
-  const NpiDetailsNotAcceptableFound = () => {
+  const NpiDetailsNotAcceptableFound = (): React.JSX.Element => {
     return (
       <div className="px-6">
         <p className="text-sm opacity-50 text-center">
@@ -270,7 +296,7 @@ export default function SignUp() {
     );
   };
 
-  const NpiDetailsShow = () => {
+  const NpiDetailsShow = (): React.JSX.Element => {
     return (
       <div className="px-6 text-center">
         <p className="text-sm opacity-50">
@@ -298,8 +324,8 @@ export default function SignUp() {
                     <div>
                       <label>
                         {variable.fieldName != "addresses"
-                          ? field.value
-                          : field.value[0]}
+                          ? capitalizeString(field.value)
+                          : field?.value?.[0]?.join(", ")}
                       </label>
                     </div>
                   )}
@@ -312,7 +338,7 @@ export default function SignUp() {
     );
   };
 
-  const NpiDetailsEdit = () => {
+  const NpiDetailsEdit = (): React.JSX.Element => {
     return (
       <React.Fragment>
         <InputField
@@ -334,7 +360,7 @@ export default function SignUp() {
     );
   };
 
-  const _renderComponentStepWise = (currentStep: number) => {
+  const _renderComponentStepWise = (currentStep: number): React.JSX.Element => {
     switch (currentStep) {
       case 0:
         return <BasicDetails />;
@@ -357,7 +383,7 @@ export default function SignUp() {
     }
   };
 
-  const renderButtonLabelBasedOnStep = () => {
+  const renderButtonLabelBasedOnStep = (): string => {
     if (currentStep == 4) {
       return "save";
     } else if (currentStep == 2 || currentStep == 5) {
@@ -369,7 +395,7 @@ export default function SignUp() {
     }
   };
 
-  const getStepBasedTitle = () => {
+  const getStepBasedTitle = (): string => {
     return currentStep === 1
       ? "Enter NPI"
       : currentStep === 2

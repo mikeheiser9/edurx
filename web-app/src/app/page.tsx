@@ -16,7 +16,7 @@ import Image from "next/image";
 export default function SignIn() {
   const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const { stringPrefixJoiValidation } = validateField;
+  const { stringPrefixJoiValidation, email } = validateField;
 
   interface loginInterface extends userLoginField {
     isUnauthorized: boolean;
@@ -29,9 +29,7 @@ export default function SignIn() {
   };
 
   const validateSchema: Yup.AnyObject = Yup.object({
-    email: stringPrefixJoiValidation
-      .email("Please enter a valid email address")
-      .required(),
+    email,
     password: stringPrefixJoiValidation.required(),
   });
 
