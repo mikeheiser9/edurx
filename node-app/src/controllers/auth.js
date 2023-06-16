@@ -4,6 +4,8 @@ import { generalResponse, prepareVerificationCodeForEmailConfirmation, trimField
 import sgMail from "@sendgrid/mail"
 import { taxonomyCodeToProfessionalMapping } from "../util/constant.js";
 import jwt from "jsonwebtoken"
+import axios from 'axios';
+
 export const signUp=async(req,res)=>{
     try {
         delete req.body.confirm_password;
@@ -179,3 +181,26 @@ export const verifyCode=async(req,res)=>{
         generalResponse(res,400,'error','something went wrong....',error,true);   
     }
 }
+
+export const npiLookup = async (req, res) => {
+  try {
+    const { npi_number } = req.query;
+    await axios
+      .get(process.env.NPI_LOOKUP_API, {
+        params: {
+          number: npi_number,
+          version: "2.1",
+        },
+      })
+      .then((npiResponse) => {
+        if (npiResponse.status === 200) {
+          generalResponse(res, 200, "success", null, npiResponse.data);
+        }
+      })
+      .catch((err) => {
+        generalResponse(res, 400, "error", "Something went wrong", err, true);
+      });
+  } catch (error) {
+    generalResponse(res, 500, "error", "Internal server error", error, true);
+  }
+};
