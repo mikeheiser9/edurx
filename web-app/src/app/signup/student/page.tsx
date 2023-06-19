@@ -10,13 +10,15 @@ import {
   commonRegistrationField,
   userLoginField,
 } from "@/util/interface/user.interface";
-import { ErrorMessage, Field, Form, Formik, FormikHelpers } from "formik";
+import { Field, Form, Formik, FormikHelpers } from "formik";
 import React, { useState } from "react";
 import * as Yup from "yup";
 import { useRouter } from "next/navigation";
 import {
   AccountCreationSucceed,
+  BackArrowIcon,
   BasicDetails,
+  ResendCodeTemplate,
   VerifyEmail,
 } from "../commonBlocks";
 
@@ -24,12 +26,13 @@ export default function () {
   const router = useRouter();
   const { stringPrefixJoiValidation, password } = validateField;
   const [currentStep, setCurrentStep] = useState<number>(0);
+  const [commonErrorMessage, setCommonErrorMessage] = useState<string | null>(
+    null
+  );
   interface studentSignUpSchema extends commonRegistrationField {
     otp: string;
     isEduVerified: boolean;
     universityName: string;
-    isCodeExpired: boolean;
-    isUserExist: boolean;
   }
   const intialFormikValues: studentSignUpSchema = {
     first_name: "",
@@ -41,8 +44,6 @@ export default function () {
     otp: "",
     isEduVerified: false,
     universityName: "",
-    isCodeExpired: false,
-    isUserExist: false,
   };
 
   // stepwise flow 0 common registration / 1 university verification / 2 generate otp / 3 validation of otp / 4 create student account
@@ -97,13 +98,9 @@ export default function () {
           // user is new and can proceed with .edu verification
           await verifyEduMail(values.email)
             .then((res: boolean) => {
-              actions.setSubmitting(false);
               actions.setFieldValue("isEduVerified", res);
             })
-            .catch((e) => {
-              console.log(e);
-              actions.setSubmitting(false);
-            })
+            .catch((e) => console.log(e))
             .finally(() => {
               actions.setSubmitting(false);
               setCurrentStep((prevStep: number) => prevStep + 1);
@@ -117,10 +114,12 @@ export default function () {
           response?.data?.data?.details?.verified_account
         ) {
           // user already verified
-          actions.setFieldError(
-            "isUserExist",
+          setCommonErrorMessage(
             "That email address is already registered with EduRx"
           );
+          setTimeout(() => {
+            setCommonErrorMessage(null);
+          }, 2000);
           actions.setSubmitting(false);
         }
       })
@@ -148,9 +147,10 @@ export default function () {
         } else if (res.status === 401) {
           actions.setFieldError("otp", "Incorrect code, please try again");
         } else {
-          // handle expired code
-          actions.setFieldValue("isCodeExpired", true);
-          actions.setFieldError("otp", res?.data?.message);
+          setCommonErrorMessage("Something went wrong");
+          setTimeout(() => {
+            setCommonErrorMessage(null);
+          }, 2000);
         }
       })
       .catch((err) => console.log("err", err))
@@ -177,6 +177,15 @@ export default function () {
           response?.data?.response_type === "success"
         ) {
           setCurrentStep(3);
+        } else if (
+          response?.status === 200 &&
+          response?.data?.response_type === "error"
+        ) {
+          setCommonErrorMessage(response.data.message);
+          setTimeout(() => {
+            setCommonErrorMessage(null);
+            setCurrentStep(3);
+          }, 2000);
         }
       })
       .catch((error) => console.log(error));
@@ -193,11 +202,22 @@ export default function () {
     })
       .then((res) => {
         if (res.status === 200) {
-          setCurrentStep((prevStep: number) => prevStep + 1);
+          setCurrentStep(3);
         }
       })
       .catch((err) => console.log("err", err))
       .finally(() => actions.setSubmitting(false));
+  };
+
+  const onResendCode = async (
+    values: studentSignUpSchema,
+    actions: FormikHelpers<studentSignUpSchema>
+  ) => {
+    await handleCodeGeneration(values, actions);
+    setCommonErrorMessage("Verification code sent");
+    setTimeout(() => {
+      setCommonErrorMessage(null);
+    }, 2000);
   };
 
   const onSubmit = async (
@@ -239,7 +259,7 @@ export default function () {
           name="email"
           component={({ field }: any) => (
             <span className="opacity-50">
-              email:
+              email:{" "}
               <a href={`mailto:${field.value}`} className="underline">
                 {field.value}
               </a>
@@ -328,12 +348,29 @@ export default function () {
 
   return (
     <React.Fragment>
+      <div className="flex justify-center p-4 bg-primary">
+        <button
+          onClick={() =>
+            currentStep > 0 &&
+            setCurrentStep((prevStep: number) => prevStep - 1)
+          }
+          className={`text-2xl px-2 self-center ${
+            currentStep % 2 === 0 ? "opacity-50" : "opacity-100"
+          }`}
+          disabled={currentStep % 2 === 0}
+        >
+          <BackArrowIcon />
+        </button>
+        <label className="text-xl flex-1 text-center self-center">
+          Register for Edu-Rx | Student Account
+        </label>
+      </div>
       <Formik
         initialValues={intialFormikValues}
         onSubmit={onSubmit}
         validationSchema={validationSchema[currentStep]}
       >
-        {({ isSubmitting, values }) => (
+        {({ isSubmitting, values, ...actions }) => (
           <div className="flex flex-col items-center p-4">
             <h1 className="text-white tracking-wider text-4xl my-4 font-serif font-semibold">
               {getHeadTitle(currentStep, values)}
@@ -352,11 +389,17 @@ export default function () {
                   {getLabel(currentStep, values)}
                 </button>
               </div>
-              <ErrorMessage
-                name="isUserExist"
-                className="text-white text-sm opacity-50 text-center m-2 animate-fade-in-down"
-                component="div"
-              />
+              {currentStep === 3 && (
+                <ResendCodeTemplate
+                  onClick={() => onResendCode(values, actions)}
+                />
+              )}
+              <span
+                hidden={!commonErrorMessage}
+                className="text-white flex place-content-center text-sm opacity-50 m-2 animate-fade-in-down"
+              >
+                {commonErrorMessage}
+              </span>
             </Form>
           </div>
         )}

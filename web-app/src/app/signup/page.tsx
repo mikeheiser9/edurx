@@ -49,6 +49,9 @@ export default function ChooseAccountType() {
 
   return (
     <React.Fragment>
+      <div className="flex justify-center p-4 bg-primary">
+        <label className="text-xl">Register for Edu-Rx</label>
+      </div>
       <div className="flex flex-col text-white items-center p-4 gap-2">
         <label className="text-3xl">Create Accout</label>
         <label className="opacity-60">Please make a selection</label>

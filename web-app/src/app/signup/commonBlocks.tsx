@@ -88,10 +88,44 @@ const Loader = (): React.JSX.Element => (
   </div>
 );
 
+const BackArrowIcon = (): React.JSX.Element => {
+  return (
+    <svg
+      width="9"
+      height="16"
+      viewBox="0 0 9 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M0.295372 7.29031C-0.0965097 7.67947 -0.0987143 8.31263 0.290448 8.70451L6.63221 15.0906C7.02137 15.4825 7.65453 15.4847 8.04642 15.0955C8.4383 14.7064 8.4405 14.0732 8.05134 13.6813L2.41422 8.0048L8.09073 2.36767C8.48261 1.97851 8.48482 1.34535 8.09566 0.953468C7.7065 0.561587 7.07333 0.559382 6.68145 0.948544L0.295372 7.29031ZM3.00348 7.00684L1.00349 6.99988L0.99653 8.99987L2.99652 9.00683L3.00348 7.00684Z"
+        fill="#20201E"
+      />
+    </svg>
+  );
+};
+
+const ResendCodeTemplate = ({
+  onClick,
+}: {
+  onClick: () => void;
+}): React.JSX.Element => {
+  return (
+    <div className="mt-4 text-white opacity-50 text-center text-xs grid gap-2">
+      <span>Didn’t receive a code?</span>
+      <span onClick={onClick} className="underline cursor-pointer">
+        Resend Code
+      </span>
+    </div>
+  );
+};
+
 export {
   BasicDetails,
   VerifyEmail,
   RegistrationConfirmationMessage,
   AccountCreationSucceed,
   Loader,
+  BackArrowIcon,
+  ResendCodeTemplate,
 };

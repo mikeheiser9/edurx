@@ -1,6 +1,6 @@
 "use client";
 import InputField from "@/components/input";
-import { ErrorMessage, Field, Form, Formik, FormikHelpers } from "formik";
+import { Field, Form, Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import {
   professionalUserRegistrationField,
@@ -12,6 +12,7 @@ import {
 } from "@/util/interface/constant";
 import React, { useState } from "react";
 import {
+  generateVerificationCode,
   login,
   npiNumberLookup,
   signUp,
@@ -20,19 +21,23 @@ import {
 import { useRouter } from "next/navigation";
 import {
   AccountCreationSucceed,
+  BackArrowIcon,
   BasicDetails,
   RegistrationConfirmationMessage,
+  ResendCodeTemplate,
   VerifyEmail,
 } from "../commonBlocks";
 
 interface professionalAccountSignUpField
   extends professionalUserRegistrationField {
   otp: string;
-  isUserExist: boolean;
 }
 export default function SignUp() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState<number>(0);
+  const [commonErrorMessage, setCommonErrorMessage] = useState<string | null>(
+    null
+  );
   const { stringPrefixJoiValidation, password } = validateField;
   const formInitialValues: professionalAccountSignUpField = {
     email: "",
@@ -51,7 +56,6 @@ export default function SignUp() {
     taxonomy: "",
     organization: "",
     otp: "",
-    isUserExist: false,
   };
 
   const validationSchema = [
@@ -145,6 +149,13 @@ export default function SignUp() {
               return taxonomy.code;
             })
           );
+          actions.setFieldValue("city", res.data?.addresses[0]?.city);
+          actions.setFieldValue("state", res.data?.addresses[0]?.state);
+          actions.setFieldValue(
+            "zip_code",
+            res.data?.addresses[0]?.postal_code
+          );
+
           setCurrentStep((curStep: number) => curStep + 2);
         } else {
           setCurrentStep((curStep: number) => curStep + 1);
@@ -175,16 +186,37 @@ export default function SignUp() {
           response?.data?.data?.details?.verified_account
         ) {
           // user already verified
-          actions.setFieldError(
-            "isUserExist",
+          setCommonErrorMessage(
             "That email address is already registered with EduRx"
           );
+          setTimeout(() => {
+            setCommonErrorMessage(null);
+          }, 2000);
         } else if (response.status === 400 && !response.data.toast) {
           // user verification pending
           setCurrentStep(5);
         }
       })
       .catch((error) => console.log(error))
+      .finally(() => actions.setSubmitting(false));
+  };
+
+  const onResendCode = async (
+    values: professionalAccountSignUpField,
+    actions: FormikHelpers<professionalAccountSignUpField>
+  ) => {
+    await generateVerificationCode({
+      email: values.email,
+    })
+      .then((res) => {
+        if (res.status === 200) {
+          setCommonErrorMessage("Verification code sent");
+          setTimeout(() => {
+            setCommonErrorMessage(null);
+          }, 2000);
+        }
+      })
+      .catch((err) => console.log("err", err))
       .finally(() => actions.setSubmitting(false));
   };
 
@@ -238,6 +270,7 @@ export default function SignUp() {
           : "";
       } else {
         // already verified handle it
+        setCurrentStep(5);
       }
       actions.setTouched({});
       actions.setSubmitting(false);
@@ -325,7 +358,8 @@ export default function SignUp() {
                       <label>
                         {variable.fieldName != "addresses"
                           ? capitalizeString(field.value)
-                          : field?.value?.[0]?.join(", ")}
+                          : field?.value?.[0]?.length &&
+                            field?.value?.[0]?.join(", ")}
                       </label>
                     </div>
                   )}
@@ -410,13 +444,45 @@ export default function SignUp() {
   };
 
   return (
-    <>
+    <React.Fragment>
+      <div className="flex justify-center p-4 bg-primary">
+        <button
+          onClick={() =>
+            currentStep > 0 &&
+            setCurrentStep((prevStep: number) => {
+              if (currentStep === 3) {
+                return prevStep - 2;
+              }
+              return prevStep - 1;
+            })
+          }
+          className={`text-2xl px-2 self-center ${
+            currentStep === 0 ||
+            currentStep === 5 ||
+            currentStep === 6 ||
+            currentStep === 7
+              ? "opacity-50"
+              : "opacity-100"
+          }`}
+          disabled={
+            currentStep === 0 ||
+            currentStep === 5 ||
+            currentStep === 6 ||
+            currentStep === 7
+          }
+        >
+          <BackArrowIcon />
+        </button>
+        <label className="text-xl flex-1 text-center self-center">
+          Register for Edu-Rx | Professional
+        </label>
+      </div>
       <Formik
         initialValues={formInitialValues}
         validationSchema={validationSchema[currentStep]}
         onSubmit={_handleSubmit}
       >
-        {({ isSubmitting }) => (
+        {({ isSubmitting, values, ...actions }) => (
           <div className="flex flex-col items-center p-4">
             <h1 className="text-white text-center tracking-wider text-4xl my-4 font-serif font-semibold">
               {getStepBasedTitle()}
@@ -435,15 +501,21 @@ export default function SignUp() {
                   {renderButtonLabelBasedOnStep()}
                 </button>
               </div>
-              <ErrorMessage
-                name="isUserExist"
-                className="text-white text-sm opacity-50 text-center m-2 animate-fade-in-down"
-                component="div"
-              />
+              {currentStep === 5 && (
+                <ResendCodeTemplate
+                  onClick={() => onResendCode(values, actions)}
+                />
+              )}
+              <span
+                hidden={!commonErrorMessage}
+                className="text-white flex place-content-center text-sm opacity-50 m-2 animate-fade-in-down"
+              >
+                {commonErrorMessage}
+              </span>
             </Form>
           </div>
         )}
       </Formik>
-    </>
+    </React.Fragment>
   );
 }
