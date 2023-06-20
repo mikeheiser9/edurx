@@ -8,6 +8,7 @@ import "../src/middleware/passport/userAuthStrategy.js"
 import postRoute from "./routes/post.js";
 import cors from "cors"
 import { fileUpload,fileTypeCheckAndRename} from "./middleware/multer.js";
+import sheetRoute from "./routes/googleSheet.js";
 const app=express();
 const PORT=process.env.PORT;
 app.use(cors({
@@ -27,12 +28,13 @@ const connectAndTryAgainIfFail=async()=>{
         setTimeout(connectAndTryAgainIfFail,1000*5)
     }
 }
-connectAndTryAgainIfFail() 
-app.use("/auth",authRoute)
-app.use("/user",userRoute)
-app.use("/post",postRoute)
-app.listen(PORT,()=>{
-    console.log(`app is up on PORT : ${PORT}`)
+connectAndTryAgainIfFail();
+app.use("/auth", authRoute);
+app.use("/user", userRoute);
+app.use("/post", postRoute);
+app.use("/google-sheets", sheetRoute);
+app.listen(PORT, () => {
+  console.log(`app is up on PORT : ${PORT}`);
 });
 
 
