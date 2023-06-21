@@ -107,3 +107,15 @@ export const npiLookupValidator = async (req, res, next) => {
     returnAppropriateError(res, error);
   }
 };
+
+export const universityLookupValidator = async (req, res, next) => {
+  try {
+    const schema = joi.object({
+      domain: validateField.stringPrefixJoiValidation.required(),
+    });
+    await schema.validateAsync(req.query);
+    next();
+  } catch (error) {
+    returnAppropriateError(res, error);
+  }
+};

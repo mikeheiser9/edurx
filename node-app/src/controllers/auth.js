@@ -5,6 +5,9 @@ import sgMail from "@sendgrid/mail"
 import { taxonomyCodeToProfessionalMapping } from "../util/constant.js";
 import jwt from "jsonwebtoken"
 import axios from 'axios';
+import { readFileSync } from "fs";
+import path from "path";
+import { fileURLToPath } from 'url';
 
 export const signUp=async(req,res)=>{
     try {
@@ -204,3 +207,25 @@ export const npiLookup = async (req, res) => {
     generalResponse(res, 500, "error", "Internal server error", error, true);
   }
 };
+
+export const universityLookup = async (req, res) => {
+  try {
+    const { domain } = req.query;
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const universitiesJSON = await JSON.parse(
+      readFileSync(
+        path.join(__dirname, "../data/world_universities_and_domains.json"),
+        "utf8"
+      )
+    );
+    const response =
+      (await universitiesJSON.find((item) =>
+        item.domains.toString().toUpperCase().includes(domain.toUpperCase())
+      )) || null;
+    generalResponse(res, 200, "success", null, response);
+  } catch (error) {
+    generalResponse(res, 500, "error", "Internal server error", error, true);
+  }
+};
+  

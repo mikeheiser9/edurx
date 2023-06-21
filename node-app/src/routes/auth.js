@@ -5,6 +5,7 @@ import {
   sendVerificationCodeFieldValidator,
   verifyCodeFieldValidator,
   npiLookupValidator,
+  universityLookupValidator,
 } from "../middleware/validator/auth.js";
 import {
   sendVerificationCode,
@@ -12,6 +13,7 @@ import {
   verifyCode,
   signIn,
   npiLookup,
+  universityLookup,
 } from "../controllers/auth.js";
 
 const authRoute = Router();
@@ -29,5 +31,10 @@ authRoute.post(
   verifyCode
 );
 authRoute.get("/npi_number_lookup", npiLookupValidator, npiLookup);
+authRoute.get(
+  "/university_lookup",
+  universityLookupValidator,
+  universityLookup
+);
 
 export default authRoute;
