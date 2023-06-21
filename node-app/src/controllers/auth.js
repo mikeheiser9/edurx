@@ -4,6 +4,11 @@ import { generalResponse, prepareVerificationCodeForEmailConfirmation, trimField
 import sgMail from "@sendgrid/mail"
 import { taxonomyCodeToProfessionalMapping } from "../util/constant.js";
 import jwt from "jsonwebtoken"
+import axios from 'axios';
+import { readFileSync } from "fs";
+import path from "path";
+import { fileURLToPath } from 'url';
+
 export const signUp=async(req,res)=>{
     try {
         delete req.body.confirm_password;
@@ -71,13 +76,13 @@ export const signIn=async(req,res)=>{
                 }
                 else
                 {
-                    return generalResponse(res,400,'error','invalid credentials...!',null,true);  
+                    return generalResponse(res,400,'error','incorrect password...!',null,true);  
                 }
             }
         }
         else
         {
-            return generalResponse(res,400,'error','invalid credentials...!',null,true);  
+            return generalResponse(res,401,'unAuthorized','user is unauthorized',null,true);  
         }
     } catch (error) {
         console.log({error});
@@ -179,3 +184,48 @@ export const verifyCode=async(req,res)=>{
         generalResponse(res,400,'error','something went wrong....',error,true);   
     }
 }
+
+export const npiLookup = async (req, res) => {
+  try {
+    const { npi_number } = req.query;
+    await axios
+      .get(process.env.NPI_LOOKUP_API, {
+        params: {
+          number: npi_number,
+          version: "2.1",
+        },
+      })
+      .then((npiResponse) => {
+        if (npiResponse.status === 200) {
+          generalResponse(res, 200, "success", null, npiResponse.data);
+        }
+      })
+      .catch((err) => {
+        generalResponse(res, 400, "error", "Something went wrong", err, true);
+      });
+  } catch (error) {
+    generalResponse(res, 500, "error", "Internal server error", error, true);
+  }
+};
+
+export const universityLookup = async (req, res) => {
+  try {
+    const { domain } = req.query;
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const universitiesJSON = await JSON.parse(
+      readFileSync(
+        path.join(__dirname, "../data/world_universities_and_domains.json"),
+        "utf8"
+      )
+    );
+    const response =
+      (await universitiesJSON.find((item) =>
+        item.domains.toString().toUpperCase().includes(domain.toUpperCase())
+      )) || null;
+    generalResponse(res, 200, "success", null, response);
+  } catch (error) {
+    generalResponse(res, 500, "error", "Internal server error", error, true);
+  }
+};
+  

@@ -1,5 +1,4 @@
 "use client";
-import CommonUI from "@/components/commonUI";
 import { useRouter } from "next/navigation";
 import ProfessionalImg from "@/assets/icons/user.svg";
 import StudentImg from "@/assets/icons/student.svg";
@@ -11,6 +10,12 @@ import React from "react";
 
 export default function ChooseAccountType() {
   const router = useRouter();
+  interface accountTypes {
+    title: string;
+    icon: string;
+    isDisabled: boolean;
+    type: string;
+  }
   const accountTypes = [
     {
       title: "Professional Account",
@@ -44,13 +49,16 @@ export default function ChooseAccountType() {
 
   return (
     <React.Fragment>
+      <div className="flex justify-center p-4 bg-primary">
+        <label className="text-xl">Register for Edu-Rx</label>
+      </div>
       <div className="flex flex-col text-white items-center p-4 gap-2">
         <label className="text-3xl">Create Accout</label>
         <label className="opacity-60">Please make a selection</label>
       </div>
 
       <div className="grid-cols-2 grid gap-1">
-        {accountTypes?.map((item, index: number) => (
+        {accountTypes?.map((item: accountTypes, index: number) => (
           <AccountCard
             key={index}
             icon={item.icon}

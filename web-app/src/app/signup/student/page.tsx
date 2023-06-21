@@ -1,6 +1,4 @@
 "use client";
-
-import InputField from "@/components/input";
 import {
   generateVerificationCode,
   login,
@@ -8,21 +6,33 @@ import {
   verifyConfirmationCode,
 } from "@/service/auth.service";
 import { validateField } from "@/util/interface/constant";
-import { commonRegistrationField } from "@/util/interface/user.interface";
+import {
+  commonRegistrationField,
+  userLoginField,
+} from "@/util/interface/user.interface";
 import { Field, Form, Formik, FormikHelpers } from "formik";
 import React, { useState } from "react";
 import * as Yup from "yup";
 import { useRouter } from "next/navigation";
+import {
+  AccountCreationSucceed,
+  BackArrowIcon,
+  BasicDetails,
+  ResendCodeTemplate,
+  VerifyEmail,
+} from "../commonBlocks";
 
 export default function () {
   const router = useRouter();
   const { stringPrefixJoiValidation, password } = validateField;
   const [currentStep, setCurrentStep] = useState<number>(0);
+  const [commonErrorMessage, setCommonErrorMessage] = useState<string | null>(
+    null
+  );
   interface studentSignUpSchema extends commonRegistrationField {
     otp: string;
     isEduVerified: boolean;
     universityName: string;
-    isCodeExpired: boolean;
   }
   const intialFormikValues: studentSignUpSchema = {
     first_name: "",
@@ -34,12 +44,11 @@ export default function () {
     otp: "",
     isEduVerified: false,
     universityName: "",
-    isCodeExpired: false,
   };
 
   // stepwise flow 0 common registration / 1 university verification / 2 generate otp / 3 validation of otp / 4 create student account
 
-  const validationSchema = [
+  const validationSchema: Yup.AnyObject = [
     Yup.object({
       password,
       confirm_password: Yup.string()
@@ -79,26 +88,22 @@ export default function () {
     values: studentSignUpSchema,
     actions: FormikHelpers<studentSignUpSchema>
   ) => {
-    const payload = {
+    const payload: userLoginField = {
       email: values.email,
       password: values.password,
     };
     await login(payload)
       .then(async (response) => {
-        if (response.status == 400 && response.data.toast) {
+        if (response.status == 401 && response.data.toast) {
           // user is new and can proceed with .edu verification
           await verifyEduMail(values.email)
             .then((res: boolean) => {
-              actions.setSubmitting(false);
               actions.setFieldValue("isEduVerified", res);
             })
-            .catch((e) => {
-              console.log(e);
-              actions.setSubmitting(false);
-            })
+            .catch((e) => console.log(e))
             .finally(() => {
               actions.setSubmitting(false);
-              setCurrentStep((prevStep) => prevStep + 1);
+              setCurrentStep((prevStep: number) => prevStep + 1);
             });
         } else if (response.status === 400 && !response.data.toast) {
           // user verification pending
@@ -109,11 +114,12 @@ export default function () {
           response?.data?.data?.details?.verified_account
         ) {
           // user already verified
-          actions.setSubmitting(false);
-          actions.setFieldError(
-            "email",
-            "This email address is already registered with us"
+          setCommonErrorMessage(
+            "That email address is already registered with EduRx"
           );
+          setTimeout(() => {
+            setCommonErrorMessage(null);
+          }, 2000);
           actions.setSubmitting(false);
         }
       })
@@ -124,23 +130,27 @@ export default function () {
     values: studentSignUpSchema,
     actions: FormikHelpers<studentSignUpSchema>
   ) => {
-    const payload = {
+    const payload: {
+      email: string;
+      code: string;
+    } = {
       email: values.email,
       code: values.otp,
     };
     await verifyConfirmationCode(payload)
       .then((res) => {
         if (res.status === 200) {
-          setCurrentStep((prevStep) => prevStep + 1);
+          setCurrentStep((prevStep: number) => prevStep + 1);
           setTimeout(() => {
             router.push("/");
-          }, 3000);
+          }, 1000);
         } else if (res.status === 401) {
           actions.setFieldError("otp", "Incorrect code, please try again");
         } else {
-          // handle expired code
-          actions.setFieldValue("isCodeExpired", true);
-          actions.setFieldError("otp", res?.data?.message);
+          setCommonErrorMessage("Something went wrong");
+          setTimeout(() => {
+            setCommonErrorMessage(null);
+          }, 2000);
         }
       })
       .catch((err) => console.log("err", err))
@@ -167,6 +177,15 @@ export default function () {
           response?.data?.response_type === "success"
         ) {
           setCurrentStep(3);
+        } else if (
+          response?.status === 200 &&
+          response?.data?.response_type === "error"
+        ) {
+          setCommonErrorMessage(response.data.message);
+          setTimeout(() => {
+            setCommonErrorMessage(null);
+            setCurrentStep(3);
+          }, 2000);
         }
       })
       .catch((error) => console.log(error));
@@ -183,11 +202,22 @@ export default function () {
     })
       .then((res) => {
         if (res.status === 200) {
-          setCurrentStep((prevStep) => prevStep + 1);
+          setCurrentStep(3);
         }
       })
       .catch((err) => console.log("err", err))
       .finally(() => actions.setSubmitting(false));
+  };
+
+  const onResendCode = async (
+    values: studentSignUpSchema,
+    actions: FormikHelpers<studentSignUpSchema>
+  ) => {
+    await handleCodeGeneration(values, actions);
+    setCommonErrorMessage("Verification code sent");
+    setTimeout(() => {
+      setCommonErrorMessage(null);
+    }, 2000);
   };
 
   const onSubmit = async (
@@ -209,29 +239,11 @@ export default function () {
     } else {
       actions.setTouched({});
       actions.setSubmitting(false);
-      setCurrentStep((prevStep) => prevStep + 1);
+      setCurrentStep((prevStep: number) => prevStep + 1);
     }
   };
 
-  const BasicDetails = () => {
-    return (
-      <React.Fragment>
-        <div className="grid grid-cols-2 gap-2">
-          <InputField name="first_name" placeholder="First name" type="text" />
-          <InputField name="last_name" placeholder="Last name" type="text" />
-        </div>
-        <InputField name="email" placeholder="Email Address" type="email" />
-        <InputField name="password" placeholder="Password" type="password" />
-        <InputField
-          name="confirm_password"
-          placeholder="Confirm Password"
-          type="password"
-        />
-      </React.Fragment>
-    );
-  };
-
-  const UniversityInfo = () => {
+  const UniversityInfo = (): React.JSX.Element => {
     return (
       <div className="text-white px-6 text-center">
         <p className="opacity-50 my-4">
@@ -247,7 +259,7 @@ export default function () {
           name="email"
           component={({ field }: any) => (
             <span className="opacity-50">
-              email:
+              email:{" "}
               <a href={`mailto:${field.value}`} className="underline">
                 {field.value}
               </a>
@@ -258,7 +270,7 @@ export default function () {
     );
   };
 
-  const EduVerificationFailed = () => {
+  const EduVerificationFailed = (): React.JSX.Element => {
     return (
       <div>
         <p className="text-white px-8 opacity-50 text-center">
@@ -270,7 +282,7 @@ export default function () {
     );
   };
 
-  const VerifyYourEmail = () => {
+  const VerifyYourEmail = (): React.JSX.Element => {
     return (
       <React.Fragment>
         <p className="text-white px-8 opacity-50 text-center">
@@ -282,44 +294,10 @@ export default function () {
     );
   };
 
-  const AccountCreationSucceed = () => {
-    return (
-      <div className="flex flex-col gap-4 text-center text-white opacity-50 text-sm">
-        <span>Welcome to EduRx</span>
-        <span>Please wait while we set up your account</span>
-        <span>When your account is ready you will be redirected</span>
-        <span>Please wait...</span>
-      </div>
-    );
-  };
-
-  const EmailVerificationCode = () => {
-    return (
-      <div className="px-8">
-        <Field
-          name="email"
-          component={({ field }: any) => (
-            <p className="text-white px-6 opacity-50 text-center">
-              We sent an email to {field.value}. Please enter it below to
-              complete email verification.
-            </p>
-          )}
-        />
-        <div className="mt-6">
-          <InputField
-            name="otp"
-            type="text"
-            placeholder="Enter Verification Code"
-          />
-        </div>
-      </div>
-    );
-  };
-
   const stepWiseRenderer = (
     currentStep: number,
     values: studentSignUpSchema
-  ) => {
+  ): React.JSX.Element | null => {
     switch (currentStep) {
       case 0:
         return <BasicDetails />;
@@ -333,7 +311,7 @@ export default function () {
         return <VerifyYourEmail />;
 
       case 3:
-        return <EmailVerificationCode />;
+        return <VerifyEmail />;
 
       case 4:
         return <AccountCreationSucceed />;
@@ -354,7 +332,7 @@ export default function () {
       : "Next";
   };
 
-  const getHeadTitle = (step: number, values: studentSignUpSchema) => {
+  const getHeadTitle = (step: number, values: studentSignUpSchema): string => {
     return step === 1
       ? values.isEduVerified
         ? "Confirm University"
@@ -370,23 +348,40 @@ export default function () {
 
   return (
     <React.Fragment>
+      <div className="flex justify-center p-4 bg-primary">
+        <button
+          onClick={() =>
+            currentStep > 0 &&
+            setCurrentStep((prevStep: number) => prevStep - 1)
+          }
+          className={`text-2xl px-2 self-center ${
+            currentStep % 2 === 0 ? "opacity-50" : "opacity-100"
+          }`}
+          disabled={currentStep % 2 === 0}
+        >
+          <BackArrowIcon />
+        </button>
+        <label className="text-xl flex-1 text-center self-center">
+          Register for Edu-Rx | Student Account
+        </label>
+      </div>
       <Formik
         initialValues={intialFormikValues}
         onSubmit={onSubmit}
         validationSchema={validationSchema[currentStep]}
       >
-        {({ isSubmitting, values }) => (
+        {({ isSubmitting, values, ...actions }) => (
           <div className="flex flex-col items-center p-4">
             <h1 className="text-white tracking-wider text-4xl my-4 font-serif font-semibold">
               {getHeadTitle(currentStep, values)}
             </h1>
             <Form>
-              <div className="flex flex-col gap-2 m-[5%]">
+              <div className="flex flex-col gap-4 m-[5%]">
                 {stepWiseRenderer(currentStep, values)}
               </div>
               <div className="m-2 flex justify-center">
                 <button
-                  className="bg-[#FDCD26] rounded p-2 m-auto w-1/2 text-lg hover:bg-yellow-500"
+                  className="bg-primary rounded p-2 m-auto w-1/2 text-lg hover:bg-yellow-500"
                   type="submit"
                   hidden={currentStep === 4}
                   disabled={isSubmitting}
@@ -394,6 +389,17 @@ export default function () {
                   {getLabel(currentStep, values)}
                 </button>
               </div>
+              {currentStep === 3 && (
+                <ResendCodeTemplate
+                  onClick={() => onResendCode(values, actions)}
+                />
+              )}
+              <span
+                hidden={!commonErrorMessage}
+                className="text-white flex place-content-center text-sm opacity-50 m-2 animate-fade-in-down"
+              >
+                {commonErrorMessage}
+              </span>
             </Form>
           </div>
         )}

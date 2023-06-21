@@ -8,10 +8,10 @@ interface componentProps {
   onClick: () => void;
 }
 
-export const AccountCard = (props: componentProps) => {
+export const AccountCard = (props: componentProps): React.JSX.Element => {
   return (
     <div
-      className={`flex flex-col items-center bg-[#FDCD26] p-4 ${
+      className={`flex flex-col items-center bg-primary p-4 ${
         props.isDisabled ? "cursor-not-allowed opacity-60" : ""
       }`}
       onClick={() => {
