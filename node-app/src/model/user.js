@@ -5,9 +5,9 @@ const userSchema = new Schema(
     first_name: String,
     last_name: String,
     username: String,
-    email: { type: String, index: true ,required:true},
-    password: {type:String,required:true },
-    role: {type:String,required:true},
+    email: { type: String, index: true, required: true },
+    password: { type: String, required: true },
+    role: { type: String, required: true },
     npi_number: String,
     npi_designation: [String],
     socials: {
@@ -29,21 +29,6 @@ const userSchema = new Schema(
     city: String,
     state: String,
     zip_code: String,
-    // will store the last two certificate uploaded by the user
-    certifications: [
-      {
-        certifications_id: {
-          type: mongoose.Types.ObjectId,
-          ref: "certification",
-        },
-        cert_title: String,
-        issuing_organization:String,
-        date_issued: Date,
-        exp_date: Date,
-        lice_id: String,
-        verified_lice: Boolean,
-      },
-    ],  
     // last two uploaded licenses
     licenses: [
       {
@@ -65,42 +50,19 @@ const userSchema = new Schema(
         degree: Date,
       },
     ],
-    // will store last six post in this object
-    post: [
-      {
-        post_id: { type: mongoose.Types.ObjectId, ref: "post" },
-        user_id: {type:mongoose.Types.ObjectId,ref:"user"},
-        forum_type: String,
-        isPoll: Boolean,
-        title: String,
-        text: String,
-        categories: String,
-        tags: String,
-        isPrivate: Boolean,
-        view_count: Number,
-        comments_count: Number,
-        publishedOn:Date,
-        isDeleted:Boolean,
-        flag:String
-      },
-    ],
   },
   {
     timestamps: { createdAt: "joined" },
     statics: {
-      findByEmail(email,excludeAttributeList) {
-        if(excludeAttributeList)
-        {
-          let attribute
-          if(excludeAttributeList.type=="exclude")
-          {
-            attribute=`-${excludeAttributeList.attribute.join(" -")}`
+      findByEmail(email, excludeAttributeList) {
+        if (excludeAttributeList) {
+          let attribute;
+          if (excludeAttributeList.type == "exclude") {
+            attribute = `-${excludeAttributeList.attribute.join(" -")}`;
+          } else {
+            attribute = excludeAttributeList.attribute.join(" ");
           }
-          else
-          {
-            attribute=excludeAttributeList.attribute.join(" ")
-          }
-          return this.findOne({ email: email },attribute);
+          return this.findOne({ email: email }, attribute);
         }
         return this.findOne({ email: email });
       },

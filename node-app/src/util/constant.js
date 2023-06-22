@@ -34,6 +34,6 @@ export const spreadsheetHeaders = [
   "Email Address",
   "First Name",
   "Last Name",
-  "Taxonomy Code",
+  "Taxonomy",
   "Addresses",
 ];
