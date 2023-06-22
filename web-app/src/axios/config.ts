@@ -5,7 +5,7 @@ export const axiosParse=(store:AppDispatch)=>{
     axios.interceptors.request.use((request)=>{
         if(request.headers)
         {
-            request.headers.Authorization=store.getState().user.token;
+            request.headers.Authorization=`JWT ${store.getState().user.token}`;
         }
         return request
     })

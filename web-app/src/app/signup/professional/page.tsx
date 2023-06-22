@@ -3,6 +3,7 @@ import InputField from "@/components/input";
 import { Field, Form, Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import {
+  googleSheetPayload,
   professionalUserRegistrationField,
   userLoginField,
 } from "../../../util/interface/user.interface";
@@ -15,6 +16,7 @@ import {
   generateVerificationCode,
   login,
   npiNumberLookup,
+  postToGoogleSheet,
   signUp,
   verifyConfirmationCode,
 } from "@/service/auth.service";
@@ -23,6 +25,7 @@ import {
   AccountCreationSucceed,
   BackArrowIcon,
   BasicDetails,
+  Loader,
   RegistrationConfirmationMessage,
   ResendCodeTemplate,
   VerifyEmail,
@@ -35,6 +38,8 @@ interface professionalAccountSignUpField
 export default function SignUp() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const [commonErrorMessage, setCommonErrorMessage] = useState<string | null>(
     null
   );
@@ -105,6 +110,7 @@ export default function SignUp() {
     actions: FormikHelpers<professionalAccountSignUpField>,
     npiNumber: string
   ) => {
+    setIsLoading(true);
     const npiRes = await npiNumberLookup(npiNumber as string);
     const res: {
       data: any;
@@ -158,12 +164,29 @@ export default function SignUp() {
 
           setCurrentStep((curStep: number) => curStep + 2);
         } else {
+          // save google sheet data
+          actions.setFieldValue(
+            "taxonomy",
+            res.data?.taxonomies?.map(
+              (taxonomy: { code: string; desc: string }) => {
+                return `${taxonomy.code} | ${taxonomy.desc}`.toString();
+              }
+            )
+          );
+          actions.setFieldValue(
+            "addresses",
+            res.data?.addresses?.map((address: string) =>
+              Object.values(address)
+            )
+          );
           setCurrentStep((curStep: number) => curStep + 1);
         }
         actions.setTouched({});
         actions.setSubmitting(false);
+        setIsLoading(false);
       }
     } else {
+      setIsLoading(false);
       actions.setFieldError("npi_number", "Invalid NPI. Please try again...");
     }
   };
@@ -220,6 +243,31 @@ export default function SignUp() {
       .finally(() => actions.setSubmitting(false));
   };
 
+  const saveToGoogleSheets = async (
+    values: professionalAccountSignUpField,
+    actions: FormikHelpers<professionalAccountSignUpField>
+  ) => {
+    setIsLoading(true);
+    try {
+      const payload: googleSheetPayload = {
+        email: values.email,
+        first_name: values.first_name,
+        last_name: values.last_name,
+        taxonomies: values?.taxonomy?.toString(),
+        addresses: values?.addresses?.toString(),
+      };
+      await postToGoogleSheet(payload);
+      actions.setTouched({});
+      actions.setSubmitting(false);
+      actions.resetForm();
+      setIsLoading(false);
+      setCurrentStep(0);
+    } catch (err) {
+      setIsLoading(false);
+      console.error("failed to post to Google Sheet", err);
+    }
+  };
+
   const _handleSubmit = async (
     values: professionalAccountSignUpField,
     actions: FormikHelpers<professionalAccountSignUpField>
@@ -230,9 +278,7 @@ export default function SignUp() {
       await handleAskNpi(actions, values.npi_number);
     } else if (currentStep == 2) {
       // can store the data into the google sheet
-      actions.setTouched({});
-      actions.setSubmitting(false);
-      setCurrentStep(0);
+      await saveToGoogleSheets(values, actions);
     } else if (currentStep == 3 || currentStep == 4) {
       const {
         addresses,
@@ -491,11 +537,16 @@ export default function SignUp() {
               <div className="flex flex-col gap-4 text-white m-[5%]">
                 {_renderComponentStepWise(currentStep)}
               </div>
+              {isLoading && (
+                <div className="flex pb-3 justify-center">
+                  <Loader />
+                </div>
+              )}
               <div className="m-2 flex justify-center">
                 <button
-                  className="bg-primary rounded p-2 m-auto w-1/2 text-lg hover:bg-yellow-500"
+                  className="bg-primary rounded p-2 m-auto w-1/2 text-lg hover:bg-yellow-500 disabled:opacity-80"
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isLoading}
                   hidden={currentStep === 7}
                 >
                   {renderButtonLabelBasedOnStep()}

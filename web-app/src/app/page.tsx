@@ -44,8 +44,8 @@ export default function SignIn() {
       };
       const response = await login(payload);
       if (response.status === 200 && response.data.response_type == "success") {
-        dispatch(setToken(response.data.token));
-        dispatch(setUserDetail(response.data.details));
+        dispatch(setToken(response.data.data.token));
+        dispatch(setUserDetail(response.data.data.details));
         actions.setSubmitting(false);
       } else if (response.status === 400) {
         actions.setSubmitting(false);

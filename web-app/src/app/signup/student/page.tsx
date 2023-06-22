@@ -3,6 +3,7 @@ import {
   generateVerificationCode,
   login,
   signUp,
+  universityLookup,
   verifyConfirmationCode,
 } from "@/service/auth.service";
 import { validateField } from "@/util/interface/constant";
@@ -33,6 +34,11 @@ export default function () {
     otp: string;
     isEduVerified: boolean;
     universityName: string;
+  }
+  interface formikField {
+    field: {
+      value: string;
+    };
   }
   const intialFormikValues: studentSignUpSchema = {
     first_name: "",
@@ -77,11 +83,11 @@ export default function () {
     null,
   ];
 
-  const verifyEduMail = async (email: string): Promise<boolean> => {
+  const verifyEduMail = async (email: string): Promise<any> => {
     if (!email || !email?.length) return false;
     // verify university avaibility email address is valid
-    let universityName = email.split("@")[1].split(".")[0];
-    return true;
+    let universityName = email.split("@")[1];
+    return await universityLookup(universityName);
   };
 
   const handleUserExists = async (
@@ -97,8 +103,15 @@ export default function () {
         if (response.status == 401 && response.data.toast) {
           // user is new and can proceed with .edu verification
           await verifyEduMail(values.email)
-            .then((res: boolean) => {
-              actions.setFieldValue("isEduVerified", res);
+            .then((res) => {
+              actions.setFieldValue(
+                "isEduVerified",
+                res?.data?.data ? true : false
+              );
+              actions.setFieldValue(
+                "universityName",
+                res?.data?.data ? res.data.data.name : ""
+              );
             })
             .catch((e) => console.log(e))
             .finally(() => {
@@ -247,17 +260,22 @@ export default function () {
     return (
       <div className="text-white px-6 text-center">
         <p className="opacity-50 my-4">
-          if the information below is correct click {"\n"} next to continue sign
-          up process
+          if the information below is correct click next to continue sign up
+          process
         </p>
         <div className="py-6">
-          <span className="text-2xl">
-            University Of California - Santa Barbara
-          </span>
+          <Field
+            name="universityName"
+            component={({ field }: formikField) => (
+              <span className="text-2xl">
+                {field?.value?.replaceAll(",", " -")}
+              </span>
+            )}
+          />
         </div>
         <Field
           name="email"
-          component={({ field }: any) => (
+          component={({ field }: formikField) => (
             <span className="opacity-50">
               email:{" "}
               <a href={`mailto:${field.value}`} className="underline">

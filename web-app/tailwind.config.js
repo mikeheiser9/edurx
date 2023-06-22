@@ -28,7 +28,10 @@ module.exports = {
         "fade-in-down": "fade-in-down .3s ease-out",
       },
       colors:{
-        'primary': '#FDCD26'
+        'primary': '#FDCD26',
+        'primary-light': '#F8F8F8',
+        'primary-dark': '#20201E',
+        'primary-darker': '#000000',
       }
     },
   },
