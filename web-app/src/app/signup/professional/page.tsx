@@ -30,6 +30,7 @@ import {
   ResendCodeTemplate,
   VerifyEmail,
 } from "../commonBlocks";
+import { Button } from "@/components/button";
 
 interface professionalAccountSignUpField
   extends professionalUserRegistrationField {
@@ -543,14 +544,12 @@ export default function SignUp() {
                 </div>
               )}
               <div className="m-2 flex justify-center">
-                <button
-                  className="bg-primary rounded p-2 m-auto w-1/2 text-lg hover:bg-yellow-500 disabled:opacity-80"
+                <Button
                   type="submit"
                   disabled={isSubmitting || isLoading}
                   hidden={currentStep === 7}
-                >
-                  {renderButtonLabelBasedOnStep()}
-                </button>
+                  label={renderButtonLabelBasedOnStep()}
+                />
               </div>
               {currentStep === 5 && (
                 <ResendCodeTemplate

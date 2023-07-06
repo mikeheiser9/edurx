@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from "mongoose";
+import { Schema, model } from "mongoose";
 import bcrypt from "bcrypt";
 const userSchema = new Schema(
   {
@@ -17,7 +17,7 @@ const userSchema = new Schema(
       facebook: String,
       email: String,
     },
-    about: String,
+    personal_bio: String,
     profile_img: String,
     banner_img: String,
     followers: { type: Number, default: 0 },
@@ -29,25 +29,17 @@ const userSchema = new Schema(
     city: String,
     state: String,
     zip_code: String,
-    // last two uploaded licenses
-    licenses: [
-      {
-        license_id: { type: mongoose.Types.ObjectId, ref: "licenses" },
-        lice_title: String,
-        date_issued: Date,
-        exp_date: Date,
-        lice_id: String,
-        verified_lice: Boolean,
-      },
-    ],
+    contact_email:String,
     // last two education
-    Education: [
+    educations: [
       {
-        education_id: { type: mongoose.Types.ObjectId, ref: "education" },
-        name: String,
-        year_start: Date,
-        year_end: Date,
-        degree: Date,
+        school_name: String,
+        field_of_study: String,
+        degree:String,
+        start_date: Date,
+        end_date: Date,
+        is_in_progress: Boolean,
+        activities: String,
       },
     ],
   },
@@ -75,4 +67,23 @@ userSchema.pre("save", async function (next) {
   }
   next();
 });
+
+userSchema.virtual("userPosts", {
+  ref: "posts",
+  localField: "_id",
+  foreignField: "userId",
+});
+
+userSchema.virtual("userDocuments", {
+  ref: "userDocs",
+  localField: "_id",
+  foreignField: "userId",
+});
+
+userSchema.virtual("usersRelationships", {
+  ref: "usersRelationships",
+  localField: "_id",
+  foreignField: "userId",
+});
+
 export const userModel = model("users", userSchema);

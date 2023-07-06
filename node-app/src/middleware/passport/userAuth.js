@@ -17,7 +17,6 @@ export const userAuth=(req,res,next)=>{
                 return generalResponse(res,403,'error','verify your email first..!',null,false);
             }
             req.user=user;
-            req.body = user
             next()
         }
     })(req,res,next)

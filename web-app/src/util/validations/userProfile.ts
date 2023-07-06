@@ -1,0 +1,49 @@
+import * as Yup from "yup";
+import { validateField } from "../interface/constant";
+
+// will return schema based on the selected section from about, education.. etc.
+
+const { stringPrefixJoiValidation } = validateField;
+
+const userDocValidation = {
+  doc_type: Yup.string().oneOf(["license", "certificate"]),
+  doc_name: validateField.stringPrefixJoiValidation.required(),
+  issuer_organization: validateField.stringPrefixJoiValidation.required(),
+  issue_date: Yup.date(),
+  expiration_date: Yup.date(),
+  has_no_expiry: Yup.boolean(),
+  doc_id: validateField.stringPrefixJoiValidation.nullable(),
+  doc_image: validateField.stringPrefixJoiValidation.nullable(),
+  doc_url: validateField.stringPrefixJoiValidation.nullable(),
+};
+
+const validationSchema: Yup.AnyObject = {
+  about: Yup.object({
+    contact_email: stringPrefixJoiValidation.email(),
+    personal_bio: Yup.string().max(1000, "Can't exceed 2000 characters"),
+    socials: Yup.object({
+      instagram: Yup.string().max(100, "Can't exceed 100 characters"),
+      linkedin: Yup.string().max(100, "Can't exceed 100 characters"),
+      facebook: Yup.string().max(100, "Can't exceed 100 characters"),
+      twitter: Yup.string().max(100, "Can't exceed 100 characters"),
+    }),
+  }),
+
+  education: Yup.object({
+    school_name: stringPrefixJoiValidation.required("School name is required"),
+    degree: stringPrefixJoiValidation,
+    field_of_study: stringPrefixJoiValidation.required(
+      "Field of study is required"
+    ),
+    start_date: stringPrefixJoiValidation.required("Start date is required"),
+    end_date: stringPrefixJoiValidation.required(
+      "End date (or expecrted) is required"
+    ),
+    is_in_progress: Yup.boolean().default(false),
+    activities: Yup.string().nullable(),
+  }),
+  certifications: Yup.object(userDocValidation),
+  licenses: Yup.object(userDocValidation),
+};
+
+export { validationSchema };

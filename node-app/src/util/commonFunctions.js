@@ -1,3 +1,4 @@
+import { isValidObjectId } from "mongoose";
 
 export const extractError=(errors)=>{
    if(errors.details)
@@ -51,6 +52,7 @@ export const trimFields=(fields)=>{
 }
 
 export const returnAppropriateError=(res,error)=>{
+   console.log(error);
    const isError=extractError(error)
    if(isError=="false")
    {
@@ -58,3 +60,24 @@ export const returnAppropriateError=(res,error)=>{
    }
    return generalResponse(res,400,'error',isError,null,true)
 }
+
+export const joiObjectIdValidator = (value, helpers) => {
+  return !isValidObjectId(value) ? helpers.error("any.invalid") : value;
+};
+
+export const getSkippedAttributes = (excludeAttributeList) => {
+  if (!excludeAttributeList || !excludeAttributeList.atrributes.length)
+    return null;
+  return excludeAttributeList.atrributes.reduce((acc, attribute) => {
+    acc[attribute] = excludeAttributeList?.type === "include" ? 1 : 0;
+    return acc;
+  }, {});
+};
+
+export const getKeyValueFromFiles = (files) => {
+  let result = {};
+  files?.map((file) => {
+    Object.assign(result, { [file.fieldname]: file.filename });
+  });
+  return result;
+};

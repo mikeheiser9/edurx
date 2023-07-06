@@ -22,6 +22,7 @@ import {
   ResendCodeTemplate,
   VerifyEmail,
 } from "../commonBlocks";
+import { Button } from "@/components/button";
 
 export default function () {
   const router = useRouter();
@@ -398,14 +399,12 @@ export default function () {
                 {stepWiseRenderer(currentStep, values)}
               </div>
               <div className="m-2 flex justify-center">
-                <button
-                  className="bg-primary rounded p-2 m-auto w-1/2 text-lg hover:bg-yellow-500"
+                <Button
                   type="submit"
                   hidden={currentStep === 4}
                   disabled={isSubmitting}
-                >
-                  {getLabel(currentStep, values)}
-                </button>
+                  label={getLabel(currentStep, values)}
+                />
               </div>
               {currentStep === 3 && (
                 <ResendCodeTemplate

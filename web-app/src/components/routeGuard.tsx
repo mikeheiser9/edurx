@@ -16,7 +16,10 @@ export default function RouteGuard({
   let isAuthorized = true;
 
   useEffect(() => {
-    if (!token || !user?._id) {
+    if (
+      (!token || !user?._id) &&
+      !publicRoutes.find((route) => route === pathName)
+    ) {
       router.push("/");
     } else if (
       token &&

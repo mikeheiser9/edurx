@@ -1,28 +1,50 @@
 "use client";
 import { useField } from "formik";
-import React from "react";
-interface InputFieldType {
+import React, { LabelHTMLAttributes, InputHTMLAttributes } from "react";
+interface InputFieldType extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   name: string;
-  type: string;
-  placeholder: string;
   className?: string;
   icon?: React.JSX.Element;
+  labelProps?: LabelHTMLAttributes<HTMLLabelElement>;
+  mandatory?: boolean;
+  iconContainerClass?: string;
 }
 
 export default function InputField({
   label,
   icon,
+  labelProps,
+  mandatory,
+  iconContainerClass,
   ...props
 }: InputFieldType): React.JSX.Element {
   const [field, meta] = useField(props);
 
   return (
     <>
-      {label && <label>{label}</label>}
+      {label && (
+        <label
+          htmlFor={props.name}
+          className="block mb-2 text-sm font-semibold text-gray-900 dark:text-white/50"
+          {...labelProps}
+        >
+          {label}
+          {mandatory && <sup>&nbsp;*</sup>}
+        </label>
+      )}
       <div className="flex flex-col">
-        <div className="absolute self-end px-2 mt-[.65rem]">{icon}</div>
+        <div
+          className={
+            iconContainerClass
+              ? iconContainerClass
+              : "absolute self-end px-2 mt-[.65rem]"
+          }
+        >
+          {icon}
+        </div>
         <input
+          id={label && props.name}
           {...props}
           className={`bg-[#3A3A3A] text-white rounded-lg p-2 focus-visible:border-none outline-none autofill:active:bg-black ${
             meta.touched && meta.error ? "border-[1px] border-red-500" : ""

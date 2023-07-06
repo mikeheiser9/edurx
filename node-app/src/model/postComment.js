@@ -2,7 +2,7 @@ import { Schema, model } from "mongoose";
 
 const commentSchema = new Schema(
   {
-    text: {
+    content: {
       type: String,
       required: true,
     },
@@ -10,45 +10,37 @@ const commentSchema = new Schema(
       type: Date,
       default: Date.now,
     },
-    user: {
+    userId: {
       type: Schema.Types.ObjectId,
-      ref: "user",
+      ref: "users",
       required: true,
+      index: true,
     },
-    post: {
+    postId: {
       type: Schema.Types.ObjectId,
       ref: "post",
       required: true,
+      index: true,
     },
-    likes: {
-      type: Number,
-      default: 0,
-    },
-    dislikes: {
-      type: Number,
-      default: 0,
-    },
-    // will be converted to sperate schema for like dislike
-    taggedUsers: {
-      type: [
-        {
-          type: Schema.Types.ObjectId,
-          ref: "user",
-        },
-      ],
-      default: [],
-    },
-    deleted: {
+    // will be converted to sperate schema to maintain like dislike for post and comments both in the same
+    // likeDislikes: [likeDislikes],
+    taggedUsers: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "users",
+      },
+    ],
+    isDeleted: {
       type: Boolean,
       default: false,
     },
     deletedAt: {
       type: Date,
     },
-    replies: {
-      type: [commentSchema],
-      default: [],
-    },
+    // replies: {
+    //   type: [commentSchema],
+    //   default: [],
+    // },
     parentId: {
       type: Schema.Types.ObjectId,
       ref: "comments",
@@ -59,5 +51,11 @@ const commentSchema = new Schema(
     timestamps: true,
   }
 );
+
+commentSchema.virtual("reactions", {
+  ref: "reactions",
+  localField: "_id",
+  foreignField: "targetId",
+});
 
 export const commentModal = model("comments", commentSchema);

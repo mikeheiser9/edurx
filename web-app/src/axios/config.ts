@@ -1,6 +1,6 @@
 import { removeToken, removeUserDetail } from "@/redux/ducks/user.duck";
 import { AppDispatch } from "@/redux/store";
-import axios from "axios"
+import axios, { Axios, AxiosBasicCredentials, AxiosHeaderValue, AxiosHeaders, AxiosInterceptorOptions, AxiosRequestConfig } from "axios"
 export const axiosParse=(store:AppDispatch)=>{
     axios.interceptors.request.use((request)=>{
         if(request.headers)
@@ -24,9 +24,9 @@ export const axiosParse=(store:AppDispatch)=>{
         return e.response
     })
 }
-export const axiosGet=(url:string)=>{
-    return axios.get(`${process.env.NEXT_PUBLIC_SERVER_URL}${url}`)
-}
+export const axiosGet = (url: string, options?: AxiosRequestConfig) => {
+  return axios.get(`${process.env.NEXT_PUBLIC_SERVER_URL}${url}`, options);
+};
 
 export const axiosPost=<T>(url:string,data:T)=>{
     return axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}${url}`,data)

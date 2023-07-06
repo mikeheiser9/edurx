@@ -1,41 +1,41 @@
 import { axiosGet } from "@/axios/config";
-import {
-  selectToken,
-  selectUserDetail,
-  setUserDetail,
-} from "@/redux/ducks/user.duck";
+import { selectToken, selectUserDetail } from "@/redux/ducks/user.duck";
 import { NextPage } from "next";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation"; // Update import
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
-export const requireAuthentication = (WrappedComponent: NextPage, fetchProfile?:boolean) => {
-  return (props: any) => {
+export const requireAuthentication = (WrappedComponent: NextPage) => {
+  const AuthenticatedComponent: NextPage<any> = (props) => {
     const router = useRouter();
     const token = useSelector(selectToken);
     const user = useSelector(selectUserDetail);
-    const dispatch = useDispatch();
     const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
 
-    const validateToken = () => {
-      axiosGet("/user/profile")
-        .then((response) => {
-          if (
-            response.status === 200 &&
-            response.data?.data?.user?._id === user?._id
-          ) {
-            fetchProfile && dispatch(setUserDetail(response?.data?.data?.user));
-            setIsAuthorized(true);
-          } else {
-            setIsAuthorized(false);
-            router.replace("/");
-          }
-        })
-        .catch((err) => console.error("Failed to authenticate user", err));
+    const validateToken = async () => {
+      if (!user?._id) throw new Error("Invalid token");
+      try {
+        const response = await axiosGet(`/user/${user?._id}/profile`, {
+          params: {
+            isAuthCheck: true,
+          },
+        });
+
+        if (
+          response.status === 200 &&
+          response.data?.data?.user?._id === user?._id
+        ) {
+          setIsAuthorized(true);
+        } else {
+          setIsAuthorized(false);
+          router.replace("/");
+        }
+      } catch (err) {
+        console.error("Failed to authenticate user", err);
+      }
     };
 
     useEffect(() => {
-      // If the user is not authenticated, redirect to the login page
       if (!token || !user?._id) {
         router.push("/");
       } else if (user?._id && token) {
@@ -43,9 +43,10 @@ export const requireAuthentication = (WrappedComponent: NextPage, fetchProfile?:
       }
     }, [token]);
 
-    // Render the wrapped component if the user is authenticated
-    return (
-      isAuthorized && token && user?._id && <WrappedComponent {...props} />
-    );
+    if (!isAuthorized || !token || !user?._id) return null;
+
+    return <WrappedComponent {...props} />;
   };
+
+  return AuthenticatedComponent;
 };
