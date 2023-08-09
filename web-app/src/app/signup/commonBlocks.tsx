@@ -24,7 +24,7 @@ const BasicDetails = (): React.JSX.Element => {
 
 const VerifyEmail = (): React.JSX.Element => {
   return (
-    <div className="px-8">
+    <React.Fragment>
       <Field
         name="email"
         component={({
@@ -34,8 +34,8 @@ const VerifyEmail = (): React.JSX.Element => {
             value: string;
           };
         }) => (
-          <p className="text-white px-6 opacity-50 text-center">
-            We sent an email to {field.value}. Please enter it below to complete
+          <p className="text-white/50 text-center">
+            We sent an email to <span className="text-white/80">{field.value}</span>. Please enter it below to complete
             email verification.
           </p>
         )}
@@ -47,7 +47,7 @@ const VerifyEmail = (): React.JSX.Element => {
           placeholder="Enter Verification Code"
         />
       </div>
-    </div>
+    </React.Fragment>
   );
 };
 

@@ -1,8 +1,14 @@
-import { userModel } from "../model/user.js";
-import { getSkippedAttributes } from "../util/commonFunctions.js";
+import mongoose from "mongoose";
+import { userConnections } from "../model/user/connections.js";
+import { userDocumentModal } from "../model/user/document.js";
+import { userModel } from "../model/user/user.js";
+import {
+  findAndPaginate,
+  getSkippedAttributes,
+} from "../util/commonFunctions.js";
 
-const userExistWithEmail = async (email) => {
-  const user = await userModel.findByEmail(email);
+const userExistWithEmail = async (email, excludeAttributeList = null) => {
+  const user = await userModel.findByEmail(email, excludeAttributeList);
   return user ? { user, isExist: true } : { user, isExist: false };
 };
 const updateUser = async (email, user) => {
@@ -31,15 +37,9 @@ const getUserProfileById = async (
   usePopulate
 ) => {
   try {
-    let education_filter = usePopulate && {
-      educations: {
-        $slice: 2,
-      },
-    };
     let skippedAttributes = getSkippedAttributes(excludeAttributeList);
     const userProfileQuery = userModel.findById({ _id: userId }).select({
       ...skippedAttributes,
-      ...education_filter,
     });
 
     if (usePopulate) {
@@ -52,45 +52,43 @@ const getUserProfileById = async (
               createdAt: -1,
             },
           },
+          populate: ["views", "commentCount"],
         },
         {
-          path: "userDocuments",
-          match: {
-            doc_type: { $in: ["license", "certificate"] },
-          },
+          path: "licenses",
           options: {
-            sort: {
-              createdAt: -1,
-            },
+            limit: 10,
           },
-          perDocumentLimit: 4,
+        },
+        {
+          path: "certificates",
+          options: {
+            limit: 10,
+          },
+        },
+        {
+          path: "followersCount",
+        },
+        {
+          path: "followingCount",
+        },
+        {
+          path: "certificatesCount",
+        },
+        {
+          path: "licensesCount",
+        },
+        // last comments of user
+        {
+          path: "recentComments",
+          populate: "views",
         },
       ]);
     }
 
     const userProfile = await userProfileQuery.exec();
 
-    if (!userProfile) return null;
-
-    let result = { ...userProfile.toJSON() };
-
-    if (usePopulate) {
-      const licenses = userProfile.userDocuments
-        .filter((doc) => doc.doc_type === "license")
-        .slice(0, 2);
-      const certificates = userProfile.userDocuments
-        .filter((doc) => doc.doc_type === "certificate")
-        .slice(0, 2);
-
-      result = {
-        ...result,
-        posts: userProfile.userPosts,
-        licenses,
-        certificates,
-      };
-    }
-
-    return result;
+    return userProfile || null;
   } catch (err) {
     console.log(err);
     throw Error(err);
@@ -121,6 +119,104 @@ const getBasicProfile = async (userId) => {
   );
 };
 
+// user documents
+const addNewDocument = async (payload) => {
+  const { _id } = payload;
+  return await userDocumentModal
+    .findOneAndUpdate(
+      { _id: _id ?? new mongoose.Types.ObjectId() },
+      { $set: payload },
+      { upsert: true, new: true }
+    )
+    .select({
+      __v: 0,
+      createdAt: 0,
+      updatedAt: 0,
+    });
+};
+
+const getUsersDocs = async (payload) => {
+  const { page, limit, userId, doc_type } = payload;
+  const options = {
+    select: {
+      __v: 0,
+      createdAt: 0,
+      updatedAt: 0,
+    },
+  };
+  return findAndPaginate(
+    userDocumentModal,
+    { userId, doc_type },
+    page && Number(page),
+    limit && Number(limit),
+    options
+  );
+};
+
+const getDocumentById = async (id) => {
+  return await userDocumentModal.findById({ _id: id });
+};
+
+// user connections
+
+const addRemoveConnections = async (payload) => {
+  const { userId, targetUserId, action } = payload;
+
+  if (action !== "add" && action !== "remove") {
+    throw new Error(
+      'Invalid action specified. Supported actions: "add", "remove"'
+    );
+  }
+
+  try {
+    if (action === "add") {
+      return await followUser(userId, targetUserId);
+    } else {
+      return await unfollowUser(userId, targetUserId);
+    }
+  } catch (error) {
+    throw new Error(
+      `Failed to perform user connection operation: ${error.message}`
+    );
+  }
+};
+
+const followUser = async (userId, targetUserId) => {
+  try {
+    // Check if the user connection already exists
+    const existingConnection = await userConnections.findOne({
+      userId,
+      targetUserId,
+    });
+
+    if (existingConnection) {
+      return "You are already following this user.";
+    }
+
+    // Create a new user connection
+    return await userConnections.create({ userId, targetUserId });
+  } catch (error) {
+    throw new Error(`Failed to follow the user: ${error.message}`);
+  }
+};
+
+const unfollowUser = async (userId, targetUserId) => {
+  try {
+    // Remove the user connection
+    const deletedConnection = await userConnections.findOneAndDelete({
+      userId,
+      targetUserId,
+    });
+
+    if (!deletedConnection) {
+      return "You are not following this user.";
+    }
+    return deletedConnection;
+  } catch (error) {
+    throw new Error(`Failed to unfollow the user: ${error.message}`);
+  }
+};
+
 export {
   getUserProfileById,
   findUserByEmail,
@@ -129,4 +225,10 @@ export {
   userExistWithEmail,
   updateProfileById,
   getBasicProfile,
+  addRemoveConnections,
+  addNewDocument,
+  getUsersDocs,
+  getDocumentById,
+  followUser,
+  unfollowUser,
 };

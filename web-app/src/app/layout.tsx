@@ -1,6 +1,6 @@
 "use client";
 import { Provider } from "react-redux";
-import "./globals.css";
+import "./global.css";
 import { Inter } from "next/font/google";
 import RouteGuard from "@/components/routeGuard";
 import { store } from "@/redux/store";
@@ -17,12 +17,12 @@ export default function RootLayout({
 }) {
   axiosParse(store);
   return (
-    <html className="h-full" lang="en">
+    <html lang="en" className="!p-0 grid">
       <head>
         <title>EduRx</title>
         <link rel="shortcut icon" href="/edurxLogo.svg" />
       </head>
-      <body className={`h-full ${inter.className}`}>
+      <body className={`h-full w-full flex-auto flex bg-primary-darker ${inter.className}`}>
         <Provider store={store}>
           {/* <Header /> */}
           <RouteGuard>{children}</RouteGuard>

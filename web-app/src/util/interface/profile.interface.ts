@@ -56,5 +56,37 @@ interface userProfileInterface {
   profileImages: profileImages;
 }
 
+interface UserData {
+  socials?: socials;
+  _id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  role: "super_admin" | "moderator" | "professional" | "student";
+  npi_number?: string;
+  npi_designation?: string[];
+  followers?: number;
+  following?: number;
+  addresses?: string[];
+  city?: string;
+  state?: string;
+  zip_code?: string;
+  joined?: string;
+  updatedAt?: string;
+  educations?: education[];
+  contact_email?: string;
+  personal_bio?: string;
+  profile_img?: string;
+  banner_img?: string;
+  followersCount?: number;
+  followingCount?: number;
+  licensesCount: number;
+  certificatesCount: number;
+  licenses: licenses[];
+  certificates: certifications[];
+  userPosts?: [];
+  recentComments?: [];
+}
+
 type certifications = userDocs;
 type licenses = userDocs;

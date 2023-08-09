@@ -17,7 +17,6 @@ export default function CommonUI(props: propsType): React.JSX.Element {
           <h1 className="text-white text-center tracking-wider text-4xl my-4 font-serif font-semibold">
             {title}
           </h1>
-          <label className="opacity-60">Please make a selection</label>
         </div>
         {fields}
         {button}

@@ -22,8 +22,8 @@ export const requireAuthentication = (WrappedComponent: NextPage) => {
         });
 
         if (
-          response.status === 200 &&
-          response.data?.data?.user?._id === user?._id
+          response?.status === 200 &&
+          response?.data?.data?.user?._id === user?._id
         ) {
           setIsAuthorized(true);
         } else {

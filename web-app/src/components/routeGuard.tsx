@@ -1,5 +1,5 @@
 import { selectToken, selectUserDetail } from "@/redux/ducks/user.duck";
-import { publicRoutes } from "@/util/interface/constant";
+import { publicRoutes } from "@/util/constant";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";

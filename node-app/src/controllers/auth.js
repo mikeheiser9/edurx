@@ -229,3 +229,21 @@ export const universityLookup = async (req, res) => {
   }
 };
   
+export const isUserExists = async (req, res) => {
+  try {
+    const { email } = req.query;
+    const user = await userExistWithEmail(email, {
+      type: "include",
+      attribute: [
+        "first_name",
+        "last_name",
+        "email",
+        "role",
+        "verified_account",
+      ],
+    });
+    generalResponse(res, 200, "success", null, user);
+  } catch (error) {
+    generalResponse(res, 400, "error", "Something went wrong", error, true);
+  }
+};

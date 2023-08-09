@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { forumTypes, postType } from "../util/constant.js";
+import { forumTypes, postStatus, postType } from "../../util/constant.js";
 
 const postSchema = new Schema(
   {
@@ -7,6 +7,11 @@ const postSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "users",
       required: true,
+    },
+    postStatus: {
+      type: Schema.Types.String,
+      required: true,
+      enum: postStatus,
     },
     forumType: {
       type: Schema.Types.String,
@@ -24,23 +29,17 @@ const postSchema = new Schema(
     },
     content: String,
     categories: {
-      type: [String],
-      required: true,
+      type: [Schema.Types.ObjectId],
+      ref: "postCategoryTags",
     },
     tags: {
-      type: [String],
+      type: [Schema.Types.ObjectId],
+      ref: "postCategoryTags",
     },
+    votingLength: Number,
     isPrivate: {
       type: Boolean,
       default: false,
-    },
-    viewCount: {
-      type: Number,
-      default: 0,
-    },
-    commentsCount: {
-      type: Number,
-      default: 0,
     },
     publishedOn: {
       type: Date,
@@ -57,9 +56,9 @@ const postSchema = new Schema(
   },
   {
     timestamps: true,
-    // toJSON: {
-    //   virtuals: true,
-    // },
+    toJSON: {
+      virtuals: true,
+    },
     // toObject: {
     //   virtuals: true,
     // },
@@ -72,10 +71,51 @@ postSchema.virtual("comments", {
   foreignField: "postId",
 });
 
+postSchema.virtual("commentCount", {
+  ref: "comments",
+  localField: "_id",
+  foreignField: "postId",
+  count: true,
+  match: {
+    isDeleted: false,
+  },
+});
+
 postSchema.virtual("reactions", {
   ref: "reactions",
   localField: "_id",
-  foreignField: "targetId",
+  foreignField: "postId",
+});
+
+postSchema.virtual("likeCount", {
+  ref: "reactions",
+  localField: "_id",
+  foreignField: "postId",
+  count: true,
+  match: {
+    reactionType: "like",
+  },
+});
+
+postSchema.virtual("dislikeCount", {
+  ref: "reactions",
+  localField: "_id",
+  foreignField: "postId",
+  count: true,
+  match: {
+    reactionType: "dislike",
+  },
+});
+
+postSchema.virtual("views", {
+  ref: "views",
+  localField: "_id",
+  foreignField: "itemId",
+  count: true,
+  justOne: false,
+  match: {
+    itemType: "post",
+  },
 });
 
 export const postModal = model("posts", postSchema);

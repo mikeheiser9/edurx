@@ -1,5 +1,5 @@
 import * as Yup from "yup";
-import { validateField } from "../interface/constant";
+import { validateField } from "../constant";
 
 // will return schema based on the selected section from about, education.. etc.
 
@@ -7,8 +7,12 @@ const { stringPrefixJoiValidation } = validateField;
 
 const userDocValidation = {
   doc_type: Yup.string().oneOf(["license", "certificate"]),
-  doc_name: validateField.stringPrefixJoiValidation.required(),
-  issuer_organization: validateField.stringPrefixJoiValidation.required(),
+  doc_name: validateField.stringPrefixJoiValidation.required(
+    "This field is required"
+  ),
+  issuer_organization: validateField.stringPrefixJoiValidation.required(
+    "This field is required"
+  ),
   issue_date: Yup.date(),
   expiration_date: Yup.date(),
   has_no_expiry: Yup.boolean(),

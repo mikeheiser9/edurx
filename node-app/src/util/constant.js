@@ -1,9 +1,11 @@
 import joi from "joi";
+import { joiObjectIdValidator } from "./commonFunctions.js";
 
 export const validateField = {
   email: joi.string().trim().required().email().max(150),
   password: joi.string().required(),
   stringPrefixJoiValidation: joi.string().trim(),
+  objectId: joi.string().custom(joiObjectIdValidator, "Invalid Object ID"),
 };
 
 export const roles = ["super_admin", "moderator", "professional", "student"];
@@ -18,6 +20,8 @@ export const forumTypes = [
 ];
 
 export const postType = ["post", "poll"];
+export const postStatus = ["draft", "published"];
+export const postCategoryTagsTypes = ["tag", "category"];
 
 export const allowFileType = [
   "image/jpeg",
@@ -72,9 +76,9 @@ export const userValidations = {
   city: validateField.stringPrefixJoiValidation.required(),
   state: validateField.stringPrefixJoiValidation.required(),
   zip_code: validateField.stringPrefixJoiValidation.required(),
-  personal_bio: validateField.stringPrefixJoiValidation.max(1000),
-  banner_img: validateField.stringPrefixJoiValidation.required(""),
-  profile_img: validateField.stringPrefixJoiValidation.required(""),
+  personal_bio: validateField.stringPrefixJoiValidation.allow("").max(1000),
+  banner_img: validateField.stringPrefixJoiValidation.required(),
+  profile_img: validateField.stringPrefixJoiValidation.required(),
   socials: joi.object({
     twitter: validateField.stringPrefixJoiValidation.allow(""),
     linkedin: validateField.stringPrefixJoiValidation.allow(""),
@@ -101,4 +105,11 @@ export const userValidations = {
     ),
   licenses: joi.array().items(userDocValidation),
   certificates: joi.array().items(userDocValidation),
+};
+
+const paginationAllowedLimits = [5, 10, 20, 50, 100, 200, 500, 1000];
+
+export const paginationValidation = {
+  page: joi.number().min(1),
+  limit: joi.number().valid(...paginationAllowedLimits),
 };

@@ -1,12 +1,12 @@
 "use client";
 import {
   generateVerificationCode,
-  login,
   signUp,
   universityLookup,
+  userAlreadyExists,
   verifyConfirmationCode,
 } from "@/service/auth.service";
-import { validateField } from "@/util/interface/constant";
+import { validateField } from "@/util/constant";
 import {
   commonRegistrationField,
   userLoginField,
@@ -99,9 +99,10 @@ export default function () {
       email: values.email,
       password: values.password,
     };
-    await login(payload)
+    await userAlreadyExists(payload.email)
       .then(async (response) => {
-        if (response.status == 401 && response.data.toast) {
+        const userRes = response.status === 200 && response.data.data;
+        if (!userRes?.isExist && !userRes?.user) {
           // user is new and can proceed with .edu verification
           await verifyEduMail(values.email)
             .then((res) => {
@@ -119,14 +120,11 @@ export default function () {
               actions.setSubmitting(false);
               setCurrentStep((prevStep: number) => prevStep + 1);
             });
-        } else if (response.status === 400 && !response.data.toast) {
+        } else if (userRes?.isExist && !userRes?.user?.verified_account) {
           // user verification pending
           actions.setSubmitting(false);
           setCurrentStep(2);
-        } else if (
-          response.status === 200 &&
-          response?.data?.data?.details?.verified_account
-        ) {
+        } else if (userRes?.isExist && userRes?.user?.verified_account) {
           // user already verified
           setCommonErrorMessage(
             "That email address is already registered with EduRx"

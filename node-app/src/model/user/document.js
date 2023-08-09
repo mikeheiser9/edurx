@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { userDocumentTypes } from "../util/constant.js";
+import { userDocumentTypes } from "../../util/constant.js";
 
 const documentSchema = new Schema(
   {

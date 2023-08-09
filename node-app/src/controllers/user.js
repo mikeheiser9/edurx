@@ -1,12 +1,11 @@
 import {
+  addRemoveConnections,
   getBasicProfile,
   getUserProfileById,
   updateProfileById,
-} from "../repository/user.js";
-import {
   addNewDocument,
   getUsersDocs,
-} from "../repository/userDocument.js";
+} from "../repository/user.js";
 import {
   generalResponse,
   getKeyValueFromFiles,
@@ -62,6 +61,7 @@ const getUserProfile = async (req, res) => {
 
 const updateUserByID = async (req, res) => {
   try {
+    console.log(req.body);
     if (!req.body) throw new Error("Request body is required");
     const { userId } = req.body;
     const user = await updateProfileById(userId, {
@@ -139,4 +139,42 @@ const getUsersDocuments = async (req, res) => {
   }
 };
 
-export { getUserProfile, updateUserByID, addUpdateDocument, getUsersDocuments };
+const postConnections = async (req, res) => {
+  try {
+    const response = await addRemoveConnections({
+      ...req.body,
+      action: req.params.action,
+    });
+    let message = typeof response === "string" ? response : null;
+    return generalResponse(
+      res,
+      200,
+      "OK",
+      message
+        ? message
+        : `Connection ${
+            req.params.action === "add" ? "added" : "removed"
+          } successfully`,
+      !message ? response : null,
+      false
+    );
+  } catch (err) {
+    console.log(err);
+    return generalResponse(
+      res,
+      400,
+      "error",
+      "Something went wrong",
+      err,
+      true
+    );
+  }
+};
+
+export {
+  getUserProfile,
+  updateUserByID,
+  addUpdateDocument,
+  getUsersDocuments,
+  postConnections,
+};

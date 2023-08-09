@@ -1,9 +1,7 @@
 import Joi from "joi";
+import { returnAppropriateError } from "../../util/commonFunctions.js";
 import {
-  joiObjectIdValidator,
-  returnAppropriateError,
-} from "../../util/commonFunctions.js";
-import {
+  paginationValidation,
   userDocValidation,
   userDocumentTypes,
   userValidations,
@@ -32,9 +30,7 @@ const updateUserValidator = async (req, res, next) => {
         }
         return acc;
       }, {}),
-      userId: validateField.stringPrefixJoiValidation
-        .required()
-        .custom(joiObjectIdValidator, "Invalid Object ID"),
+      userId: validateField.objectId.required(),
     });
     await schema.validateAsync(req.body);
     next();
@@ -47,9 +43,7 @@ const updateUserValidator = async (req, res, next) => {
 const getUserProfileValidator = async (req, res, next) => {
   try {
     const schema = Joi.object({
-      userId: validateField.stringPrefixJoiValidation
-        .required()
-        .custom(joiObjectIdValidator, "Invalid Object ID"),
+      userId: validateField.objectId.required(),
     });
     await schema.validateAsync(req.params);
     next();
@@ -64,13 +58,9 @@ const addDocumentValidator = async (req, res, next) => {
     const schema = Joi.object({
       ...userDocValidation,
       ...(Object.keys(req.body).includes("_id") && {
-        _id: validateField.stringPrefixJoiValidation
-          .required()
-          .custom(joiObjectIdValidator, "Invalid Object ID"),
+        _id: validateField.objectId.required(),
       }),
-      userId: validateField.stringPrefixJoiValidation
-        .required()
-        .custom(joiObjectIdValidator, "Invalid Object ID"),
+      userId: validateField.objectId.required(),
     });
     await schema.validateAsync(req.body);
     next();
@@ -82,14 +72,15 @@ const addDocumentValidator = async (req, res, next) => {
 const getUserDocumentsValidator = async (req, res, next) => {
   try {
     const schema = Joi.object({
-      userId: Joi.string().custom(joiObjectIdValidator, "Invalid Object ID"),
+      userId: validateField.objectId.required(),
       doc_type: Joi.string()
         .valid(...userDocumentTypes)
         .required(),
+      ...paginationValidation,
     });
     await schema.validateAsync({
-      userId: req.params.userId,
-      doc_type: req.query.doc_type,
+      ...req.query,
+      ...req.params,
     });
     next();
   } catch (err) {
@@ -98,9 +89,46 @@ const getUserDocumentsValidator = async (req, res, next) => {
   }
 };
 
+const userConnectionsValidator = async (req, res, next) => {
+  try {
+    const schema = Joi.object({
+      action: Joi.string().valid("add", "remove"),
+      userId: validateField.objectId.required(),
+      targetUserId: validateField.objectId.required().disallow(Joi.ref("userId")),
+    });
+    await schema.validateAsync({
+      action: req.params.action,
+      ...req.body,
+    });
+    next();
+  } catch (error) {
+    console.log("Failed to validate request", error);
+    returnAppropriateError(res, error);
+  }
+};
+
+const getConnectionsValidator = async (req, res, next) => {
+  try {
+    const schema = Joi.object({
+      userId: validateField.objectId.required(),
+      type: Joi.string().required().valid("followers", "following"),
+      ...paginationValidation,
+    });
+    await schema.validateAsync({
+      ...req.query,
+      ...req.params,
+    });
+    next();
+  } catch (error) {
+    returnAppropriateError(res, error);
+  }
+};
+
 export {
   updateUserValidator,
   getUserProfileValidator,
   addDocumentValidator,
   getUserDocumentsValidator,
+  userConnectionsValidator,
+  getConnectionsValidator,
 };

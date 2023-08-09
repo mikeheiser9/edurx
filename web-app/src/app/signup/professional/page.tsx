@@ -10,14 +10,14 @@ import {
 import {
   taxonomyCodeToProfessionalMapping,
   validateField,
-} from "@/util/interface/constant";
+} from "@/util/constant";
 import React, { useState } from "react";
 import {
   generateVerificationCode,
-  login,
   npiNumberLookup,
   postToGoogleSheet,
   signUp,
+  userAlreadyExists,
   verifyConfirmationCode,
 } from "@/service/auth.service";
 import { useRouter } from "next/navigation";
@@ -200,15 +200,13 @@ export default function SignUp() {
       email: values.email,
       password: values.password,
     };
-    await login(payload)
+    await userAlreadyExists(payload.email)
       .then(async (response) => {
-        if (response.status === 401) {
+        const userRes = response.status === 200 && response.data.data;
+        if (!userRes.isExist && !userRes.user) {
           // user is new and can proceed further
           setCurrentStep((prevStep) => prevStep + 1);
-        } else if (
-          response.status === 200 &&
-          response?.data?.data?.details?.verified_account
-        ) {
+        } else if (userRes?.isExist && userRes?.user?.verified_account) {
           // user already verified
           setCommonErrorMessage(
             "That email address is already registered with EduRx"
@@ -216,7 +214,7 @@ export default function SignUp() {
           setTimeout(() => {
             setCommonErrorMessage(null);
           }, 2000);
-        } else if (response.status === 400 && !response.data.toast) {
+        } else if (userRes?.isExist && !userRes?.user?.verified_account) {
           // user verification pending
           setCurrentStep(5);
         }

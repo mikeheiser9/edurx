@@ -1,45 +1,147 @@
-import { createNewPost, findPostsByUserId } from "../repository/post.js";
+import { Types } from "mongoose";
+import {
+  addCategoryTag,
+  addComment,
+  addReaction,
+  addViews,
+  createNewPost,
+  getCommentsByPostId,
+  getPostById,
+  getPosts,
+  searchCategoryTagByName,
+} from "../repository/post.js";
 import { generalResponse } from "../util/commonFunctions.js";
 
 const createPost = async (req, res) => {
   try {
     const post = await createNewPost(req.body);
-    if (!post) throw new Error("Error creating post");
-    generalResponse(res, 200, "OK", null, post, null);
+    generalResponse(res, 200, "OK", "Post created", post, null);
   } catch (error) {
-    return generalResponse(res, 500, "Internal Server Error", null, null, true);
+    return generalResponse(res, 400, "error", error.message, null, true);
   }
 };
 
-const getUsersPosts = async (req, res) => {
+const searchPostMetaLabel = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const userPosts = await findPostsByUserId(userId);
+    const { name, type, page, limit } = req.query;
+    const searchResult = await searchCategoryTagByName(name, type, page, limit);
+    let message = searchResult.records.length
+      ? "records found"
+      : "No records found";
+    return generalResponse(res, 200, "success", message, searchResult);
+  } catch (error) {
+    return generalResponse(res, 400, "error", error.message, error, false);
+  }
+};
+
+const addPostMetaLabel = async (req, res) => {
+  try {
+    const { metaLabel } = req.params;
+    const response = await addCategoryTag({ ...req.body, type: metaLabel });
     return generalResponse(
       res,
       200,
       "success",
-      "users posts fetched successfully",
-      userPosts,
-      false
+      `${metaLabel} created successfully`,
+      response
     );
   } catch (error) {
     return generalResponse(res, 400, "error", error.message, error, false);
   }
 };
 
-const doLike = async (req, res) => {
+const addNewReaction = async (req, res) => {
   try {
+    const response = await addReaction(req.body);
+    return generalResponse(
+      res,
+      200,
+      "success",
+      response.message,
+      response.data
+    );
   } catch (error) {
-    return generalResponse(res, 400, "error", null, null, false);
+    return generalResponse(res, 400, "error", error.message, error, false);
   }
 };
 
-const doComment = async (req, res) => {
+const addNewComment = async (req, res) => {
   try {
+    const newComment = await addComment(req.body);
+    return generalResponse(
+      res,
+      200,
+      "success",
+      "Comment added successfully",
+      newComment
+    );
   } catch (error) {
-    return generalResponse(res, 400, "error", null, null, false);
+    return generalResponse(res, 400, "error", error.message, error);
   }
 };
 
-export { createPost, doComment, doLike, getUsersPosts };
+const getPostComments = async (req, res) => {
+  try {
+    const { page, limit } = req.query;
+    const comments = await getCommentsByPostId(req.params.postId, page, limit);
+    return generalResponse(
+      res,
+      200,
+      "OK",
+      "Comments fetched successfully",
+      comments
+    );
+  } catch (error) {
+    return generalResponse(res, 400, "error", error.message, error);
+  }
+};
+
+const getPost = async (req, res) => {
+  try {
+    const post = await getPostById(req.params.postId);
+    return generalResponse(res, 200, "OK", "post fetched successfully", post);
+  } catch (error) {
+    return generalResponse(res, 400, "error", error.message, error);
+  }
+};
+
+const getAllPosts = async (req, res) => {
+  try {
+    const userId = req.route.path === "/forum/user" ? req?.user?._id : null;
+    const categoryList = req.query.categories?.split(",");
+    const posts = await getPosts({
+      ...req.query,
+      page: Number(req.query.page || 1),
+      limit: Number(req.query.limit || 10),
+      categories:
+        categoryList?.length > 0 &&
+        categoryList.map((category) => new Types.ObjectId(category)),
+      userId,
+    });
+    return generalResponse(res, 200, "OK", "posts fetched successfully", posts);
+  } catch (error) {
+    return generalResponse(res, 400, "error", error.message, error);
+  }
+};
+
+const addNewView = async (req, res) => {
+  try {
+    // view can be single view or multiple
+    const response = await addViews(req.body);
+    return generalResponse(res, 200, "OK", response.message, response.data);
+  } catch (error) {
+    return generalResponse(res, 400, "error", error.message, error);
+  }
+};
+
+export {
+  createPost,
+  searchPostMetaLabel,
+  addPostMetaLabel,
+  addNewReaction,
+  addNewComment,
+  getPostComments,
+  getPost,
+  getAllPosts,
+  addNewView,
+};

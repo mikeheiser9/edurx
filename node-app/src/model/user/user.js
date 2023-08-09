@@ -1,5 +1,6 @@
 import { Schema, model } from "mongoose";
 import bcrypt from "bcrypt";
+import { userDocumentTypes } from "../../util/constant.js";
 const userSchema = new Schema(
   {
     first_name: String,
@@ -20,8 +21,6 @@ const userSchema = new Schema(
     personal_bio: String,
     profile_img: String,
     banner_img: String,
-    followers: { type: Number, default: 0 },
-    following: { type: Number, default: 0 },
     verified_account: { type: Boolean, default: false },
     verification_code_expiry_time: String,
     verification_code: String,
@@ -29,13 +28,12 @@ const userSchema = new Schema(
     city: String,
     state: String,
     zip_code: String,
-    contact_email:String,
-    // last two education
+    contact_email: String,
     educations: [
       {
         school_name: String,
         field_of_study: String,
-        degree:String,
+        degree: String,
         start_date: Date,
         end_date: Date,
         is_in_progress: Boolean,
@@ -45,6 +43,7 @@ const userSchema = new Schema(
   },
   {
     timestamps: { createdAt: "joined" },
+    toJSON: { virtuals: true },
     statics: {
       findByEmail(email, excludeAttributeList) {
         if (excludeAttributeList) {
@@ -74,16 +73,76 @@ userSchema.virtual("userPosts", {
   foreignField: "userId",
 });
 
-userSchema.virtual("userDocuments", {
+userSchema.virtual("licenses", {
   ref: "userDocs",
   localField: "_id",
   foreignField: "userId",
+  match: {
+    doc_type: {
+      $eq: userDocumentTypes[0],
+    },
+  },
 });
 
-userSchema.virtual("usersRelationships", {
-  ref: "usersRelationships",
+userSchema.virtual("certificates", {
+  ref: "userDocs",
   localField: "_id",
   foreignField: "userId",
+  match: {
+    doc_type: {
+      $eq: userDocumentTypes[1],
+    },
+  },
+});
+
+userSchema.virtual("followingCount", {
+  ref: "userConnections",
+  localField: "_id",
+  foreignField: "userId",
+  count: true,
+});
+
+userSchema.virtual("followersCount", {
+  ref: "userConnections",
+  localField: "_id",
+  foreignField: "targetUserId",
+  count: true,
+});
+
+userSchema.virtual("licensesCount", {
+  ref: "userDocs",
+  localField: "_id",
+  foreignField: "userId",
+  count: true,
+  match: {
+    doc_type: {
+      $eq: userDocumentTypes[0],
+    },
+  },
+});
+
+userSchema.virtual("certificatesCount", {
+  ref: "userDocs",
+  localField: "_id",
+  foreignField: "userId",
+  count: true,
+  match: {
+    doc_type: {
+      $eq: userDocumentTypes[1],
+    },
+  },
+});
+
+userSchema.virtual("recentComments", {
+  ref: "comments",
+  localField: "_id",
+  foreignField: "userId",
+  limit: 10,
+  options: {
+    sort: {
+      createdAt: -1,
+    },
+  },
 });
 
 export const userModel = model("users", userSchema);

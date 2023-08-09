@@ -1,24 +1,19 @@
 import { Schema, model } from "mongoose";
 
-const reactionSchema = new Schema(
+const viewSchema = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
       ref: "users",
       required: true,
     },
-    targetType: {
+    itemType: {
       type: String,
       enum: ["post", "comment"],
       required: true,
     },
-    targetId: {
+    itemId: {
       type: Schema.Types.ObjectId,
-      required: true,
-    },
-    reactionType: {
-      type: String,
-      enum: ["like", "dislike"],
       required: true,
     },
   },
@@ -27,4 +22,4 @@ const reactionSchema = new Schema(
   }
 );
 
-export const reactionModal = model("reactions", reactionSchema);
+export const viewModal = model("views", viewSchema);

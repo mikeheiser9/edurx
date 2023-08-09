@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { userAuth } from "../middleware/passport/userAuth.js";
 import {
+  postConnections,
   addUpdateDocument,
   getUserProfile,
   getUsersDocuments,
@@ -8,9 +9,11 @@ import {
 } from "../controllers/user.js";
 import {
   addDocumentValidator,
+  userConnectionsValidator,
   getUserDocumentsValidator,
   getUserProfileValidator,
   updateUserValidator,
+  getConnectionsValidator,
 } from "../middleware/validator/user.js";
 
 const userRoute = Router();
@@ -29,6 +32,23 @@ userRoute.put(
   // fileUpload,
 );
 
-userRoute.get("/:userId/documents", userAuth, getUserDocumentsValidator, getUsersDocuments);
+userRoute.get(
+  "/:userId/documents",
+  userAuth,
+  getUserDocumentsValidator,
+  getUsersDocuments
+);
+userRoute.post(
+  `/connections/:action`,
+  userAuth,
+  userConnectionsValidator,
+  postConnections
+);
+userRoute.get(
+  "/connections/:userId/:type",
+  userAuth,
+  getConnectionsValidator
+  //getConnections // to be implemented
+);
 
 export default userRoute;
