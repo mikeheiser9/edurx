@@ -24,13 +24,13 @@ export default function InputField({
         <div className="absolute self-end px-2 mt-[.65rem]">{icon}</div>
         <input
           {...props}
-          className={`bg-[#3A3A3A] text-white rounded-lg p-2 focus-visible:border-none outline-none autofill:active:bg-black ${
+          className={`bg-eduLightGray text-eduBlack rounded-lg p-2 focus-visible:border-none outline-none autofill:active:bg-black ${
             meta.touched && meta.error ? "border-[1px] border-red-500" : ""
           } ${props.className}`}
           {...field}
         />
         {meta.touched && meta.error ? (
-          <span className="text-white text-xs first-letter:capitalize flex-shrink-0 opacity-50">
+          <span className="text-[#ff0000] text-xs first-letter:capitalize flex-shrink-0 opacity-50">
             {meta.error}
           </span>
         ) : null}

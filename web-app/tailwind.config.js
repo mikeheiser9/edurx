@@ -28,8 +28,29 @@ module.exports = {
         "fade-in-down": "fade-in-down .3s ease-out",
       },
       colors:{
-        'primary': '#FDCD26'
-      }
+        'primary': '#FDCD26',
+        'eduBlack': '#13222a',
+        'eduLightBlue': '#0f366d',
+        'eduDarkBlue': '#05233b',
+        'eduYellow': '#fdcd26',
+        'eduDarkGray': '#e7e5e2',
+        'eduLightGray': '#f9f8f9'
+      },
+      fontFamily:{
+        body: ['Poppins', 'sans-serif'],
+        headers: ['Hahmlet', 'serif']
+      },
+      fontSize:{
+        'h1': ['40px', {
+          lineHeight: '50px'
+        }],
+        'h2': ['32px', {
+          lineHeight: '42px'
+        }],
+        'modalHead': ['25px', {
+          lineHeight: '35px'
+        }]
+    },
     },
   },
   plugins: [],

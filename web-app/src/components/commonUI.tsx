@@ -13,8 +13,8 @@ export default function CommonUI(props: propsType): React.JSX.Element {
         <div className="flex justify-center p-4 bg-primary">
           <label className="text-xl">{type}</label>
         </div>
-        <div className="flex flex-col text-white items-center p-4 gap-2">
-          <h1 className="text-white text-center tracking-wider text-4xl my-4 font-serif font-semibold">
+        <div className="flex flex-col text-eduBlack items-center p-4 gap-2">
+          <h1 className="text-eduBlack text-center tracking-wider text-4xl my-4 font-serif font-semibold">
             {title}
           </h1>
           <label className="opacity-60">Please make a selection</label>

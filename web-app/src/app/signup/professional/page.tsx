@@ -299,7 +299,7 @@ export default function SignUp() {
   const AskNpiNumber = (): React.JSX.Element => {
     return (
       <React.Fragment>
-        <p className="text-sm opacity-50 text-white text-center px-16 pb-6">
+        <p className="text-sm opacity-50 text-eduBlack text-center px-16 pb-6">
           EduRx is a curated community of medical professionals in order to
           ensure quality discussion and information please validate your NPI
           License below.
@@ -336,7 +336,7 @@ export default function SignUp() {
           Please confirm the following information is accurate and up to date.
           Note: you will be able to add additional licenses and info later.
         </p>
-        <div className="bg-[#FDCD2640] mt-4 text-white rounded flex flex-col gap-2 p-2">
+        <div className="bg-[#FDCD2640] mt-4 text-eduBlack rounded flex flex-col gap-2 p-2">
           <div className="flex justify-end w-full relative">
             <div className="absolute text-xs text-primary">
               <button
@@ -445,7 +445,7 @@ export default function SignUp() {
 
   return (
     <React.Fragment>
-      <div className="flex justify-center p-4 bg-primary">
+      <div className="flex justify-center p-4 bg-eduDarkGray">
         <button
           onClick={() =>
             currentStep > 0 &&
@@ -473,7 +473,7 @@ export default function SignUp() {
         >
           <BackArrowIcon />
         </button>
-        <label className="text-xl flex-1 text-center self-center">
+        <label className="text-[16px] text-eduBlack flex-1 text-center self-center font-headers">
           Register for Edu-Rx | Professional
         </label>
       </div>
@@ -483,17 +483,17 @@ export default function SignUp() {
         onSubmit={_handleSubmit}
       >
         {({ isSubmitting, values, ...actions }) => (
-          <div className="flex flex-col items-center p-4">
-            <h1 className="text-white text-center tracking-wider text-4xl my-4 font-serif font-semibold">
+          <div className="flex flex-col items-center p-4 bg-white">
+            <h1 className="text-eduBlack text-center tracking-wider text-[24px] my-4 font-serif">
               {getStepBasedTitle()}
             </h1>
             <Form>
-              <div className="flex flex-col gap-4 text-white m-[5%]">
+              <div className="flex flex-col gap-4 text-eduBlack m-[5%]">
                 {_renderComponentStepWise(currentStep)}
               </div>
               <div className="m-2 flex justify-center">
                 <button
-                  className="bg-primary rounded p-2 m-auto w-1/2 text-lg hover:bg-yellow-500"
+                  className="bg-eduBlack text-white rounded p-2 m-auto w-1/2 text-lg hover:bg-yellow-500 ease-in duration-300 font-normal"
                   type="submit"
                   disabled={isSubmitting}
                   hidden={currentStep === 7}
@@ -508,7 +508,7 @@ export default function SignUp() {
               )}
               <span
                 hidden={!commonErrorMessage}
-                className="text-white flex place-content-center text-sm opacity-50 m-2 animate-fade-in-down"
+                className="text-eduBlack flex place-content-center text-sm opacity-50 m-2 animate-fade-in-down"
               >
                 {commonErrorMessage}
               </span>

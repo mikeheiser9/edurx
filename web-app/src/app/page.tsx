@@ -102,7 +102,7 @@ export default function SignIn() {
                     }
                   />
                   <button
-                    className="bg-primary rounded p-2 mt-8 m-auto w-1/2 text-lg hover:bg-yellow-500"
+                    className="bg-eduBlack text-white rounded p-2 mt-8 m-auto w-1/2 text-lg hover:bg-yellow-500"
                     type="submit"
                     disabled={isSubmitting}
                   >
@@ -111,7 +111,7 @@ export default function SignIn() {
                 </div>
                 <ErrorMessage
                   name="isUnauthorized"
-                  className="text-white text-sm opacity-50 text-center m-2 animate-fade-in-down"
+                  className="text-eduBlack text-sm opacity-50 text-center m-2 animate-fade-in-down"
                   component="div"
                 />
               </Form>

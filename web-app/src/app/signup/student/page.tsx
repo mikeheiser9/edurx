@@ -245,7 +245,7 @@ export default function () {
 
   const UniversityInfo = (): React.JSX.Element => {
     return (
-      <div className="text-white px-6 text-center">
+      <div className="text-eduBlack px-6 text-center">
         <p className="opacity-50 my-4">
           if the information below is correct click {"\n"} next to continue sign
           up process
@@ -273,7 +273,7 @@ export default function () {
   const EduVerificationFailed = (): React.JSX.Element => {
     return (
       <div>
-        <p className="text-white px-8 opacity-50 text-center">
+        <p className="text-eduBlack px-8 opacity-50 text-center">
           It looks like the university associated with your .edu email address
           is not yet eligible for an EduRx account. Please come back soon to
           check again...
@@ -285,7 +285,7 @@ export default function () {
   const VerifyYourEmail = (): React.JSX.Element => {
     return (
       <React.Fragment>
-        <p className="text-white px-8 opacity-50 text-center">
+        <p className="text-eduBlack px-8 opacity-50 text-center">
           We need to verify your .edu email address. Click the “Send Code”
           button below to receive an email with a 6-digit code for email
           verification
@@ -348,7 +348,7 @@ export default function () {
 
   return (
     <React.Fragment>
-      <div className="flex justify-center p-4 bg-primary">
+      <div className="flex justify-center p-4 bg-eduDarkGray">
         <button
           onClick={() =>
             currentStep > 0 &&
@@ -361,7 +361,7 @@ export default function () {
         >
           <BackArrowIcon />
         </button>
-        <label className="text-xl flex-1 text-center self-center">
+        <label className="text-[16px] text-eduBlack flex-1 text-center self-center">
           Register for Edu-Rx | Student Account
         </label>
       </div>
@@ -371,8 +371,8 @@ export default function () {
         validationSchema={validationSchema[currentStep]}
       >
         {({ isSubmitting, values, ...actions }) => (
-          <div className="flex flex-col items-center p-4">
-            <h1 className="text-white tracking-wider text-4xl my-4 font-serif font-semibold">
+          <div className="flex flex-col items-center p-4 bg-white">
+            <h1 className="text-eduBlack tracking-wider text-[24px] my-4 font-serif ">
               {getHeadTitle(currentStep, values)}
             </h1>
             <Form>
@@ -381,7 +381,7 @@ export default function () {
               </div>
               <div className="m-2 flex justify-center">
                 <button
-                  className="bg-primary rounded p-2 m-auto w-1/2 text-lg hover:bg-yellow-500"
+                  className="bg-eduBlack text-white rounded p-2 m-auto w-1/2 text-lg hover:bg-yellow-500 ease-in duration-300"
                   type="submit"
                   hidden={currentStep === 4}
                   disabled={isSubmitting}
@@ -396,7 +396,7 @@ export default function () {
               )}
               <span
                 hidden={!commonErrorMessage}
-                className="text-white flex place-content-center text-sm opacity-50 m-2 animate-fade-in-down"
+                className="text-eduBlack flex place-content-center text-sm opacity-50 m-2 animate-fade-in-down"
               >
                 {commonErrorMessage}
               </span>
