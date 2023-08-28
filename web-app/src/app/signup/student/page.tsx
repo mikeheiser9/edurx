@@ -1,11 +1,12 @@
 "use client";
 import {
   generateVerificationCode,
-  login,
   signUp,
+  universityLookup,
+  userAlreadyExists,
   verifyConfirmationCode,
 } from "@/service/auth.service";
-import { validateField } from "@/util/interface/constant";
+import { validateField } from "@/util/constant";
 import {
   commonRegistrationField,
   userLoginField,
@@ -21,6 +22,7 @@ import {
   ResendCodeTemplate,
   VerifyEmail,
 } from "../commonBlocks";
+import { Button } from "@/components/button";
 
 export default function () {
   const router = useRouter();
@@ -29,11 +31,25 @@ export default function () {
   const [commonErrorMessage, setCommonErrorMessage] = useState<string | null>(
     null
   );
+  const [showPassword, setShowPassword] = useState<ShowPasswordState>({
+    password: false,
+    confirmPassword: false,
+  });
   interface studentSignUpSchema extends commonRegistrationField {
     otp: string;
     isEduVerified: boolean;
     universityName: string;
   }
+  interface formikField {
+    field: {
+      value: string;
+    };
+  }
+  interface ShowPasswordState {
+    password: boolean;
+    confirmPassword: boolean;
+  }
+
   const intialFormikValues: studentSignUpSchema = {
     first_name: "",
     last_name: "",
@@ -50,10 +66,22 @@ export default function () {
 
   const validationSchema: Yup.AnyObject = [
     Yup.object({
-      password,
+      password: password
+        .min(8, "Password must be at least 8 characters")
+        .max(25, "Password must be at most 25 characters")
+        .matches(
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/,
+          "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character"
+        ),
       confirm_password: Yup.string()
         .oneOf([Yup.ref("password")], "password must match")
-        .required("confirm password is required"),
+        .required("confirm password is required")
+        .min(8, "Password must be at least 8 characters")
+        .max(25, "Password must be at most 25 characters")
+        .matches(
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/,
+          "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character"
+        ),
       first_name: stringPrefixJoiValidation.min(2).required(),
       last_name: stringPrefixJoiValidation.min(2).required(),
       email: Yup.string()
@@ -77,11 +105,19 @@ export default function () {
     null,
   ];
 
-  const verifyEduMail = async (email: string): Promise<boolean> => {
+  const onShowHidePassword = (type: keyof ShowPasswordState) =>
+    setShowPassword((preState) => {
+      return {
+        ...preState,
+        [type]: !showPassword[type],
+      };
+    });
+
+  const verifyEduMail = async (email: string): Promise<any> => {
     if (!email || !email?.length) return false;
     // verify university avaibility email address is valid
-    let universityName = email.split("@")[1].split(".")[0];
-    return true;
+    let universityName = email.split("@")[1];
+    return await universityLookup(universityName);
   };
 
   const handleUserExists = async (
@@ -92,27 +128,32 @@ export default function () {
       email: values.email,
       password: values.password,
     };
-    await login(payload)
+    await userAlreadyExists(payload.email)
       .then(async (response) => {
-        if (response.status == 401 && response.data.toast) {
+        const userRes = response.status === 200 && response.data.data;
+        if (!userRes?.isExist && !userRes?.user) {
           // user is new and can proceed with .edu verification
           await verifyEduMail(values.email)
-            .then((res: boolean) => {
-              actions.setFieldValue("isEduVerified", res);
+            .then((res) => {
+              actions.setFieldValue(
+                "isEduVerified",
+                res?.data?.data ? true : false
+              );
+              actions.setFieldValue(
+                "universityName",
+                res?.data?.data ? res.data.data.name : ""
+              );
             })
             .catch((e) => console.log(e))
             .finally(() => {
               actions.setSubmitting(false);
               setCurrentStep((prevStep: number) => prevStep + 1);
             });
-        } else if (response.status === 400 && !response.data.toast) {
+        } else if (userRes?.isExist && !userRes?.user?.verified_account) {
           // user verification pending
           actions.setSubmitting(false);
           setCurrentStep(2);
-        } else if (
-          response.status === 200 &&
-          response?.data?.data?.details?.verified_account
-        ) {
+        } else if (userRes?.isExist && userRes?.user?.verified_account) {
           // user already verified
           setCommonErrorMessage(
             "That email address is already registered with EduRx"
@@ -247,17 +288,22 @@ export default function () {
     return (
       <div className="text-white px-6 text-center">
         <p className="opacity-50 my-4">
-          if the information below is correct click {"\n"} next to continue sign
-          up process
+          if the information below is correct click next to continue sign up
+          process
         </p>
         <div className="py-6">
-          <span className="text-2xl">
-            University Of California - Santa Barbara
-          </span>
+          <Field
+            name="universityName"
+            component={({ field }: formikField) => (
+              <span className="text-2xl">
+                {field?.value?.replaceAll(",", " -")}
+              </span>
+            )}
+          />
         </div>
         <Field
           name="email"
-          component={({ field }: any) => (
+          component={({ field }: formikField) => (
             <span className="opacity-50">
               email:{" "}
               <a href={`mailto:${field.value}`} className="underline">
@@ -300,7 +346,12 @@ export default function () {
   ): React.JSX.Element | null => {
     switch (currentStep) {
       case 0:
-        return <BasicDetails />;
+        return (
+          <BasicDetails
+            onShowPassword={onShowHidePassword}
+            showPassword={showPassword}
+          />
+        );
       case 1:
         return values.isEduVerified ? (
           <UniversityInfo />
@@ -351,13 +402,16 @@ export default function () {
       <div className="flex justify-center p-4 bg-primary">
         <button
           onClick={() =>
-            currentStep > 0 &&
-            setCurrentStep((prevStep: number) => prevStep - 1)
+            currentStep > 0
+              ? setCurrentStep((prevStep: number) => prevStep - 1)
+              : router.back()
           }
           className={`text-2xl px-2 self-center ${
-            currentStep % 2 === 0 ? "opacity-50" : "opacity-100"
+            currentStep !== 0 && currentStep % 2 === 0
+              ? "opacity-50"
+              : "opacity-100"
           }`}
-          disabled={currentStep % 2 === 0}
+          disabled={currentStep !== 0 && currentStep % 2 === 0}
         >
           <BackArrowIcon />
         </button>
@@ -380,14 +434,12 @@ export default function () {
                 {stepWiseRenderer(currentStep, values)}
               </div>
               <div className="m-2 flex justify-center">
-                <button
-                  className="bg-primary rounded p-2 m-auto w-1/2 text-lg hover:bg-yellow-500"
+                <Button
                   type="submit"
                   hidden={currentStep === 4}
                   disabled={isSubmitting}
-                >
-                  {getLabel(currentStep, values)}
-                </button>
+                  label={getLabel(currentStep, values)}
+                />
               </div>
               {currentStep === 3 && (
                 <ResendCodeTemplate

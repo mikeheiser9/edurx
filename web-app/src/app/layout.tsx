@@ -1,31 +1,34 @@
-"use client"
-import { Provider } from 'react-redux'
-import './globals.css'
-import { Inter } from 'next/font/google'
-import RouteGuard from '@/components/routeguard'
-import { store } from '@/redux/store'
-import { axiosParse } from '@/axios/config'
+"use client";
+import { Provider } from "react-redux";
+import "./global.css";
+import { Inter } from "next/font/google";
+import RouteGuard from "@/components/routeGuard";
+import { store } from "@/redux/store";
+import { axiosParse } from "@/axios/config";
+import Header from "@/components/header";
+import Footer from "@/components/footer";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  axiosParse(store)
+  axiosParse(store);
   return (
-    <html lang="en">
+    <html lang="en" className="!p-0 grid">
       <head>
         <title>EduRx</title>
+        <link rel="shortcut icon" href="/edurxLogo.svg" />
       </head>
-      <body className={inter.className}>
+      <body className={`w-full flex-auto flex bg-primary-darker ${inter.className}`}>
         <Provider store={store}>
-            <RouteGuard>
-              {children}
-            </RouteGuard>
+          {/* <Header /> */}
+          <RouteGuard>{children}</RouteGuard>
+          {/* <Footer /> */}
         </Provider>
       </body>
     </html>
-  )
+  );
 }
