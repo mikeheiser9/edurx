@@ -30,7 +30,7 @@ interface LastDocRefType {
 }
 
 const Profile = (): React.ReactElement => {
-  const userId = useSelector(selectUserDetail)?._id;
+  const loggedInUser = useSelector(selectUserDetail);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [currentSection, setCurrentSection] = useState<keyof profileSections>(
     Object.keys(profileSections)[0] as keyof profileSections
@@ -44,6 +44,7 @@ const Profile = (): React.ReactElement => {
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isListView, setIsListView] = useState<boolean>(true);
   const editModal = useModal();
 
   const lastDocRef: LastDocRefType = {
@@ -54,7 +55,7 @@ const Profile = (): React.ReactElement => {
   const loadMoreDocuments = async (doc_type: "license" | "certificate") => {
     try {
       setIsLoading(true);
-      const result = await axiosGet(`/user/${userId}/documents`, {
+      const result = await axiosGet(`/user/${loggedInUser?._id}/documents`, {
         params: {
           doc_type,
           page: currentPage[doc_type] + 1,
@@ -90,8 +91,8 @@ const Profile = (): React.ReactElement => {
   };
 
   useEffect(() => {
-    if (!userId) return;
-    axiosGet(`/user/${userId}/profile`, {
+    if (!loggedInUser?._id) return;
+    axiosGet(`/user/${loggedInUser?._id}/profile`, {
       params: {
         usePopulate: true,
       },
@@ -127,6 +128,7 @@ const Profile = (): React.ReactElement => {
             isLoading={isLoading}
             onLoadMore={loadMoreDocuments}
             userData={userData}
+            isListView={isListView}
           />
         }
       >
@@ -136,10 +138,13 @@ const Profile = (): React.ReactElement => {
           profileSections={profileSections}
           userData={userData}
           setUserData={setUserData}
+          setIsListView={setIsListView}
+          isListView={isListView}
+          loggedInUser={loggedInUser}
         />
       </Modal>
       <div className="flex justify-center w-full items-center flex-col">
-        <div className="m-auto p-4 flex-auto lg:w-3/4 flex gap-4 w-full flex-col">
+        <div className="m-auto p-4 flex-auto lg:w-3/4 flex gap-4 h-auto w-full flex-col">
           <BasicInfo userData={userData} openModal={editModal.openModal} />
           <About
             openModal={editModal.openModal}

@@ -26,7 +26,7 @@ export default function RouteGuard({
       user?._id &&
       publicRoutes.find((route) => route === pathName)
     ) {
-      router.push("/profile");
+      router.push("/forum");
     }
   }, [token, user]);
   return isAuthorized ? (children as JSX.Element) : <></>;

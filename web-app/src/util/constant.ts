@@ -21,7 +21,7 @@ const publicRoutes = [
   "/signup/professional",
 ];
 
-const protectedRoutes = ["/profile"];
+const protectedRoutes = ["/profile", "/forum"];
 
 const forumTypes = [
   "Dietetics & Nutrition",

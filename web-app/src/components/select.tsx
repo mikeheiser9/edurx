@@ -28,15 +28,11 @@ export const Select = ({
 }: SelectProps) => {
   const OptionTemplate = () => (
     <>
-      <option value={label} hidden disabled>
+      <option disabled hidden value={label}>
         {label}
       </option>
       {options?.map((option: option) => (
-        <option
-          className={`${optionClassName} text-sm p-2`}
-          key={option.value}
-          value={option.value}
-        >
+        <option className={`${optionClassName} text-sm p-2`} key={option.value}>
           {option.label}
         </option>
       ))}
@@ -58,7 +54,7 @@ export const Select = ({
           <OptionTemplate />
         </Field>
       ) : (
-        <select {...restProps} className={className} defaultValue={label}>
+        <select {...restProps} className={className}>
           <OptionTemplate />
         </select>
       )}

@@ -23,6 +23,7 @@ interface ModalProps {
 export const Modal = ({
   showHeader = true,
   showFooter = true,
+  showCloseIcon = true,
   ...props
 }: ModalProps) => {
   const [animationClass, setAnimationClass] = useState("");
@@ -42,7 +43,8 @@ export const Modal = ({
       setAnimationClass("opacity-0 pointer-events-none");
     }
     return () => {
-      document.removeEventListener("keydown", handleEscape);
+      props.closeOnEscape &&
+        document.removeEventListener("keydown", handleEscape);
     };
   }, [props.visible]);
 
@@ -67,7 +69,7 @@ export const Modal = ({
         <span className="text-xl font-medium justify-self-start">
           {props.headerTitle}
         </span>
-        {props.showCloseIcon && (
+        {showCloseIcon && (
           <FontAwesomeIcon
             icon={faXmark}
             onClick={props.onClose}

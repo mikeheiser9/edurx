@@ -8,7 +8,7 @@ interface props {
   className?: string;
   activeClass?: string;
   label: string;
-  isSelected: boolean;
+  isSelected?: boolean;
 }
 
 export const Chip = (props: props): React.ReactElement => {
@@ -24,17 +24,17 @@ export const Chip = (props: props): React.ReactElement => {
         props?.onSelect && props?.onSelect();
       }}
     >
-      <FontAwesomeIcon
-        className={`${
-          props.isSelected ? "visible" : "hidden"
-        } animate-scale-in cursor-pointer`}
-        icon={faXmarkCircle}
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          props?.onClear && props?.onClear();
-        }}
-      />
+      {props.isSelected && (
+        <FontAwesomeIcon
+          className="animate-scale-in cursor-pointer mr-1"
+          icon={faXmarkCircle}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            props?.onClear && props?.onClear();
+          }}
+        />
+      )}
       {props.label}
     </span>
   );

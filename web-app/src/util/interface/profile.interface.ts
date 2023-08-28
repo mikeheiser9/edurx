@@ -28,6 +28,7 @@ interface education {
   is_in_progress: boolean;
   activities: string;
   _id?: string;
+  id?: string; // due to some mongoose issues, we need to remove this
 }
 
 interface userDocs {

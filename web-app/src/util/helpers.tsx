@@ -11,8 +11,12 @@ const getStaticImageUrl = (uri: string): string => {
   return `${process.env.NEXT_PUBLIC_SERVER_URL}/uploads/${uri}`;
 };
 
-const getFullName = (firstName: string, lastName: string): string => {
-  return `${firstName} ${lastName}`;
+const getFullName = (
+  firstName: string = "",
+  lastName: string = "",
+  joinWith: string = " "
+): string => {
+  return `${firstName}${joinWith}${lastName}`;
 };
 
 const boldOnSearch = (text: string, search: string) => {
@@ -35,4 +39,27 @@ const boldOnSearch = (text: string, search: string) => {
   );
 };
 
-export { getInputDateFormat, getStaticImageUrl, getFullName, boldOnSearch };
+const areArraysEqual = (array1: string[], array2: string[]) => {
+  if (array1.length !== array2.length) {
+    return false;
+  }
+
+  const sortedArray1 = [...array1].sort();
+  const sortedArray2 = [...array2].sort();
+
+  for (let i = 0; i < sortedArray1.length; i++) {
+    if (sortedArray1[i] !== sortedArray2[i]) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+export {
+  getInputDateFormat,
+  getStaticImageUrl,
+  getFullName,
+  boldOnSearch,
+  areArraysEqual,
+};

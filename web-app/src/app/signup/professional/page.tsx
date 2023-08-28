@@ -36,6 +36,12 @@ interface professionalAccountSignUpField
   extends professionalUserRegistrationField {
   otp: string;
 }
+
+interface ShowPasswordState {
+  password: boolean;
+  confirmPassword: boolean;
+}
+
 export default function SignUp() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState<number>(0);
@@ -44,6 +50,10 @@ export default function SignUp() {
   const [commonErrorMessage, setCommonErrorMessage] = useState<string | null>(
     null
   );
+  const [showPassword, setShowPassword] = useState<ShowPasswordState>({
+    password: false,
+    confirmPassword: false,
+  });
   const { stringPrefixJoiValidation, password } = validateField;
   const formInitialValues: professionalAccountSignUpField = {
     email: "",
@@ -67,10 +77,22 @@ export default function SignUp() {
   const validationSchema = [
     Yup.object({
       email: stringPrefixJoiValidation.email().required(),
-      password,
+      password: password
+        .min(8, "Password must be at least 8 characters")
+        .max(25, "Password must be at most 25 characters")
+        .matches(
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/,
+          "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character"
+        ),
       confirm_password: Yup.string()
         .oneOf([Yup.ref("password")], "password must match")
-        .required("confirm password is required"),
+        .required("confirm password is required")
+        .min(8, "Password must be at least 8 characters")
+        .max(25, "Password must be at most 25 characters")
+        .matches(
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/,
+          "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character"
+        ),
       first_name: stringPrefixJoiValidation.min(2).required(),
       last_name: stringPrefixJoiValidation.min(2).required(),
     }),
@@ -100,6 +122,14 @@ export default function SignUp() {
       .toLowerCase()
       .replace(/(?:^|\s)\S/g, (char) => char.toUpperCase());
   };
+
+  const onShowHidePassword = (type: keyof ShowPasswordState) =>
+    setShowPassword((preState) => {
+      return {
+        ...preState,
+        [type]: !showPassword[type],
+      };
+    });
 
   const npiReturnVariables = [
     { fieldName: "npiReturnFullName", label: "Full Name" },
@@ -146,8 +176,8 @@ export default function SignUp() {
           );
           actions.setFieldValue(
             `${npiReturnVariables[3].fieldName}`,
-            res.data?.addresses?.map((address: string) =>
-              Object.values(address)
+            res.data?.addresses?.map(
+              (address: any, index: number) => address?.[`address_${index + 1}`]
             )
           );
           actions.setFieldValue(
@@ -400,12 +430,7 @@ export default function SignUp() {
                   name={variable.fieldName}
                   component={({ field }: any) => (
                     <div>
-                      <label>
-                        {variable.fieldName != "addresses"
-                          ? capitalizeString(field.value)
-                          : field?.value?.[0]?.length &&
-                            field?.value?.[0]?.join(", ")}
-                      </label>
+                      <label>{field?.value}</label>
                     </div>
                   )}
                 ></Field>
@@ -442,7 +467,12 @@ export default function SignUp() {
   const _renderComponentStepWise = (currentStep: number): React.JSX.Element => {
     switch (currentStep) {
       case 0:
-        return <BasicDetails />;
+        return (
+          <BasicDetails
+            showPassword={showPassword}
+            onShowPassword={onShowHidePassword}
+          />
+        );
       case 1:
         return <AskNpiNumber />;
       case 2:
@@ -493,27 +523,24 @@ export default function SignUp() {
       <div className="flex justify-center p-4 bg-primary">
         <button
           onClick={() =>
-            currentStep > 0 &&
-            setCurrentStep((prevStep: number) => {
-              if (currentStep === 3) {
-                return prevStep - 2;
-              }
-              return prevStep - 1;
-            })
+            currentStep > 0
+              ? setCurrentStep((prevStep: number) => {
+                  if (currentStep === 3) {
+                    return prevStep - 2;
+                  }
+                  return prevStep - 1;
+                })
+              : router.back()
           }
           className={`text-2xl px-2 self-center ${
-            currentStep === 0 ||
-            currentStep === 5 ||
-            currentStep === 6 ||
-            currentStep === 7
+            // currentStep === 0 ||
+            currentStep === 5 || currentStep === 6 || currentStep === 7
               ? "opacity-50"
               : "opacity-100"
           }`}
           disabled={
-            currentStep === 0 ||
-            currentStep === 5 ||
-            currentStep === 6 ||
-            currentStep === 7
+            // currentStep === 0 ||
+            currentStep === 5 || currentStep === 6 || currentStep === 7
           }
         >
           <BackArrowIcon />

@@ -1,7 +1,7 @@
 import { axiosPut } from "@/axios/config";
-import { selectUserDetail } from "@/redux/ducks/user.duck";
+import { selectUserDetail, setUserDetail } from "@/redux/ducks/user.duck";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { sections } from "./sections";
 import { Form, Formik, FormikHelpers } from "formik";
 import { validationSchema } from "@/util/validations/userProfile";
@@ -14,6 +14,9 @@ interface Props {
   profileSections: profileSections;
   userData: UserData;
   setUserData: React.Dispatch<React.SetStateAction<UserData | null>>;
+  setIsListView: React.Dispatch<React.SetStateAction<boolean>>;
+  isListView: boolean;
+  loggedInUser: any;
 }
 
 const EditProfile = ({
@@ -22,9 +25,12 @@ const EditProfile = ({
   setCurrentSection,
   userData,
   setUserData,
+  setIsListView,
+  isListView,
+  loggedInUser,
 }: Props) => {
-  const userId: string | undefined = useSelector(selectUserDetail)?._id;
-  const [isListView, setIsListView] = useState<boolean>(true);
+  const dispatch = useDispatch();
+  const userId: string | undefined = loggedInUser?._id;
 
   const intialFormikValues: userProfileInterface = {
     about: {
@@ -102,6 +108,7 @@ const EditProfile = ({
           (item: education) => item._id !== editId
         ) as education[];
       }
+      delete values?._id;
       const res = await axiosPut("/user/profile", {
         userId,
         educations: [...payload, values],
@@ -160,7 +167,15 @@ const EditProfile = ({
         formData.set(key, values[key as keyof profileImages])
       );
       formData.append("data", JSON.stringify({ userId }));
-      await axiosPut("/user/profile", formData);
+      const response = await axiosPut("/user/profile", formData);
+      if (response?.status === 200) {
+        dispatch(
+          setUserDetail({
+            ...loggedInUser,
+            profile_img: response?.data?.data?.user?.profile_img,
+          })
+        );
+      }
     } catch (err) {
       console.log(`Failed to save user profile/${currentSection}`, err);
     }

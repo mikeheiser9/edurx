@@ -255,10 +255,10 @@ const CommentList = ({
               {/* {post?.forumType} • Published on{" "} */}•{" "}
               {moment(comment?.createdAt).fromNow()} •
             </span>
-            <div className="flex text-xs text-white/50 gap-2">
+            {/* <div className="flex text-xs text-white/50 gap-2">
               <FontAwesomeIcon icon={faChartColumn} />
               <span>{comment?.views} views</span>
-            </div>
+            </div> */}
           </div>
         ))}
       </div>
@@ -502,18 +502,22 @@ const ModalFooter = ({
   currentSection,
   isLoading,
   onLoadMore,
+  isListView,
 }: {
   userData: UserData;
   currentSection: keyof profileSections;
   isLoading: boolean;
+  isListView: boolean;
   onLoadMore(doc_type: "license" | "certificate"): void;
 }) => (
   <>
     {currentSection === "licenses" &&
+      isListView &&
       userData?.licenses.length < userData?.licensesCount && (
         <LoadMore isLoading={isLoading} onClick={() => onLoadMore("license")} />
       )}
     {currentSection === "certifications" &&
+      isListView &&
       userData?.certificates?.length < userData?.certificatesCount && (
         <LoadMore
           isLoading={isLoading}

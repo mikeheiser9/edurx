@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface UseModal {
   isOpen: boolean;
@@ -33,4 +33,21 @@ const useDebounce = (value: string, milliSeconds: number = 500) => {
   return debouncedValue;
 };
 
-export { useModal, useDebounce };
+const useOutsideClick = (callback: () => void) => {
+  const innerRef = useRef<HTMLDivElement>(null);
+
+  const handleClick = (e: MouseEvent) => {
+    if (innerRef.current && !innerRef.current.contains(e.target as Node)) {
+      callback();
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, []);
+
+  return innerRef;
+};
+
+export { useModal, useDebounce, useOutsideClick };

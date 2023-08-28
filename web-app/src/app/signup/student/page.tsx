@@ -31,6 +31,10 @@ export default function () {
   const [commonErrorMessage, setCommonErrorMessage] = useState<string | null>(
     null
   );
+  const [showPassword, setShowPassword] = useState<ShowPasswordState>({
+    password: false,
+    confirmPassword: false,
+  });
   interface studentSignUpSchema extends commonRegistrationField {
     otp: string;
     isEduVerified: boolean;
@@ -41,6 +45,11 @@ export default function () {
       value: string;
     };
   }
+  interface ShowPasswordState {
+    password: boolean;
+    confirmPassword: boolean;
+  }
+
   const intialFormikValues: studentSignUpSchema = {
     first_name: "",
     last_name: "",
@@ -57,10 +66,22 @@ export default function () {
 
   const validationSchema: Yup.AnyObject = [
     Yup.object({
-      password,
+      password: password
+        .min(8, "Password must be at least 8 characters")
+        .max(25, "Password must be at most 25 characters")
+        .matches(
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/,
+          "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character"
+        ),
       confirm_password: Yup.string()
         .oneOf([Yup.ref("password")], "password must match")
-        .required("confirm password is required"),
+        .required("confirm password is required")
+        .min(8, "Password must be at least 8 characters")
+        .max(25, "Password must be at most 25 characters")
+        .matches(
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/,
+          "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character"
+        ),
       first_name: stringPrefixJoiValidation.min(2).required(),
       last_name: stringPrefixJoiValidation.min(2).required(),
       email: Yup.string()
@@ -83,6 +104,14 @@ export default function () {
     }),
     null,
   ];
+
+  const onShowHidePassword = (type: keyof ShowPasswordState) =>
+    setShowPassword((preState) => {
+      return {
+        ...preState,
+        [type]: !showPassword[type],
+      };
+    });
 
   const verifyEduMail = async (email: string): Promise<any> => {
     if (!email || !email?.length) return false;
@@ -317,7 +346,12 @@ export default function () {
   ): React.JSX.Element | null => {
     switch (currentStep) {
       case 0:
-        return <BasicDetails />;
+        return (
+          <BasicDetails
+            onShowPassword={onShowHidePassword}
+            showPassword={showPassword}
+          />
+        );
       case 1:
         return values.isEduVerified ? (
           <UniversityInfo />
@@ -368,13 +402,16 @@ export default function () {
       <div className="flex justify-center p-4 bg-primary">
         <button
           onClick={() =>
-            currentStep > 0 &&
-            setCurrentStep((prevStep: number) => prevStep - 1)
+            currentStep > 0
+              ? setCurrentStep((prevStep: number) => prevStep - 1)
+              : router.back()
           }
           className={`text-2xl px-2 self-center ${
-            currentStep % 2 === 0 ? "opacity-50" : "opacity-100"
+            currentStep !== 0 && currentStep % 2 === 0
+              ? "opacity-50"
+              : "opacity-100"
           }`}
-          disabled={currentStep % 2 === 0}
+          disabled={currentStep !== 0 && currentStep % 2 === 0}
         >
           <BackArrowIcon />
         </button>

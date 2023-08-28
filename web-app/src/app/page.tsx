@@ -100,13 +100,18 @@ export default function SignIn() {
           setCommonMessage("Verify your email");
           setTimeout(() => {
             setIsVerificationPending(true);
-            setCommonMessage(null);
-          }, 1000);
+          }, 2000);
+        } else {
+          setCommonMessage(response?.data?.message);
         }
       }
     } catch (error) {
       console.log(error);
+    } finally {
       actions.setSubmitting(false);
+      setTimeout(() => {
+        setCommonMessage(null);
+      }, 3000);
     }
   };
 
@@ -196,7 +201,7 @@ export default function SignIn() {
                     </span>
                   )}
                   {commonMessage && (
-                    <span className="text-white text-sm opacity-50 text-center animate-fade-in-down">
+                    <span className="capitalize text-white/50 text-sm text-center animate-fade-in-down">
                       {commonMessage}
                     </span>
                   )}
