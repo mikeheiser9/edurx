@@ -381,7 +381,7 @@ export default function () {
               </div>
               <div className="m-2 flex justify-center">
                 <button
-                  className="bg-eduBlack text-white rounded p-2 m-auto w-1/2 text-lg hover:bg-yellow-500 ease-in duration-300"
+                  className="bg-eduBlack text-white font-light text-[16px] rounded p-2 m-auto w-1/2 hover:bg-yellow-500 ease-in duration-300"
                   type="submit"
                   hidden={currentStep === 4}
                   disabled={isSubmitting}

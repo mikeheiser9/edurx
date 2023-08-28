@@ -102,7 +102,7 @@ export default function SignIn() {
                     }
                   />
                   <button
-                    className="bg-eduBlack text-white rounded p-2 mt-8 m-auto w-1/2 text-lg hover:bg-yellow-500"
+                    className="bg-eduBlack text-white font-light text-[16px] rounded p-2 mt-8 m-auto w-1/2 hover:bg-yellow-500"
                     type="submit"
                     disabled={isSubmitting}
                   >

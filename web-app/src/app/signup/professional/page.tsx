@@ -336,14 +336,13 @@ export default function SignUp() {
           Please confirm the following information is accurate and up to date.
           Note: you will be able to add additional licenses and info later.
         </p>
-        <div className="bg-[#FDCD2640] mt-4 text-eduBlack rounded flex flex-col gap-2 p-2">
+        <div className="bg-eduLightGray mt-4 text-eduBlack rounded flex flex-col gap-2 p-2">
           <div className="flex justify-end w-full relative">
-            <div className="absolute text-xs text-primary">
+            <div className="absolute text-xs text-eduBlack">
               <button
                 onClick={() => setCurrentStep((currentStep) => currentStep + 1)}
-                className=""
-              >
-                Edit Info
+                className="">
+                <span className="underline-offset-1">Edit Info</span>
               </button>
             </div>
           </div>
@@ -419,7 +418,7 @@ export default function SignUp() {
 
   const renderButtonLabelBasedOnStep = (): string => {
     if (currentStep == 4) {
-      return "save";
+      return "Save";
     } else if (currentStep == 2 || currentStep == 5) {
       return "Submit";
     } else if (currentStep === 0 || currentStep === 3) {
@@ -493,7 +492,7 @@ export default function SignUp() {
               </div>
               <div className="m-2 flex justify-center">
                 <button
-                  className="bg-eduBlack text-white rounded p-2 m-auto w-1/2 text-lg hover:bg-yellow-500 ease-in duration-300 font-normal"
+                  className="bg-eduBlack text-white font-light text-[16px] rounded p-2 m-auto w-1/2 hover:bg-yellow-500 ease-in duration-300"
                   type="submit"
                   disabled={isSubmitting}
                   hidden={currentStep === 7}
