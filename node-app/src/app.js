@@ -9,6 +9,8 @@ import postRoute from "./routes/post.js";
 import cors from "cors"
 import { fileUpload,fileTypeCheckAndRename} from "./middleware/multer.js";
 import sheetRoute from "./routes/googleSheet.js";
+import logger from 'morgan'
+
 const app=express();
 const PORT=process.env.PORT;
 app.use(cors({
@@ -16,6 +18,8 @@ app.use(cors({
 }))
 sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 app.use(express.json());
+app.use(logger('dev'));
+app.use(express.static('public'))
 app.use(express.urlencoded({extended:false}));
 app.use(fileUpload)
 app.use(fileTypeCheckAndRename)

@@ -1,0 +1,59 @@
+button:hover .ql-stroke,
+.ql-picker-label:hover .ql-stroke {
+  fill: none;
+  stroke: #fdcd26 !important;
+}
+
+.ql-active .ql-stroke {
+  fill: none;
+  stroke: #fdcd26 !important;
+}
+
+button:hover .ql-fill,
+.ql-picker-label:hover .ql-fill {
+  fill: #fdcd26 !important;
+  stroke: none;
+}
+
+.ql-picker-label {
+  color: #fff !important;
+}
+
+.ql-picker-item:hover {
+  color: #fdcd26 !important;
+  stroke: none;
+}
+
+.ql-active .ql-fill {
+  fill: #fdcd26 !important;
+  stroke: none;
+}
+
+.ql-toolbar .ql-stroke {
+  fill: none;
+  stroke: #fff;
+}
+
+.ql-toolbar .ql-fill {
+  fill: #fff;
+  stroke: none;
+}
+
+.ql-toolbar .ql-picker {
+  color: #fff;
+}
+
+.ql-container.ql-snow {
+  border: none;
+}
+.ql-toolbar.ql-snow {
+  border: none;
+  background: rgb(48, 48, 48);
+}
+
+.ql-snow .ql-picker-options {
+  border-radius: 8px;
+  background-color: #fff;
+  color: black;
+  border: none;
+}

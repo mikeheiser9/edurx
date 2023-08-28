@@ -3,8 +3,21 @@ import { Field } from "formik";
 import Image from "next/image";
 import React from "react";
 import CheckIcon from "@/assets/icons/checked.svg";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
-const BasicDetails = (): React.JSX.Element => {
+interface ShowPasswordState {
+  password: boolean;
+  confirmPassword: boolean;
+}
+
+const BasicDetails = ({
+  onShowPassword,
+  showPassword,
+}: {
+  onShowPassword?: (type: keyof ShowPasswordState) => void;
+  showPassword?: ShowPasswordState;
+}): React.JSX.Element => {
   return (
     <React.Fragment>
       <div className="grid grid-cols-2 gap-4">
@@ -12,11 +25,29 @@ const BasicDetails = (): React.JSX.Element => {
         <InputField name="last_name" placeholder="Last name" type="text" />
       </div>
       <InputField name="email" placeholder="Email Address" type="email" />
-      <InputField name="password" placeholder="Password" type="password" />
+      <InputField
+        name="password"
+        placeholder="Password"
+        type={showPassword?.password ? "text" : "password"}
+        icon={
+          <FontAwesomeIcon
+            onClick={() => onShowPassword?.("password")}
+            className="text-white"
+            icon={showPassword?.password ? faEye : faEyeSlash}
+          />
+        }
+      />
       <InputField
         name="confirm_password"
         placeholder="Confirm Password"
-        type="password"
+        type={showPassword?.confirmPassword ? "text" : "password"}
+        icon={
+          <FontAwesomeIcon
+            onClick={() => onShowPassword?.("confirmPassword")}
+            className="text-white"
+            icon={showPassword?.confirmPassword ? faEye : faEyeSlash}
+          />
+        }
       />
     </React.Fragment>
   );
@@ -24,7 +55,7 @@ const BasicDetails = (): React.JSX.Element => {
 
 const VerifyEmail = (): React.JSX.Element => {
   return (
-    <div className="px-8">
+    <React.Fragment>
       <Field
         name="email"
         component={({
@@ -47,7 +78,7 @@ const VerifyEmail = (): React.JSX.Element => {
           placeholder="Enter Verification Code"
         />
       </div>
-    </div>
+    </React.Fragment>
   );
 };
 
@@ -112,7 +143,7 @@ const ResendCodeTemplate = ({
 }): React.JSX.Element => {
   return (
     <div className="mt-4 text-eduBlack opacity-50 text-center text-xs grid gap-2">
-      <span>Didn’t receive a code?</span>
+      <span>Didn&apos;t receive a code?</span>
       <span onClick={onClick} className="underline cursor-pointer">
         Resend Code
       </span>

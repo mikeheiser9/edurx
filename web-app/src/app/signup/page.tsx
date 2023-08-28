@@ -4,8 +4,7 @@ import ProfessionalImg from "@/assets/icons/user.svg";
 import StudentImg from "@/assets/icons/student.svg";
 import CeProviderImg from "@/assets/icons/provider.svg";
 import IntitutionImg from "@/assets/icons/institution.svg";
-
-import { AccountCard } from "@/components/AccountCard";
+import { AccountCard } from "@/components/accountCard";
 import React from "react";
 
 export default function ChooseAccountType() {

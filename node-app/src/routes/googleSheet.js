@@ -4,6 +4,6 @@ import { addSheetDataValidator } from "../middleware/validator/googleSheet.js";
 
 const sheetRoute = Router();
 
-sheetRoute.post("/add-values", addSheetDataValidator, addToSheet);
+sheetRoute.post("/add-to-sheet", addSheetDataValidator, addToSheet);
 
 export default sheetRoute;
