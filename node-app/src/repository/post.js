@@ -1,10 +1,10 @@
-import { Types } from "mongoose";
 import { categoryTagModal } from "../model/post/categoryTag.js";
 import { commentModal } from "../model/post/comment.js";
 import { postModal } from "../model/post/post.js";
 import { reactionModal } from "../model/post/reaction.js";
 import { viewModal } from "../model/post/views.js";
 import { findAndPaginate } from "../util/commonFunctions.js";
+import mongoose from "mongoose";
 
 const createNewPost = async (payload) => {
   console.log(payload);
@@ -81,7 +81,8 @@ const addReaction = async ({
       {
         userId,
         targetType,
-        $or: [{ postId }, { commentId }],
+        postId,
+        commentId,
       },
       {
         $set: {
@@ -92,21 +93,12 @@ const addReaction = async ({
           reactionType,
         },
       },
-      { upsert: true }
+      { upsert: true, new: true }
     );
 
-    // If the reaction already existed and it's different from the new one
-    if (updatedReaction && updatedReaction.reactionType !== reactionType) {
-      return {
-        data: updatedReaction,
-        message: `${targetType} reaction successfully updated to ${reactionType}`,
-      };
-    }
-
-    // Otherwise, it's a new reaction or the reaction is the same as the existing one
     return {
       data: updatedReaction,
-      message: `${targetType} reaction added successfully`,
+      message: `${targetType} reaction successfully updated to ${reactionType}`,
     };
   } catch (err) {
     throw new Error(
@@ -119,64 +111,328 @@ const addComment = async (payload) => {
   return await commentModal.create(payload);
 };
 
-const getCommentsByPostId = async (postId, page, limit) => {
-  const query = { postId },
-    options = {
-      populate: [
-        {
-          path: "taggedUsers",
-          select: ["first_name"],
+const getCommentsByPostId = async (postId, page = 1, limit = 10, userId) => {
+  // const query = { postId },
+  //   options = {
+  //     populate: [
+  //       {
+  //         path: "taggedUsers",
+  //         select: ["first_name"],
+  //       },
+  //       {
+  //         path: "views",
+  //       },
+  //     ],
+  //   };
+  // return await findAndPaginate(
+  //   commentModal,
+  //   query,
+  //   page && Number(page),
+  //   limit && Number(limit),
+  //   options
+  // );
+
+  try {
+    const skippedPages = (page - 1) * limit;
+    const pipeline = [
+      {
+        $match: { postId: new mongoose.Types.ObjectId(postId), parentId: null }, // Match top-level comments
+      },
+      {
+        $lookup: {
+          from: "comments", // Collection name
+          localField: "_id",
+          foreignField: "parentId",
+          as: "replies",
+          pipeline: [
+            // {
+            //   $lookup: {
+            //     from: "views",
+            //     localField: "_id",
+            //     foreignField: "itemId",
+            //     as: "views",
+            //   },
+            // },
+            {
+              $lookup: {
+                from: "reactions",
+                localField: "_id",
+                foreignField: "commentId",
+                as: "reactions",
+                // pipeline: [
+                //   {
+                //     $match: {
+                //       reactionType: "like",
+                //     },
+                //   },
+                // ],
+              },
+            },
+            {
+              $addFields: {
+                replies: "$replies",
+                likeCount: {
+                  $size: {
+                    $filter: {
+                      input: "$reactions",
+                      as: "item",
+                      cond: { $eq: ["$$item.reactionType", "like"] },
+                    },
+                  },
+                },
+                dislikeCount: {
+                  $size: {
+                    $filter: {
+                      input: "$reactions",
+                      as: "item",
+                      cond: { $eq: ["$$item.reactionType", "dislike"] },
+                    },
+                  },
+                },
+                reactions: {
+                  $filter: {
+                    input: "$reactions",
+                    as: "item",
+                    cond: { $eq: ["$$item.userId", userId] },
+                  },
+                }, // logged in user's reaction
+                // views: { $size: "$views" },
+              },
+            },
+            {
+              $lookup: {
+                from: "users",
+                localField: "userId",
+                foreignField: "_id",
+                as: "userId",
+                pipeline: [
+                  {
+                    $project: {
+                      profile_img: 1,
+                      email: 1,
+                      first_name: 1,
+                      last_name: 1,
+                      role: 1,
+                    },
+                  },
+                ],
+              },
+            },
+            {
+              $lookup: {
+                from: "users",
+                localField: "repliedTo",
+                foreignField: "_id",
+                as: "repliedTo",
+                pipeline: [
+                  {
+                    $project: {
+                      email: 1,
+                      first_name: 1,
+                      last_name: 1,
+                      role: 1,
+                    },
+                  },
+                ],
+              },
+            },
+            {
+              $unwind: "$repliedTo",
+            },
+            {
+              $addFields: {
+                // views: { $size: "$views" },
+                likeCount: { $size: "$likeCount" },
+                dislikeCount: { $size: "$dislikeCount" },
+              },
+            },
+            {
+              $sort: { createdAt: -1 },
+            },
+          ],
         },
-        {
-          path: "views",
+      },
+      // {
+      //   $lookup: {
+      //     from: "views",
+      //     localField: "_id",
+      //     foreignField: "itemId",
+      //     as: "views",
+      //   },
+      // },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "userId",
+          pipeline: [
+            {
+              $project: {
+                profile_img: 1,
+                email: 1,
+                first_name: 1,
+                last_name: 1,
+                role: 1,
+              },
+            },
+          ],
         },
-      ],
+      },
+      {
+        $unwind: "$userId",
+      },
+      {
+        $lookup: {
+          from: "reactions",
+          localField: "_id",
+          foreignField: "commentId",
+          as: "reactions",
+          // pipeline: [
+          //   {
+          //     $match: {
+          //       reactionType: "like",
+          //     },
+          //   },
+          // ],
+        },
+      },
+      {
+        $addFields: {
+          replies: "$replies",
+          likeCount: {
+            $size: {
+              $filter: {
+                input: "$reactions",
+                as: "item",
+                cond: { $eq: ["$$item.reactionType", "like"] },
+              },
+            },
+          },
+          dislikeCount: {
+            $size: {
+              $filter: {
+                input: "$reactions",
+                as: "item",
+                cond: { $eq: ["$$item.reactionType", "dislike"] },
+              },
+            },
+          },
+          reactions: {
+            $filter: {
+              input: "$reactions",
+              as: "item",
+              cond: { $eq: ["$$item.userId", userId] },
+            },
+          }, // logged in user's reaction
+          // views: { $size: "$views" },
+        },
+      },
+      // { $unwind: "$reactions" },
+      {
+        $sort: { createdAt: -1 },
+      },
+      {
+        $facet: {
+          records: [{ $skip: skippedPages }, { $limit: limit }],
+          metadata: [{ $count: "totalCount" }],
+        },
+      },
+    ];
+
+    const result = await commentModal.aggregate(pipeline);
+    const totalCount = result?.[0]?.metadata[0]?.totalCount || 0;
+    console.log(result);
+
+    return {
+      comments: {
+        metadata: {
+          totalRecords: totalCount,
+          currentPage: Number(page),
+          limit,
+          pageCount: totalCount < limit ? 1 : Math.ceil(totalCount / limit),
+        },
+        data: result[0].records,
+      },
     };
-  return await findAndPaginate(
-    commentModal,
-    query,
-    page && Number(page),
-    limit && Number(limit),
-    options
-  );
+  } catch (error) {
+    console.error("Error fetching comments with replies:", error);
+    throw error;
+  }
 };
 
-const getPostById = async (postId) => {
+const getPostById = async (postId, userId) => {
+  let userPopulator = {
+    path: "userId",
+    select: ["profile_img", "email", "first_name", "last_name", "role"],
+  };
   return await postModal.findById({ _id: postId }).populate([
-    "comments",
-    // "reactions",
     "commentCount",
-    // "likeCount",
-    // "dislikeCount",
+    "likeCount",
+    "dislikeCount",
     "views",
+    userPopulator,
+    {
+      path: "tags",
+      select: ["name"],
+    },
+    {
+      path: "reactions",
+      select: ["reactionType", "targetType", "userId"],
+      match: { userId },
+    },
+    {
+      path: "categories",
+      select: ["name"],
+    },
+    {
+      path: "comments",
+      limit: 10,
+      options: {
+        sort: {
+          createdAt: -1,
+        },
+      },
+      match: {
+        parentId: null,
+      },
+      populate: [
+        userPopulator,
+        {
+          path: "reactions",
+          select: ["reactionType", "targetType", "userId"],
+          match: { userId },
+        },
+        {
+          path: "replies",
+          populate: [
+            userPopulator,
+            // "views",
+            "likeCount",
+            "dislikeCount",
+            {
+              path: "repliedTo",
+              select: ["email", "first_name", "last_name", "role"],
+            },
+            {
+              path: "reactions",
+              select: ["reactionType", "targetType", "userId"],
+              match: { userId },
+            },
+          ],
+          options: {
+            sort: {
+              createdAt: -1,
+            },
+          },
+        },
+        // "views",
+        "likeCount",
+        "dislikeCount",
+      ],
+    },
   ]);
 };
-
-// const getPosts = async (payload) => {
-//   console.log(payload);
-//   const { page, limit, sortBy, forumType } = payload;
-//   const soryByQuery = {
-//     newest: { createdAt: -1 },
-//     popular: { views: -1 },
-//     trending: "",
-//   };
-//   const query = forumType ? { forumType } : {},
-//     options = {
-//       populate: ["views", "likeCount"],
-//       ...(sortBy ? { sort: soryByQuery[sortBy] } : {}),
-//     };
-//   return await postModal
-//     .find(query)
-//     .populate(["views", "likeCount"])
-//     .sort({ views: -1 });
-//   // return await findAndPaginate(
-//   //   postModal,
-//   //   query,
-//   //   page && Number(page),
-//   //   limit && Number(limit),
-//   //   options
-//   // );
-// };
 
 const getPosts = async ({
   page = 1,
@@ -206,6 +462,61 @@ const getPosts = async ({
       {
         $match: query,
       },
+      {
+        $lookup: {
+          from: "postcategorytags",
+          localField: "categories",
+          foreignField: "_id",
+          as: "categoryData",
+        },
+      },
+      {
+        $lookup: {
+          from: "postcategorytags",
+          localField: "tags",
+          foreignField: "_id",
+          as: "tags",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "userId",
+          pipeline: [
+            {
+              $lookup: {
+                from: "userconnections",
+                localField: "_id",
+                foreignField: "targetUserId",
+                as: "followings",
+                pipeline: [
+                  {
+                    $project: {
+                      userId: 1,
+                      targetUserId: 1,
+                    },
+                  },
+                ],
+              },
+            },
+            {
+              $addFields: {
+                followings: "$followings",
+              },
+            },
+            {
+              $project: {
+                email: 1,
+                role: 1,
+                followings: 1,
+              },
+            },
+          ],
+        },
+      },
+      { $unwind: "$userId" },
       {
         $lookup: {
           from: "views",
@@ -249,17 +560,11 @@ const getPosts = async ({
           views: { $size: "$views" },
           likes: { $size: "$reactions" },
           comments: { $size: "$comments" },
-          // likes: {
-          //   $sum: {
-          //     $cond: [{ $eq: ["$reactions.reactionType", "like"] }, 1, 0],
-          //   },
-          // },
+          categories: "$categoryData",
         },
       },
       {
-        $project: {
-          reactions: 0,
-        },
+        $unset: ["categoryData", "reactions"], // Remove the temporary fields
       },
       {
         $sort: sortBy ? sortByQuery[sortBy] : { createdAt: 1 },
@@ -284,7 +589,6 @@ const getPosts = async ({
           pageCount: totalCount < limit ? 1 : Math.ceil(totalCount / limit),
         },
         data: posts[0].records,
-        t: this,
       },
     };
   } catch (error) {

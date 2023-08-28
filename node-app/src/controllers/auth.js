@@ -55,7 +55,7 @@ export const signUp=async(req,res)=>{
 export const signIn=async(req,res)=>{
     try {
         req.body=trimFields(req.body);
-        let user=await findUserByEmail(req.body.email,{type:"include",attribute:["first_name","last_name","email","role","npi_designation","joined","verified_account","password"]})
+        let user=await findUserByEmail(req.body.email,{type:"include",attribute:["first_name","last_name","email","role","npi_designation","joined","verified_account","password", "profile_img"]})
         if(user)
         {
             if(!user.verified_account)

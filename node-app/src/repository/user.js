@@ -40,7 +40,16 @@ const getUserProfileById = async (
     let skippedAttributes = getSkippedAttributes(excludeAttributeList);
     const userProfileQuery = userModel.findById({ _id: userId }).select({
       ...skippedAttributes,
+      "educations.id": 0,
     });
+    let docOptions = {
+      limit: 10,
+      select: {
+        __v: 0,
+        createdAt: 0,
+        updatedAt: 0,
+      },
+    };
 
     if (usePopulate) {
       userProfileQuery.populate([
@@ -56,15 +65,11 @@ const getUserProfileById = async (
         },
         {
           path: "licenses",
-          options: {
-            limit: 10,
-          },
+          options: docOptions,
         },
         {
           path: "certificates",
-          options: {
-            limit: 10,
-          },
+          options: docOptions,
         },
         {
           path: "followersCount",
@@ -81,7 +86,7 @@ const getUserProfileById = async (
         // last comments of user
         {
           path: "recentComments",
-          populate: "views",
+          // populate: "views",
         },
       ]);
     }

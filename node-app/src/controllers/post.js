@@ -83,7 +83,12 @@ const addNewComment = async (req, res) => {
 const getPostComments = async (req, res) => {
   try {
     const { page, limit } = req.query;
-    const comments = await getCommentsByPostId(req.params.postId, page, limit);
+    const comments = await getCommentsByPostId(
+      req.params.postId,
+      Number(page || 1),
+      Number(limit || 10),
+      req?.user?._id
+    );
     return generalResponse(
       res,
       200,
@@ -98,7 +103,7 @@ const getPostComments = async (req, res) => {
 
 const getPost = async (req, res) => {
   try {
-    const post = await getPostById(req.params.postId);
+    const post = await getPostById(req.params.postId, req?.user?._id);
     return generalResponse(res, 200, "OK", "post fetched successfully", post);
   } catch (error) {
     return generalResponse(res, 400, "error", error.message, error);

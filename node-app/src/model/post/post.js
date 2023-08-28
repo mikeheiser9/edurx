@@ -78,6 +78,7 @@ postSchema.virtual("commentCount", {
   count: true,
   match: {
     isDeleted: false,
+    parentId: null,
   },
 });
 

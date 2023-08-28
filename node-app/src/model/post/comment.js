@@ -6,7 +6,14 @@ const commentSchema = new Schema(
       type: String,
       required: true,
     },
-    userId: Types.ObjectId,
+    userId: {
+      type: Types.ObjectId,
+      ref: "users",
+    },
+    repliedTo: {
+      type: Types.ObjectId,
+      ref: "users",
+    },
     postId: Types.ObjectId,
     taggedUsers: [
       {
@@ -41,14 +48,40 @@ commentSchema.virtual("reactions", {
   foreignField: "commentId",
 });
 
-commentSchema.virtual("views", {
-  ref: "views",
+commentSchema.virtual("likeCount", {
+  ref: "reactions",
   localField: "_id",
-  foreignField: "itemId",
+  foreignField: "commentId",
   count: true,
   match: {
-    itemType: "comment",
+    reactionType: "like",
   },
+});
+
+commentSchema.virtual("dislikeCount", {
+  ref: "reactions",
+  localField: "_id",
+  foreignField: "commentId",
+  count: true,
+  match: {
+    reactionType: "dislike",
+  },
+});
+
+// commentSchema.virtual("views", {
+//   ref: "views",
+//   localField: "_id",
+//   foreignField: "itemId",
+//   count: true,
+//   match: {
+//     itemType: "comment",
+//   },
+// });
+
+commentSchema.virtual("replies", {
+  ref: "comments",
+  localField: "_id",
+  foreignField: "parentId",
 });
 
 export const commentModal = model("comments", commentSchema);
