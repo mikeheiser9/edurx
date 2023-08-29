@@ -439,8 +439,8 @@ export default function () {
                   type="submit"
                   hidden={currentStep === 4}
                   disabled={isSubmitting}
-                  label={getLabel(currentStep, values)}
                 />
+                <span>{getLabel(currentStep, values)}</span>
               </div>
               {currentStep === 3 && (
                 <ResendCodeTemplate

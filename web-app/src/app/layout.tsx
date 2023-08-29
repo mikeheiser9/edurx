@@ -1,14 +1,11 @@
 "use client";
 import { Provider } from "react-redux";
 import "./global.css";
-import { Inter } from "next/font/google";
 import RouteGuard from "@/components/routeGuard";
 import { store } from "@/redux/store";
 import { axiosParse } from "@/axios/config";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
@@ -17,12 +14,12 @@ export default function RootLayout({
 }) {
   axiosParse(store);
   return (
-    <html lang="en" className="!p-0 grid">
+    <html lang="en" className="!p-0 !m-0">
       <head>
         <title>EduRx</title>
         <link rel="shortcut icon" href="/edurxLogo.svg" />
       </head>
-      <body className={`w-full flex-auto flex bg-primary-darker ${inter.className}`}>
+      <body className={'w-full flex-auto flex bg-eduBlack font-body'}>
         <Provider store={store}>
           {/* <Header /> */}
           <RouteGuard>{children}</RouteGuard>

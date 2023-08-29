@@ -21,7 +21,9 @@ export default function InputField({
   isFormikField = true,
   ...props
 }: InputFieldType): React.JSX.Element {
-  const [field, meta] = isFormikField ? useField(props) : [];
+  // const [field, meta] = isFormikField ? useField(props) : [];
+  const [field, meta] = isFormikField ? useField(props) : [{}, {}];
+
 
   return (
     <>
@@ -48,23 +50,21 @@ export default function InputField({
         <input
           id={label && props.name}
           {...props}
-<<<<<<< HEAD
           className={`bg-eduLightGray text-eduBlack rounded-lg p-2 focus-visible:border-none outline-none autofill:active:bg-black ${
-            meta.touched && meta.error ? "border-[1px] border-red-500" : ""
+            meta && meta.touched && meta.error ? "border-[1px] border-red-500" : ""
           } ${props.className}`}
+          // className={`bg-eduLightGray text-eduBlack rounded-lg p-2 focus-visible:border-none outline-none autofill:active:bg-black ${
+          //   meta.touched && meta.error ? "border-[1px] border-red-500" : ""
+          // } ${props.className}`}
           {...field}
         />
-        {meta.touched && meta.error ? (
+        {/* {meta.touched && meta.error ? (
           <span className="text-[#ff0000] text-xs first-letter:capitalize flex-shrink-0 opacity-50">
-=======
-          className={`bg-[#3A3A3A] text-white rounded-lg p-2 focus-visible:border-none outline-none autofill:active:bg-black ${
-            meta?.touched && meta.error ? "border-[1px] border-red-500" : ""
-          } ${props.className}`}
-          {...field}
-        />
-        {meta?.touched && meta.error ? (
-          <span className="text-white text-xs first-letter:capitalize flex-shrink-0 opacity-50">
->>>>>>> main
+            {meta.error}
+          </span>
+        ) : null} */}
+        {meta && meta.touched && meta.error ? (
+          <span className="text-[#ff0000] text-xs first-letter:capitalize flex-shrink-0 opacity-50">
             {meta.error}
           </span>
         ) : null}

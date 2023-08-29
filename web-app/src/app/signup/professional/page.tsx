@@ -507,7 +507,7 @@ export default function SignUp() {
     return currentStep === 1
       ? "Enter NPI"
       : currentStep === 2
-      ? "Oops! Looks like you’re a little early!"
+      ? "Oops! Looks like you are a little early!"
       : currentStep === 3
       ? "Your Information"
       : currentStep === 4
@@ -573,8 +573,8 @@ export default function SignUp() {
                   type="submit"
                   disabled={isSubmitting || isLoading}
                   hidden={currentStep === 7}
-                  label={renderButtonLabelBasedOnStep()}
                 />
+                <span>{renderButtonLabelBasedOnStep()}</span>
               </div>
               {currentStep === 5 && (
                 <ResendCodeTemplate
