@@ -4,10 +4,11 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MorphSVGPlugin } from 'gsap/MorphSVGPlugin';
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
+import { MotionPathHelper } from 'gsap/MotionPathHelper'
 import { TextPlugin } from 'gsap/TextPlugin';
 
 // Register the plugins
-gsap.registerPlugin(ScrollTrigger, MorphSVGPlugin, DrawSVGPlugin, MotionPathPlugin, TextPlugin);
+gsap.registerPlugin(ScrollTrigger, MorphSVGPlugin, DrawSVGPlugin, MotionPathPlugin, TextPlugin, MotionPathHelper);
 
 interface AnimationContextType {
   animations: Array<gsap.core.Animation>;

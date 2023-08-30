@@ -4,6 +4,7 @@ import SepTop from '@/assets/imgs/hero-sep-top.svg';
 import SepBtm from '@/assets/imgs/hero-sep-btm.svg';
 import Domino from '@/assets/svg-components/domino';
 import { gsap } from 'gsap';
+import { MotionPathHelper } from 'gsap/MotionPathHelper';
 import { useAnimationContext } from '@/util/animationContext';
 
 export default function Header() {
@@ -43,8 +44,8 @@ useEffect(() => {
           height: window.innerHeight
       });
       setTranslate({
-          x: (10 / 100) * window.innerWidth,
-          y: (20 / 100) * window.innerHeight
+          x: (45 / 100) * window.innerWidth,
+          y: (23 / 100) * window.innerHeight
       });
   };
 
@@ -81,26 +82,39 @@ useEffect(() => {
     };
 }, []);
 
+// ... (rest of the imports and code)
+
+const setupAnimation = () => {
+  // Kill any existing animations on the target element
+  gsap.killTweensOf(circleOne.current);
+
+  // const motionPath = `M${translate.x},${translate.y} L${translate.x},${translate.y + 500}`;
+  const motionPath = "M293.03899,107.271 C-94.33601,297.612 511.07899,437.81233 511.07899,604.479"
+
+  gsap.to(circleOne.current, {
+      scrollTrigger: {
+          trigger: ".st-one",
+          start: "top center",
+          end: "+=500",
+          scrub: true,
+          markers: true
+      },
+      motionPath: motionPath,
+      duration: 5
+  });
+};
+
 useEffect(() => {
-  // gsap.set(circleOne.current, { autoAlpha: 1, y: 0 });
-  // gsap.set(circleTwo.current, { autoAlpha: 1, y: 0 });
-  // gsap.set(circleThree.current, { autoAlpha: 1, y: 0 });
-  // gsap.set(circleFour.current, { autoAlpha: 1, y: 0 });
-  // gsap.set(circleFive.current, { autoAlpha: 1, y: 0 });
-  // gsap.set(rxOne.current, { autoAlpha: 1, y: 0 });
-  // gsap.set(rxTwo.current, { autoAlpha: 1, y: 0 });
+  setupAnimation();
 
-  // const motionPath = "M0,0 L0,500";
-  // gsap.to(circleOne.current, {
-  //     motionPath: {
-  //         path: motionPath
-  //     },
-  //     duration: 5
-  // });
-  // MotionPathHelper.create(circleOne.current);
+  return () => {
+      gsap.killTweensOf(circleOne.current);
+  };
+}, [translate]);
 
-}, []);
-
+// useEffect(() => {
+//   MotionPathHelper.create(circleOne.current);
+// }, []);
 
   return (
     <>
