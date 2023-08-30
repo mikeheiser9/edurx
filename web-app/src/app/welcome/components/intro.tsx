@@ -2,18 +2,13 @@ import React, { useRef, useEffect } from 'react';
 import Image from 'next/image';
 import EduIntroLogo from '@/assets/imgs/edurx-logo.svg';
 import Circle from '@/assets/imgs/circle.svg';
-import Star from '@/assets/imgs/star.svg';
 import { gsap } from 'gsap';
-import { MorphSVGPlugin } from 'gsap/MorphSVGPlugin';
 
 interface IntroProps {
     onAnimationComplete: () => void;
 }
 
 const Intro = ({ onAnimationComplete }: IntroProps) => {
-
-gsap.registerPlugin(MorphSVGPlugin);
-
 
 const textOne = "welcome to"
 const textTwo = "EduRx"

@@ -19,7 +19,7 @@ export default function RootLayout({
         <title>EduRx</title>
         <link rel="shortcut icon" href="/edurxLogo.svg" />
       </head>
-      <body className={'w-full flex-auto flex bg-eduBlack font-body'}>
+      <body className={'w-full flex-auto flex bg-eduBlack text-body'}>
         <Provider store={store}>
           {/* <Header /> */}
           <RouteGuard>{children}</RouteGuard>

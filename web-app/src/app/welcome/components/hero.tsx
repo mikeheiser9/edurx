@@ -1,17 +1,61 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useLayoutEffect, useState } from 'react';
 import Image from 'next/image';
 import SepTop from '@/assets/imgs/hero-sep-top.svg';
-import EduHeroLogo from '@/assets/imgs/edurx-logo.svg';
-import SepBtm from '@/assets/imgs/hero-sep-btm.svg'
+import SepBtm from '@/assets/imgs/hero-sep-btm.svg';
+import Domino from '@/assets/svg-components/domino';
 import { gsap } from 'gsap';
-import { TextPlugin } from 'gsap/TextPlugin'
+import { useAnimationContext } from '@/util/animationContext';
 
 export default function Header() {
 
-  gsap.registerPlugin(TextPlugin);
+  const { registerAnimation } = useAnimationContext();
 
   const wordRef = useRef(null);
   const words = ['education', 'organization', 'connections', 'career'];
+
+  const circleOne = useRef(null);
+  const circleTwo = useRef(null);
+  const circleThree = useRef(null);
+  const circleFour = useRef(null);
+  const circleFive = useRef(null);
+  const rxOne = useRef(null);
+  const rxTwo = useRef(null);
+
+  const getRandomPath = () => {
+    const randomY = Math.floor(Math.random() * 100) - 50;
+    return `M0,0 L0,${500 + randomY}`;
+}
+
+const [viewBoxDimensions, setViewBoxDimensions] = useState({
+  width: window.innerWidth,
+  height: window.innerHeight
+});
+
+const [translate, setTranslate] = useState({
+  x: (10 / 100) * window.innerWidth,
+  y: (20 / 100) * window.innerHeight
+});
+
+useEffect(() => {
+  const handleResize = () => {
+      setViewBoxDimensions({
+          width: window.innerWidth,
+          height: window.innerHeight
+      });
+      setTranslate({
+          x: (10 / 100) * window.innerWidth,
+          y: (20 / 100) * window.innerHeight
+      });
+  };
+
+  handleResize();
+
+  window.addEventListener('resize', handleResize);
+
+  return () => {
+      window.removeEventListener('resize', handleResize);
+  };
+}, []);
 
   useEffect(() => {
     const tl = gsap.timeline({ repeat: -1, repeatDelay: 1 });
@@ -28,21 +72,40 @@ export default function Header() {
         delay: 0.5
       });
     });
+
+    // If you want to register this animation with the context
+    registerAnimation(tl);
   
     return () => {
       tl.kill();
     };
+}, []);
 
-  }, [])
+useEffect(() => {
+  // gsap.set(circleOne.current, { autoAlpha: 1, y: 0 });
+  // gsap.set(circleTwo.current, { autoAlpha: 1, y: 0 });
+  // gsap.set(circleThree.current, { autoAlpha: 1, y: 0 });
+  // gsap.set(circleFour.current, { autoAlpha: 1, y: 0 });
+  // gsap.set(circleFive.current, { autoAlpha: 1, y: 0 });
+  // gsap.set(rxOne.current, { autoAlpha: 1, y: 0 });
+  // gsap.set(rxTwo.current, { autoAlpha: 1, y: 0 });
 
-  useEffect(() => {
+  // const motionPath = "M0,0 L0,500";
+  // gsap.to(circleOne.current, {
+  //     motionPath: {
+  //         path: motionPath
+  //     },
+  //     duration: 5
+  // });
+  // MotionPathHelper.create(circleOne.current);
 
-  }, [])
+}, []);
+
 
   return (
     <>
     <div className='relative w-full h-full flex items-center just mx-[5%] my-[50px] flex-col'>
-      <div className='relative w-[90%] flex justify-center items-center flex-col'>
+      <div className='relative w-[90%] flex justify-center items-center flex-col st-one'>
         <div className='relative'>
             <Image src={SepTop} alt={'hero-top-line'} />
         </div>
@@ -58,7 +121,19 @@ export default function Header() {
           </div>
           <div className='w-2/12 flex flex-col justify-center items-center'>
             <div className='relative w-full h-full'>
-              <Image src={EduHeroLogo} alt={'eduRx-logo'} fill />
+              <Domino 
+                viewBoxDimensions={viewBoxDimensions}
+                translate={translate} 
+                forwardedRefs={{
+                   circleOne, 
+                   circleTwo, 
+                   circleThree, 
+                   circleFour, 
+                   circleFive, 
+                   rxOne, 
+                   rxTwo 
+                }} 
+                />
             </div>
           </div>
           <div className='w-5/12 flex flex-col justify-center items-start ml-[35px]'>
@@ -69,10 +144,6 @@ export default function Header() {
             <Image src={SepBtm} alt={'hero-btm-line'} />
         </div>
       </div>
-    </div>
-
-    <div className='relative w-screen h-[800px] flex flex-col justify-center items-center'>
-      <h1 className='text-[100px]'>hi there</h1>
     </div>
     </>
   );

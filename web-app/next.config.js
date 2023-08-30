@@ -16,6 +16,12 @@ const nextConfig = {
       },
     ],
   },
-};
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ['@svgr/webpack'],
+    });
 
-module.exports = nextConfig;
+    return config; // This line is important to return the modified config
+  }
+};
