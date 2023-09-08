@@ -134,10 +134,10 @@ export const findAndPaginate = async (
     const records = await findQuery.skip(skippedPages).limit(limit);
 
     return {
-      records,
       totalPages,
       currentPage: page,
       totalRecords: count,
+      records,
     };
   } catch (error) {
     console.error("Error occurred during pagination:", error);

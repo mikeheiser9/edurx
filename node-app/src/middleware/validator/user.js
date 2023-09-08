@@ -94,7 +94,9 @@ const userConnectionsValidator = async (req, res, next) => {
     const schema = Joi.object({
       action: Joi.string().valid("add", "remove"),
       userId: validateField.objectId.required(),
-      targetUserId: validateField.objectId.required().disallow(Joi.ref("userId")),
+      targetUserId: validateField.objectId
+        .required()
+        .disallow(Joi.ref("userId")),
     });
     await schema.validateAsync({
       action: req.params.action,
@@ -124,6 +126,19 @@ const getConnectionsValidator = async (req, res, next) => {
   }
 };
 
+const searchUsersValidator = async (req, res, next) => {
+  try {
+    const schema = Joi.object({
+      ...paginationValidation,
+      searchKeyword: Joi.string().allow("").max(50),
+    });
+    await schema.validateAsync(req.query);
+    next();
+  } catch (error) {
+    returnAppropriateError(res, error);
+  }
+};
+
 export {
   updateUserValidator,
   getUserProfileValidator,
@@ -131,4 +146,5 @@ export {
   getUserDocumentsValidator,
   userConnectionsValidator,
   getConnectionsValidator,
+  searchUsersValidator,
 };

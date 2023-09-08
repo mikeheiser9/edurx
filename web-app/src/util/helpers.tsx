@@ -56,10 +56,21 @@ const areArraysEqual = (array1: string[], array2: string[]) => {
   return true;
 };
 
+const removeSubstring = (
+  inputString: string,
+  substringToRemove: string
+): string => {
+  const regex = new RegExp(substringToRemove, "g");
+  const resultString = inputString.replace(regex, "");
+
+  return resultString;
+};
+
 export {
   getInputDateFormat,
   getStaticImageUrl,
   getFullName,
   boldOnSearch,
   areArraysEqual,
+  removeSubstring,
 };

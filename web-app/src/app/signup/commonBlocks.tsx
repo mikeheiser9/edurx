@@ -34,6 +34,7 @@ const BasicDetails = ({
             onClick={() => onShowPassword?.("password")}
             className="text-white"
             icon={showPassword?.password ? faEye : faEyeSlash}
+            size="xs"
           />
         }
       />
@@ -46,6 +47,7 @@ const BasicDetails = ({
             onClick={() => onShowPassword?.("confirmPassword")}
             className="text-white"
             icon={showPassword?.confirmPassword ? faEye : faEyeSlash}
+            size="xs"
           />
         }
       />

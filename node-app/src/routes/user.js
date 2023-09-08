@@ -6,6 +6,7 @@ import {
   getUserProfile,
   getUsersDocuments,
   updateUserByID,
+  searchUsers,
 } from "../controllers/user.js";
 import {
   addDocumentValidator,
@@ -14,6 +15,7 @@ import {
   getUserProfileValidator,
   updateUserValidator,
   getConnectionsValidator,
+  searchUsersValidator,
 } from "../middleware/validator/user.js";
 
 const userRoute = Router();
@@ -39,7 +41,7 @@ userRoute.get(
   getUsersDocuments
 );
 userRoute.post(
-  `/connections/:action`,
+  "/connections/:action",
   userAuth,
   userConnectionsValidator,
   postConnections
@@ -50,5 +52,7 @@ userRoute.get(
   getConnectionsValidator
   //getConnections // to be implemented
 );
+
+userRoute.get("/search", userAuth, searchUsersValidator, searchUsers);
 
 export default userRoute;

@@ -1,7 +1,7 @@
 import { axiosPut } from "@/axios/config";
-import { selectUserDetail, setUserDetail } from "@/redux/ducks/user.duck";
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { setUserDetail } from "@/redux/ducks/user.duck";
+import React, { useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { sections } from "./sections";
 import { Form, Formik, FormikHelpers } from "formik";
 import { validationSchema } from "@/util/validations/userProfile";
@@ -13,7 +13,7 @@ interface Props {
   currentSection: keyof profileSections;
   profileSections: profileSections;
   userData: UserData;
-  setUserData: React.Dispatch<React.SetStateAction<UserData | null>>;
+  setUserData: React.Dispatch<React.SetStateAction<UserData | undefined>>;
   setIsListView: React.Dispatch<React.SetStateAction<boolean>>;
   isListView: boolean;
   loggedInUser: any;
