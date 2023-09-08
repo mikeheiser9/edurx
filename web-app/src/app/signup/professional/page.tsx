@@ -573,8 +573,9 @@ export default function SignUp() {
                   type="submit"
                   disabled={isSubmitting || isLoading}
                   hidden={currentStep === 7}
-                />
-                <span>{renderButtonLabelBasedOnStep()}</span>
+                >
+                  <span>{renderButtonLabelBasedOnStep()}</span>
+                </button>
               </div>
               {currentStep === 5 && (
                 <ResendCodeTemplate

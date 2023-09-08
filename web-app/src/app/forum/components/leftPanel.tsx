@@ -33,8 +33,8 @@ export const LeftPanel = ({
   );
 
   return (
-    <div className="bg-primary-dark flex flex-col h-full rounded-md p-4 px-6 w-1/5 justify-start gap-2">
-      <span className="text-white text-2xl font-bold font-serif">Sort By</span>
+    <div className="bg-eduDarkGray flex flex-col h-full rounded-md p-4 px-6 w-1/5 justify-start gap-2">
+      <span className="text-eduBlack text-2xl font-bold font-serif">Sort By</span>
       <ul className="flex flex-col gap-2">
         {sortingOptions?.map((item) => (
           <li
@@ -47,14 +47,14 @@ export const LeftPanel = ({
               item.value === selectedFilters?.sortBy
                 ? "decoration-primary"
                 : "decoration-transparent"
-            } duration-300 text-sm ease-in-out transition-colors decoration-2 underline underline-offset-4 text-white`}
+            } duration-300 text-sm ease-in-out transition-colors decoration-2 underline underline-offset-4 text-eduBlack`}
           >
             {item.label}
           </li>
         ))}
       </ul>
       <hr className="my-4" />
-      <span className="text-white text-2xl font-bold font-serif">Category</span>
+      <span className="eduBlack text-2xl font-bold font-serif">Category</span>
       <ul className="flex flex-col gap-4 h-full overflow-y-auto">
         {categoryList?.map((item: any) => {
           let isSelected = selectedCategories?.some(

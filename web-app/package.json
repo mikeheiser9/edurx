@@ -21,7 +21,8 @@
     "autoprefixer": "10.4.14",
     "axios": "^1.4.0",
     "formik": "^2.4.1",
-    "gsap": "file:gsap-bonus.tgz",
+    "gsap": "npm:@gsap/shockingly@^3.12.2",
+    "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "next": "13.4.1",
     "postcss": "8.4.23",
@@ -35,6 +36,7 @@
     "yup": "^1.2.0"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.197",
     "@types/redux-persist": "^4.3.1"
   }
 }

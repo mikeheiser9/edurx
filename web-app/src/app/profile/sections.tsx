@@ -48,7 +48,7 @@ interface LastDocRefType {
 const EditIcon = ({ onClick }: { onClick: () => void }) => (
   <FontAwesomeIcon
     icon={faEdit}
-    className="text-white z-10 cursor-pointer absolute right-0 m-4"
+    className="text-eduBlack z-10 cursor-pointer absolute right-0 m-4"
     onClick={onClick}
   />
 );
@@ -60,7 +60,7 @@ const BasicInfo = ({
   userData: UserData;
   openModal: () => void;
 }): React.ReactElement => (
-  <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-lg">
+  <div className="bg-eduDarkGray overflow-hidden flex-auto relative rounded-lg">
     <EditIcon onClick={openModal} />
     <div className="w-full hover:blur-sm duration-500 h-40 overflow-hidden bg-gradient-to-b from-primary/20 items-center justify-center flex">
       {userData?.banner_img ? (
@@ -92,10 +92,10 @@ const BasicInfo = ({
       <div className="flex gap-2 mt-4">
         <div className="flex-1">
           <div className="flex gap-2 flex-col">
-            <span className="text-white capitalize">
+            <span className="text-eduBlack capitalize">
               {getFullName(userData?.first_name, userData?.last_name)}
             </span>
-            <span className="text-white/50 text-xs">
+            <span className="text-eduBlack/50 text-xs">
               {userData?.role === "student" ? (
                 "Student "
               ) : (
@@ -115,17 +115,17 @@ const BasicInfo = ({
               • Member Since{" "}
               {userData?.joined ? moment(userData?.joined).year() : "-"}
             </span>
-            <span className="text-white/50 text-xs">
+            <span className="text-eduBlack/50 text-xs">
               <FontAwesomeIcon icon={faStethoscope} className="me-2" />
               Licensed in: IL, TX, CA, FL
             </span>
-            <div className="flex text-white/50 text-xs gap-x-4">
+            <div className="flex text-eduBlack/50 text-xs gap-x-4">
               <span>
-                <b className="text-white">{userData?.followingCount}</b>{" "}
+                <b className="text-eduBlack">{userData?.followingCount}</b>{" "}
                 Following
               </span>
               <span>
-                <b className="text-white">{userData?.followersCount}</b>{" "}
+                <b className="text-eduBlack">{userData?.followersCount}</b>{" "}
                 Followers
               </span>
             </div>
@@ -164,7 +164,7 @@ const BasicInfo = ({
         <div className="justify-self-end self-end">
           <button
             type="button"
-            className="border rounded-md p-2 hover:bg-primary w-auto px-4 font-medium text-sm text-primary border-primary bg-primary/10 hover:text-white transition-all ease-in-out duration-300"
+            className="border rounded-md p-2 hover:bg-primary w-auto px-4 font-medium text-sm text-primary border-primary bg-eduBlack hover:text-eduBlack transition-all ease-in-out duration-300"
             onClick={openModal}
           >
             Edit Profile
@@ -182,13 +182,13 @@ const About = ({
   personal_bio: string | undefined;
   openModal: () => void;
 }) => (
-  <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-lg">
+  <div className="bg-eduDarkGray overflow-hidden flex-auto relative rounded-lg">
     {personal_bio && <EditIcon onClick={openModal} />}
     <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-col gap-2">
-      <span className="text-white text-xl font-bold font-serif tracking-wide">
+      <span className="text-eduBlack text-xl font-bold font-serif tracking-wide">
         About
       </span>
-      <p className="text-white/60 text-sm">
+      <p className="text-eduBlack/60 text-sm">
         {personal_bio || "You don't have about / bio yet."}
       </p>
     </div>
@@ -205,12 +205,12 @@ const PostList = ({ posts }: { posts: [] | undefined }): React.ReactElement => (
               <Image src="edurxLogo.svg" width={200} height={200} alt="" />
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-white text-sm">{post?.title}</span>
-              <span className="text-xs text-white/50">
+              <span className="text-eduBlack text-sm">{post?.title}</span>
+              <span className="text-xs text-eduBlack/50">
                 {post?.forumType} • Published on{" "}
                 {moment(post?.createdAt).format("DD/MM/YYYY")}
               </span>
-              <div className="flex text-xs text-white/50 gap-2">
+              <div className="flex text-xs text-eduBlack/50 gap-2">
                 <FontAwesomeIcon icon={faComments} />
                 <span>{post?.commentCount} Comments</span>
                 <FontAwesomeIcon icon={faChartColumn} />
@@ -221,7 +221,7 @@ const PostList = ({ posts }: { posts: [] | undefined }): React.ReactElement => (
         ))}
       </div>
     ) : (
-      <span className="text-white">You have no forum posts yet.</span>
+      <span className="text-eduBlack">You have no forum posts yet.</span>
     )}
   </>
 );
@@ -238,7 +238,7 @@ const CommentList = ({
       <div className="flex flex-auto flex-wrap gap-2 ease-in-out transform duration-1000">
         {comments.map((comment: any) => (
           <div className="flex gap-2 items-center" key={comment?._id}>
-            <div className="w-8 overflow-hidden h-8 text-white justify-center items-center flex bg-primary/80 rounded-full">
+            <div className="w-8 overflow-hidden h-8 text-eduBlack justify-center items-center flex bg-primary/80 rounded-full">
               {profileImage ? (
                 <Image
                   src={getStaticImageUrl(profileImage)}
@@ -250,12 +250,12 @@ const CommentList = ({
                 <FontAwesomeIcon icon={faUser} />
               )}
             </div>
-            <span className="text-white text-sm">{comment?.content}</span>
-            <span className="text-xs text-white/50">
+            <span className="text-eduBlack text-sm">{comment?.content}</span>
+            <span className="text-xs text-eduBlack/50">
               {/* {post?.forumType} • Published on{" "} */}•{" "}
               {moment(comment?.createdAt).fromNow()} •
             </span>
-            {/* <div className="flex text-xs text-white/50 gap-2">
+            {/* <div className="flex text-xs text-eduBlack/50 gap-2">
               <FontAwesomeIcon icon={faChartColumn} />
               <span>{comment?.views} views</span>
             </div> */}
@@ -263,7 +263,7 @@ const CommentList = ({
         ))}
       </div>
     ) : (
-      <span className="text-white">You have no forum comments yet.</span>
+      <span className="text-eduBlack">You have no forum comments yet.</span>
     )}
   </>
 );
@@ -277,9 +277,9 @@ const Activity = ({
   comments: [] | undefined;
   profileImage?: string | undefined;
 }): React.ReactElement => (
-  <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-lg lg:min-h-[12rem]">
+  <div className="bg-eduDarkGray overflow-hidden flex-auto relative rounded-lg lg:min-h-[12rem]">
     <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-col gap-2">
-      <span className="text-white text-xl font-bold font-serif tracking-wide">
+      <span className="text-eduBlack text-xl font-bold font-serif tracking-wide">
         Activity
       </span>
       <TabMenu
@@ -308,10 +308,10 @@ const Education = ({
   educations: education[] | undefined;
   onEditClick: () => void;
 }): React.ReactElement => (
-  <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-lg lg:min-h-[12rem]">
+  <div className="bg-eduDarkGray overflow-hidden flex-auto relative rounded-lg lg:min-h-[12rem]">
     <EditIcon onClick={onEditClick} />
     <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-col gap-2">
-      <span className="text-white text-xl font-bold font-serif tracking-wide">
+      <span className="text-eduBlack text-xl font-bold font-serif tracking-wide">
         Education
       </span>
       {educations?.length ? (
@@ -320,14 +320,14 @@ const Education = ({
             <div className="flex">
               <Image src={eduIcon} alt={`${value?._id as string}alt`} />
             </div>
-            <div className="flex flex-1 flex-col text-white gap-1">
+            <div className="flex flex-1 flex-col text-eduBlack gap-1">
               <span className="text-base capitalize font-mono">
                 {value?.school_name || "-"}
               </span>
-              <span className="text-white/50 text-xs">
+              <span className="text-eduBlack/50 text-xs">
                 {value?.field_of_study} - {value?.degree}
               </span>
-              <div className="text-white/50 text-xs">
+              <div className="text-eduBlack/50 text-xs">
                 {moment(value?.start_date).format("YYYY")}
                 {" - "}
                 <span>
@@ -340,7 +340,7 @@ const Education = ({
           </div>
         ))
       ) : (
-        <span className="text-white">
+        <span className="text-eduBlack">
           You have not shared any education hisory yet.
         </span>
       )}
@@ -365,23 +365,23 @@ const DocList = ({
           <div className="flex">
             <FontAwesomeIcon
               icon={faFileInvoice}
-              className="text-white w-10 h-10"
+              className="text-eduBlack w-10 h-10"
             />
           </div>
-          <div className="flex flex-1 flex-col text-white gap-1">
+          <div className="flex flex-1 flex-col text-eduBlack gap-1">
             <span className="text-base font-mono capitalize">
               {value?.doc_name || "-"}
             </span>
-            <span className="text-white/50 text-xs capitalize">
+            <span className="text-eduBlack/50 text-xs capitalize">
               {value?.issuer_organization || "-"}
             </span>
             {value?.issue_date && (
-              <span className="text-white/50 text-xs">
+              <span className="text-eduBlack/50 text-xs">
                 Issued {value?.issue_date || "-"}
               </span>
             )}
             {(value?.doc_id?.length as number) > 0 && (
-              <span className="text-white/50 text-xs">
+              <span className="text-eduBlack/50 text-xs">
                 Credential ID {value?.doc_id || "-"}
               </span>
             )}
@@ -389,7 +389,7 @@ const DocList = ({
         </div>
       ))
     ) : (
-      <span className="text-white">You have not shared any {type} yet</span>
+      <span className="text-eduBlack">You have not shared any {type} yet</span>
     )}
     <div ref={lastDocRef[type]} />
   </div>
@@ -408,13 +408,13 @@ const Documents = ({
   isLoading: boolean;
   onEditClick: () => void;
 }) => (
-  <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-lg lg:min-h-[12rem]">
+  <div className="bg-eduDarkGray overflow-hidden flex-auto relative rounded-lg lg:min-h-[12rem]">
     {(userData?.licenses?.length > 0 || userData?.certificates?.length > 0) && (
       <EditIcon onClick={onEditClick} />
     )}
     <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-auto gap-2 flex-wrap">
       <div className="flex-1">
-        <span className="text-white text-xl font-bold font-serif tracking-wide">
+        <span className="text-eduBlack text-xl font-bold font-serif tracking-wide">
           Certifications{" "}
           {userData?.certificates?.length > 0 && (
             <span className="text-primary text-xs font-sans opacity-80">
@@ -436,7 +436,7 @@ const Documents = ({
         )}
       </div>
       <div className="flex-1">
-        <span className="text-white text-xl font-bold font-serif">
+        <span className="text-eduBlack text-xl font-bold font-serif">
           Licenses{" "}
           {userData?.licenses?.length > 0 && (
             <span className="text-primary text-xs font-sans opacity-80">
@@ -466,7 +466,7 @@ const ModalHeader = ({
   setCurrentSection(section: keyof profileSections): void;
 }) => (
   <>
-    <div className="flex p-3 items-center bg-primary">
+    <div className="flex p-3 items-center bg-eduDarkGray">
       <span className="text-xl font-medium justify-self-start">
         {profileSections[currentSection] as string}
       </span>
@@ -482,7 +482,7 @@ const ModalHeader = ({
           className={`flex items-center ${
             currentSection === section
               ? "text-primary"
-              : "text-white cursor-pointer"
+              : "text-eduBlack cursor-pointer"
           }`}
           key={section}
           onClick={() => setCurrentSection(section as keyof profileSections)}

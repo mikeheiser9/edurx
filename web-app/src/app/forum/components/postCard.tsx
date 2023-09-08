@@ -13,7 +13,7 @@ interface Props {
 export const PostCard = (props: Props) => {
   return (
     <div
-      className="flex w-full p-4 rounded-md bg-primary-dark gap-2"
+      className="flex w-full p-4 rounded-md bg-eduDarkGray gap-2"
       onClick={props.onPostClick}
     >
       <div className="flex-1 gap-4 flex-col flex">

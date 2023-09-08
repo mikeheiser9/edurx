@@ -6,61 +6,26 @@ import Domino from '@/assets/svg-components/domino';
 import { gsap } from 'gsap';
 import { MotionPathHelper } from 'gsap/MotionPathHelper';
 import { useAnimationContext } from '@/util/animationContext';
+import debounce from 'lodash/debounce';
 
-export default function Header() {
+export default function Hero() {
 
   const { registerAnimation } = useAnimationContext();
 
   const wordRef = useRef(null);
   const words = ['education', 'organization', 'connections', 'career'];
 
-  const circleOne = useRef(null);
+  const circleOne = useRef<SVGGElement | null>(null);
   const circleTwo = useRef(null);
   const circleThree = useRef(null);
   const circleFour = useRef(null);
   const circleFive = useRef(null);
   const rxOne = useRef(null);
   const rxTwo = useRef(null);
-
-  const getRandomPath = () => {
-    const randomY = Math.floor(Math.random() * 100) - 50;
-    return `M0,0 L0,${500 + randomY}`;
-}
-
-const [viewBoxDimensions, setViewBoxDimensions] = useState({
-  width: window.innerWidth,
-  height: window.innerHeight
-});
-
-const [translate, setTranslate] = useState({
-  x: (10 / 100) * window.innerWidth,
-  y: (20 / 100) * window.innerHeight
-});
-
-useEffect(() => {
-  const handleResize = () => {
-      setViewBoxDimensions({
-          width: window.innerWidth,
-          height: window.innerHeight
-      });
-      setTranslate({
-          x: (45 / 100) * window.innerWidth,
-          y: (23 / 100) * window.innerHeight
-      });
-  };
-
-  handleResize();
-
-  window.addEventListener('resize', handleResize);
-
-  return () => {
-      window.removeEventListener('resize', handleResize);
-  };
-}, []);
+  // const hiddenPathOne = useRef<SVGPathElement>(null);
 
   useEffect(() => {
     const tl = gsap.timeline({ repeat: -1, repeatDelay: 1 });
-
     words.forEach((word) => {
       tl.to(wordRef.current, {
         duration: 2,
@@ -74,43 +39,72 @@ useEffect(() => {
       });
     });
 
-    // If you want to register this animation with the context
     registerAnimation(tl);
-  
     return () => {
       tl.kill();
     };
 }, []);
 
-// ... (rest of the imports and code)
-
 const setupAnimation = () => {
-  // Kill any existing animations on the target element
-  gsap.killTweensOf(circleOne.current);
+  const circleElement = circleOne.current;
+  
+  if (!circleElement) return;
 
-  // const motionPath = `M${translate.x},${translate.y} L${translate.x},${translate.y + 500}`;
-  const motionPath = "M293.03899,107.271 C-94.33601,297.612 511.07899,437.81233 511.07899,604.479"
+  // Define a simple vertical path for the circle to follow
+  const pathD = `M${690.5213623046875} ${175.23997497558594} V${document.documentElement.scrollHeight}`;
 
-  gsap.to(circleOne.current, {
-      scrollTrigger: {
-          trigger: ".st-one",
-          start: "top center",
-          end: "+=500",
-          scrub: true,
-          markers: true
-      },
-      motionPath: motionPath,
-      duration: 5
+  gsap.to(circleElement, {
+    // motionPath: {
+    //   path: pathD,
+    //   alignOrigin: [0.5, 0.5],
+    // },
+    scrollTrigger: {
+      trigger: "body",
+      start: "top top",
+      end: "bottom bottom",
+      scrub: true,
+      markers: true
+    }
   });
 };
 
 useEffect(() => {
-  setupAnimation();
+  const handleResize = debounce(() => {
+    setupAnimation();
+  }, 250);
 
+  window.addEventListener('resize', handleResize);
+
+  return () => {
+    window.removeEventListener('resize', handleResize);
+  };
+}, []);
+
+
+useEffect(() => {
+  if (circleOne.current) {
+    const position = circleOne.current.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+
+    console.log("CircleOne Position:", {
+      top: position.top + scrollTop,
+      left: position.left + scrollLeft,
+      right: position.right + scrollLeft,
+      bottom: position.bottom + scrollTop,
+      width: position.width,
+      height: position.height
+    });
+  }
+}, []);
+
+
+useEffect(() => {
+  setupAnimation();
   return () => {
       gsap.killTweensOf(circleOne.current);
   };
-}, [translate]);
+}, []);
 
 // useEffect(() => {
 //   MotionPathHelper.create(circleOne.current);
@@ -118,9 +112,22 @@ useEffect(() => {
 
   return (
     <>
-    <div className='relative w-full h-full flex items-center just mx-[5%] my-[50px] flex-col'>
+    <div className='relative w-full h-full flex items-center justify-center mx-[5%] my-[50px] flex-col'>
+        <Domino 
+          forwardedRefs={{
+              circleOne, 
+              circleTwo, 
+              circleThree, 
+              circleFour, 
+              circleFive, 
+              rxOne, 
+              rxTwo,
+              // hiddenPathOne: hiddenPathOne,
+
+          }} 
+          />
       <div className='relative w-[90%] flex justify-center items-center flex-col st-one'>
-        <div className='relative'>
+        <div className='relative w-full'>
             <Image src={SepTop} alt={'hero-top-line'} />
         </div>
         <div className='relative my-[50px] flex flex-row flex-nowrap w-[90%] justify-center'>
@@ -135,19 +142,6 @@ useEffect(() => {
           </div>
           <div className='w-2/12 flex flex-col justify-center items-center'>
             <div className='relative w-full h-full'>
-              <Domino 
-                viewBoxDimensions={viewBoxDimensions}
-                translate={translate} 
-                forwardedRefs={{
-                   circleOne, 
-                   circleTwo, 
-                   circleThree, 
-                   circleFour, 
-                   circleFive, 
-                   rxOne, 
-                   rxTwo 
-                }} 
-                />
             </div>
           </div>
           <div className='w-5/12 flex flex-col justify-center items-start ml-[35px]'>

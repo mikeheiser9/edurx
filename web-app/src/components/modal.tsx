@@ -106,7 +106,7 @@ export const Modal = ({
             <div
               className={
                 props.modalBodyClassName ||
-                "relative p-4 overflow-y-auto overflow-hidden bg-primary-dark"
+                "relative p-4 overflow-y-auto overflow-hidden bg-eduDarkGray"
               }
             >
               {props.children}

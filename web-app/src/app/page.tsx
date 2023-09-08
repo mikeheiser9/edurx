@@ -136,7 +136,7 @@ export default function SignIn() {
   };
 
   return (
-    <div className="flex justify-center gap-4 flex-auto items-center">
+    <div className="flex justify-center gap-4 flex-auto items-center h-full min-h-screen">
       <CommonUI
         fields={
           <Formik
