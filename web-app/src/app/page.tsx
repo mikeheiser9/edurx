@@ -77,7 +77,6 @@ export default function SignIn() {
           password: values.password,
         };
         const response = await login(payload);
-        actions.setSubmitting(false);
         if (
           response.status === 200 &&
           response.data.response_type == "success"

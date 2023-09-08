@@ -343,7 +343,7 @@ export default function SignUp() {
           : currentStep == 3
           ? setCurrentStep((pre) => pre + 2)
           : "";
-      } else {
+      } else if (res.status === 200 && res?.data?.response_type === "error") {
         // already verified handle it
         setCurrentStep(5);
       }

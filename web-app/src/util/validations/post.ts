@@ -17,8 +17,7 @@ const postCreationValidation = Yup.object({
   }),
   votingLength: Yup.number().when("postType", {
     is: (type: string) => type === postTypes[1],
-    then: (schema: any) => schema.required().min(1),
-    otherwise: (schema: any) => schema.min(0),
+    then: (schema: any) => schema.required().min(1)
   }),
 });
 

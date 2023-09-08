@@ -1,4 +1,4 @@
-import { Formik, Form } from "formik";
+import { Formik, Form, FormikHelpers } from "formik";
 import InputField from "@/components/input";
 import { Modal } from "@/components/modal";
 import { Select } from "@/components/select";
@@ -12,8 +12,8 @@ import {
   faPoll,
 } from "@fortawesome/free-solid-svg-icons";
 import React, { useCallback, useEffect, useState } from "react";
-import { ModalFooter, ModalHeader } from "../sections";
-import { TextEditor } from "../rich-editor";
+import { ModalFooter, ModalHeader } from "../components/sections";
+import { TextEditor } from "./rich-editor";
 import { Chip } from "@/components/chip";
 import { axiosGet } from "@/axios/config";
 import { LoadMore } from "@/components/loadMore";
@@ -21,7 +21,7 @@ import { Loader } from "../../signup/commonBlocks";
 import { boldOnSearch } from "@/util/helpers";
 import { ToggleSwitch } from "@/components/toggleSwitch";
 import { postCreationValidation } from "@/util/validations/post";
-import { forumTypes } from "@/util/constant";
+import { roleBasedForum } from "@/util/constant";
 import { addNewPost } from "@/service/post.service";
 import { useSelector } from "react-redux";
 import { selectUserDetail } from "@/redux/ducks/user.duck";
@@ -47,8 +47,8 @@ interface TagCategoryList {
   tags: [];
 }
 
-export const AddPost = ({ addPostModal }: { addPostModal: any }) => {
-  const userId = useSelector(selectUserDetail)?._id ?? undefined;
+export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
+  const loggedInUser = useSelector(selectUserDetail);
   const [commonMessage, setCommonMessage] = useState<string | null>(null);
   const [pollOptionsCount, setPollOptionsCount] = useState<number>(2);
   const [isLoading, setIsLoading] = useState<TagCategoryInput>({
@@ -81,14 +81,16 @@ export const AddPost = ({ addPostModal }: { addPostModal: any }) => {
     tags: [],
   });
 
-  const dropdownOptions = forumTypes.map((item) => {
+  const dropdownOptions = roleBasedForum[
+    loggedInUser?.role as keyof typeof roleBasedForum
+  ].map((item) => {
     return {
       value: item,
       label: item,
     };
   });
-  const intialFormikValues = {
-    forumType: dropdownOptions[0].value,
+  const intialFormikValues: CreatePostFormikInterface = {
+    forumType: dropdownOptions[0].value as ForumTypes,
     postType: "post",
     title: "",
     categories: [],
@@ -143,13 +145,13 @@ export const AddPost = ({ addPostModal }: { addPostModal: any }) => {
             type === "category" ? "categories" : "tags";
           let prevList = isIntial
             ? selectedList[key]?.length
-              ? tagCategoryList?.[key]?.filter((item: any) =>
+              ? tagCategoryList?.[key]?.filter((item: TagCategoryType) =>
                   selectedList?.[key]?.some((_id) => _id === item._id)
                 )
               : []
             : tagCategoryList?.[key];
           let newRecords = response?.data?.data?.records?.filter(
-            (item: any) => {
+            (item: TagCategoryType) => {
               if (selectedList?.[key]?.length) {
                 return selectedList?.[key]?.includes(item?._id as never)
                   ? false
@@ -188,7 +190,7 @@ export const AddPost = ({ addPostModal }: { addPostModal: any }) => {
     [currentPage, searchText, tagCategoryList]
   );
 
-  const onChipSelect = (type: keyof TagCategoryList, item: any) => {
+  const onChipSelect = (type: keyof TagCategoryList, item: TagCategoryType) => {
     setSelectedList((preState) => {
       return {
         ...preState,
@@ -197,7 +199,10 @@ export const AddPost = ({ addPostModal }: { addPostModal: any }) => {
     });
   };
 
-  const onChipeDelete = (type: keyof TagCategoryList, item: any) => {
+  const onChipeDelete = (
+    type: keyof TagCategoryList,
+    item: TagCategoryType
+  ) => {
     setSelectedList((preState) => {
       return {
         ...preState,
@@ -214,8 +219,8 @@ export const AddPost = ({ addPostModal }: { addPostModal: any }) => {
     values,
   }: {
     type: "categories" | "tags";
-    actions: any;
-    values: any;
+    actions: FormikHelpers<CreatePostFormikInterface>;
+    values: CreatePostFormikInterface;
   }) => (
     <>
       {isLoading?.[type === "categories" ? "category" : "tag"] ? (
@@ -225,7 +230,7 @@ export const AddPost = ({ addPostModal }: { addPostModal: any }) => {
       ) : (
         <div className="flex flex-wrap gap-2 flex-auto">
           {tagCategoryList?.[type]?.length ? (
-            tagCategoryList?.[type]?.map((item: any) => (
+            tagCategoryList?.[type]?.map((item: TagCategoryType) => (
               <Chip
                 key={item?._id}
                 label={
@@ -249,13 +254,18 @@ export const AddPost = ({ addPostModal }: { addPostModal: any }) => {
     </>
   );
 
-  const onSubmit = async (values: any, actions: any) => {
+  const onSubmit = async (
+    values: CreatePostFormikInterface,
+    actions: FormikHelpers<CreatePostFormikInterface>
+  ) => {
     const payload = {
-      userId,
+      userId: loggedInUser?._id,
       ...values,
       postType: values.postType || "post",
       ...selectedList,
     };
+    console.log({ values });
+
     await addNewPost(payload)
       .then((response) => {
         const message = response?.data?.message;
@@ -296,6 +306,7 @@ export const AddPost = ({ addPostModal }: { addPostModal: any }) => {
           modalClassName="!rounded-xl"
         >
           <Form>
+            {/* {console.log(actions.errors)} */}
             <div className="flex flex-col gap-4 p-2">
               <div className="flex justify-between">
                 <Select
@@ -324,8 +335,8 @@ export const AddPost = ({ addPostModal }: { addPostModal: any }) => {
                         <>
                           <InputField name="title" placeholder="Title" />
                           <TextEditor
-                            value={values.content}
-                            setFieldValue={actions.setFieldValue}
+                            value={values?.content}
+                            setFieldValue={actions?.setFieldValue}
                           />
                         </>
                       );
@@ -393,8 +404,8 @@ export const AddPost = ({ addPostModal }: { addPostModal: any }) => {
                                 className="bg-transparent outline-none font-bold"
                                 optionClassName="text-black text-xs"
                                 name="votingLength"
-                                useAsFormikField
                                 id="votingLength"
+                                useAsFormikField
                               />
                             </div>
                           </div>

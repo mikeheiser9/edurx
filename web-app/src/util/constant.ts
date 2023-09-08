@@ -31,6 +31,20 @@ const forumTypes = [
   "Student",
 ];
 
+const roles = ["super_admin", "moderator", "professional", "student"];
+
+const roleBasedForum = {
+  super_admin: forumTypes, // all forum acces
+  moderator: forumTypes, // all forum acces
+  professional: [
+    "Dietetics & Nutrition",
+    "Medical professionals",
+    "RDN",
+    "NDTR",
+  ],
+  student: ["Student"],
+};
+
 const postTypes = ["post", "poll"];
 const postStatus = ["draft", "published"];
 export {
@@ -42,4 +56,6 @@ export {
   forumTypes,
   postTypes,
   postStatus,
+  roles,
+  roleBasedForum,
 };

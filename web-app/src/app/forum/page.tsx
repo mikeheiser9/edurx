@@ -13,14 +13,14 @@ import {
   faUserAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { Select } from "@/components/select";
-import { forumTypes } from "@/util/constant";
+import { roleBasedForum } from "@/util/constant";
 import { Chip } from "@/components/chip";
 import { LeftPanel } from "./components/leftPanel";
 import { PostCard } from "./components/postCard";
 import InfiniteScroll from "@/components/infiniteScroll";
 import { PostModal } from "./components/postModal";
 import { requireAuthentication } from "@/components/requireAuthentication";
-import { DropDownPopover } from "./sections";
+import { DropDownPopover } from "./components/sections";
 import { faBell } from "@fortawesome/free-regular-svg-icons";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
@@ -28,7 +28,6 @@ import {
   removeToken,
   removeUserDetail,
   selectUserDetail,
-  setUserDetail,
 } from "@/redux/ducks/user.duck";
 import Image from "next/image";
 import { getStaticImageUrl } from "@/util/helpers";
@@ -70,12 +69,14 @@ const Page = () => {
     totalRecords: 0,
   });
   const [selectedFilters, setSelectedFilters] = useState<FilterOptionsState>();
-  const [selectedCategories, setSelectedCategories] = useState<any[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<
+    TagCategoryType[]
+  >([]);
   const [selectedTab, setSelectedTab] = useState<string>(tabMenuOptions[0]);
   const [selectedForumTab, setSelectedForumTab] = useState<string>(
     forumTabs[0]
   );
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<PostInterface[]>([]);
   const [postPagination, setPostPagination] = useState<PageDataState>({
     page: 1,
     totalRecords: 0,
@@ -130,7 +131,7 @@ const Page = () => {
                   .toString(),
               }
             : {}),
-          limit: 5,
+          limit: 10,
           page,
         },
       });
@@ -289,7 +290,9 @@ const Page = () => {
                 Viewing :
               </label>
               <Select
-                options={forumTypes.map((item) => {
+                options={roleBasedForum[
+                  loggedInUser?.role as keyof typeof roleBasedForum
+                ]?.map((item) => {
                   return {
                     label: item,
                     value: item,
@@ -302,7 +305,7 @@ const Page = () => {
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            {selectedFilters?.categories?.map((item: any) => (
+            {selectedFilters?.categories?.map((item: TagCategoryType) => (
               <Chip
                 key={item._id}
                 label={item.name}
@@ -310,7 +313,7 @@ const Page = () => {
                 onClear={() => {
                   const values =
                     selectedFilters?.categories?.filter(
-                      (i: any) => i.name !== item.name
+                      (i: TagCategoryType) => i.name !== item.name
                     ) ?? [];
                   handleFilters("categories", values);
                   setSelectedCategories(values);

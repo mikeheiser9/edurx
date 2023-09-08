@@ -32,7 +32,7 @@ export const Select = ({
         {label}
       </option>
       {options?.map((option: option) => (
-        <option className={`${optionClassName} text-sm p-2`} key={option.value}>
+        <option value={option.value} className={`${optionClassName} text-sm p-2`} key={option.value}>
           {option.label}
         </option>
       ))}

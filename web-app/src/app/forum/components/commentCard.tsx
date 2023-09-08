@@ -11,18 +11,19 @@ import {
 import { getFullName, getStaticImageUrl } from "@/util/helpers";
 import Image from "next/image";
 import moment from "moment";
-import { TextArea } from "@/components/textArea";
 import { Button } from "@/components/button";
-
+import MentionInput from "@/components/mentionInput";
+import { searchUserByAPI } from "@/service/user.service";
 interface Props {
-  comment: any;
+  comment: Comment;
   showBorder?: boolean;
   wrapperClass?: string;
   onSubmitReply?: (commentData?: any) => void;
   onCommentReaction?: (
     reactionType: "like" | "dislike",
     targetType: "post" | "comment",
-    targetId: string
+    targetId: string,
+    parentId?: string
   ) => void;
   isChildCard?: boolean;
 }
@@ -40,20 +41,72 @@ export const CommentCard = ({
   const [commentText, setcommentText] = useState<string>("");
   const userReactionOnComment: "like" | "dislike" | null =
     comment?.reactions?.[0]?.reactionType || null;
+  const [userSuggetions, setUserSuggetions] = useState<any[]>([]);
+  const [mentions, setMentions] = useState<any[]>([]);
+  const [userSuggetionsPagination, setUserSuggetionsPagination] =
+    useState<PageDataState>({
+      page: 1,
+      totalRecords: 0,
+    });
+
+  const getTaggedUserIds = (): string[] => {
+    return mentions?.map((m) => m?._id);
+  };
 
   const handleReply = () => {
     let parentId = isChildCard ? comment?.parentId : comment?._id;
     if (!commentText && !parentId) return;
     const payload = {
       content: commentText,
+      taggedUsers: getTaggedUserIds(),
       parentId,
-      repliedTo: comment?.userId?._id,
     };
     console.log(payload);
-    // return;
     onSubmitReply?.(payload);
     setcommentText("");
     setisReplyBoxVisible(false);
+  };
+
+  const onReplyClick = () => {
+    setcommentText(`@${comment?.userId?.username} `);
+    setMentions([comment?.userId]);
+    setisReplyBoxVisible(!isReplyBoxVisible);
+  };
+
+  const searchUsers = async (
+    searchKeyword: string,
+    page: number = 1,
+    useConcat: boolean = false
+  ) => {
+    const response = await searchUserByAPI(searchKeyword, {
+      page,
+      limit: 10,
+    });
+    if (response.status === 200) {
+      setUserSuggetions(
+        useConcat
+          ? userSuggetions?.concat(response?.data?.data?.records)
+          : response?.data?.data?.records
+      );
+      setUserSuggetionsPagination({
+        page: response.data?.data?.currentPage,
+        totalRecords: response?.data?.data?.totalRecords,
+      });
+    }
+  };
+
+  const onSelectUser = (user: UserId) => {
+    let isExist = mentions?.some((mention) => mention?._id === user?._id);
+    if (isExist) return;
+    setMentions(mentions?.concat(user));
+  };
+
+  const onRemoveMention = (mention: UserId) => {
+    setMentions(mentions?.filter((item) => item?._id !== mention?._id));
+  };
+
+  const loadMoreUsers = async (searchKeyword: string = "") => {
+    await searchUsers(searchKeyword, userSuggetionsPagination.page + 1, true);
   };
 
   return (
@@ -78,11 +131,12 @@ export const CommentCard = ({
         </div>
         <div className="flex-1 flex flex-col gap-2 pb-2">
           <span className="text-sm font-semibold lowercase">
-            {getFullName(
-              comment?.userId?.first_name,
-              comment?.userId?.last_name,
-              "_"
-            )}{" "}
+            {comment?.userId?.username ||
+              getFullName(
+                comment?.userId?.first_name,
+                comment?.userId?.last_name,
+                "_"
+              )}{" "}
             {/* <span className="text-white/60">
               {`• ${comment?.views} views • ${moment(
                 comment?.createdAt
@@ -93,15 +147,18 @@ export const CommentCard = ({
             </span>
           </span>
           <div className="py-2">
-            {isChildCard &&
+            {/* {isChildCard &&
               (comment?.repliedTo?.first_name ||
                 comment?.repliedTo?.last_name) && (
-                <span className="text-blue-500/70 font-semibold lowercase">{`@${getFullName(
-                  comment?.repliedTo?.first_name,
-                  comment?.repliedTo?.last_name,
-                  "_"
-                )} `}</span>
-              )}
+                <span className="text-blue-500/70 font-semibold lowercase">{`@${
+                  comment?.repliedTo?.username ||
+                  getFullName(
+                    comment?.repliedTo?.first_name,
+                    comment?.repliedTo?.last_name,
+                    "_"
+                  )
+                } `}</span>
+              )} */}
             {comment?.content}
           </div>
           <div className="flex gap-6 text-sm items-center text-white/60">
@@ -115,10 +172,17 @@ export const CommentCard = ({
                 } ease-in-out duration-200`}
                 onClick={() =>
                   userReactionOnComment !== "like" &&
-                  onCommentReaction?.("like", "comment", comment?._id)
+                  onCommentReaction?.(
+                    "like",
+                    "comment",
+                    comment?._id,
+                    isChildCard ? comment?.parentId : undefined
+                  )
                 }
               />
-              &nbsp;{comment?.likeCount - comment?.dislikeCount}&nbsp;
+              &nbsp;
+              {(comment?.likeCount || 0) - (comment?.dislikeCount || 0)}
+              &nbsp;
               <FontAwesomeIcon
                 icon={faArrowDown}
                 className={`${
@@ -128,14 +192,16 @@ export const CommentCard = ({
                 } ease-in-out duration-200`}
                 onClick={() =>
                   userReactionOnComment !== "dislike" &&
-                  onCommentReaction?.("dislike", "comment", comment?._id)
+                  onCommentReaction?.(
+                    "dislike",
+                    "comment",
+                    comment?._id,
+                    isChildCard ? comment?.parentId : undefined
+                  )
                 }
               />
             </span>
-            <span
-              className="cursor-pointer"
-              onClick={() => setisReplyBoxVisible(!isReplyBoxVisible)}
-            >
+            <span className="cursor-pointer" onClick={onReplyClick}>
               <FontAwesomeIcon icon={faCommentDots} />
               &nbsp;Reply
             </span>
@@ -143,7 +209,7 @@ export const CommentCard = ({
               <FontAwesomeIcon icon={faShare} />
               &nbsp;Share
             </span>
-            {comment?.replies?.length > 0 && (
+            {comment?.replies && comment?.replies?.length > 0 && (
               <span
                 className="p-1 cursor-pointer px-2 rounded-md border border-primary text-xs text-primary"
                 onClick={() => {
@@ -162,15 +228,40 @@ export const CommentCard = ({
           </div>
           {isReplyBoxVisible && (
             <div className="flex animate-fade-in-down flex-col w-1/2">
-              <TextArea
-                placeholder="What are your thoughts?"
-                className="text-xs rounded-b-none rounded-t-md !w-full"
-                style={{
-                  minBlockSize: "3rem",
-                  maxBlockSize: "10rem",
+              <MentionInput
+                textAreaProps={{
+                  placeholder: "What are your thoughts?",
+                  className: "text-xs rounded-b-none rounded-t-md !w-full",
+                  style: {
+                    minBlockSize: "3rem",
+                    maxBlockSize: "10rem",
+                  },
                 }}
-                onChange={(e) => setcommentText(e.target.value)}
+                dataOptions={{
+                  accessKey: "username",
+                  label: ["first_name", "last_name"],
+                  primaryKey: "_id",
+                  imageKey: "profile_img",
+                }}
+                setMentions={setMentions}
+                setSuggetions={setUserSuggetions}
+                useInfiniteScroll
+                setValue={setcommentText}
                 value={commentText}
+                selectedMentions={mentions}
+                suggetions={userSuggetions}
+                triggerCallback={searchUsers}
+                onSelect={onSelectUser}
+                onRemoveMention={onRemoveMention}
+                infiniteScrollProps={{
+                  hasMoreData:
+                    userSuggetions?.length <
+                    userSuggetionsPagination?.totalRecords,
+                  callBack: loadMoreUsers,
+                  className:
+                    "overflow-y-auto animate-fade-in-down max-h-[15em] text-white bg-primary-dark rounded-md rounded-t-none border-2 border-white/20 flex flex-auto flex-col gap-2 p-2",
+                  showLoading: true,
+                }}
               />
               <span className="bg-primary rounded-md -mt-1 p-1 w-full flex justify-end rounded-t-none gap-2">
                 <Button
@@ -195,6 +286,7 @@ export const CommentCard = ({
                 key={reply?._id}
                 wrapperClass="flex gap-2 flex-col animate-fade-in-down"
                 onSubmitReply={onSubmitReply}
+                onCommentReaction={onCommentReaction}
                 isChildCard
               />
             ))}

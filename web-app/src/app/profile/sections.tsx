@@ -58,10 +58,10 @@ const BasicInfo = ({
   openModal,
 }: {
   userData: UserData;
-  openModal: () => void;
+  openModal?: () => void;
 }): React.ReactElement => (
   <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-lg">
-    <EditIcon onClick={openModal} />
+    {openModal && <EditIcon onClick={openModal} />}
     <div className="w-full hover:blur-sm duration-500 h-40 overflow-hidden bg-gradient-to-b from-primary/20 items-center justify-center flex">
       {userData?.banner_img ? (
         <Image
@@ -180,10 +180,10 @@ const About = ({
   openModal,
 }: {
   personal_bio: string | undefined;
-  openModal: () => void;
+  openModal?: () => void;
 }) => (
   <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-lg">
-    {personal_bio && <EditIcon onClick={openModal} />}
+    {personal_bio && openModal && <EditIcon onClick={openModal} />}
     <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-col gap-2">
       <span className="text-white text-xl font-bold font-serif tracking-wide">
         About
@@ -306,10 +306,10 @@ const Education = ({
   onEditClick,
 }: {
   educations: education[] | undefined;
-  onEditClick: () => void;
+  onEditClick?: () => void;
 }): React.ReactElement => (
   <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-lg lg:min-h-[12rem]">
-    <EditIcon onClick={onEditClick} />
+    {onEditClick && <EditIcon onClick={onEditClick} />}
     <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-col gap-2">
       <span className="text-white text-xl font-bold font-serif tracking-wide">
         Education
@@ -357,8 +357,7 @@ const DocList = ({
   userData: UserData;
   lastDocRef: LastDocRefType;
 }) => (
-  <div className="flex flex-col gap-2 mt-4  h-auto max-h-[40vh] overflow-y-scroll">
-    {/* h-auto max-h-[40vh] overflow-y-scroll */}
+  <div className="flex flex-col gap-2 mt-4  h-auto max-h-[40vh] overflow-y-auto">
     {userData?.[type]?.length ? (
       userData?.[type]?.map((value: userDocs) => (
         <div className="flex gap-x-6" key={value?._id || Date.now()}>
@@ -406,12 +405,11 @@ const Documents = ({
   lastDocRef: LastDocRefType;
   onLoadMore(doc_type: string): void;
   isLoading: boolean;
-  onEditClick: () => void;
+  onEditClick?: () => void;
 }) => (
   <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-lg lg:min-h-[12rem]">
-    {(userData?.licenses?.length > 0 || userData?.certificates?.length > 0) && (
-      <EditIcon onClick={onEditClick} />
-    )}
+    {(userData?.licenses?.length > 0 || userData?.certificates?.length > 0) &&
+      onEditClick && <EditIcon onClick={onEditClick} />}
     <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-auto gap-2 flex-wrap">
       <div className="flex-1">
         <span className="text-white text-xl font-bold font-serif tracking-wide">
@@ -476,7 +474,7 @@ const ModalHeader = ({
         className="cursor-pointer ml-auto"
       />
     </div>
-    <ul className="flex gap-4 justify-center px-8 pt-4">
+    <ul className="flex gap-4 justify-center px-8 py-4">
       {Object.keys(profileSections).map((section: string, index: number) => (
         <li
           className={`flex items-center ${
