@@ -5,6 +5,7 @@ import {
   updateProfileById,
   addNewDocument,
   getUsersDocs,
+  searchUsersByName,
 } from "../repository/user.js";
 import {
   generalResponse,
@@ -171,10 +172,29 @@ const postConnections = async (req, res) => {
   }
 };
 
+const searchUsers = async (req, res) => {
+  try {
+    console.log(req.query);
+    const { searchKeyword, page, limit } = req.query;
+    const response = await searchUsersByName(searchKeyword, page, limit);
+    return generalResponse(
+      res,
+      200,
+      "OK",
+      "Users fetched successfully",
+      response,
+      false
+    );
+  } catch (error) {
+    return generalResponse(res, 400, "error", "Something went wrong", error);
+  }
+};
+
 export {
   getUserProfile,
   updateUserByID,
   addUpdateDocument,
   getUsersDocuments,
   postConnections,
+  searchUsers,
 };

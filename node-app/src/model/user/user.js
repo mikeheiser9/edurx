@@ -62,6 +62,9 @@ const userSchema = new Schema(
 );
 userSchema.pre("save", async function (next) {
   if (this.password) {
+    this.username = `${this.first_name}_${this.last_name}_${this._id
+      ?.toString()
+      ?.slice(-2)}`;
     this.password = await bcrypt.hash(this.password, 10);
   }
   next();

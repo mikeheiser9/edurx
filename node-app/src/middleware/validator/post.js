@@ -178,7 +178,6 @@ const addCommentValidator = async (req, res, next) => {
     const schema = Joi.object({
       content: Joi.string().required(),
       userId: validateField.objectId.required(),
-      repliedTo: validateField.objectId,
       postId: validateField.objectId.required().disallow(Joi.ref("userId")),
       taggedUsers: Joi.array()
         .max(50)

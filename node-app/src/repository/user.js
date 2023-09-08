@@ -222,6 +222,54 @@ const unfollowUser = async (userId, targetUserId) => {
   }
 };
 
+const searchUsersByName = async (searchKeyword, page, limit) => {
+  try {
+    // searching users based on username or concated first_name and last_name
+    const query = searchKeyword?.length
+      ? {
+          $expr: {
+            $or: [
+              {
+                $regexMatch: {
+                  input: { $concat: ["$first_name", " ", "$last_name"] },
+                  regex: searchKeyword,
+                  options: "i",
+                },
+              },
+              {
+                $regexMatch: {
+                  input: "$username",
+                  regex: searchKeyword,
+                  options: "i",
+                },
+              },
+            ],
+          },
+        }
+      : {};
+
+    const options = {
+      select: {
+        first_name: 1,
+        last_name: 1,
+        username: 1,
+        email: 1,
+        role: 1,
+        profile_img: 1,
+      },
+    };
+    return await findAndPaginate(
+      userModel,
+      query,
+      page && Number(page),
+      limit && Number(limit),
+      options
+    );
+  } catch (error) {
+    return error.message;
+  }
+};
+
 export {
   getUserProfileById,
   findUserByEmail,
@@ -236,4 +284,5 @@ export {
   getDocumentById,
   followUser,
   unfollowUser,
+  searchUsersByName,
 };

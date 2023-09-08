@@ -112,26 +112,6 @@ const addComment = async (payload) => {
 };
 
 const getCommentsByPostId = async (postId, page = 1, limit = 10, userId) => {
-  // const query = { postId },
-  //   options = {
-  //     populate: [
-  //       {
-  //         path: "taggedUsers",
-  //         select: ["first_name"],
-  //       },
-  //       {
-  //         path: "views",
-  //       },
-  //     ],
-  //   };
-  // return await findAndPaginate(
-  //   commentModal,
-  //   query,
-  //   page && Number(page),
-  //   limit && Number(limit),
-  //   options
-  // );
-
   try {
     const skippedPages = (page - 1) * limit;
     const pipeline = [
@@ -159,13 +139,6 @@ const getCommentsByPostId = async (postId, page = 1, limit = 10, userId) => {
                 localField: "_id",
                 foreignField: "commentId",
                 as: "reactions",
-                // pipeline: [
-                //   {
-                //     $match: {
-                //       reactionType: "like",
-                //     },
-                //   },
-                // ],
               },
             },
             {
@@ -211,6 +184,7 @@ const getCommentsByPostId = async (postId, page = 1, limit = 10, userId) => {
                       profile_img: 1,
                       email: 1,
                       first_name: 1,
+                      username: 1,
                       last_name: 1,
                       role: 1,
                     },
@@ -219,31 +193,48 @@ const getCommentsByPostId = async (postId, page = 1, limit = 10, userId) => {
               },
             },
             {
+              $unwind: "$userId",
+            },
+            // {
+            //   $lookup: {
+            //     from: "users",
+            //     localField: "repliedTo",
+            //     foreignField: "_id",
+            //     as: "repliedTo",
+            //     pipeline: [
+            //       {
+            //         $project: {
+            //           email: 1,
+            //           first_name: 1,
+            //           last_name: 1,
+            //           username: 1,
+            //           role: 1,
+            //         },
+            //       },
+            //     ],
+            //   },
+            // },
+            // {
+            //   $unwind: "$repliedTo",
+            // },
+            {
               $lookup: {
                 from: "users",
-                localField: "repliedTo",
+                localField: "taggedUsers",
                 foreignField: "_id",
-                as: "repliedTo",
+                as: "taggedUsers",
                 pipeline: [
                   {
                     $project: {
                       email: 1,
                       first_name: 1,
                       last_name: 1,
+                      username: 1,
                       role: 1,
+                      profile_img: 1,
                     },
                   },
                 ],
-              },
-            },
-            {
-              $unwind: "$repliedTo",
-            },
-            {
-              $addFields: {
-                // views: { $size: "$views" },
-                likeCount: { $size: "$likeCount" },
-                dislikeCount: { $size: "$dislikeCount" },
               },
             },
             {
@@ -273,6 +264,7 @@ const getCommentsByPostId = async (postId, page = 1, limit = 10, userId) => {
                 email: 1,
                 first_name: 1,
                 last_name: 1,
+                username: 1,
                 role: 1,
               },
             },
@@ -284,17 +276,30 @@ const getCommentsByPostId = async (postId, page = 1, limit = 10, userId) => {
       },
       {
         $lookup: {
+          from: "users",
+          localField: "taggedUsers",
+          foreignField: "_id",
+          as: "taggedUsers",
+          pipeline: [
+            {
+              $project: {
+                email: 1,
+                first_name: 1,
+                last_name: 1,
+                username: 1,
+                role: 1,
+                profile_img: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $lookup: {
           from: "reactions",
           localField: "_id",
           foreignField: "commentId",
           as: "reactions",
-          // pipeline: [
-          //   {
-          //     $match: {
-          //       reactionType: "like",
-          //     },
-          //   },
-          // ],
         },
       },
       {
@@ -363,9 +368,27 @@ const getCommentsByPostId = async (postId, page = 1, limit = 10, userId) => {
 
 const getPostById = async (postId, userId) => {
   let userPopulator = {
-    path: "userId",
-    select: ["profile_img", "email", "first_name", "last_name", "role"],
-  };
+      path: "userId",
+      select: [
+        "profile_img",
+        "email",
+        "first_name",
+        "username",
+        "last_name",
+        "role",
+      ],
+    },
+    taggedUsers = {
+      path: "taggedUsers",
+      select: [
+        "email",
+        "first_name",
+        "last_name",
+        "username",
+        "role",
+        "profile_img",
+      ],
+    };
   return await postModal.findById({ _id: postId }).populate([
     "commentCount",
     "likeCount",
@@ -398,6 +421,7 @@ const getPostById = async (postId, userId) => {
       },
       populate: [
         userPopulator,
+        taggedUsers,
         {
           path: "reactions",
           select: ["reactionType", "targetType", "userId"],
@@ -407,13 +431,14 @@ const getPostById = async (postId, userId) => {
           path: "replies",
           populate: [
             userPopulator,
+            taggedUsers,
             // "views",
             "likeCount",
             "dislikeCount",
-            {
-              path: "repliedTo",
-              select: ["email", "first_name", "last_name", "role"],
-            },
+            // {
+            //   path: "repliedTo",
+            //   select: ["email", "first_name", "username", "last_name", "role"],
+            // },
             {
               path: "reactions",
               select: ["reactionType", "targetType", "userId"],
