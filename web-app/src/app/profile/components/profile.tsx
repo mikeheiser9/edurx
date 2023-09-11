@@ -154,7 +154,7 @@ export const UserProfile = ({
                   <button
                     type="button"
                     className="border rounded-md p-2 hover:bg-primary w-auto px-4 font-medium text-sm text-primary border-primary bg-primary/10 hover:text-white transition-all ease-in-out duration-300"
-                    // onClick={openModal}
+                    // onClick={} // TODO: follow / un-follow user interaction
                   >
                     Follow {userData?.first_name}
                   </button>
