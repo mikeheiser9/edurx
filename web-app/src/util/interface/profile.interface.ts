@@ -11,6 +11,7 @@ interface socials {
   linkedin?: string;
   twitter?: string;
   facebook?: string;
+  email?: string;
 }
 
 interface about {

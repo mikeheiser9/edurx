@@ -8,10 +8,13 @@ import {
   faEye,
 } from "@fortawesome/free-regular-svg-icons";
 import {
+  faArrowDown,
+  faArrowUp,
   faChartColumn,
   faEllipsisVertical,
   faImage,
   faLock,
+  faNewspaper,
   faThumbsUp,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -177,10 +180,31 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
 
   return (
     <Modal
-      headerTitle="Post"
+      // headerTitle="Post"
       onClose={viewPostModal.closeModal}
       visible={viewPostModal.isOpen}
       showCloseIcon
+      customHeader={
+        <div className="bg-primary p-2 px-4 font-sans">
+          <div className="flex gap-2">
+            <span className="flex gap-2 items-center">
+              <FontAwesomeIcon icon={faArrowUp} className="font-bold" />
+              {(post?.likeCount || 0) - (post?.dislikeCount || 0)}
+              <FontAwesomeIcon icon={faArrowDown} className="font-bold" />
+              |
+              <FontAwesomeIcon icon={faNewspaper} />
+            </span>{" "}
+            {post?.title} |{" "}
+            <b>
+              {post?.forumType
+                ? npiToDefinition[
+                    post.forumType as keyof typeof npiToDefinition
+                  ] || post?.forumType
+                : "-"}
+            </b>
+          </div>
+        </div>
+      }
       showFooter={false}
       modalClassName="!w-2/4 !bg-primary-dark h-full"
       // modalBodyClassName="flex flex-auto p-4 !h-full overflow-y-auto"

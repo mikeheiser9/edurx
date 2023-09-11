@@ -17,6 +17,7 @@ import Image from "next/image";
 import instagram from "../../assets/icons/instagram.svg";
 import linkedin from "../../assets/icons/linkedin.svg";
 import twitter from "../../assets/icons/twitter.svg";
+import email from "../../assets/icons/email.svg";
 import facebook from "../../assets/icons/facebook.svg";
 import eduIcon from "../../assets/icons/eduIcon.svg";
 import { npiToDefinition } from "@/util/constant";
@@ -30,6 +31,7 @@ const socialMediaIcons: socials = {
   facebook,
   twitter,
   linkedin,
+  email,
 };
 
 const profileSections: profileSections = {
@@ -53,12 +55,29 @@ const EditIcon = ({ onClick }: { onClick: () => void }) => (
   />
 );
 
+const SocialIcon = ({ value, href }: { value: string; href: string }) => (
+  <a
+    className="bg-primary flex justify-center rounded-full h-7 w-7"
+    href={href}
+    target="_blank"
+    rel="noopener noreferrer"
+    title={value}
+  >
+    <Image
+      src={socialMediaIcons[value as keyof socials] as string}
+      alt={value}
+    />
+  </a>
+);
+
 const BasicInfo = ({
   userData,
   openModal,
+  buttonJsx,
 }: {
   userData: UserData;
   openModal?: () => void;
+  buttonJsx?: React.ReactElement | any;
 }): React.ReactElement => (
   <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-lg">
     {openModal && <EditIcon onClick={openModal} />}
@@ -137,39 +156,39 @@ const BasicInfo = ({
                     socialMediaIcons?.[item as keyof socials]
                   ) {
                     return (
-                      <a
-                        className="bg-primary flex justify-center rounded-full h-7 w-7"
-                        key={item}
+                      <SocialIcon
+                        value={item as keyof socials}
                         href={`https://${item}.com/${
                           userData?.socials?.[item as keyof socials]
                         }`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title={item}
-                      >
-                        <Image
-                          src={
-                            socialMediaIcons[item as keyof socials] as string
-                          }
-                          alt={item}
-                        />
-                      </a>
+                        key={item}
+                      />
                     );
                   }
                 })}
+                {userData?.contact_email && (
+                  <SocialIcon
+                    value="email"
+                    href={`mailto:${userData?.contact_email}`}
+                  />
+                )}
               </div>
             )}
           </div>
         </div>
-        <div className="justify-self-end self-end">
-          <button
-            type="button"
-            className="border rounded-md p-2 hover:bg-primary w-auto px-4 font-medium text-sm text-primary border-primary bg-primary/10 hover:text-white transition-all ease-in-out duration-300"
-            onClick={openModal}
-          >
-            Edit Profile
-          </button>
-        </div>
+        {buttonJsx
+          ? buttonJsx
+          : openModal && (
+              <div className="justify-self-end self-end">
+                <button
+                  type="button"
+                  className="border rounded-md p-2 hover:bg-primary w-auto px-4 font-medium text-sm text-primary border-primary bg-primary/10 hover:text-white transition-all ease-in-out duration-300"
+                  onClick={openModal}
+                >
+                  Edit Profile
+                </button>
+              </div>
+            )}
       </div>
     </div>
   </div>
@@ -178,9 +197,11 @@ const BasicInfo = ({
 const About = ({
   personal_bio,
   openModal,
+  emptyBioMessage,
 }: {
   personal_bio: string | undefined;
   openModal?: () => void;
+  emptyBioMessage?: string;
 }) => (
   <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-lg">
     {personal_bio && openModal && <EditIcon onClick={openModal} />}
@@ -189,13 +210,19 @@ const About = ({
         About
       </span>
       <p className="text-white/60 text-sm">
-        {personal_bio || "You don't have about / bio yet."}
+        {personal_bio || (emptyBioMessage ?? "No personal bio available")}
       </p>
     </div>
   </div>
 );
 
-const PostList = ({ posts }: { posts: [] | undefined }): React.ReactElement => (
+const PostList = ({
+  posts,
+  noDataMessage,
+}: {
+  posts: [] | undefined;
+  noDataMessage: string;
+}): React.ReactElement => (
   <>
     {posts?.length ? (
       <div className="grid grid-cols-2 gap-2 ease-in-out transform duration-1000">
@@ -221,7 +248,7 @@ const PostList = ({ posts }: { posts: [] | undefined }): React.ReactElement => (
         ))}
       </div>
     ) : (
-      <span className="text-white">You have no forum posts yet.</span>
+      <span className="text-white">{noDataMessage}</span>
     )}
   </>
 );
@@ -229,9 +256,11 @@ const PostList = ({ posts }: { posts: [] | undefined }): React.ReactElement => (
 const CommentList = ({
   comments,
   profileImage,
+  noDataMessage,
 }: {
   comments: [] | undefined;
   profileImage?: string | undefined;
+  noDataMessage: string;
 }): React.ReactElement => (
   <>
     {comments?.length ? (
@@ -263,7 +292,7 @@ const CommentList = ({
         ))}
       </div>
     ) : (
-      <span className="text-white">You have no forum comments yet.</span>
+      <span className="text-white">{noDataMessage}</span>
     )}
   </>
 );
@@ -272,10 +301,14 @@ const Activity = ({
   posts,
   comments,
   profileImage,
+  noPostMessage,
+  noCommentMessage,
 }: {
   posts: [] | undefined;
   comments: [] | undefined;
   profileImage?: string | undefined;
+  noPostMessage: string;
+  noCommentMessage: string;
 }): React.ReactElement => (
   <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-lg lg:min-h-[12rem]">
     <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-col gap-2">
@@ -286,12 +319,18 @@ const Activity = ({
         options={[
           {
             label: "Posts",
-            component: () => <PostList posts={posts} />,
+            component: () => (
+              <PostList posts={posts} noDataMessage={noPostMessage} />
+            ),
           },
           {
             label: "Comments",
             component: () => (
-              <CommentList comments={comments} profileImage={profileImage} />
+              <CommentList
+                comments={comments}
+                profileImage={profileImage}
+                noDataMessage={noCommentMessage}
+              />
             ),
           },
         ]}
@@ -304,9 +343,11 @@ const Activity = ({
 const Education = ({
   educations,
   onEditClick,
+  noEducationMessage,
 }: {
   educations: education[] | undefined;
   onEditClick?: () => void;
+  noEducationMessage: string;
 }): React.ReactElement => (
   <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-lg lg:min-h-[12rem]">
     {onEditClick && <EditIcon onClick={onEditClick} />}
@@ -340,9 +381,7 @@ const Education = ({
           </div>
         ))
       ) : (
-        <span className="text-white">
-          You have not shared any education hisory yet.
-        </span>
+        <span className="text-white">{noEducationMessage}</span>
       )}
     </div>
   </div>
@@ -352,10 +391,12 @@ const DocList = ({
   type,
   userData,
   lastDocRef,
+  noDataMessage,
 }: {
   type: "licenses" | "certificates";
   userData: UserData;
   lastDocRef: LastDocRefType;
+  noDataMessage: string;
 }) => (
   <div className="flex flex-col gap-2 mt-4  h-auto max-h-[40vh] overflow-y-auto">
     {userData?.[type]?.length ? (
@@ -388,7 +429,9 @@ const DocList = ({
         </div>
       ))
     ) : (
-      <span className="text-white">You have not shared any {type} yet</span>
+      <span className="text-white">
+        {noDataMessage?.replaceAll("{type}", type)}
+      </span>
     )}
     <div ref={lastDocRef[type]} />
   </div>
@@ -400,12 +443,14 @@ const Documents = ({
   onLoadMore,
   isLoading,
   onEditClick,
+  noDataMessage,
 }: {
   userData: UserData;
   lastDocRef: LastDocRefType;
   onLoadMore(doc_type: string): void;
   isLoading: boolean;
   onEditClick?: () => void;
+  noDataMessage: string;
 }) => (
   <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-lg lg:min-h-[12rem]">
     {(userData?.licenses?.length > 0 || userData?.certificates?.length > 0) &&
@@ -425,6 +470,7 @@ const Documents = ({
           userData={userData}
           lastDocRef={lastDocRef}
           type="certificates"
+          noDataMessage={noDataMessage}
         />
         {userData?.certificates?.length < userData?.certificatesCount && (
           <LoadMore
@@ -442,7 +488,12 @@ const Documents = ({
             </span>
           )}
         </span>
-        <DocList userData={userData} lastDocRef={lastDocRef} type="licenses" />
+        <DocList
+          userData={userData}
+          lastDocRef={lastDocRef}
+          type="licenses"
+          noDataMessage={noDataMessage}
+        />
         {userData?.licenses?.length < userData?.licensesCount && (
           <LoadMore
             isLoading={isLoading}

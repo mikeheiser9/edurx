@@ -195,28 +195,6 @@ const getCommentsByPostId = async (postId, page = 1, limit = 10, userId) => {
             {
               $unwind: "$userId",
             },
-            // {
-            //   $lookup: {
-            //     from: "users",
-            //     localField: "repliedTo",
-            //     foreignField: "_id",
-            //     as: "repliedTo",
-            //     pipeline: [
-            //       {
-            //         $project: {
-            //           email: 1,
-            //           first_name: 1,
-            //           last_name: 1,
-            //           username: 1,
-            //           role: 1,
-            //         },
-            //       },
-            //     ],
-            //   },
-            // },
-            // {
-            //   $unwind: "$repliedTo",
-            // },
             {
               $lookup: {
                 from: "users",
@@ -435,10 +413,6 @@ const getPostById = async (postId, userId) => {
             // "views",
             "likeCount",
             "dislikeCount",
-            // {
-            //   path: "repliedTo",
-            //   select: ["email", "first_name", "username", "last_name", "role"],
-            // },
             {
               path: "reactions",
               select: ["reactionType", "targetType", "userId"],

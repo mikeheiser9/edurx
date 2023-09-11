@@ -1,7 +1,7 @@
 import { axiosPut } from "@/axios/config";
-import { setUserDetail } from "@/redux/ducks/user.duck";
+import { selectUserDetail, setUserDetail } from "@/redux/ducks/user.duck";
 import React, { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { sections } from "./sections";
 import { Form, Formik, FormikHelpers } from "formik";
 import { validationSchema } from "@/util/validations/userProfile";
@@ -16,7 +16,6 @@ interface Props {
   setUserData: React.Dispatch<React.SetStateAction<UserData | undefined>>;
   setIsListView: React.Dispatch<React.SetStateAction<boolean>>;
   isListView: boolean;
-  loggedInUser: any;
 }
 
 const EditProfile = ({
@@ -27,9 +26,9 @@ const EditProfile = ({
   setUserData,
   setIsListView,
   isListView,
-  loggedInUser,
 }: Props) => {
   const dispatch = useDispatch();
+  const loggedInUser = useSelector(selectUserDetail);
   const userId: string | undefined = loggedInUser?._id;
 
   const intialFormikValues: userProfileInterface = {

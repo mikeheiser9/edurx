@@ -14,6 +14,7 @@ import moment from "moment";
 import { Button } from "@/components/button";
 import MentionInput from "@/components/mentionInput";
 import { searchUserByAPI } from "@/service/user.service";
+import replaceTaggedUsers from "./replaceTags";
 interface Props {
   comment: Comment;
   showBorder?: boolean;
@@ -56,9 +57,15 @@ export const CommentCard = ({
   const handleReply = () => {
     let parentId = isChildCard ? comment?.parentId : comment?._id;
     if (!commentText && !parentId) return;
+    let prefix = `@${comment?.userId?.username}`;
+    let isReplyMentionExist =
+      commentText?.includes(prefix) &&
+      mentions?.some((m) => m?._id === comment?.userId?._id);
     const payload = {
-      content: commentText,
-      taggedUsers: getTaggedUserIds(),
+      content: isReplyMentionExist ? commentText : `${prefix} ${commentText}`,
+      taggedUsers: getTaggedUserIds()?.concat(
+        !isReplyMentionExist && comment?.userId?._id ? comment?.userId?._id : []
+      ),
       parentId,
     };
     console.log(payload);
@@ -147,19 +154,11 @@ export const CommentCard = ({
             </span>
           </span>
           <div className="py-2">
-            {/* {isChildCard &&
-              (comment?.repliedTo?.first_name ||
-                comment?.repliedTo?.last_name) && (
-                <span className="text-blue-500/70 font-semibold lowercase">{`@${
-                  comment?.repliedTo?.username ||
-                  getFullName(
-                    comment?.repliedTo?.first_name,
-                    comment?.repliedTo?.last_name,
-                    "_"
-                  )
-                } `}</span>
-              )} */}
-            {comment?.content}
+            {comment.content &&
+              replaceTaggedUsers({
+                content: comment.content,
+                taggedUsers: comment?.taggedUsers ?? [],
+              })}
           </div>
           <div className="flex gap-6 text-sm items-center text-white/60">
             <span className="flex gap-2 justify-center items-center">

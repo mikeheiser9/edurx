@@ -1,5 +1,5 @@
 "use client";
-import React, { SetStateAction, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   About,
   Activity,
@@ -13,6 +13,7 @@ import { axiosGet } from "@/axios/config";
 import { Modal } from "@/components/modal";
 import { useModal } from "@/hooks";
 import EditProfile from "./edit";
+import NotFound from "@/app/not-found";
 
 interface LastDocRefType {
   licenses: React.RefObject<HTMLDivElement> | null;
@@ -29,10 +30,10 @@ const profileSections: profileSections = {
 
 export const UserProfile = ({
   userId,
-  viewMode,
+  isSelfProfile,
 }: {
   userId: string;
-  viewMode?: boolean;
+  isSelfProfile?: boolean;
 }) => {
   const [userData, setUserData] = useState<UserData>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -106,7 +107,7 @@ export const UserProfile = ({
       .catch((error) => console.log("could not retrieve user profile", error));
   }, [userId]);
 
-  if (!userData) return <></>;
+  if (!userData) return <NotFound />;
   return (
     <>
       <Modal
@@ -140,33 +141,65 @@ export const UserProfile = ({
           setUserData={setUserData}
           setIsListView={setIsListView}
           isListView={isListView}
-          loggedInUser={userId}
         />
       </Modal>
       <div className="flex justify-center w-full items-center flex-col">
         <div className="m-auto p-4 flex-auto lg:w-3/4 flex gap-4 h-auto w-full flex-col">
           <BasicInfo
             userData={userData}
-            openModal={viewMode ? undefined : editModal.openModal}
+            openModal={isSelfProfile ? editModal.openModal : undefined}
+            buttonJsx={
+              !isSelfProfile && (
+                <div className="justify-self-end self-end">
+                  <button
+                    type="button"
+                    className="border rounded-md p-2 hover:bg-primary w-auto px-4 font-medium text-sm text-primary border-primary bg-primary/10 hover:text-white transition-all ease-in-out duration-300"
+                    // onClick={openModal}
+                  >
+                    Follow {userData?.first_name}
+                  </button>
+                </div>
+              )
+            }
           />
           <About
-            openModal={viewMode ? undefined : editModal.openModal}
+            openModal={isSelfProfile ? editModal.openModal : undefined}
             personal_bio={userData?.personal_bio}
+            emptyBioMessage={
+              isSelfProfile
+                ? "You don't have about / bio yet."
+                : "This user has not shared their about / bio yet."
+            }
           />
           <Activity
             posts={userData?.userPosts}
             comments={userData?.recentComments}
             profileImage={userData?.profile_img}
+            noPostMessage={
+              isSelfProfile
+                ? "You have no forum posts yet."
+                : "This user has no forum posts yet."
+            }
+            noCommentMessage={
+              isSelfProfile
+                ? "You have no forum comments yet."
+                : "This user has no forum comments yet."
+            }
           />
           <Education
             educations={userData.educations}
             onEditClick={
-              viewMode
-                ? undefined
-                : () => {
+              isSelfProfile
+                ? () => {
                     setCurrentSection?.("education");
                     editModal.openModal();
                   }
+                : undefined
+            }
+            noEducationMessage={
+              isSelfProfile
+                ? "You have not shared any education hisory yet."
+                : "This user has not shared their education hisory yet."
             }
           />
           <Documents
@@ -174,13 +207,18 @@ export const UserProfile = ({
             isLoading={isLoading}
             lastDocRef={lastDocRef}
             onLoadMore={loadMoreDocuments}
+            noDataMessage={
+              isSelfProfile
+                ? "You have not shared any {type} yet."
+                : "This user has not shared their {type} yet."
+            }
             onEditClick={
-              viewMode
-                ? undefined
-                : () => {
+              isSelfProfile
+                ? () => {
                     setCurrentSection?.("certifications");
                     editModal.openModal();
                   }
+                : undefined
             }
           />
         </div>

@@ -62,7 +62,6 @@ interface Comment {
   dislikeCount?: number;
   replies?: Comment[];
   id?: string;
-  repliedTo?: UserId;
 }
 
 interface PostInterface {
