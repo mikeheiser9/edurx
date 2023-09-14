@@ -10,6 +10,7 @@ import {
   getPost,
   getAllPosts,
   addNewView,
+  updatePost,
 } from "../controllers/post.js";
 import {
   addCommentValidator,
@@ -21,8 +22,10 @@ import {
   getPostCommentsValidator,
   getUsersPostsValidator,
   searchMetaLabelValidator,
+  updatePostValidator,
   validateCategoryTag,
 } from "../middleware/validator/post.js";
+import { adminAuthValidation } from "../middleware/validator/user.js";
 
 const postRoute = Router();
 postRoute.post(
@@ -56,5 +59,12 @@ postRoute.get(
 );
 postRoute.get("/forum/all", userAuth, getAllPostValidator, getAllPosts);
 postRoute.get("/forum/user", userAuth, getUsersPostsValidator, getAllPosts);
+postRoute.put(
+  "/admin/update",
+  userAuth,
+  adminAuthValidation,
+  updatePostValidator,
+  updatePost
+);
 
 export default postRoute;

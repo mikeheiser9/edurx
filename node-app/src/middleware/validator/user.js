@@ -1,7 +1,13 @@
 import Joi from "joi";
-import { returnAppropriateError } from "../../util/commonFunctions.js";
+import {
+  generalResponse,
+  returnAppropriateError,
+} from "../../util/commonFunctions.js";
 import {
   paginationValidation,
+  responseCodes,
+  responseTypes,
+  roles,
   userDocValidation,
   userDocumentTypes,
   userValidations,
@@ -139,6 +145,23 @@ const searchUsersValidator = async (req, res, next) => {
   }
 };
 
+const adminAuthValidation = async (req, res, next) => {
+  try {
+    if (req.user?.role === roles[0]) await next();
+    else {
+      return generalResponse(
+        res,
+        responseCodes.UNAUTHORIZED,
+        responseTypes.UNAUTHORIZED,
+        "You are not authorized to perform this action",
+        null
+      );
+    }
+  } catch (error) {
+    returnAppropriateError(res, error);
+  }
+};
+
 export {
   updateUserValidator,
   getUserProfileValidator,
@@ -147,4 +170,5 @@ export {
   userConnectionsValidator,
   getConnectionsValidator,
   searchUsersValidator,
+  adminAuthValidation,
 };

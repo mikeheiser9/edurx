@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { forumTypes, postStatus, postType } from "../../util/constant.js";
+import { forumTypes, postFlags, postStatus, postType } from "../../util/constant.js";
 
 const postSchema = new Schema(
   {
@@ -51,7 +51,7 @@ const postSchema = new Schema(
     },
     flag: {
       type: String,
-      enum: ["Spam", "Inappropriate", "Other"], // Example flag options
+      enum: postFlags // ["Spam", "Inappropriate", "Other"], // Example flag options
     },
   },
   {

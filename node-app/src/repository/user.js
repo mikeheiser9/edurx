@@ -34,9 +34,11 @@ const getUserProfileById = async (
     type: "exclude",
     attributes: null,
   },
-  usePopulate
+  usePopulate,
+  loggedInUserId
 ) => {
   try {
+    console.log({ loggedInUserId });
     let skippedAttributes = getSkippedAttributes(excludeAttributeList);
     const userProfileQuery = userModel.findById({ _id: userId }).select({
       ...skippedAttributes,
@@ -50,45 +52,53 @@ const getUserProfileById = async (
         updatedAt: 0,
       },
     };
+    let populateArray = [
+      {
+        path: "userPosts",
+        options: {
+          limit: 6,
+          sort: {
+            createdAt: -1,
+          },
+        },
+        populate: ["views", "commentCount"],
+      },
+      {
+        path: "licenses",
+        options: docOptions,
+      },
+      {
+        path: "certificates",
+        options: docOptions,
+      },
+      {
+        path: "followersCount",
+      },
+      {
+        path: "followingCount",
+      },
+      {
+        path: "certificatesCount",
+      },
+      {
+        path: "licensesCount",
+      },
+      // last comments of user
+      {
+        path: "recentComments",
+        // populate: "views",
+      },
+    ];
+    if (loggedInUserId) {
+      populateArray.push({
+        path: "followers",
+        match: { userId: loggedInUserId },
+        // match with logged in user id and return if logged in user follows this userId
+      });
+    }
 
     if (usePopulate) {
-      userProfileQuery.populate([
-        {
-          path: "userPosts",
-          options: {
-            limit: 6,
-            sort: {
-              createdAt: -1,
-            },
-          },
-          populate: ["views", "commentCount"],
-        },
-        {
-          path: "licenses",
-          options: docOptions,
-        },
-        {
-          path: "certificates",
-          options: docOptions,
-        },
-        {
-          path: "followersCount",
-        },
-        {
-          path: "followingCount",
-        },
-        {
-          path: "certificatesCount",
-        },
-        {
-          path: "licensesCount",
-        },
-        // last comments of user
-        {
-          path: "recentComments",
-          // populate: "views",
-        },
-      ]);
+      userProfileQuery.populate(populateArray);
     }
 
     const userProfile = await userProfileQuery.exec();
@@ -270,6 +280,28 @@ const searchUsersByName = async (searchKeyword, page, limit) => {
   }
 };
 
+const getUserConnections = async (userId, type, page, limit) => {
+  const query = {
+    [type === "following" ? "userId" : "targetUserId"]: userId,
+  };
+  const options = {
+    populate: {
+      path: type === "following" ? "targetUserId" : "userId",
+      select: ["_id", "first_name", "last_name", "role"],
+    },
+    select: {
+      [type === "following" ? "targetUserId" : "userId"]: 1,
+    },
+  };
+  return await findAndPaginate(
+    userConnections,
+    query,
+    page && Number(page),
+    limit && Number(limit),
+    options
+  );
+};
+
 export {
   getUserProfileById,
   findUserByEmail,
@@ -285,4 +317,5 @@ export {
   followUser,
   unfollowUser,
   searchUsersByName,
+  getUserConnections,
 };

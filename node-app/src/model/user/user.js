@@ -148,4 +148,10 @@ userSchema.virtual("recentComments", {
   },
 });
 
+userSchema.virtual("followers", {
+  ref: "userConnections",
+  localField: "_id",
+  foreignField: "targetUserId",
+});
+
 export const userModel = model("users", userSchema);

@@ -6,6 +6,7 @@ import {
   addNewDocument,
   getUsersDocs,
   searchUsersByName,
+  getUserConnections,
 } from "../repository/user.js";
 import {
   generalResponse,
@@ -30,6 +31,8 @@ const getUserProfile = async (req, res) => {
         false
       );
     }
+    const loggedInUserId = req.user._id?.toString();
+    console.log({ loggedInUserId });
     const user = await getUserProfileById(
       userId,
       {
@@ -41,7 +44,8 @@ const getUserProfile = async (req, res) => {
           "verified_account",
         ],
       },
-      usePopulate === "true"
+      usePopulate === "true",
+      userId !== loggedInUserId && loggedInUserId
     );
     if (user) {
       return generalResponse(res, 200, "success", null, { user }, false);
@@ -172,6 +176,24 @@ const postConnections = async (req, res) => {
   }
 };
 
+const getConnections = async (req, res) => {
+  try {
+    const { type, userId } = req.params;
+    const { page, limit } = req.query;
+    const response = await getUserConnections(userId, type, page, limit);
+    generalResponse(
+      res,
+      200,
+      "success",
+      `${type} fetched successfully`,
+      response
+    );
+  } catch (error) {
+    console.log(error);
+    generalResponse(res, 400, "error", "Something went wrong", error);
+  }
+};
+
 const searchUsers = async (req, res) => {
   try {
     console.log(req.query);
@@ -197,4 +219,5 @@ export {
   getUsersDocuments,
   postConnections,
   searchUsers,
+  getConnections,
 };

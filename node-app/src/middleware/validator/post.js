@@ -1,12 +1,14 @@
 import { validateObjectIds } from "../../repository/post.js";
 import {
   generalResponse,
+  joiObjectIdValidator,
   returnAppropriateError,
 } from "../../util/commonFunctions.js";
 import {
   forumTypes,
   paginationValidation,
   postCategoryTagsTypes,
+  postFlags,
   postStatus,
   postType,
   roles,
@@ -249,6 +251,29 @@ const addViewValidator = async (req, res, next) => {
   }
 };
 
+const updatePostValidator = async (req, res, next) => {
+  try {
+    const { stringPrefixJoiValidation, objectId } = validateField;
+    const schema = Joi.object({
+      _id: objectId.required(),
+      postStatus: stringPrefixJoiValidation.valid(...postStatus),
+      title: stringPrefixJoiValidation.max(200),
+      content: stringPrefixJoiValidation.max(10000),
+      votingLength: Joi.number().when("postType", {
+        is: "poll",
+        then: Joi.number().required().min(1),
+      }),
+      isPrivate: Joi.boolean(),
+      isDeleted: Joi.boolean(),
+      flag: Joi.string().valid(...postFlags),
+    });
+    await schema.validateAsync(req.body);
+    next();
+  } catch (error) {
+    returnAppropriateError(res, error);
+  }
+};
+
 export {
   createPostValidator,
   getUsersPostsValidator,
@@ -260,4 +285,5 @@ export {
   getPostCommentsValidator,
   getAllPostValidator,
   addViewValidator,
+  updatePostValidator,
 };

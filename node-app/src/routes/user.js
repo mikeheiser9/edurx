@@ -7,6 +7,7 @@ import {
   getUsersDocuments,
   updateUserByID,
   searchUsers,
+  getConnections,
 } from "../controllers/user.js";
 import {
   addDocumentValidator,
@@ -49,8 +50,8 @@ userRoute.post(
 userRoute.get(
   "/connections/:userId/:type",
   userAuth,
-  getConnectionsValidator
-  //getConnections // to be implemented
+  getConnectionsValidator,
+  getConnections
 );
 
 userRoute.get("/search", userAuth, searchUsersValidator, searchUsers);

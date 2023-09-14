@@ -641,6 +641,16 @@ const addViews = async (payload) => {
   }
 };
 
+const updatePostById = async (payload) => {
+  try {
+    const postId = payload?._id;
+    if (!postId) throw new Error("Post id is required");
+    return await postModal.findByIdAndUpdate(postId, payload);
+  } catch (error) {
+    return error;
+  }
+};
+
 export {
   createNewPost,
   findPostsByUserId,
@@ -653,4 +663,5 @@ export {
   getPostById,
   getPosts,
   addViews,
+  updatePostById,
 };
