@@ -8,6 +8,7 @@ import { selectUserDetail } from "@/redux/ducks/user.duck";
 import { getFullName } from "@/util/helpers";
 import MentionInput from "@/components/mentionInput";
 import { searchUserByAPI } from "@/service/user.service";
+import { responseCodes } from "@/util/constant";
 
 interface CommentManagerProps {
   post: any;
@@ -47,7 +48,7 @@ export const CommentManager = ({
         page: page,
         limit: 10,
       });
-      if (response?.status === 200) {
+      if (response?.status === responseCodes.SUCCESS) {
         let comments = response?.data?.data?.comments?.data;
         let totalRecords =
           response?.data?.data?.comments?.metadata?.totalRecords ?? 0;
@@ -78,7 +79,7 @@ export const CommentManager = ({
       // return
 
       const response = await addNewComment(payload);
-      if (response?.status === 200) {
+      if (response?.status === responseCodes.SUCCESS) {
         setcommentText("");
         getPostById?.(); // It'll update UI after adding comment
       }
@@ -97,7 +98,7 @@ export const CommentManager = ({
       limit: 10,
     });
     console.log(response);
-    if (response.status === 200) {
+    if (response.status === responseCodes.SUCCESS) {
       setUserSuggetions(
         useConcat
           ? userSuggetions?.concat(response?.data?.data?.records)

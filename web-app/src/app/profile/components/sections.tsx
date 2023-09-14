@@ -35,6 +35,7 @@ const About = (): React.JSX.Element => {
         placeholder="Write about your self"
         name="personal_bio"
         className="w-full resize-y"
+        isFormikField
       />
       <InputField
         name="contact_email"

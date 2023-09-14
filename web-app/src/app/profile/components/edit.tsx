@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { sections } from "./sections";
 import { Form, Formik, FormikHelpers } from "formik";
 import { validationSchema } from "@/util/validations/userProfile";
+import { responseCodes } from "@/util/constant";
 
 interface Props {
   setCurrentSection: React.Dispatch<
@@ -112,7 +113,7 @@ const EditProfile = ({
         userId,
         educations: [...payload, values],
       });
-      if (res.status === 200) {
+      if (res.status === responseCodes.SUCCESS) {
         setUserData((preData: any) => {
           return {
             ...preData,
@@ -136,7 +137,7 @@ const EditProfile = ({
     const editId = values?._id;
     try {
       const response = await axiosPut(`/user/${userId}/documents`, payload);
-      if (response.status === 200) {
+      if (response.status === responseCodes.SUCCESS) {
         let key = doc_type === "license" ? "licenses" : "certificates";
         setUserData((preData: any) => {
           let data = preData?.[key] || [];
@@ -167,7 +168,7 @@ const EditProfile = ({
       );
       formData.append("data", JSON.stringify({ userId }));
       const response = await axiosPut("/user/profile", formData);
-      if (response?.status === 200) {
+      if (response?.status === responseCodes.SUCCESS) {
         dispatch(
           setUserDetail({
             ...loggedInUser,

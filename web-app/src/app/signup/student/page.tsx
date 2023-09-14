@@ -6,7 +6,7 @@ import {
   userAlreadyExists,
   verifyConfirmationCode,
 } from "@/service/auth.service";
-import { validateField } from "@/util/constant";
+import { responseCodes, validateField } from "@/util/constant";
 import {
   commonRegistrationField,
   userLoginField,
@@ -130,7 +130,8 @@ export default function () {
     };
     await userAlreadyExists(payload.email)
       .then(async (response) => {
-        const userRes = response.status === 200 && response.data.data;
+        const userRes =
+          response.status === responseCodes.SUCCESS && response.data.data;
         if (!userRes?.isExist && !userRes?.user) {
           // user is new and can proceed with .edu verification
           await verifyEduMail(values.email)
@@ -180,12 +181,12 @@ export default function () {
     };
     await verifyConfirmationCode(payload)
       .then((res) => {
-        if (res.status === 200) {
+        if (res.status === responseCodes.SUCCESS) {
           setCurrentStep((prevStep: number) => prevStep + 1);
           setTimeout(() => {
             router.push("/");
           }, 1000);
-        } else if (res.status === 401) {
+        } else if (res.status === responseCodes.NOT_ACCEPTABLE) {
           actions.setFieldError("otp", "Incorrect code, please try again");
         } else {
           setCommonErrorMessage("Something went wrong");
@@ -214,12 +215,12 @@ export default function () {
     await signUp(payload)
       .then((response) => {
         if (
-          response?.status === 200 &&
+          response?.status === responseCodes.SUCCESS &&
           response?.data?.response_type === "success"
         ) {
           setCurrentStep(3);
         } else if (
-          response?.status === 200 &&
+          response?.status === responseCodes.SUCCESS &&
           response?.data?.response_type === "error"
         ) {
           setCommonErrorMessage(response.data.message);
@@ -242,7 +243,7 @@ export default function () {
       email: values.email,
     })
       .then((res) => {
-        if (res.status === 200) {
+        if (res.status === responseCodes.SUCCESS) {
           setCurrentStep(3);
         }
       })

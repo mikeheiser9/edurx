@@ -71,6 +71,7 @@ interface PostInterface {
   forumType?: ForumTypes;
   postType?: PostTypes;
   title?: string;
+  content?: string;
   categories?: TagCategoryType[];
   tags?: TagCategoryType[];
   votingLength?: number;

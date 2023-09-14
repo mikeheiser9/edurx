@@ -7,7 +7,7 @@ import {
   login,
   verifyConfirmationCode,
 } from "@/service/auth.service";
-import { validateField } from "@/util/constant";
+import { responseCodes, validateField } from "@/util/constant";
 import { Form, Formik, FormikHelpers } from "formik";
 import { useDispatch } from "react-redux";
 import * as Yup from "yup";
@@ -62,7 +62,7 @@ export default function SignIn() {
           email: values.email,
           code: values.otp,
         });
-        if (res?.status === 200 && res?.data?.response_type === "success") {
+        if (res?.status === responseCodes.SUCCESS && res?.data?.response_type === "success") {
           setCommonMessage("Your account has been verified");
           setIsVerificationPending(false);
           setTimeout(() => {
@@ -78,13 +78,13 @@ export default function SignIn() {
         };
         const response = await login(payload);
         if (
-          response.status === 200 &&
+          response.status === responseCodes.SUCCESS &&
           response.data.response_type == "success"
         ) {
           dispatch(setToken(response.data.data.token));
           dispatch(setUserDetail(response.data.data.details));
         } else if (
-          response.status === 400 &&
+          response.status === responseCodes.ERROR &&
           response.data.message == "incorrect password...!"
         ) {
           actions.setFieldError(
@@ -92,7 +92,7 @@ export default function SignIn() {
             "Incorrect password, please try again"
           );
         } else if (
-          response.status === 400 &&
+          response.status === responseCodes.ERROR &&
           response.data.message == "confirm your email"
         ) {
           // handle verification pending
@@ -123,7 +123,7 @@ export default function SignIn() {
       email: values.email,
     })
       .then((res) => {
-        if (res.status === 200) {
+        if (res.status === responseCodes.SUCCESS) {
           setCommonMessage("Verification code sent");
           setTimeout(() => {
             setCommonMessage(null);

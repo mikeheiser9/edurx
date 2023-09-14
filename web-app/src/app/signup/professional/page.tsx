@@ -8,6 +8,7 @@ import {
   userLoginField,
 } from "../../../util/interface/user.interface";
 import {
+  responseCodes,
   taxonomyCodeToProfessionalMapping,
   validateField,
 } from "@/util/constant";
@@ -232,7 +233,8 @@ export default function SignUp() {
     };
     await userAlreadyExists(payload.email)
       .then(async (response) => {
-        const userRes = response.status === 200 && response.data.data;
+        const userRes =
+          response.status === responseCodes.SUCCESS && response.data.data;
         if (!userRes.isExist && !userRes.user) {
           // user is new and can proceed further
           setCurrentStep((prevStep) => prevStep + 1);
@@ -261,7 +263,7 @@ export default function SignUp() {
       email: values.email,
     })
       .then((res) => {
-        if (res.status === 200) {
+        if (res.status === responseCodes.SUCCESS) {
           setCommonErrorMessage("Verification code sent");
           setTimeout(() => {
             setCommonErrorMessage(null);
@@ -343,7 +345,10 @@ export default function SignUp() {
           : currentStep == 3
           ? setCurrentStep((pre) => pre + 2)
           : "";
-      } else if (res.status === 200 && res?.data?.response_type === "error") {
+      } else if (
+        res.status === responseCodes.SUCCESS &&
+        res?.data?.response_type === "error"
+      ) {
         // already verified handle it
         setCurrentStep(5);
       }

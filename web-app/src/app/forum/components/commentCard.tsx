@@ -15,6 +15,7 @@ import { Button } from "@/components/button";
 import MentionInput from "@/components/mentionInput";
 import { searchUserByAPI } from "@/service/user.service";
 import replaceTaggedUsers from "./replaceTags";
+import { responseCodes } from "@/util/constant";
 interface Props {
   comment: Comment;
   showBorder?: boolean;
@@ -89,7 +90,7 @@ export const CommentCard = ({
       page,
       limit: 10,
     });
-    if (response.status === 200) {
+    if (response.status === responseCodes.SUCCESS) {
       setUserSuggetions(
         useConcat
           ? userSuggetions?.concat(response?.data?.data?.records)

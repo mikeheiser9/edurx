@@ -1,4 +1,4 @@
-import { axiosGet } from "@/axios/config";
+import { axiosGet, axiosPost } from "@/axios/config";
 import { AxiosResponse } from "axios";
 
 const searchUserByAPI = async (
@@ -13,4 +13,11 @@ const searchUserByAPI = async (
   });
 };
 
-export { searchUserByAPI };
+const addRemoveUserConnectionByAPI = async <T>(
+  type: "add" | "remove",
+  payload: T
+): Promise<AxiosResponse> => {
+  return await axiosPost(`/user/connections/${type}`, payload);
+};
+
+export { searchUserByAPI, addRemoveUserConnectionByAPI };

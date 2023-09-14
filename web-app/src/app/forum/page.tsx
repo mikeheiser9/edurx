@@ -13,7 +13,7 @@ import {
   faUserAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { Select } from "@/components/select";
-import { roleBasedForum } from "@/util/constant";
+import { responseCodes, roleBasedForum } from "@/util/constant";
 import { Chip } from "@/components/chip";
 import { LeftPanel } from "./components/leftPanel";
 import { PostCard } from "./components/postCard";
@@ -95,7 +95,7 @@ const Page = () => {
           page,
         },
       });
-      if (response.status === 200) {
+      if (response.status === responseCodes.SUCCESS) {
         setCategoryList(categoryList.concat(response?.data?.data?.records));
         setCategoryPagination({
           page: response?.data?.data?.currentPage,
@@ -136,7 +136,7 @@ const Page = () => {
         },
       });
 
-      if (response?.status === 200) {
+      if (response?.status === responseCodes.SUCCESS) {
         setPosts(
           useConcat
             ? posts.concat(response?.data?.data?.posts?.data)
@@ -334,6 +334,7 @@ const Page = () => {
                 post={post}
                 key={post._id}
                 onPostClick={() => onPostClick(post?._id)}
+                userRole={loggedInUser?.role}
               />
             ))}
           </InfiniteScroll>

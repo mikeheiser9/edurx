@@ -1,5 +1,6 @@
 import { axiosGet } from "@/axios/config";
 import { selectToken, selectUserDetail } from "@/redux/ducks/user.duck";
+import { responseCodes } from "@/util/constant";
 import { NextPage } from "next";
 import { useRouter } from "next/navigation"; // Update import
 import { useEffect, useState } from "react";
@@ -22,7 +23,7 @@ export const requireAuthentication = (WrappedComponent: NextPage) => {
         });
 
         if (
-          response?.status === 200 &&
+          response?.status === responseCodes.SUCCESS &&
           response?.data?.data?.user?._id === user?._id
         ) {
           setIsAuthorized(true);

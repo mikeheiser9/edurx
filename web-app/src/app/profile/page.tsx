@@ -10,7 +10,7 @@ import { UserProfile } from "./components/profile";
 const Profile = (): React.ReactElement => {
   const loggedInUser = useSelector(selectUserDetail);
 
-  return <UserProfile userId={loggedInUser?._id} isSelfProfile />;
+  return <UserProfile userId={loggedInUser?._id} />;
 };
 
 export default requireAuthentication(Profile);

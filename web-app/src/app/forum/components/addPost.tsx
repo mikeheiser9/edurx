@@ -21,7 +21,7 @@ import { Loader } from "../../signup/commonBlocks";
 import { boldOnSearch } from "@/util/helpers";
 import { ToggleSwitch } from "@/components/toggleSwitch";
 import { postCreationValidation } from "@/util/validations/post";
-import { roleBasedForum } from "@/util/constant";
+import { responseCodes, roleBasedForum } from "@/util/constant";
 import { addNewPost } from "@/service/post.service";
 import { useSelector } from "react-redux";
 import { selectUserDetail } from "@/redux/ducks/user.duck";
@@ -134,7 +134,7 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
             page: isIntial ? 1 : currentPage?.[type]?.page + 1,
           },
         });
-        if (response.status === 200) {
+        if (response.status === responseCodes.SUCCESS) {
           setIsLoading((preState) => {
             return {
               ...preState,

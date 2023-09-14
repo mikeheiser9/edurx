@@ -18,9 +18,7 @@ const PublicProfile = (): React.ReactElement => {
   }, []);
 
   if (!userId || isLoggedInUser) return <></>;
-  return (
-    <UserProfile userId={userId as string} isSelfProfile={isLoggedInUser} />
-  );
+  return <UserProfile userId={userId as string} />;
 };
 
 export default requireAuthentication(PublicProfile);

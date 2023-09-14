@@ -63,12 +63,13 @@ interface UserData {
   _id: string;
   first_name: string;
   last_name: string;
+  username: string;
   email: string;
   role: "super_admin" | "moderator" | "professional" | "student";
   npi_number?: string;
   npi_designation?: string[];
-  followers?: number;
-  following?: number;
+  followers?: any[];
+  following?: any[];
   addresses?: string[];
   city?: string;
   state?: string;

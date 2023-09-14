@@ -225,7 +225,7 @@ const PostList = ({
 }): React.ReactElement => (
   <>
     {posts?.length ? (
-      <div className="grid grid-cols-2 gap-2 ease-in-out transform duration-1000">
+      <div className="grid grid-cols-2 gap-2 animate-fade-in-down">
         {posts.map((post: any) => (
           <div className="flex gap-2" key={post?._id}>
             <div className="w-14 h-14 bg-primary/80 rounded-md">
@@ -264,9 +264,12 @@ const CommentList = ({
 }): React.ReactElement => (
   <>
     {comments?.length ? (
-      <div className="flex flex-auto flex-wrap gap-2 ease-in-out transform duration-1000">
+      <div className="flex flex-auto flex-wrap gap-2 animate-fade-in-down">
         {comments.map((comment: any) => (
-          <div className="flex gap-2 items-center" key={comment?._id}>
+          <div
+            className="flex flex-wrap flex-auto overflow-auto bg-gray-700/60 p-2 rounded-md gap-2 items-center"
+            key={comment?._id}
+          >
             <div className="w-8 overflow-hidden h-8 text-white justify-center items-center flex bg-primary/80 rounded-full">
               {profileImage ? (
                 <Image
@@ -280,9 +283,9 @@ const CommentList = ({
               )}
             </div>
             <span className="text-white text-sm">{comment?.content}</span>
-            <span className="text-xs text-white/50">
-              {/* {post?.forumType} • Published on{" "} */}•{" "}
-              {moment(comment?.createdAt).fromNow()} •
+            <span className="text-white text-xs">•</span>
+            <span className="text-xs text-primary/80">
+              {moment(comment?.createdAt).fromNow()}
             </span>
             {/* <div className="flex text-xs text-white/50 gap-2">
               <FontAwesomeIcon icon={faChartColumn} />

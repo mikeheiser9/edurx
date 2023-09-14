@@ -28,7 +28,7 @@ const useDebounce = (value: string, milliSeconds: number = 500) => {
 };
 
 const useOutsideClick = (callback: () => void) => {
-  const innerRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<any>(null);
 
   const handleClick = (e: MouseEvent) => {
     if (innerRef.current && !innerRef.current.contains(e.target as Node)) {

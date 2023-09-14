@@ -1,11 +1,12 @@
 import { axiosGet } from "@/axios/config";
 import { Modal } from "@/components/modal";
-import { npiToDefinition } from "@/util/constant";
+import { npiToDefinition, responseCodes } from "@/util/constant";
 import { getFullName, getStaticImageUrl } from "@/util/helpers";
 import {
   faCommentDots,
   faThumbsDown,
   faEye,
+  faXmarkCircle,
 } from "@fortawesome/free-regular-svg-icons";
 import {
   faArrowDown,
@@ -30,13 +31,13 @@ import { CommentManager } from "./commentManager";
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 interface Props {
-  viewPostModal: any;
+  viewPostModal: UseModalType;
   postId: string;
 }
 
 export const PostModal = ({ postId, viewPostModal }: Props) => {
   const loggedInUser = useSelector(selectUserDetail);
-  const [post, setPost] = useState<any>(null);
+  const [post, setPost] = useState<PostInterface>();
   const [isPostViewed, setIsPostViewed] = useState<string>("");
   const userReactionOnPost: "like" | "dislike" | null =
     post?.reactions?.[0]?.reactionType || null;
@@ -44,7 +45,7 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
   const getPostById = async () => {
     await axiosGet(`/post/${postId}`)
       .then((response) => {
-        if (response.status === 200) {
+        if (response.status === responseCodes.SUCCESS) {
           setPost(response?.data?.data);
         }
       })
@@ -59,7 +60,7 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
         itemId: postId,
       };
       const response = await addPostView(payload);
-      if (response?.status === 200) {
+      if (response?.status === responseCodes.SUCCESS) {
         setIsPostViewed(postId);
       }
     } catch (error) {
@@ -85,7 +86,7 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
       // console.log(parentId);
       // // return;
 
-      if (reaction.status === 200) {
+      if (reaction.status === responseCodes.SUCCESS) {
         setPost((prevState: any) => {
           const updatedState = { ...prevState }; // Copy of the state to modify
 
@@ -170,6 +171,32 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
     }
   };
 
+  const HeaderJsx = (): React.ReactElement => (
+    <div className="bg-primary p-2 px-4 font-sans flex gap-2">
+      <div className="flex gap-2">
+        <span className="flex gap-2 items-center">
+          <FontAwesomeIcon icon={faArrowUp} className="font-bold" />
+          {(post?.likeCount || 0) - (post?.dislikeCount || 0)}
+          <FontAwesomeIcon icon={faArrowDown} className="font-bold" />
+          |
+          <FontAwesomeIcon icon={faNewspaper} />
+        </span>{" "}
+        {post?.title} |{" "}
+        <b>
+          {post?.forumType
+            ? npiToDefinition[post.forumType as keyof typeof npiToDefinition] ||
+              post?.forumType
+            : "-"}
+        </b>
+      </div>
+      <FontAwesomeIcon
+        icon={faXmarkCircle}
+        onClick={viewPostModal.closeModal}
+        className="ml-auto self-center cursor-pointer"
+      />
+    </div>
+  );
+
   useEffect(() => {
     if (!viewPostModal?.isOpen) return;
     getPostById();
@@ -184,27 +211,7 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
       onClose={viewPostModal.closeModal}
       visible={viewPostModal.isOpen}
       showCloseIcon
-      customHeader={
-        <div className="bg-primary p-2 px-4 font-sans">
-          <div className="flex gap-2">
-            <span className="flex gap-2 items-center">
-              <FontAwesomeIcon icon={faArrowUp} className="font-bold" />
-              {(post?.likeCount || 0) - (post?.dislikeCount || 0)}
-              <FontAwesomeIcon icon={faArrowDown} className="font-bold" />
-              |
-              <FontAwesomeIcon icon={faNewspaper} />
-            </span>{" "}
-            {post?.title} |{" "}
-            <b>
-              {post?.forumType
-                ? npiToDefinition[
-                    post.forumType as keyof typeof npiToDefinition
-                  ] || post?.forumType
-                : "-"}
-            </b>
-          </div>
-        </div>
-      }
+      customHeader={<HeaderJsx />}
       showFooter={false}
       modalClassName="!w-2/4 !bg-primary-dark h-full"
       // modalBodyClassName="flex flex-auto p-4 !h-full overflow-y-auto"
@@ -227,7 +234,7 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
             >
               <FontAwesomeIcon icon={faThumbsUp} size="sm" />
             </span>
-            <span>{post?.likeCount - post?.dislikeCount}</span>
+            <span>{(post?.likeCount || 0) - (post?.dislikeCount || 0)}</span>
             <span
               onClick={() =>
                 userReactionOnPost !== "dislike" &&
@@ -275,13 +282,11 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
                 </b>{" "}
                 • Published on {moment(post?.createdAt).format("DD/MM/YYYY")}
               </span>
-              <span className="w-5 h-5 bg-primary/60 flex items-center justify-center rounded-full">
-                <FontAwesomeIcon
-                  icon={post?.isisPrivate ? faLock : faEye}
-                  className="shadow-sm animate-fade-in-down"
-                  size="xs"
-                />
-              </span>
+              <FontAwesomeIcon
+                icon={post?.isPrivate ? faLock : faEye}
+                className="animate-fade-in-down justify-center"
+                size="sm"
+              />
               <span className="flex flex-1 justify-end text-white">
                 <FontAwesomeIcon icon={faEllipsisVertical} />
               </span>
