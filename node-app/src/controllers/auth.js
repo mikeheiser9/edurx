@@ -55,7 +55,7 @@ export const signUp=async(req,res)=>{
 export const signIn=async(req,res)=>{
     try {
         req.body=trimFields(req.body);
-        let user=await findUserByEmail(req.body.email,{type:"include",attribute:["first_name","last_name","email","role","npi_designation","joined","verified_account","password"]})
+        let user=await findUserByEmail(req.body.email,{type:"include",attribute:["first_name","last_name","email","role","npi_designation","joined","verified_account","password", "profile_img"]})
         if(user)
         {
             if(!user.verified_account)
@@ -70,7 +70,7 @@ export const signIn=async(req,res)=>{
                 {
                     const jwtPayload={email:user.email,role:user.role}
                     const secret=process.env.JWT_SECRET || "my_jwt_secret";
-                    const token= jwt.sign(jwtPayload,secret)
+                    const token= jwt.sign(jwtPayload,secret, {expiresIn:"2d"})
                     user.password=""
                     return generalResponse(res,200,'success',null,{token,details:user},true);  
                 }
@@ -168,7 +168,7 @@ export const verifyCode=async(req,res)=>{
                     {
                         return generalResponse(res,400,'error','your code is expired...!',null,true);
                     }
-                    return generalResponse(res,401,'error','wrong code entered...!',null,true);
+                    return generalResponse(res,406,'error','wrong code entered...!',null,true);
                 }
             }
             else
@@ -229,3 +229,21 @@ export const universityLookup = async (req, res) => {
   }
 };
   
+export const isUserExists = async (req, res) => {
+  try {
+    const { email } = req.query;
+    const user = await userExistWithEmail(email, {
+      type: "include",
+      attribute: [
+        "first_name",
+        "last_name",
+        "email",
+        "role",
+        "verified_account",
+      ],
+    });
+    generalResponse(res, 200, "success", null, user);
+  } catch (error) {
+    generalResponse(res, 400, "error", "Something went wrong", error, true);
+  }
+};

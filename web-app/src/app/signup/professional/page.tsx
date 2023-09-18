@@ -3,19 +3,22 @@ import InputField from "@/components/input";
 import { Field, Form, Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import {
+  googleSheetPayload,
   professionalUserRegistrationField,
   userLoginField,
 } from "../../../util/interface/user.interface";
 import {
+  responseCodes,
   taxonomyCodeToProfessionalMapping,
   validateField,
-} from "@/util/interface/constant";
+} from "@/util/constant";
 import React, { useState } from "react";
 import {
   generateVerificationCode,
-  login,
   npiNumberLookup,
+  postToGoogleSheet,
   signUp,
+  userAlreadyExists,
   verifyConfirmationCode,
 } from "@/service/auth.service";
 import { useRouter } from "next/navigation";
@@ -23,21 +26,35 @@ import {
   AccountCreationSucceed,
   BackArrowIcon,
   BasicDetails,
+  Loader,
   RegistrationConfirmationMessage,
   ResendCodeTemplate,
   VerifyEmail,
 } from "../commonBlocks";
+import { Button } from "@/components/button";
 
 interface professionalAccountSignUpField
   extends professionalUserRegistrationField {
   otp: string;
 }
+
+interface ShowPasswordState {
+  password: boolean;
+  confirmPassword: boolean;
+}
+
 export default function SignUp() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const [commonErrorMessage, setCommonErrorMessage] = useState<string | null>(
     null
   );
+  const [showPassword, setShowPassword] = useState<ShowPasswordState>({
+    password: false,
+    confirmPassword: false,
+  });
   const { stringPrefixJoiValidation, password } = validateField;
   const formInitialValues: professionalAccountSignUpField = {
     email: "",
@@ -61,10 +78,22 @@ export default function SignUp() {
   const validationSchema = [
     Yup.object({
       email: stringPrefixJoiValidation.email().required(),
-      password,
+      password: password
+        .min(8, "Password must be at least 8 characters")
+        .max(25, "Password must be at most 25 characters")
+        .matches(
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/,
+          "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character"
+        ),
       confirm_password: Yup.string()
         .oneOf([Yup.ref("password")], "password must match")
-        .required("confirm password is required"),
+        .required("confirm password is required")
+        .min(8, "Password must be at least 8 characters")
+        .max(25, "Password must be at most 25 characters")
+        .matches(
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/,
+          "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character"
+        ),
       first_name: stringPrefixJoiValidation.min(2).required(),
       last_name: stringPrefixJoiValidation.min(2).required(),
     }),
@@ -95,6 +124,14 @@ export default function SignUp() {
       .replace(/(?:^|\s)\S/g, (char) => char.toUpperCase());
   };
 
+  const onShowHidePassword = (type: keyof ShowPasswordState) =>
+    setShowPassword((preState) => {
+      return {
+        ...preState,
+        [type]: !showPassword[type],
+      };
+    });
+
   const npiReturnVariables = [
     { fieldName: "npiReturnFullName", label: "Full Name" },
     { fieldName: "taxonomy", label: "Taxonomy" },
@@ -105,6 +142,7 @@ export default function SignUp() {
     actions: FormikHelpers<professionalAccountSignUpField>,
     npiNumber: string
   ) => {
+    setIsLoading(true);
     const npiRes = await npiNumberLookup(npiNumber as string);
     const res: {
       data: any;
@@ -139,8 +177,8 @@ export default function SignUp() {
           );
           actions.setFieldValue(
             `${npiReturnVariables[3].fieldName}`,
-            res.data?.addresses?.map((address: string) =>
-              Object.values(address)
+            res.data?.addresses?.map(
+              (address: any, index: number) => address?.[`address_${index + 1}`]
             )
           );
           actions.setFieldValue(
@@ -158,12 +196,29 @@ export default function SignUp() {
 
           setCurrentStep((curStep: number) => curStep + 2);
         } else {
+          // save google sheet data
+          actions.setFieldValue(
+            "taxonomy",
+            res.data?.taxonomies?.map(
+              (taxonomy: { code: string; desc: string }) => {
+                return `${taxonomy.code} | ${taxonomy.desc}`.toString();
+              }
+            )
+          );
+          actions.setFieldValue(
+            "addresses",
+            res.data?.addresses?.map((address: string) =>
+              Object.values(address)
+            )
+          );
           setCurrentStep((curStep: number) => curStep + 1);
         }
         actions.setTouched({});
         actions.setSubmitting(false);
+        setIsLoading(false);
       }
     } else {
+      setIsLoading(false);
       actions.setFieldError("npi_number", "Invalid NPI. Please try again...");
     }
   };
@@ -176,15 +231,14 @@ export default function SignUp() {
       email: values.email,
       password: values.password,
     };
-    await login(payload)
+    await userAlreadyExists(payload.email)
       .then(async (response) => {
-        if (response.status === 401) {
+        const userRes =
+          response.status === responseCodes.SUCCESS && response.data.data;
+        if (!userRes.isExist && !userRes.user) {
           // user is new and can proceed further
           setCurrentStep((prevStep) => prevStep + 1);
-        } else if (
-          response.status === 200 &&
-          response?.data?.data?.details?.verified_account
-        ) {
+        } else if (userRes?.isExist && userRes?.user?.verified_account) {
           // user already verified
           setCommonErrorMessage(
             "That email address is already registered with EduRx"
@@ -192,7 +246,7 @@ export default function SignUp() {
           setTimeout(() => {
             setCommonErrorMessage(null);
           }, 2000);
-        } else if (response.status === 400 && !response.data.toast) {
+        } else if (userRes?.isExist && !userRes?.user?.verified_account) {
           // user verification pending
           setCurrentStep(5);
         }
@@ -209,7 +263,7 @@ export default function SignUp() {
       email: values.email,
     })
       .then((res) => {
-        if (res.status === 200) {
+        if (res.status === responseCodes.SUCCESS) {
           setCommonErrorMessage("Verification code sent");
           setTimeout(() => {
             setCommonErrorMessage(null);
@@ -218,6 +272,31 @@ export default function SignUp() {
       })
       .catch((err) => console.log("err", err))
       .finally(() => actions.setSubmitting(false));
+  };
+
+  const saveToGoogleSheets = async (
+    values: professionalAccountSignUpField,
+    actions: FormikHelpers<professionalAccountSignUpField>
+  ) => {
+    setIsLoading(true);
+    try {
+      const payload: googleSheetPayload = {
+        email: values.email,
+        first_name: values.first_name,
+        last_name: values.last_name,
+        taxonomies: values?.taxonomy?.toString(),
+        addresses: values?.addresses?.toString(),
+      };
+      await postToGoogleSheet(payload);
+      actions.setTouched({});
+      actions.setSubmitting(false);
+      actions.resetForm();
+      setIsLoading(false);
+      setCurrentStep(0);
+    } catch (err) {
+      setIsLoading(false);
+      console.error("failed to post to Google Sheet", err);
+    }
   };
 
   const _handleSubmit = async (
@@ -230,9 +309,7 @@ export default function SignUp() {
       await handleAskNpi(actions, values.npi_number);
     } else if (currentStep == 2) {
       // can store the data into the google sheet
-      actions.setTouched({});
-      actions.setSubmitting(false);
-      setCurrentStep(0);
+      await saveToGoogleSheets(values, actions);
     } else if (currentStep == 3 || currentStep == 4) {
       const {
         addresses,
@@ -268,7 +345,10 @@ export default function SignUp() {
           : currentStep == 3
           ? setCurrentStep((pre) => pre + 2)
           : "";
-      } else {
+      } else if (
+        res.status === responseCodes.SUCCESS &&
+        res?.data?.response_type === "error"
+      ) {
         // already verified handle it
         setCurrentStep(5);
       }
@@ -355,12 +435,7 @@ export default function SignUp() {
                   name={variable.fieldName}
                   component={({ field }: any) => (
                     <div>
-                      <label>
-                        {variable.fieldName != "addresses"
-                          ? capitalizeString(field.value)
-                          : field?.value?.[0]?.length &&
-                            field?.value?.[0]?.join(", ")}
-                      </label>
+                      <label>{field?.value}</label>
                     </div>
                   )}
                 ></Field>
@@ -397,7 +472,12 @@ export default function SignUp() {
   const _renderComponentStepWise = (currentStep: number): React.JSX.Element => {
     switch (currentStep) {
       case 0:
-        return <BasicDetails />;
+        return (
+          <BasicDetails
+            showPassword={showPassword}
+            onShowPassword={onShowHidePassword}
+          />
+        );
       case 1:
         return <AskNpiNumber />;
       case 2:
@@ -448,27 +528,24 @@ export default function SignUp() {
       <div className="flex justify-center p-4 bg-primary">
         <button
           onClick={() =>
-            currentStep > 0 &&
-            setCurrentStep((prevStep: number) => {
-              if (currentStep === 3) {
-                return prevStep - 2;
-              }
-              return prevStep - 1;
-            })
+            currentStep > 0
+              ? setCurrentStep((prevStep: number) => {
+                  if (currentStep === 3) {
+                    return prevStep - 2;
+                  }
+                  return prevStep - 1;
+                })
+              : router.back()
           }
           className={`text-2xl px-2 self-center ${
-            currentStep === 0 ||
-            currentStep === 5 ||
-            currentStep === 6 ||
-            currentStep === 7
+            // currentStep === 0 ||
+            currentStep === 5 || currentStep === 6 || currentStep === 7
               ? "opacity-50"
               : "opacity-100"
           }`}
           disabled={
-            currentStep === 0 ||
-            currentStep === 5 ||
-            currentStep === 6 ||
-            currentStep === 7
+            // currentStep === 0 ||
+            currentStep === 5 || currentStep === 6 || currentStep === 7
           }
         >
           <BackArrowIcon />
@@ -491,15 +568,18 @@ export default function SignUp() {
               <div className="flex flex-col gap-4 text-white m-[5%]">
                 {_renderComponentStepWise(currentStep)}
               </div>
+              {isLoading && (
+                <div className="flex pb-3 justify-center">
+                  <Loader />
+                </div>
+              )}
               <div className="m-2 flex justify-center">
-                <button
-                  className="bg-primary rounded p-2 m-auto w-1/2 text-lg hover:bg-yellow-500"
+                <Button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isLoading}
                   hidden={currentStep === 7}
-                >
-                  {renderButtonLabelBasedOnStep()}
-                </button>
+                  label={renderButtonLabelBasedOnStep()}
+                />
               </div>
               {currentStep === 5 && (
                 <ResendCodeTemplate

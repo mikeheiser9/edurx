@@ -6,6 +6,7 @@ import {
   verifyCodeFieldValidator,
   npiLookupValidator,
   universityLookupValidator,
+  userExistsValidator,
 } from "../middleware/validator/auth.js";
 import {
   sendVerificationCode,
@@ -14,12 +15,14 @@ import {
   signIn,
   npiLookup,
   universityLookup,
+  isUserExists,
 } from "../controllers/auth.js";
 
 const authRoute = Router();
 
 authRoute.post("/sign_up", signUpFieldValidator, signUp);
 authRoute.post("/sign_in", signInFieldValidator, signIn);
+authRoute.get("/user_exists", userExistsValidator, isUserExists);
 authRoute.post(
   "/send_verification_code",
   sendVerificationCodeFieldValidator,

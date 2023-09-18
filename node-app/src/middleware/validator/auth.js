@@ -119,3 +119,17 @@ export const universityLookupValidator = async (req, res, next) => {
     returnAppropriateError(res, error);
   }
 };
+
+export const userExistsValidator = async (req, res, next) => {
+  try {
+    const schema = joi.object({
+      email: validateField.email,
+    });
+    await schema.validateAsync({
+      email: req.query.email,
+    });
+    next();
+  } catch (error) {
+    returnAppropriateError(res, error);
+  }
+};
