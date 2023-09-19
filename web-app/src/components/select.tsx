@@ -23,7 +23,7 @@ export const Select = ({
   isClearable,
   onClear,
   useAsFormikField,
-  className = "bg-primary text-sm focus:outline-none rounded p-2 py-1 m-auto disabled:opacity-80",
+  className = "bg-eduLightGray text-[12px] font-body focus:outline-none rounded-[5px] p-2 py-1 m-auto disabled:opacity-80",
   ...restProps
 }: SelectProps) => {
   const OptionTemplate = () => (

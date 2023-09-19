@@ -32,9 +32,8 @@ const BasicDetails = ({
         icon={
           <FontAwesomeIcon
             onClick={() => onShowPassword?.("password")}
-            className="text-white"
+            className="eduBlack mt-[8px]"
             icon={showPassword?.password ? faEye : faEyeSlash}
-            size="xs"
           />
         }
       />
@@ -45,9 +44,8 @@ const BasicDetails = ({
         icon={
           <FontAwesomeIcon
             onClick={() => onShowPassword?.("confirmPassword")}
-            className="text-white"
+            className="text-eduBlack mt-[8px]"
             icon={showPassword?.confirmPassword ? faEye : faEyeSlash}
-            size="xs"
           />
         }
       />

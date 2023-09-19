@@ -13,8 +13,8 @@ import { useDispatch } from "react-redux";
 import * as Yup from "yup";
 import { useState } from "react";
 import { userLoginField } from "@/util/interface/user.interface";
-import EyeIcon from "@/assets/icons/eye.svg";
-import EyeSlashIcon from "@/assets/icons/eye-slash.svg";
+import EyeIcon from "@/assets/icons/eyeNew.svg";
+import EyeSlashIcon from "@/assets/icons/eyeSlash.svg";
 import Image from "next/image";
 import Link from "next/link";
 import { ResendCodeTemplate, VerifyEmail } from "./signup/commonBlocks";
@@ -135,7 +135,7 @@ export default function SignIn() {
   };
 
   return (
-    <div className="flex justify-center gap-4 flex-auto items-center">
+    <div className="flex justify-center gap-4 flex-auto items-center bg-eduDarkBlue/60">
       <CommonUI
         fields={
           <Formik
@@ -172,12 +172,14 @@ export default function SignIn() {
                           <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="text-white"
+                            className="text-eduBlack text-[body]"
                             aria-checked={showPassword}
                           >
                             <Image
                               src={showPassword ? EyeSlashIcon : EyeIcon}
                               alt="eye-icon"
+                              width={30}
+                              height={30}
                             />
                           </button>
                         }
@@ -185,16 +187,16 @@ export default function SignIn() {
                     </>
                   )}
                   <button
-                    className="bg-primary my-3 rounded p-2 m-auto w-1/2 text-lg hover:bg-yellow-500 disabled:opacity-40"
+                    className="bg-transparent border-eduBlack border-[1.5px] my-3 rounded-[10px] py-1 w-[150px] m-auto text-[16px] font-body transition-colors duration-500 hover:bg-eduYellow hover:text-white hover:border-white hover:animate-pulse disabled:opacity-40 disabled:text-eduBlack/40"
                     type="submit"
                     disabled={isSubmitting}
                   >
                     Sign in
                   </button>
                   {!isVerificationPending && (
-                    <span className="text-white/50 text-xs flex justify-center">
+                    <span className="text-eduBlack text-xs flex justify-center font-body">
                       Don't have account? &nbsp;
-                      <Link className="text-white" href="signup">
+                      <Link className="text-eduBlack font-body font-semibold" href="signup">
                         Sign up
                       </Link>
                     </span>

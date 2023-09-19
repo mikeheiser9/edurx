@@ -513,7 +513,7 @@ export default function SignUp() {
     return currentStep === 1
       ? "Enter NPI"
       : currentStep === 2
-      ? "Oops! Looks like you’re a little early!"
+      ? "Oops! Looks like you're a little early!"
       : currentStep === 3
       ? "Your Information"
       : currentStep === 4
@@ -525,7 +525,7 @@ export default function SignUp() {
 
   return (
     <React.Fragment>
-      <div className="flex justify-center p-4 bg-primary">
+      <div className="flex justify-center p-4 bg-eduDarkGray">
         <button
           onClick={() =>
             currentStep > 0
@@ -550,7 +550,7 @@ export default function SignUp() {
         >
           <BackArrowIcon />
         </button>
-        <label className="text-xl flex-1 text-center self-center">
+        <label className="text-[16px] flex-1 text-center self-center font-body">
           Register for Edu-Rx | Professional
         </label>
       </div>
@@ -560,12 +560,12 @@ export default function SignUp() {
         onSubmit={_handleSubmit}
       >
         {({ isSubmitting, values, ...actions }) => (
-          <div className="flex flex-col items-center p-4">
-            <h1 className="text-white text-center tracking-wider text-4xl my-4 font-serif font-semibold">
+          <div className="flex flex-col items-center p-4 bg-white">
+            <h1 className="text-eduBlack text-center tracking-wider text-4xl my-4 font-headers font-semibold">
               {getStepBasedTitle()}
             </h1>
             <Form>
-              <div className="flex flex-col gap-4 text-white m-[5%]">
+              <div className="flex flex-col gap-4 text-eduBlack m-[5%]">
                 {_renderComponentStepWise(currentStep)}
               </div>
               {isLoading && (

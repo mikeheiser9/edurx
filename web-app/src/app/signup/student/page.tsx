@@ -400,7 +400,7 @@ export default function () {
 
   return (
     <React.Fragment>
-      <div className="flex justify-center p-4 bg-primary">
+      <div className="flex justify-center p-4 bg-eduDarkGray">
         <button
           onClick={() =>
             currentStep > 0
@@ -416,7 +416,7 @@ export default function () {
         >
           <BackArrowIcon />
         </button>
-        <label className="text-xl flex-1 text-center self-center">
+        <label className="text-[16px] flex-1 text-center self- font-body">
           Register for Edu-Rx | Student Account
         </label>
       </div>
@@ -426,8 +426,8 @@ export default function () {
         validationSchema={validationSchema[currentStep]}
       >
         {({ isSubmitting, values, ...actions }) => (
-          <div className="flex flex-col items-center p-4">
-            <h1 className="text-white tracking-wider text-4xl my-4 font-serif font-semibold">
+          <div className="flex flex-col items-center p-4 bg-white">
+            <h1 className="text-eduBlack tracking-wider text-4xl my-4 font-headers font-semibold text-center">
               {getHeadTitle(currentStep, values)}
             </h1>
             <Form>

@@ -28,7 +28,7 @@ export default function InputField({
       {label && (
         <label
           htmlFor={props.name}
-          className="block mb-2 text-sm font-semibold text-gray-900 dark:text-white/50"
+          className="block mb-2 text-sm font-semibold text-eduBlack"
           {...labelProps}
         >
           {label}
@@ -40,7 +40,7 @@ export default function InputField({
           className={
             iconContainerClass
               ? iconContainerClass
-              : "absolute self-end px-2 mt-[.65rem]"
+              : "absolute self-end px-2 mt-[5px]"
           }
         >
           {icon}
@@ -48,13 +48,13 @@ export default function InputField({
         <input
           id={label && props.name}
           {...props}
-          className={`bg-[#3A3A3A] text-white rounded-lg p-2 focus-visible:border-none outline-none autofill:active:bg-black ${
+          className={`bg-eduLightGray text-eduBlack rounded-lg p-2 focus-visible:border-none outline-none placeholder:text-eduBlack/60 font-body ${
             meta?.touched && meta.error ? "border-[1px] border-red-500" : ""
           } ${props.className}`}
           {...field}
         />
         {meta?.touched && meta.error ? (
-          <span className="text-white text-xs first-letter:capitalize flex-shrink-0 opacity-50">
+          <span className="text-eduBlack/50 text-xs font-body first-letter:capitalize flex-shrink-0 mt-[3px]">
             {meta.error}
           </span>
         ) : null}

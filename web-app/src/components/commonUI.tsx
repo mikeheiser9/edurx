@@ -8,13 +8,13 @@ interface propsType {
 export default function CommonUI(props: propsType): React.JSX.Element {
   const { type, title, button, clickHandle, fields } = props;
   return (
-    <div className="flex justify-center bg-primary-dark lg:w-1/4 rounded-2xl overflow-hidden">
+    <div className="flex justify-center bg-white lg:w-1/4 rounded-2xl overflow-hidden">
       <div className="w-full flex flex-col">
-        <div className="flex justify-center p-4 bg-primary">
-          <label className="text-xl">{type}</label>
+        <div className="flex justify-center p-4 bg-eduDarkGray">
+          <label className="text-xl font-body">{type}</label>
         </div>
         <div className="flex flex-col text-white items-center p-4 gap-2">
-          <h1 className="text-white text-center tracking-wider text-4xl my-4 font-serif font-semibold">
+          <h1 className="text-eduBlack text-center text-4xl my-4 font-semibold font-headers">
             {title}
           </h1>
         </div>

@@ -48,11 +48,12 @@ const sortingOptions: { value: string; label: string }[] = [
 ];
 
 const tabMenuOptions = [
+  "Hub Home",
   "Forum",
   "Resources",
-  "My Edu-Rx",
   "Events",
   "EduRx Library",
+  "Health Check",
 ];
 
 const forumTabs = ["Forum Feed", "Your Posts", "Following"];
@@ -189,20 +190,20 @@ const Page = () => {
           setSelectedCategories={setSelectedCategories}
           selectedCategories={selectedCategories}
         />
-        <div className="flex-1 flex overflow-hidden flex-col gap-2">
-          <div className="flex relative bg-primary-dark gap-4 p-4 justify-center rounded-md">
+        <div className="flex-1 flex overflow-hidden flex-col justify-center items-center gap-2">
+          <div className="flex relative bg-primary-dark gap-8 p-4 justify-start rounded-md">
             {tabMenuOptions.map((item: string, index: number) => (
               <label
                 key={index}
                 onClick={() => setSelectedTab(item)}
-                className={`text-white duration-500 ease-in-out transition-colors border text-sm rounded-md p-2 px-4 ${
-                  item === selectedTab ? "border-primary" : "border-white/50"
+                className={`text-eduBlack duration-500 ease-in-out transition-colors text-[16px] rounded-[5px] py-2 px-4 w-[145px] font-body text-center cursor-pointer ${
+                  item === selectedTab ? "bg-eduBlack text-white" : "bg-eduDarkGray"
                 }`}
               >
                 {item}
               </label>
             ))}
-            <div
+            {/* <div
               className={`absolute transition-colors rounded-md ease-in-out duration-100 p-2 flex gap-2 flex-col right-4 ${
                 showDropdown ? "bg-primary-darker" : "bg-transparent"
               }`}
@@ -251,30 +252,29 @@ const Page = () => {
                   },
                 ]}
               />
-            </div>
+            </div> */}
           </div>
-          <div className="flex justify-between">
+          <div className="flex justify-between items-center w-full h-[55px]">
             <div className="flex justify-center items-center gap-2">
-              <span className="bg-primary-dark w-8 h-8 flex items-center justify-center rounded-md text-white">
-                <FontAwesomeIcon icon={faSearch} size="sm" />
+              <span className="bg-primary-dark w-8 h-8 flex items-center justify-center rounded-md ">
+                <FontAwesomeIcon icon={faSearch} className="text-eduBlack text-[18px] bg-eduDarkGray p-[8px] rounded-[10px]" />
               </span>
               <Button
                 onClick={addPostModal.openModal}
-                className="!w-auto border border-transparent ease-in-out duration-200 hover:border-primary hover:!bg-primary-dark bg-primary-dark text-white flex gap-2 justify-center items-center px-4"
+                className="!w-[125px] hover:!bg-eduBlack !bg-eduLightGray text-eduBlack flex gap-3 justify-center items-center px-2 py-2 !border-none"
               >
                 <FontAwesomeIcon
                   icon={faPlusCircle}
-                  className="text-primary"
-                  size="sm"
+                  className="text-primary text-[20px]"
                 />
-                <span className="text-xs">New Post</span>
+                <span className="text-[14px] font-body font-medium">New Post</span>
               </Button>
             </div>
             <ul className="flex gap-6">
               {forumTabs.map((item) => (
                 <li
                   onClick={() => setSelectedForumTab(item)}
-                  className={`text-white ease-in-out duration-500 border-b-2 py-2 text-sm ${
+                  className={`text-eduBlack font-body font-medium ease-in-out duration-500 border-b-2 py-2 text-[14px] ${
                     item === selectedForumTab
                       ? "border-primary"
                       : "border-transparent"
@@ -286,7 +286,7 @@ const Page = () => {
               ))}
             </ul>
             <div className="flex justify-center items-center gap-2">
-              <label htmlFor="forumType" className="text-white">
+              <label htmlFor="forumType" className="text-eduBlack font-body text-[14px] font-medium">
                 Viewing :
               </label>
               <Select

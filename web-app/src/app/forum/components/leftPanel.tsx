@@ -33,9 +33,9 @@ export const LeftPanel = ({
   );
 
   return (
-    <div className="bg-primary-dark flex flex-col h-full rounded-md p-4 px-6 w-1/5 justify-start gap-2">
-      <span className="text-white text-2xl font-bold font-serif">Sort By</span>
-      <ul className="flex flex-col gap-2">
+    <div className="bg-eduLightGray flex flex-col h-full rounded-md py-[30px] px-[30px] w-1/5 justify-start gap-3">
+      <span className="text-eduBlack text-[22px] font-bold font-headers">Sort By</span>
+      <ul className="flex flex-col gap-3">
         {sortingOptions?.map((item) => (
           <li
             key={item.value}
@@ -47,14 +47,14 @@ export const LeftPanel = ({
               item.value === selectedFilters?.sortBy
                 ? "decoration-primary"
                 : "decoration-transparent"
-            } duration-300 text-sm ease-in-out transition-colors decoration-2 underline underline-offset-4 text-white`}
+            } duration-300 font-body text-[16px] ease-in-out transition-colors decoration-2 underline underline-offset-4 text-eduBlack`}
           >
             {item.label}
           </li>
         ))}
       </ul>
-      <hr className="my-4" />
-      <span className="text-white text-2xl font-bold font-serif">Category</span>
+      <hr className="my-4 h-[3px] bg-eduBlack border-0" />
+      <span className="text-eduBlack text-[22px] font-bold font-headers">Category</span>
       <ul className="flex flex-col gap-4 h-full overflow-y-auto">
         {categoryList?.map((item: any) => {
           let isSelected = selectedCategories?.some(
@@ -65,7 +65,7 @@ export const LeftPanel = ({
               key={item._id}
               className={`${
                 isSelected ? "decoration-primary" : "decoration-transparent"
-              } underline duration-300 decoration-2 ease-in-out animate-fade-in-down touch-pinch-zoom text-sm transition-colors text-white underline-offset-4`}
+              } underline duration-300 decoration-2 ease-in-out animate-fade-in-down touch-pinch-zoom text-sm transition-colors text-eduBlack underline-offset-4`}
               onClick={() => {
                 const values = isSelected
                   ? selectedCategories?.filter(
@@ -83,7 +83,7 @@ export const LeftPanel = ({
       {categoryPagination?.totalRecords > categoryList?.length && (
         <LoadMore isLoading={false} onClick={() => onLoadMore(false)} />
       )}
-      <hr className="my-4" />
+      <hr className="my-4 h-[3px] bg-eduBlack border-0" />
       <Button
         className="border m-0 self-center rounded-md p-2 hover:bg-primary w-auto px-4 font-medium text-sm text-primary border-primary bg-primary/10 hover:text-white transition-all ease-in-out duration-300"
         label="Sort by Filter"
