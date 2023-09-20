@@ -379,7 +379,7 @@ export default function SignUp() {
   const AskNpiNumber = (): React.JSX.Element => {
     return (
       <React.Fragment>
-        <p className="text-sm opacity-50 text-white text-center px-16 pb-6">
+        <p className="text-[14px] text-eduBlack/60 text-center px-16 pb-6 font-body">
           EduRx is a curated community of medical professionals in order to
           ensure quality discussion and information please validate your NPI
           License below.
@@ -398,7 +398,7 @@ export default function SignUp() {
   const NpiDetailsNotAcceptableFound = (): React.JSX.Element => {
     return (
       <div className="px-6">
-        <p className="text-sm opacity-50 text-center">
+        <p className="text-[14px] font-body text-eduBlack/60 text-center">
           EduRx is new and building! We are excited to be creating a hub for all
           medical professionals to come together. However we are not accepting
           accounts for your specific taxonomy right now. Please enter your email
@@ -412,13 +412,13 @@ export default function SignUp() {
   const NpiDetailsShow = (): React.JSX.Element => {
     return (
       <div className="px-6 text-center">
-        <p className="text-sm opacity-50">
+        <p className="text-[14px] font-body text-eduBlack/60">
           Please confirm the following information is accurate and up to date.
           Note: you will be able to add additional licenses and info later.
         </p>
-        <div className="bg-[#FDCD2640] mt-4 text-white rounded flex flex-col gap-2 p-2">
+        <div className="bg-eduLightGray mt-4 text-eduBlack rounded flex flex-col gap-2 p-2">
           <div className="flex justify-end w-full relative">
-            <div className="absolute text-xs text-primary">
+            <div className="absolute text-xs text-eduBlack font-body">
               <button
                 onClick={() => setCurrentStep((currentStep) => currentStep + 1)}
                 className=""
@@ -430,12 +430,12 @@ export default function SignUp() {
           {npiReturnVariables.map((variable, index: number) => {
             return (
               <div key={index}>
-                <label className="text-xs opacity-50">{variable.label}</label>
+                <label className="text-[16px] text-eduBlack/60 font-body">{variable.label}</label>
                 <Field
                   name={variable.fieldName}
                   component={({ field }: any) => (
                     <div>
-                      <label>{field?.value}</label>
+                      <label className="text-[14px] font-body text-eduBlack">{field?.value}</label>
                     </div>
                   )}
                 ></Field>
@@ -588,7 +588,7 @@ export default function SignUp() {
               )}
               <span
                 hidden={!commonErrorMessage}
-                className="text-white flex place-content-center text-sm opacity-50 m-2 animate-fade-in-down"
+                className="text-eduBlack/60 flex place-content-center text-[14px] font-body m-2 animate-fade-in-down"
               >
                 {commonErrorMessage}
               </span>

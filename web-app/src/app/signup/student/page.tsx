@@ -287,16 +287,16 @@ export default function () {
 
   const UniversityInfo = (): React.JSX.Element => {
     return (
-      <div className="text-white px-6 text-center">
-        <p className="opacity-50 my-4">
-          if the information below is correct click next to continue sign up
-          process
+      <div className="px-6 text-center">
+        <p className="my-4 font-body text-[14px] text-eduBlack/60">
+          If the information below is correct click next to continue sign up
+          process.
         </p>
         <div className="py-6">
           <Field
             name="universityName"
             component={({ field }: formikField) => (
-              <span className="text-2xl">
+              <span className="text-[24px] font-headers text-eduBlack">
                 {field?.value?.replaceAll(",", " -")}
               </span>
             )}
@@ -305,9 +305,9 @@ export default function () {
         <Field
           name="email"
           component={({ field }: formikField) => (
-            <span className="opacity-50">
+            <span className="font-body text-[12px] text-eduBlack/60">
               email:{" "}
-              <a href={`mailto:${field.value}`} className="underline">
+              <a href={`mailto:${field.value}`} className="underline font-body text-[12px] text-eduBlack/60">
                 {field.value}
               </a>
             </span>
@@ -320,7 +320,7 @@ export default function () {
   const EduVerificationFailed = (): React.JSX.Element => {
     return (
       <div>
-        <p className="text-white px-8 opacity-50 text-center">
+        <p className="text-eduBlack/60 text-[14px] font-body px-8 text-center">
           It looks like the university associated with your .edu email address
           is not yet eligible for an EduRx account. Please come back soon to
           check again...
@@ -332,7 +332,7 @@ export default function () {
   const VerifyYourEmail = (): React.JSX.Element => {
     return (
       <React.Fragment>
-        <p className="text-white px-8 opacity-50 text-center">
+        <p className="text-eduBlack/60 text-[14px] font-body px-8 text-center">
           We need to verify your .edu email address. Click the “Send Code”
           button below to receive an email with a 6-digit code for email
           verification
@@ -449,7 +449,7 @@ export default function () {
               )}
               <span
                 hidden={!commonErrorMessage}
-                className="text-white flex place-content-center text-sm opacity-50 m-2 animate-fade-in-down"
+                className="text-eduBlack flex place-content-center text-sm opacity-50 m-2 animate-fade-in-down"
               >
                 {commonErrorMessage}
               </span>
