@@ -33,7 +33,7 @@ export const PostCard = (props: Props) => {
   };
   return (
     <div
-      className="flex w-full p-4 rounded-[10px] bg-eduLightGray gap-2"
+      className="flex w-full p-4 rounded-[10px] bg-eduLightGray gap-2 !cursor-pointer"
       onClick={props.onPostClick}
     >
       <div className="flex-1 gap-4 flex-col flex">

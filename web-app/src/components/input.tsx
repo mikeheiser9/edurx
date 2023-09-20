@@ -28,7 +28,7 @@ export default function InputField({
       {label && (
         <label
           htmlFor={props.name}
-          className="block mb-2 text-sm font-semibold text-eduBlack"
+          className="block mt-4 mb-2 text-[16px] text-eduBlack font-body"
           {...labelProps}
         >
           {label}

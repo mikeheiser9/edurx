@@ -220,8 +220,8 @@ const MentionInput: React.FC<MentionInputProps> = ({
           isSelected
             ? "bg-white/30"
             : selectedIndex === index
-            ? "bg-[#0F366D]"
-            : "bg-white/10"
+            ? "bg-eduYellow"
+            : ""
         }`}
         id={`${dataOptions?.primaryKey}_${item?._id}`}
       >
@@ -237,11 +237,11 @@ const MentionInput: React.FC<MentionInputProps> = ({
             <FontAwesomeIcon icon={faUserAlt} />
           )}
         </span>
-        <span className="flex-col flex text-sm flex-1">
+        <span className="flex-col flex text-[12px] flex-1 font-body">
           {Array.isArray(dataOptions?.label)
             ? dataOptions?.label?.map((label: string) => `${item?.[label]} `)
             : item?.[dataOptions?.label as string]}
-          <span className="text-primary text-xs">
+          <span className="text-eduBlack text-xs font-body">
             {triggerOn}
             {hightlightOnSearch
               ? boldOnSearch(

@@ -159,9 +159,9 @@ export const CommentManager = ({
         }}
         textAreaProps={{
           label: (
-            <span className="text-white font-light text-xs">
-              Comment as{" "}
-              <b className="font-mono">
+            <span className="text-eduBlack text-[12px] font-body font-medium">
+              Comment as
+              <b className="font-body ml-[5px]">
                 {post?.userId?.username ||
                   getFullName(
                     post?.userId?.first_name,
@@ -172,25 +172,25 @@ export const CommentManager = ({
             </span>
           ),
           style: {
-            minBlockSize: "4rem",
+            minBlockSize: "8rem",
           },
-          className: "text-xs w-full rounded-b-none rounded-t-md",
+          className: "text-[16px] w-full p-4 bg-eduDarkGray text-eduBlack",
           placeholder: "What are your thoughts? (Type @ to mention a user)",
         }}
       />
-      <span className="bg-primary rounded-md -mt-1 p-1 flex justify-end rounded-t-none">
+      <span className="bg-eduLightBlue rounded-md p-2 flex justify-end rounded-t-none mt-[-15px]">
         <Button
           label="Comment"
-          className="text-xs bg-primary-darker !m-0 w-auto !rounded-xl text-primary self-end font-bold hover:!bg-primary-dark hover:text-white ease-in-out duration-300"
+          className="!text-[12px] !m-0 w-[150px] !rounded-[10px] text-white self-end border-white hover:!bg-eduBlack hover:text-white ease-in-out duration-300"
           onClick={() => onCommentSubmit()}
         />
       </span>
-      <hr className="my-6 border-white/60 border rounded-md" />
+      <hr className="my-6 border-eduBlack/60 border rounded-md" />
       <div className="flex">
-        <span className="text-xl">{post?.commentCount} Responses</span>
+        <span className="text-[28px] font-headers font-semibold">{post?.commentCount} Responses</span>
       </div>
       <InfiniteScroll
-        className="py-4 rounded-md h-full max-h-[50vh]"
+        className="py-4 rounded-[10px] h-full max-h-[50vh]"
         hasMoreData={commentPagination?.totalRecords > post?.comments?.length}
         callBack={() => onLoadMoreComment(commentPagination?.page + 1)}
       >

@@ -13,7 +13,7 @@ export const TextEditor = ({
 }) => {
   return (
     <ReactQuill
-      className="bg-[#3A3A3A] text-white rounded-lg min-h-[10rem] my-4"
+      className="bg-eduDarkGray text-eduBlack rounded-lg min-h-[10rem] my-4 font-body"
       theme="snow"
       placeholder="Text (optional)"
       modules={{

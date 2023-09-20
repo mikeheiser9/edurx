@@ -172,27 +172,28 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
   };
 
   const HeaderJsx = (): React.ReactElement => (
-    <div className="bg-primary p-2 px-4 font-sans flex gap-2">
-      <div className="flex gap-2">
-        <span className="flex gap-2 items-center">
-          <FontAwesomeIcon icon={faArrowUp} className="font-bold" />
+    <div className="bg-eduDarkGray p-2 px-4 font-sans flex gap-2 h-[50px] items-center">
+      <div className="flex gap-4">
+        <span className="flex gap-4 items-center font-body text-[16px]">
+          <FontAwesomeIcon icon={faArrowUp} className="font-bold " />
           {(post?.likeCount || 0) - (post?.dislikeCount || 0)}
           <FontAwesomeIcon icon={faArrowDown} className="font-bold" />
-          |
+          <span>|</span>
           <FontAwesomeIcon icon={faNewspaper} />
         </span>{" "}
-        {post?.title} |{" "}
-        <b>
+        <span className="font-body text-[16px]">{post?.title}</span>
+        <span>|{" "}</span>
+        <span className="font-body font-semibold">
           {post?.forumType
             ? npiToDefinition[post.forumType as keyof typeof npiToDefinition] ||
               post?.forumType
             : "-"}
-        </b>
+        </span>
       </div>
       <FontAwesomeIcon
         icon={faXmarkCircle}
         onClick={viewPostModal.closeModal}
-        className="ml-auto self-center cursor-pointer"
+        className="ml-auto self-center cursor-pointer text-[24px] text-eduBlack"
       />
     </div>
   );
@@ -213,12 +214,12 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
       showCloseIcon
       customHeader={<HeaderJsx />}
       showFooter={false}
-      modalClassName="!w-2/4 !bg-primary-dark h-full"
+      modalClassName="h-full"
       // modalBodyClassName="flex flex-auto p-4 !h-full overflow-y-auto"
       // closeOnEscape
       closeOnOutsideClick
     >
-      <div className="flex flex-col flex-auto text-white">
+      <div className="flex flex-col flex-auto text-eduBlack">
         <div className="flex flex-auto gap-4">
           <div className="flex flex-col gap-2 items-center">
             <span
@@ -228,13 +229,13 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
               }
               className={`w-7 h-7 ease-in-out duration-300 rounded-md flex justify-center items-center border-2 ${
                 userReactionOnPost === "like"
-                  ? "border-primary text-primary"
-                  : "border-white/50 text-white/50 cursor-pointer"
+                  ? "border-eduYellow text-eduYellow cursor-pointer"
+                  : "border-eduDarkBlue text-eduDarkBlue cursor-pointer"
               } `}
             >
               <FontAwesomeIcon icon={faThumbsUp} size="sm" />
             </span>
-            <span>{(post?.likeCount || 0) - (post?.dislikeCount || 0)}</span>
+            <span className="font-body">{(post?.likeCount || 0) - (post?.dislikeCount || 0)}</span>
             <span
               onClick={() =>
                 userReactionOnPost !== "dislike" &&
@@ -242,16 +243,17 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
               }
               className={`w-7 h-7 rounded-md flex justify-center items-center border-2 ${
                 userReactionOnPost === "dislike"
-                  ? "border-primary text-primary"
-                  : "border-white/50 text-white/50 cursor-pointer"
+                  ? "border-primary text-primary cursor-pointer"
+                  : "border-eduDarkBlue text-EduDarkBlue cursor-pointer"
               } `}
             >
               <FontAwesomeIcon icon={faThumbsDown} />
             </span>
           </div>
-          <div className="flex flex-auto flex-col gap-1">
+          <div className="flex flex-auto flex-col gap-2">
             <div className="flex gap-2 items-center w-full">
-              <span className="w-6 overflow-hidden h-6 justify-center items-center flex bg-white/80 rounded-full">
+              <div>
+              <span className="w-[28px] overflow-hidden h-[28px] justify-center items-center flex bg-eduDarkGray rounded-full">
                 {post?.userId?.profile_img ? (
                   <Image
                     src={getStaticImageUrl(post?.userId?.profile_img)}
@@ -263,40 +265,58 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
                   <FontAwesomeIcon icon={faImage} />
                 )}
               </span>
-              <span className="text-white text-xs">
+              </div>
+              <div>
+                <span className="text-eduDarkBlue text-[14px] font-body">
                 {post?.forumType
                   ? npiToDefinition[
                       post.forumType as keyof typeof npiToDefinition
                     ] || post?.forumType
                   : "-"}
-              </span>
-              <span className="text-white/70 text-xs">
-                • Posted by{" "}
-                <b>
-                  {post?.userId?.username ||
-                    getFullName(
-                      post?.userId?.first_name,
-                      post?.userId?.last_name,
-                      "_"
-                    )}
-                </b>{" "}
-                • Published on {moment(post?.createdAt).format("DD/MM/YYYY")}
-              </span>
-              <FontAwesomeIcon
-                icon={post?.isPrivate ? faLock : faEye}
-                className="animate-fade-in-down justify-center"
-                size="sm"
-              />
-              <span className="flex flex-1 justify-end text-white">
-                <FontAwesomeIcon icon={faEllipsisVertical} />
-              </span>
+                </span>
+              </div>
+              <div>
+                <span>•</span>
+              </div>
+              <div>
+                <span className="text-eduDarkBlue text-[14px] font-body">
+                Posted by{" "}
+                  <span className="font-body font-semibold">
+                    {post?.userId?.username ||
+                      getFullName(
+                        post?.userId?.first_name,
+                        post?.userId?.last_name,
+                        "_"
+                      )}
+                  </span>
+                 </span>
+                </div>
+                <div>
+                  <span>•</span>
+                </div>
+                <div>
+                  <span className="font-body text-[14px] text-eduDarkBlue">Published on {moment(post?.createdAt).format("DD/MM/YYYY")}</span>
+                </div>
+                <div className="flex flex-1 items-center">
+                  <FontAwesomeIcon
+                  icon={post?.isPrivate ? faLock : faEye}
+                  className="animate-fade-in-down justify-center"
+                  size="sm"
+                  />
+                  <span className="flex flex-1 justify-end text-eduBlack">
+                    <FontAwesomeIcon icon={faEllipsisVertical} />
+                  </span>
+                </div>              
+              
             </div>
-            <span className="text-white text-xl">{post?.title}</span>
+            <div>
+              <h2 className="text-eduBlack text-[28px] font-headers">{post?.title}</h2>
+            </div>
             <div className="flex gap-2 flex-wrap flex-auto">
               {post?.categories?.map((category: any) => (
                 <span
                   key={category?._id}
-                  className="text-xs p-1 px-2 bg-primary/25 text-white/50 rounded-md capitalize"
+                  className="text-[12px] py-2 px-4 bg-transparent text-eduDarkBlue rounded-[10px] border border-eduDarkBlue"
                 >
                   {category?.name}
                 </span>
@@ -304,27 +324,30 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
               {post?.tags?.map((tag: any) => (
                 <span
                   key={tag._id}
-                  className="text-xs p-1 px-2 bg-[#0F366D] text-white/50 rounded-md capitalize"
+                  className="text-[12px] p-2 px-4 bg-eduDarkGray text-eduDarkGray rounded-[10px]"
                 >
                   {tag.name}
                 </span>
               ))}
             </div>
-            {post?.content && (
-              <ReactQuill
-                className="text-white -mx-3"
-                readOnly
-                value={post?.content}
-                theme="bubble"
-              />
-            )}
-            <div className="flex gap-2 py-4 text-sm text-white/50">
-              <span>
-                <FontAwesomeIcon icon={faCommentDots} /> {post?.commentCount}{" "}
+            <div>
+              {post?.content && (
+                <ReactQuill
+                  className="text-eduBlack -mx-3 post-body"
+                  readOnly
+                  value={post?.content}
+                  theme="bubble"
+                />
+              )}
+            </div>
+            
+            <div className="flex flex-1 gap-4 py-4 text-eduDarkBlue items-center">
+              <span className="font-body text-[14px]">
+                <FontAwesomeIcon className="text-[18px]" icon={faCommentDots} /> {post?.commentCount}{" "}
                 Comments
               </span>
-              <span>
-                <FontAwesomeIcon icon={faChartColumn} /> {post?.views} Views
+              <span className="font-body text-[14px]">
+                <FontAwesomeIcon className="text-[18px]" icon={faChartColumn} /> {post?.views} Views
               </span>
             </div>
             <CommentManager

@@ -51,11 +51,11 @@ export const TabMenu = (props: Props): React.ReactElement => {
             role="presentation"
             className={`${
               props.tabItemClass ||
-              "bg-primary font-medium p-1 px-3 ease-in-out duration-200 text-sm rounded capitalize"
+              "p-1 px-3 border border-eduBlack w-auto ease-in-out duration-200 text-[14px] font-body rounded capitalize cursor-pointer"
             } ${
               index === activeTab && !tabItem.isDisabled
-                ? props.activeTabClass || "opacity-100"
-                : "opacity-70"
+                ? props.activeTabClass || "bg-eduBlack text-white"
+                : "opacity-100"
             } ${
               tabItem.isDisabled ? "cursor-not-allowed" : "hover:opacity-100"
             }`}
