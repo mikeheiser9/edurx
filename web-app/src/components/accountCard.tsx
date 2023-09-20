@@ -12,7 +12,7 @@ export const AccountCard = (props: componentProps): React.JSX.Element => {
   return (
     <div
       className={`flex flex-col items-center bg-eduLightBlue cursor-pointer p-4 ${
-        props.isDisabled ? "cursor-not-allowed opacity-60 text-white/60" : ""
+        props.isDisabled ? "!cursor-not-allowed opacity-60 text-white/60" : ""
       }`}
       onClick={() => {
         if (props.isDisabled) return;
