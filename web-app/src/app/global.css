@@ -84,5 +84,10 @@ input:-webkit-autofill:active {
 /* timeline styles */
 .vertical-timeline-element-content {
   padding: 0 !important;
-  background: transparent;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.vertical-timeline--two-columns .vertical-timeline-element-content-arrow {
+  display: none !important;
 }
