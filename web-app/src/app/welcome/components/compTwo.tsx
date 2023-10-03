@@ -13,7 +13,7 @@ export default function CompTwo() {
     <div className='w-full text-center flex flex-col justify-center items-center'>
       <h2 className='text-[50px] font-headers'>What We've Built</h2>
       <h4 className='font-body font-semibold mt-[10px] text-[24px]'>BETA LAUNCHING Q4 2023</h4>
-      <p className='font-body font-light text-eduBlack/60 max-w-[60%] mt-[20px]'>EduRx aims to be the leading platform for medical professionals to streamline their continued education and engage in curated professional discussions. With tailored medical research feeds and rigorous content moderation, we're redefining the way modern medical professionals learn and connect.</p>
+      <p className='font-body font-light text-eduBlack/60 w-[60%] mt-[20px] max-w-[1000px]'>EduRx aims to be the leading platform for medical professionals to streamline their continued education and engage in curated professional discussions. With tailored medical research feeds and rigorous content moderation, we're redefining the way modern medical professionals learn and connect.</p>
     </div>
     <div className='w-full px-[50px] py-[80px] flex flex-col'>
       {/* EduRx Hub  */}

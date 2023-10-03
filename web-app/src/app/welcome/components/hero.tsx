@@ -121,11 +121,11 @@ export default function Hero() {
         <div className='relative my-[50px] flex flex-row flex-nowrap w-[90%] justify-center'>
           <div className='w-5/12 flex flex-col justify-center items-end'>
             <div className='relative h-full'>
-              <h3 className='relative text-[80px] font-headers uppercase leading-none'>Elevate</h3>
+              <h3 className='relative text-[80px] font-headers uppercase leading-none x-med:text-[60px] tablet-lg:text-[50px]'>Elevate</h3>
             </div>
             <div className='absolute flex flex-row flex-nowrap min-w-full justify-end mt-[35px] font-headers text-right'>
               {/* <p className='text-[40px] text-eduLightBlue uppercase leading-none'>Your </p> */}
-              <p className='text-[40px] text-eduLightBlue uppercase leading-none ml-[10px] font-semibold' ref={wordRef}></p>
+              <p className='text-[40px] text-eduLightBlue uppercase leading-none ml-[10px] font-semibold x-med:text-[30px]' ref={wordRef}></p>
             </div>
           </div>
           <div className='w-2/12 flex flex-col justify-center items-center mt-[-35px]'>
@@ -134,7 +134,7 @@ export default function Hero() {
             </div>
           </div>
           <div className='w-5/12 flex flex-col justify-center items-start ml-[35px] mt-[-50px]'>
-            <h3 className='text-[60px] font-semibold text-eduLightBlue font-headers leading-none uppercase'>On EDURX</h3>
+            <h3 className='text-[60px] font-semibold text-eduLightBlue font-headers leading-none uppercase x-med:text-[50px] tablet-lg:text-[40px]'>On EDURX</h3>
           </div>
         </div>
         <div className='relative'>

@@ -16,7 +16,7 @@ export default function CompThree() {
     <div className='w-full text-center flex flex-col justify-center items-center'>
       <h2 className='text-[50px] font-headers'>Coming Soon</h2>
       <h4 className='font-body font-semibold mt-[10px] text-[24px]'>Q1 2024</h4>
-      <p className='font-body font-light text-eduBlack/60 max-w-[60%] mt-[20px]'>EduRx is relentlessly innovating to further streamline your experience as a medical professional. Explore below as we unveil our upcoming features designed for your continued growth and convenience.</p>
+      <p className='font-body font-light text-eduBlack/60 w-[60%] mt-[20px] max-w-[1000px]'>EduRx is relentlessly innovating to further streamline your experience as a medical professional. Explore below as we unveil our upcoming features designed for your continued growth and convenience.</p>
     </div>
     <div className='w-full px-[50px] py-[80px] flex flex-col'>
       
