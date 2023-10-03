@@ -7,6 +7,7 @@ import {
 import {
   forumTypes,
   paginationValidation,
+  postAccessRequestStatus,
   postCategoryTagsTypes,
   postFlags,
   postStatus,
@@ -27,7 +28,6 @@ const allPostValidations = {
 };
 
 const createPostValidator = async (req, res, next) => {
-  console.log(req.user._id?.toString());
   try {
     const { stringPrefixJoiValidation, objectId } = validateField;
     const tagCategoryValidation = Joi.array().max(50).items(objectId);
@@ -36,8 +36,8 @@ const createPostValidator = async (req, res, next) => {
       forumType: stringPrefixJoiValidation.valid(...forumTypes).required(),
       postType: stringPrefixJoiValidation.valid(...postType).required(),
       postStatus: stringPrefixJoiValidation.valid(...postStatus).required(),
-      title: stringPrefixJoiValidation.required().max(200),
-      content: stringPrefixJoiValidation.allow("").max(10000),
+      title: stringPrefixJoiValidation.required().max(26),
+      content: stringPrefixJoiValidation.allow("").max(100000),
       categories: tagCategoryValidation,
       tags: tagCategoryValidation,
       options: Joi.array().when("postType", {
@@ -55,7 +55,6 @@ const createPostValidator = async (req, res, next) => {
       throw Error("unAuthorized");
     next();
   } catch (error) {
-    console.log({ error });
     returnAppropriateError(res, error);
   }
 };
@@ -75,7 +74,6 @@ const getUsersPostsValidator = async (req, res, next) => {
     });
     next();
   } catch (error) {
-    console.log(error);
     return returnAppropriateError(res, error);
   }
 };
@@ -144,7 +142,6 @@ const validateCategoryTag = async (req, res, next) => {
           "Tags or categories contains invalid values"
         );
       }
-      console.log({ objectIds, response });
     } else {
       next();
     }
@@ -215,7 +212,6 @@ const getAllPostValidator = async (req, res, next) => {
   try {
     // filter options forumType, category, userId
     // sort options newest, most popular, trending
-    console.log(req.body);
     const schema = Joi.object({
       ...paginationValidation,
       ...allPostValidations,
@@ -226,7 +222,6 @@ const getAllPostValidator = async (req, res, next) => {
     });
     next();
   } catch (error) {
-    console.log(error);
     returnAppropriateError(res, error);
   }
 };
@@ -246,7 +241,6 @@ const addViewValidator = async (req, res, next) => {
     await schema.validateAsync(req.body);
     next();
   } catch (error) {
-    console.log(error);
     returnAppropriateError(res, error);
   }
 };
@@ -265,11 +259,73 @@ const updatePostValidator = async (req, res, next) => {
       }),
       isPrivate: Joi.boolean(),
       isDeleted: Joi.boolean(),
-      flag: Joi.string().valid(...postFlags),
+      flag: Joi.string().valid(...postFlags, null),
     });
     await schema.validateAsync(req.body);
     next();
   } catch (error) {
+    returnAppropriateError(res, error);
+  }
+};
+
+// private post access request validation
+const addRequestValidator = async (req, res, next) => {
+  try {
+    const { objectId } = validateField;
+    const schema = Joi.object({
+      _id: objectId,
+      userId: objectId.required(),
+      postId: objectId.required().disallow(Joi.ref("userId")),
+      status: Joi.string()
+        .valid(...postAccessRequestStatus)
+        .required(),
+    });
+    await schema.validateAsync(req.body);
+    next();
+  } catch (error) {
+    returnAppropriateError(res, error);
+  }
+};
+
+const getRequestValidator = async (req, res, next) => {
+  try {
+    console.log(req.user._id);
+    const { objectId } = validateField;
+    // userId = req?.user?._id?.toString();
+    const schema = Joi.object({
+      postId: objectId.required(),
+      // userId: objectId.required().disallow(Joi.ref("postId")),
+    });
+    await schema.validateAsync({
+      ...req.params,
+      // userId,
+    });
+    next();
+  } catch (error) {
+    console.log(error);
+    returnAppropriateError(res, error);
+  }
+};
+
+const bulkRequestUpdateValidator = async (req, res, next) => {
+  try {
+    console.log(req.body);
+    const { objectId } = validateField;
+    const schema = Joi.array()
+      .required()
+      .min(1)
+      .items(
+        Joi.object({
+          _id: objectId.required(),
+          status: Joi.string()
+            .valid(...postAccessRequestStatus)
+            .required(),
+        })
+      );
+    await schema.validateAsync(req.body);
+    next();
+  } catch (error) {
+    console.log(error);
     returnAppropriateError(res, error);
   }
 };
@@ -286,4 +342,7 @@ export {
   getAllPostValidator,
   addViewValidator,
   updatePostValidator,
+  addRequestValidator,
+  getRequestValidator,
+  bulkRequestUpdateValidator,
 };

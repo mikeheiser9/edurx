@@ -1,6 +1,7 @@
 import { categoryTagModal } from "../model/post/categoryTag.js";
 import { commentModal } from "../model/post/comment.js";
 import { postModal } from "../model/post/post.js";
+import { postRequestModal } from "../model/post/postAccessRequest.js";
 import { reactionModal } from "../model/post/reaction.js";
 import { viewModal } from "../model/post/views.js";
 import { findAndPaginate } from "../util/commonFunctions.js";
@@ -11,6 +12,7 @@ const createNewPost = async (payload) => {
   const isExist = await postModal.findOne({
     title: payload.title,
     forumType: payload.forumType,
+    isDeleted: { $ne: true },
   });
   if (isExist)
     throw new Error(
@@ -20,7 +22,7 @@ const createNewPost = async (payload) => {
 };
 
 const findPostsByUserId = async (userId, page, limit) => {
-  const query = { userId };
+  const query = { userId, isDeleted: { $ne: true } };
   const options = {
     populate: [{ path: "categories" }],
     sort: {
@@ -216,7 +218,7 @@ const getCommentsByPostId = async (postId, page = 1, limit = 10, userId) => {
               },
             },
             {
-              $sort: { createdAt: -1 },
+              $sort: { createdAt: 1 },
             },
           ],
         },
@@ -313,7 +315,7 @@ const getCommentsByPostId = async (postId, page = 1, limit = 10, userId) => {
       },
       // { $unwind: "$reactions" },
       {
-        $sort: { createdAt: -1 },
+        $sort: { createdAt: 1 },
       },
       {
         $facet: {
@@ -325,7 +327,6 @@ const getCommentsByPostId = async (postId, page = 1, limit = 10, userId) => {
 
     const result = await commentModal.aggregate(pipeline);
     const totalCount = result?.[0]?.metadata[0]?.totalCount || 0;
-    console.log(result);
 
     return {
       comments: {
@@ -367,70 +368,78 @@ const getPostById = async (postId, userId) => {
         "profile_img",
       ],
     };
-  return await postModal.findById({ _id: postId }).populate([
-    "commentCount",
-    "likeCount",
-    "dislikeCount",
-    "views",
-    userPopulator,
-    {
-      path: "tags",
-      select: ["name"],
-    },
-    {
-      path: "reactions",
-      select: ["reactionType", "targetType", "userId"],
-      match: { userId },
-    },
-    {
-      path: "categories",
-      select: ["name"],
-    },
-    {
-      path: "comments",
-      limit: 10,
-      options: {
-        sort: {
-          createdAt: -1,
-        },
+  return await postModal
+    .findOne({ _id: postId, isDeleted: { $ne: true } })
+    .populate([
+      "commentCount",
+      "likeCount",
+      "dislikeCount",
+      "views",
+
+      "userAccessRequestCount",
+      userPopulator,
+      {
+        path: "tags",
+        select: ["name"],
       },
-      match: {
-        parentId: null,
+      {
+        path: "userAccessRequests",
+        match: { userId },
       },
-      populate: [
-        userPopulator,
-        taggedUsers,
-        {
-          path: "reactions",
-          select: ["reactionType", "targetType", "userId"],
-          match: { userId },
-        },
-        {
-          path: "replies",
-          populate: [
-            userPopulator,
-            taggedUsers,
-            // "views",
-            "likeCount",
-            "dislikeCount",
-            {
-              path: "reactions",
-              select: ["reactionType", "targetType", "userId"],
-              match: { userId },
-            },
-          ],
-          options: {
-            sort: {
-              createdAt: -1,
-            },
+      {
+        path: "reactions",
+        select: ["reactionType", "targetType", "userId"],
+        match: { userId },
+      },
+      {
+        path: "categories",
+        select: ["name"],
+      },
+      {
+        path: "comments",
+        limit: 10,
+        options: {
+          sort: {
+            createdAt: 1,
           },
         },
-        // "views",
-        "likeCount",
-        "dislikeCount",
-      ],
-    },
-  ]);
+        match: {
+          parentId: null,
+        },
+        populate: [
+          userPopulator,
+          taggedUsers,
+          {
+            path: "reactions",
+            select: ["reactionType", "targetType", "userId"],
+            match: { userId },
+          },
+          {
+            path: "replies",
+            populate: [
+              userPopulator,
+              taggedUsers,
+              // "views",
+              "likeCount",
+              "dislikeCount",
+              {
+                path: "reactions",
+                select: ["reactionType", "targetType", "userId"],
+                match: { userId },
+              },
+            ],
+            options: {
+              sort: {
+                createdAt: 1,
+              },
+            },
+          },
+          // "views",
+          "likeCount",
+          "dislikeCount",
+        ],
+      },
+    ]);
 };
 
 const getPosts = async ({
@@ -442,7 +451,6 @@ const getPosts = async ({
   userId,
 }) => {
   try {
-    console.log(userId);
     const skippedPages = (page - 1) * limit;
     const sortByQuery = {
       newest: { createdAt: -1 },
@@ -453,6 +461,7 @@ const getPosts = async ({
       ...(forumType ? { forumType } : {}),
       ...(categories ? { categories: { $in: categories } } : {}),
       ...(userId ? { userId } : {}),
+      isDeleted: { $ne: true },
     };
 
     console.log("query", query);
@@ -558,7 +567,7 @@ const getPosts = async ({
         $addFields: {
           views: { $size: "$views" },
           likes: { $size: "$reactions" },
-          comments: { $size: "$comments" },
+          commentCount: { $size: "$comments" },
           categories: "$categoryData",
         },
       },
@@ -611,10 +620,9 @@ const addViews = async (payload) => {
         upsert: true,
       },
     }));
-    console.log(JSON.stringify(operations));
 
     if (operations.length === 0) {
-      return null; // Return null when all views already exist
+      return null;
     }
 
     try {
@@ -644,10 +652,60 @@ const addViews = async (payload) => {
 const updatePostById = async (payload) => {
   try {
     const postId = payload?._id;
+
     if (!postId) throw new Error("Post id is required");
     return await postModal.findByIdAndUpdate(postId, payload);
   } catch (error) {
     return error;
+  }
+};
+
+const addPostAccessRequest = async ({ postId, userId, status }) => {
+  try {
+    const filter = { postId, userId },
+      update = {
+        $set: {
+          postId,
+          userId,
+          status,
+        },
+      },
+      options = {
+        upsert: true,
+        new: true,
+      };
+    console.log({ filter, update, options });
+    return await postRequestModal.findOneAndUpdate(filter, update, options);
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+const getRequestsByPostId = async (postId) => {
+  try {
+    return await postRequestModal.find({ postId }).populate({
+      path: "userId",
+      select: ["first_name", "last_name", "username", "profile_img"],
+    });
+  } catch (error) {
+    return error;
+  }
+};
+
+const updatePostRequests = async (requestsToUpdate) => {
+  try {
+    const bulkOperations = requestsToUpdate.map((request) => ({
+      updateOne: {
+        filter: { _id: request._id },
+        update: { $set: { status: request.status } },
+      },
+    }));
+
+    const result = await postRequestModal.bulkWrite(bulkOperations);
+    return result;
+  } catch (error) {
+    console.error("Error updating documents:", error);
   }
 };
 
@@ -664,4 +722,7 @@ export {
   getPosts,
   addViews,
   updatePostById,
+  addPostAccessRequest,
+  getRequestsByPostId,
+  updatePostRequests,
 };

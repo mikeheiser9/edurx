@@ -1,11 +1,11 @@
 import  multer from "multer"
-import { allowFileType } from "../util/constant.js"
+import { allowedFileTypes } from "../util/constant.js"
 import { generalResponse } from "../util/commonFunctions.js"
 import path from "path"
 export const fileTypeCheckAndRename=(req,res,next)=>{
     if(req.files)
     {
-        if(req.files.every(file=>allowFileType.includes(file.mimetype)))
+        if(req.files.every(file=>allowedFileTypes.includes(file.mimetype)))
         {
             req.files=req.files.map((file)=>{
                 return {
@@ -28,12 +28,12 @@ export const fileTypeCheckAndRename=(req,res,next)=>{
 
 export const fileUpload = multer({
   fileFilter: (req, file, cb) => {
-    if (allowFileType.includes(file.mimetype)) {
+    if (allowedFileTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
       cb(
         new Error(
-          `Invalid file type. only ${allowFileType.join(
+          `Invalid file type. only ${allowedFileTypes.join(
             ", "
           )} files are allowed.`
         )

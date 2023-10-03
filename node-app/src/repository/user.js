@@ -42,7 +42,6 @@ const getUserProfileById = async (
     let skippedAttributes = getSkippedAttributes(excludeAttributeList);
     const userProfileQuery = userModel.findById({ _id: userId }).select({
       ...skippedAttributes,
-      "educations.id": 0,
     });
     let docOptions = {
       limit: 10,

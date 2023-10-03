@@ -41,7 +41,6 @@ const updateUserValidator = async (req, res, next) => {
     await schema.validateAsync(req.body);
     next();
   } catch (error) {
-    console.log(error);
     returnAppropriateError(res, error);
   }
 };
@@ -90,7 +89,6 @@ const getUserDocumentsValidator = async (req, res, next) => {
     });
     next();
   } catch (err) {
-    console.log(err);
     returnAppropriateError(res, err);
   }
 };
@@ -110,7 +108,6 @@ const userConnectionsValidator = async (req, res, next) => {
     });
     next();
   } catch (error) {
-    console.log("Failed to validate request", error);
     returnAppropriateError(res, error);
   }
 };

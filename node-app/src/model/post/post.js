@@ -1,5 +1,10 @@
 import { Schema, model } from "mongoose";
-import { forumTypes, postFlags, postStatus, postType } from "../../util/constant.js";
+import {
+  forumTypes,
+  postFlags,
+  postStatus,
+  postType,
+} from "../../util/constant.js";
 
 const postSchema = new Schema(
   {
@@ -51,8 +56,17 @@ const postSchema = new Schema(
     },
     flag: {
       type: String,
-      enum: postFlags // ["Spam", "Inappropriate", "Other"], // Example flag options
+      enum: postFlags, // ["Spam", "Inappropriate", "Other"], // Example flag options
     },
+    accessRequests: [
+      {
+        userId: Schema.Types.ObjectId,
+        status: {
+          type: Schema.Types.String,
+          enum: ["accepted", "denied", "pending"],
+        },
+      },
+    ],
   },
   {
     timestamps: true,
@@ -113,10 +127,22 @@ postSchema.virtual("views", {
   localField: "_id",
   foreignField: "itemId",
   count: true,
-  justOne: false,
   match: {
     itemType: "post",
   },
+});
+
+postSchema.virtual("userAccessRequests", {
+  ref: "postRequest",
+  localField: "_id",
+  foreignField: "postId",
+});
+
+postSchema.virtual("userAccessRequestCount", {
+  ref: "postRequest",
+  localField: "_id",
+  foreignField: "postId",
+  count: true,
 });
 
 export const postModal = model("posts", postSchema);

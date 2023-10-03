@@ -23,8 +23,9 @@ export const postType = ["post", "poll"];
 export const postStatus = ["draft", "published"];
 export const postCategoryTagsTypes = ["tag", "category"];
 export const postFlags = ["Misinformation", "Unrelated", "Irrelevant"];
+export const postAccessRequestStatus = ["accepted", "denied", "pending"];
 
-export const allowFileType = [
+export const allowedFileTypes = [
   "image/jpeg",
   "image/jpg",
   "image/gif",
@@ -102,6 +103,7 @@ export const userValidations = {
         is_in_progress: joi.boolean().default(true),
         activities: validateField.stringPrefixJoiValidation.allow(""),
         _id: validateField.stringPrefixJoiValidation,
+        id: joi.string()
       })
     ),
   licenses: joi.array().items(userDocValidation),

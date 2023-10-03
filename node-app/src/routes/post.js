@@ -11,15 +11,21 @@ import {
   getAllPosts,
   addNewView,
   updatePost,
+  addPrivatePostRequest,
+  getUserRequests,
+  bultUpdateRequests,
 } from "../controllers/post.js";
 import {
   addCommentValidator,
   addReactionValidator,
+  addRequestValidator,
   addViewValidator,
+  bulkRequestUpdateValidator,
   createMetaLabelValidator,
   createPostValidator,
   getAllPostValidator,
   getPostCommentsValidator,
+  getRequestValidator,
   getUsersPostsValidator,
   searchMetaLabelValidator,
   updatePostValidator,
@@ -66,5 +72,22 @@ postRoute.put(
   updatePostValidator,
   updatePost
 );
+
+//private post requests
+postRoute.post(
+  "/private/create-request",
+  userAuth,
+  addRequestValidator,
+  addPrivatePostRequest
+);
+
+postRoute.get(
+  "/private/:postId/requests",
+  userAuth,
+  getRequestValidator,
+  getUserRequests
+);
+
+postRoute.put("/private/:postId/requests-update", userAuth, bulkRequestUpdateValidator, bultUpdateRequests)
 
 export default postRoute;

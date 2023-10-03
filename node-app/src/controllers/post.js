@@ -2,14 +2,17 @@ import { Types } from "mongoose";
 import {
   addCategoryTag,
   addComment,
+  addPostAccessRequest,
   addReaction,
   addViews,
   createNewPost,
   getCommentsByPostId,
   getPostById,
   getPosts,
+  getRequestsByPostId,
   searchCategoryTagByName,
   updatePostById,
+  updatePostRequests,
 } from "../repository/post.js";
 import { generalResponse } from "../util/commonFunctions.js";
 import { responseCodes, responseTypes } from "../util/constant.js";
@@ -163,6 +166,72 @@ const updatePost = async (req, res) => {
   }
 };
 
+const addPrivatePostRequest = async (req, res) => {
+  try {
+    const response = await addPostAccessRequest(req.body);
+    return generalResponse(
+      res,
+      responseCodes.SUCCESS,
+      responseTypes.OK,
+      'Post request "created/updated" successfully',
+      response
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      responseCodes.INTERNAL_SERVER_ERROR,
+      responseTypes.INTERNAL_SERVER_ERROR,
+      error?.message || "Something went wrong",
+      error
+    );
+  }
+};
+
+// requests of users for private post
+const getUserRequests = async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const response = await getRequestsByPostId(postId);
+    return generalResponse(
+      res,
+      responseCodes.SUCCESS,
+      responseTypes.OK,
+      "result successfully fetched",
+      response
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      responseCodes.INTERNAL_SERVER_ERROR,
+      responseTypes.INTERNAL_SERVER_ERROR,
+      error?.message || "Something went wrong",
+      error
+    );
+  }
+};
+
+const bultUpdateRequests = async (req, res) => {
+  try {
+    const response = await updatePostRequests(req.body);
+    console.log(response);
+    return generalResponse(
+      res,
+      responseCodes.SUCCESS,
+      responseTypes.OK,
+      "requests updated successfully",
+      response
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      responseCodes.INTERNAL_SERVER_ERROR,
+      responseTypes.INTERNAL_SERVER_ERROR,
+      error?.message || "Something went wrong",
+      error
+    );
+  }
+};
+
 export {
   createPost,
   searchPostMetaLabel,
@@ -174,4 +243,7 @@ export {
   getAllPosts,
   addNewView,
   updatePost,
+  addPrivatePostRequest,
+  getUserRequests,
+  bultUpdateRequests,
 };
