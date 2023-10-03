@@ -21,18 +21,34 @@ const BasicDetails = ({
   return (
     <React.Fragment>
       <div className="grid grid-cols-2 gap-4">
-        <InputField name="first_name" placeholder="First name" type="text" />
-        <InputField name="last_name" placeholder="Last name" type="text" />
+        <InputField
+          name="first_name"
+          placeholder="First name"
+          type="text"
+          maxLength={20}
+        />
+        <InputField
+          name="last_name"
+          placeholder="Last name"
+          type="text"
+          maxLength={20}
+        />
       </div>
-      <InputField name="email" placeholder="Email Address" type="email" />
+      <InputField
+        name="email"
+        placeholder="Email Address"
+        type="email"
+        maxLength={50}
+      />
       <InputField
         name="password"
         placeholder="Password"
         type={showPassword?.password ? "text" : "password"}
+        maxLength={20}
         icon={
           <FontAwesomeIcon
             onClick={() => onShowPassword?.("password")}
-            className="text-white"
+            className="text-white cursor-pointer"
             icon={showPassword?.password ? faEye : faEyeSlash}
             size="xs"
           />
@@ -41,11 +57,12 @@ const BasicDetails = ({
       <InputField
         name="confirm_password"
         placeholder="Confirm Password"
+        maxLength={20}
         type={showPassword?.confirmPassword ? "text" : "password"}
         icon={
           <FontAwesomeIcon
             onClick={() => onShowPassword?.("confirmPassword")}
-            className="text-white"
+            className="text-white cursor-pointer"
             icon={showPassword?.confirmPassword ? faEye : faEyeSlash}
             size="xs"
           />
@@ -77,6 +94,7 @@ const VerifyEmail = (): React.JSX.Element => {
       <div className="mt-6">
         <InputField
           name="otp"
+          maxLength={10}
           type="text"
           placeholder="Enter Verification Code"
         />

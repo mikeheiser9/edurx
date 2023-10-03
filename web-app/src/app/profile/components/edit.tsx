@@ -6,6 +6,7 @@ import { sections } from "./sections";
 import { Form, Formik, FormikHelpers } from "formik";
 import { validationSchema } from "@/util/validations/userProfile";
 import { responseCodes } from "@/util/constant";
+import { showToast } from "@/components/toast";
 
 interface Props {
   setCurrentSection: React.Dispatch<
@@ -31,6 +32,7 @@ const EditProfile = ({
   const dispatch = useDispatch();
   const loggedInUser = useSelector(selectUserDetail);
   const userId: string | undefined = loggedInUser?._id;
+  let message = `Failed to save user profile [${currentSection}]`;
 
   const intialFormikValues: userProfileInterface = {
     about: {
@@ -83,19 +85,22 @@ const EditProfile = ({
 
   const handleAboutSection = async (values: about) => {
     try {
-      setUserData((preData: any) => {
+      setUserData((preData) => {
         return {
-          ...preData,
+          ...(preData as UserData),
           ...values,
         };
       });
-      await axiosPut("/user/profile", {
+      const response = await axiosPut("/user/profile", {
         userId,
         ...values,
       });
+      if (response.status !== responseCodes.SUCCESS)
+        throw new Error("Unable to update profile");
       setCurrentSection("education");
     } catch (err) {
-      console.log(`Failed to save user profile/${currentSection}`, err);
+      showToast.error(message);
+      console.log(message, err);
     }
   };
 
@@ -114,7 +119,7 @@ const EditProfile = ({
         educations: [...payload, values],
       });
       if (res.status === responseCodes.SUCCESS) {
-        setUserData((preData: any) => {
+        setUserData((preData) => {
           return {
             ...preData,
             ...res?.data?.data?.user,
@@ -122,9 +127,12 @@ const EditProfile = ({
         });
         setIsListView(true);
         setCurrentSection("certifications");
+      } else {
+        throw new Error("Something went wrong");
       }
     } catch (err) {
-      console.log(`Failed to save user profile/${currentSection}`, err);
+      showToast.error(message);
+      console.log(message, err);
     }
   };
 
@@ -151,15 +159,16 @@ const EditProfile = ({
         setCurrentSection(
           doc_type === "license" ? "profileImages" : "licenses"
         );
+      } else {
+        throw new Error("Something went wrong");
       }
     } catch (err) {
-      console.log(`Failed to save user profile/${currentSection}`, err);
+      showToast.error(message);
+      console.log(message, err);
     }
   };
 
   const handleProfileImages = async (values: profileImages) => {
-    console.log(values);
-
     try {
       if (!values.profile_img && !values.banner_img) return;
       const formData = new FormData();
@@ -175,9 +184,10 @@ const EditProfile = ({
             profile_img: response?.data?.data?.user?.profile_img,
           })
         );
-      }
+      } else throw new Error("Something went wrong");
     } catch (err) {
-      console.log(`Failed to save user profile/${currentSection}`, err);
+      showToast.error(message);
+      console.log(message, err);
     }
   };
 
@@ -199,7 +209,8 @@ const EditProfile = ({
       await update(values, doc_type);
       actions.setSubmitting(false);
     } catch (err) {
-      console.log(`Failed to save user profile/${currentSection}`, err);
+      showToast.error("Something went wrong");
+      console.log(message);
     }
   };
 

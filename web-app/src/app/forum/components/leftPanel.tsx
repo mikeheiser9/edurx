@@ -5,16 +5,16 @@ import React, { SetStateAction } from "react";
 
 interface Props {
   sortingOptions: { value: string; label: string }[];
-  categoryList: any[];
+  categoryList: TagCategoryType[];
   selectedFilters: FilterOptionsState | undefined;
   handleFilters: (
     type: keyof FilterOptionsState,
-    value: string | string[]
+    value: string | string[] | TagCategoryType[]
   ) => void;
   onLoadMore: (isIntial: boolean) => void;
   categoryPagination: PageDataState;
-  setSelectedCategories: React.Dispatch<SetStateAction<any>>;
-  selectedCategories: any;
+  setSelectedCategories: React.Dispatch<SetStateAction<TagCategoryType[]>>;
+  selectedCategories: TagCategoryType[];
 }
 
 export const LeftPanel = ({
@@ -29,7 +29,7 @@ export const LeftPanel = ({
 }: Props) => {
   const isCategoriesSame = areArraysEqual(
     selectedFilters?.categories?.map((i) => i._id) ?? [],
-    selectedCategories.map((i: any) => i._id)
+    selectedCategories.map((i) => i?._id)
   );
 
   return (
@@ -56,9 +56,9 @@ export const LeftPanel = ({
       <hr className="my-4" />
       <span className="text-white text-2xl font-bold font-serif">Category</span>
       <ul className="flex flex-col gap-4 h-full overflow-y-auto">
-        {categoryList?.map((item: any) => {
+        {categoryList?.map((item) => {
           let isSelected = selectedCategories?.some(
-            (i: any) => i.name === item.name
+            (i) => i.name === item.name
           );
           return (
             <li
@@ -68,9 +68,8 @@ export const LeftPanel = ({
               } underline duration-300 decoration-2 ease-in-out animate-fade-in-down touch-pinch-zoom text-sm transition-colors text-white underline-offset-4`}
               onClick={() => {
                 const values = isSelected
-                  ? selectedCategories?.filter(
-                      (i: any) => i.name !== item.name
-                    ) ?? []
+                  ? selectedCategories?.filter((i) => i.name !== item.name) ??
+                    []
                   : [...(selectedCategories ?? []), item];
                 setSelectedCategories(values);
               }}

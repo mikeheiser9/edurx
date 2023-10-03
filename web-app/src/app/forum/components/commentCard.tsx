@@ -5,7 +5,6 @@ import {
   faArrowDown,
   faArrowUp,
   faChevronDown,
-  faShare,
   faUserAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { getFullName, getStaticImageUrl } from "@/util/helpers";
@@ -16,14 +15,15 @@ import MentionInput from "@/components/mentionInput";
 import { searchUserByAPI } from "@/service/user.service";
 import replaceTaggedUsers from "./replaceTags";
 import { responseCodes } from "@/util/constant";
+import { showToast } from "@/components/toast";
 interface Props {
   comment: Comment;
   showBorder?: boolean;
   wrapperClass?: string;
   onSubmitReply?: (commentData?: any) => void;
   onCommentReaction?: (
-    reactionType: "like" | "dislike",
-    targetType: "post" | "comment",
+    reactionType: ReactionTypes,
+    targetType: TargetTypes,
     targetId: string,
     parentId?: string
   ) => void;
@@ -41,7 +41,7 @@ export const CommentCard = ({
   const [isReplyBoxVisible, setisReplyBoxVisible] = useState<boolean>(false);
   const [showReplies, setShowReplies] = useState<boolean>(false);
   const [commentText, setcommentText] = useState<string>("");
-  const userReactionOnComment: "like" | "dislike" | null =
+  const userReactionOnComment: ReactionTypes | null =
     comment?.reactions?.[0]?.reactionType || null;
   const [userSuggetions, setUserSuggetions] = useState<any[]>([]);
   const [mentions, setMentions] = useState<any[]>([]);
@@ -86,20 +86,25 @@ export const CommentCard = ({
     page: number = 1,
     useConcat: boolean = false
   ) => {
-    const response = await searchUserByAPI(searchKeyword, {
-      page,
-      limit: 10,
-    });
-    if (response.status === responseCodes.SUCCESS) {
-      setUserSuggetions(
-        useConcat
-          ? userSuggetions?.concat(response?.data?.data?.records)
-          : response?.data?.data?.records
-      );
-      setUserSuggetionsPagination({
-        page: response.data?.data?.currentPage,
-        totalRecords: response?.data?.data?.totalRecords,
+    try {
+      const response = await searchUserByAPI(searchKeyword, {
+        page,
+        limit: 10,
       });
+      if (response.status === responseCodes.SUCCESS) {
+        setUserSuggetions(
+          useConcat
+            ? userSuggetions?.concat(response?.data?.data?.records)
+            : response?.data?.data?.records
+        );
+        setUserSuggetionsPagination({
+          page: response.data?.data?.currentPage,
+          totalRecords: response?.data?.data?.totalRecords,
+        });
+      } else throw new Error("Couldn't search user");
+    } catch (error) {
+      (error as Error)?.message && showToast?.error((error as Error)?.message);
+      console.log("Failed to search users", error);
     }
   };
 
@@ -115,6 +120,16 @@ export const CommentCard = ({
 
   const loadMoreUsers = async (searchKeyword: string = "") => {
     await searchUsers(searchKeyword, userSuggetionsPagination.page + 1, true);
+  };
+
+  const reactOnComment = (type: ReactionTypes) => {
+    if (userReactionOnComment === type) return;
+    onCommentReaction?.(
+      type,
+      "comment",
+      comment?._id,
+      isChildCard ? comment?.parentId : undefined
+    );
   };
 
   return (
@@ -170,15 +185,7 @@ export const CommentCard = ({
                     ? "text-primary"
                     : "cursor-pointer"
                 } ease-in-out duration-200`}
-                onClick={() =>
-                  userReactionOnComment !== "like" &&
-                  onCommentReaction?.(
-                    "like",
-                    "comment",
-                    comment?._id,
-                    isChildCard ? comment?.parentId : undefined
-                  )
-                }
+                onClick={() => reactOnComment("like")}
               />
               &nbsp;
               {(comment?.likeCount || 0) - (comment?.dislikeCount || 0)}
@@ -190,24 +197,12 @@ export const CommentCard = ({
                     ? "text-primary"
                     : "cursor-pointer"
                 } ease-in-out duration-200`}
-                onClick={() =>
-                  userReactionOnComment !== "dislike" &&
-                  onCommentReaction?.(
-                    "dislike",
-                    "comment",
-                    comment?._id,
-                    isChildCard ? comment?.parentId : undefined
-                  )
-                }
+                onClick={() => reactOnComment("dislike")}
               />
             </span>
             <span className="cursor-pointer" onClick={onReplyClick}>
               <FontAwesomeIcon icon={faCommentDots} />
               &nbsp;Reply
-            </span>
-            <span>
-              <FontAwesomeIcon icon={faShare} />
-              &nbsp;Share
             </span>
             {comment?.replies && comment?.replies?.length > 0 && (
               <span
@@ -279,7 +274,7 @@ export const CommentCard = ({
             </div>
           )}
           {showReplies &&
-            comment?.replies?.map((reply: any) => (
+            comment?.replies?.map((reply) => (
               <CommentCard
                 comment={reply}
                 showBorder={false}

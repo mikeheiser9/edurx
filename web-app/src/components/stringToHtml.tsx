@@ -13,11 +13,11 @@ const sanitizeHTML = (htmlString: string) => {
   const elementsToKeep = ["a", "b", "strong", "i", "em", "u", "p", "br"];
   const attributesToKeep = ["href", "class"];
 
-  function isElementAllowed(node: any) {
+  function isElementAllowed(node: { tagName: string }) {
     return elementsToKeep.includes(node.tagName.toLowerCase());
   }
 
-  function isAttributeAllowed(attr: any) {
+  function isAttributeAllowed(attr: { name: string }) {
     return attributesToKeep.includes(attr.name.toLowerCase());
   }
 

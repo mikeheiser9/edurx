@@ -7,10 +7,6 @@ import {
   verifyConfirmationCode,
 } from "@/service/auth.service";
 import { responseCodes, validateField } from "@/util/constant";
-import {
-  commonRegistrationField,
-  userLoginField,
-} from "@/util/interface/user.interface";
 import { Field, Form, Formik, FormikHelpers } from "formik";
 import React, { useState } from "react";
 import * as Yup from "yup";
@@ -66,22 +62,10 @@ export default function () {
 
   const validationSchema: Yup.AnyObject = [
     Yup.object({
-      password: password
-        .min(8, "Password must be at least 8 characters")
-        .max(25, "Password must be at most 25 characters")
-        .matches(
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/,
-          "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character"
-        ),
-      confirm_password: Yup.string()
-        .oneOf([Yup.ref("password")], "password must match")
-        .required("confirm password is required")
-        .min(8, "Password must be at least 8 characters")
-        .max(25, "Password must be at most 25 characters")
-        .matches(
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/,
-          "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character"
-        ),
+      password: password.required(),
+      confirm_password: password
+        .required("Confirm Password is required")
+        .oneOf([Yup.ref("password")], "Password must match"),
       first_name: stringPrefixJoiValidation.min(2).required(),
       last_name: stringPrefixJoiValidation.min(2).required(),
       email: Yup.string()
@@ -342,7 +326,6 @@ export default function () {
   };
 
   const stepWiseRenderer = (
-    currentStep: number,
     values: studentSignUpSchema
   ): React.JSX.Element | null => {
     switch (currentStep) {
@@ -372,28 +355,26 @@ export default function () {
     }
   };
 
-  const getLabel = (step: number, values: studentSignUpSchema): string => {
-    return step === 0
-      ? "Register"
-      : step === 1 && !values.isEduVerified
-      ? "Go Back"
-      : step === 2
+  const getLabel = (values: studentSignUpSchema): string => {
+    return currentStep === 1 && !values.isEduVerified
+      ? "Back"
+      : currentStep === 2
       ? "Send Code"
-      : step === 3
+      : currentStep === 3
       ? "Submit"
       : "Next";
   };
 
-  const getHeadTitle = (step: number, values: studentSignUpSchema): string => {
-    return step === 1
+  const getHeadTitle = (values: studentSignUpSchema): string => {
+    return currentStep === 1
       ? values.isEduVerified
         ? "Confirm University"
         : "Oops... Something went wrong"
-      : step === 2
+      : currentStep === 2
       ? "Verify Email"
-      : step === 3
+      : currentStep === 3
       ? "Enter Verification Code"
-      : step === 4
+      : currentStep === 4
       ? "Creating Account"
       : "Create Student Account";
   };
@@ -428,18 +409,18 @@ export default function () {
         {({ isSubmitting, values, ...actions }) => (
           <div className="flex flex-col items-center p-4">
             <h1 className="text-white tracking-wider text-4xl my-4 font-serif font-semibold">
-              {getHeadTitle(currentStep, values)}
+              {getHeadTitle(values)}
             </h1>
             <Form>
               <div className="flex flex-col gap-4 m-[5%]">
-                {stepWiseRenderer(currentStep, values)}
+                {stepWiseRenderer(values)}
               </div>
               <div className="m-2 flex justify-center">
                 <Button
                   type="submit"
                   hidden={currentStep === 4}
-                  disabled={isSubmitting}
-                  label={getLabel(currentStep, values)}
+                  disabled={isSubmitting || !actions.isValid}
+                  label={getLabel(values)}
                 />
               </div>
               {currentStep === 3 && (

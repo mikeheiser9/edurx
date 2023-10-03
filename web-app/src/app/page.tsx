@@ -12,12 +12,11 @@ import { Form, Formik, FormikHelpers } from "formik";
 import { useDispatch } from "react-redux";
 import * as Yup from "yup";
 import { useState } from "react";
-import { userLoginField } from "@/util/interface/user.interface";
-import EyeIcon from "@/assets/icons/eye.svg";
-import EyeSlashIcon from "@/assets/icons/eye-slash.svg";
-import Image from "next/image";
 import Link from "next/link";
 import { ResendCodeTemplate, VerifyEmail } from "./signup/commonBlocks";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { showToast } from "@/components/toast";
 
 export default function SignIn() {
   const dispatch = useDispatch();
@@ -62,7 +61,10 @@ export default function SignIn() {
           email: values.email,
           code: values.otp,
         });
-        if (res?.status === responseCodes.SUCCESS && res?.data?.response_type === "success") {
+        if (
+          res?.status === responseCodes.SUCCESS &&
+          res?.data?.response_type === "success"
+        ) {
           setCommonMessage("Your account has been verified");
           setIsVerificationPending(false);
           setTimeout(() => {
@@ -77,14 +79,15 @@ export default function SignIn() {
           password: values.password,
         };
         const response = await login(payload);
+        if (!response) throw new Error("Unable to login");
         if (
-          response.status === responseCodes.SUCCESS &&
+          response?.status === responseCodes.SUCCESS &&
           response.data.response_type == "success"
         ) {
           dispatch(setToken(response.data.data.token));
           dispatch(setUserDetail(response.data.data.details));
         } else if (
-          response.status === responseCodes.ERROR &&
+          response?.status === responseCodes.ERROR &&
           response.data.message == "incorrect password...!"
         ) {
           actions.setFieldError(
@@ -92,7 +95,7 @@ export default function SignIn() {
             "Incorrect password, please try again"
           );
         } else if (
-          response.status === responseCodes.ERROR &&
+          response?.status === responseCodes.ERROR &&
           response.data.message == "confirm your email"
         ) {
           // handle verification pending
@@ -106,6 +109,7 @@ export default function SignIn() {
       }
     } catch (error) {
       console.log(error);
+      showToast?.error((error as Error)?.message || "Something went wrong");
     } finally {
       actions.setSubmitting(false);
       setTimeout(() => {
@@ -166,28 +170,22 @@ export default function SignIn() {
                       <InputField
                         name="password"
                         placeholder="Password"
-                        autoComplete="on"
                         type={showPassword ? "text" : "password"}
                         icon={
-                          <button
-                            type="button"
+                          <FontAwesomeIcon
                             onClick={() => setShowPassword(!showPassword)}
                             className="text-white"
-                            aria-checked={showPassword}
-                          >
-                            <Image
-                              src={showPassword ? EyeSlashIcon : EyeIcon}
-                              alt="eye-icon"
-                            />
-                          </button>
+                            icon={showPassword ? faEye : faEyeSlash}
+                            size="xs"
+                          />
                         }
                       />
                     </>
                   )}
                   <button
-                    className="bg-primary my-3 rounded p-2 m-auto w-1/2 text-lg hover:bg-yellow-500 disabled:opacity-40"
+                    className="bg-primary my-3 rounded p-2 m-auto w-1/2 text-lg hover:bg-yellow-500 disabled:opacity-60 disabled:cursor-not-allowed"
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !actions.isValid}
                   >
                     Sign in
                   </button>

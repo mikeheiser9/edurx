@@ -26,6 +26,7 @@ import { addNewPost } from "@/service/post.service";
 import { useSelector } from "react-redux";
 import { selectUserDetail } from "@/redux/ducks/user.duck";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { showToast } from "@/components/toast";
 
 interface TagCategoryInput {
   category?: string | boolean;
@@ -49,7 +50,6 @@ interface TagCategoryList {
 
 export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
   const loggedInUser = useSelector(selectUserDetail);
-  const [commonMessage, setCommonMessage] = useState<string | null>(null);
   const [pollOptionsCount, setPollOptionsCount] = useState<number>(2);
   const [isLoading, setIsLoading] = useState<TagCategoryInput>({
     tag: false,
@@ -176,7 +176,7 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
               },
             };
           });
-        }
+        } else throw new Error("Unable to find tag category");
       } catch (error) {
         setIsLoading((preState) => {
           return {
@@ -184,6 +184,9 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
             [type]: false,
           };
         });
+        showToast.error(
+          (error as Error)?.message || "Unable to perform search"
+        );
         console.error("Error occurred during search:", error);
       }
     },
@@ -268,16 +271,18 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
 
     await addNewPost(payload)
       .then((response) => {
-        const message = response?.data?.message;
-        if (message) {
-          setCommonMessage(message);
+        let message = response?.data?.message;
+        if (response?.status === responseCodes.SUCCESS) {
+          showToast.success(message || "Post added successfully");
           setTimeout(() => {
-            setCommonMessage(null);
             addPostModal?.closeModal();
-          }, 3000);
-        }
+          }, 1000);
+        } else throw new Error(message || "Something went wrong");
       })
-      .catch((err) => console.log("error", err));
+      .catch((err) => {
+        console.log("error", err);
+        showToast.error(err?.message || "Unable to add post");
+      });
   };
 
   useEffect(() => {
@@ -300,8 +305,7 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
           headerTitle="New Post"
           visible={addPostModal.isOpen}
           onClose={addPostModal.closeModal}
-          closeOnOutsideClick
-          customHeader={<ModalHeader />}
+          customHeader={<ModalHeader onClose={addPostModal.closeModal} />}
           showFooter={false}
           modalClassName="!rounded-xl"
         >
@@ -310,10 +314,12 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
             <div className="flex flex-col gap-4 p-2">
               <div className="flex justify-between">
                 <Select
-                  name="forumType"
-                  label="Choose Group"
+                  defaultValue="Choose Group"
                   options={dropdownOptions}
-                  useAsFormikField
+                  value={values?.forumType}
+                  onSelect={(e) => actions.setFieldValue("forumType", e?.value)}
+                  wrapperClass="!w-[12rem] !text-xs"
+                  optionClass="text-xs"
                 />
                 <ToggleSwitch
                   name="isPrivate"
@@ -333,7 +339,11 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
                     component() {
                       return (
                         <>
-                          <InputField name="title" placeholder="Title" />
+                          <InputField
+                            name="title"
+                            placeholder="Title"
+                            maxLength={30}
+                          />
                           <TextEditor
                             value={values?.content}
                             setFieldValue={actions?.setFieldValue}
@@ -348,7 +358,11 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
                     component() {
                       return (
                         <>
-                          <InputField name="title" placeholder="Title" />
+                          <InputField
+                            name="title"
+                            placeholder="Title"
+                            maxLength={30}
+                          />
                           <TextEditor
                             value={values.content}
                             setFieldValue={actions.setFieldValue}
@@ -368,6 +382,8 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
                                   name={`options.${index}`}
                                   placeholder={`Option ${index + 1}`}
                                   type="text"
+                                  className="w-full"
+                                  maxLength={20}
                                 />
                               </div>
                             ))}
@@ -401,11 +417,18 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
                                   { label: "3 Days", value: 3 },
                                   { label: "5 Days", value: 5 },
                                 ]}
-                                className="bg-transparent outline-none font-bold"
-                                optionClassName="text-black text-xs"
-                                name="votingLength"
-                                id="votingLength"
-                                useAsFormikField
+                                onClear={() =>
+                                  actions.setFieldValue("votingLength", 0)
+                                }
+                                // className="bg-transparent outline-none font-bold"
+                                // optionClassName="text-black text-xs"
+                                value={values?.votingLength}
+                                defaultValue="Select"
+                                onSelect={(e) =>
+                                  actions.setFieldValue("votingLength", e.value)
+                                }
+                                wrapperClass="text-black !w-[5rem] !text-xs !font-semibold"
+                                optionClass="!text-xs"
                               />
                             </div>
                           </div>
@@ -471,10 +494,7 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
                   )}
               </div>
             </div>
-            <ModalFooter
-              message={commonMessage}
-              setFieldValue={actions.setFieldValue}
-            />
+            <ModalFooter setFieldValue={actions.setFieldValue} />
           </Form>
         </Modal>
       )}

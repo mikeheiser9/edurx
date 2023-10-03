@@ -16,6 +16,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileCircleCheck, faPlus } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 import { getStaticImageUrl } from "@/util/helpers";
+import { allowedFileTypes } from "@/util/constant";
 
 const socialMediaIcons: socials = {
   instagram,
@@ -42,12 +43,13 @@ const About = (): React.JSX.Element => {
         placeholder="admin@example.com"
         type="text"
         label="Preferred Contact Email"
+        maxLength={50}
       />
       <div className="my-4">
         <span className="text-white/50 text-sm font-semibold">
           Link Socials
         </span>
-        <div className="flex flex-wrap flex-auto justify-between gap-6 mt-2">
+        <div className="flex flex-wrap text-sm flex-auto justify-between gap-6 mt-2">
           {Object.keys(socialMediaIcons).map((socialMedia: string) => (
             <div className="flex gap-4" key={socialMedia}>
               <span className="bg-primary flex justify-center rounded-full h-10 w-10">
@@ -65,6 +67,7 @@ const About = (): React.JSX.Element => {
                 className="flex-1"
                 name={`socials.${socialMedia}`}
                 placeholder={`${socialMedia}@123`}
+                maxLength={30}
                 onKeyDown={(event) => {
                   if (event.code === "Space") event.preventDefault();
                 }}
@@ -171,6 +174,7 @@ const Education = ({
               name="school_name"
               placeholder="Enter school name"
               label="School"
+              maxLength={20}
               labelProps={labelProps}
               mandatory
             />
@@ -178,6 +182,7 @@ const Education = ({
               type="text"
               name="degree"
               placeholder="Enter name of degree"
+              maxLength={20}
               label="Degree"
               labelProps={labelProps}
             />
@@ -186,6 +191,7 @@ const Education = ({
               name="field_of_study"
               placeholder="Enter field of study"
               label="Field of Study"
+              maxLength={20}
               labelProps={labelProps}
               mandatory
             />
@@ -350,6 +356,7 @@ const UserDocs = ({
           <InputField
             type="text"
             name="doc_name"
+            maxLength={20}
             placeholder="Enter name"
             label="Name"
             labelProps={labelProps}
@@ -357,6 +364,7 @@ const UserDocs = ({
           />
           <InputField
             type="text"
+            maxLength={20}
             name="issuer_organization"
             placeholder="Enter issuer"
             label="Issuing Organization"
@@ -398,6 +406,7 @@ const UserDocs = ({
           <InputField
             type="text"
             name="doc_id"
+            maxLength={40}
             label="Credential ID"
             placeholder="Enter credential ID"
             labelProps={labelProps}
@@ -405,6 +414,7 @@ const UserDocs = ({
           <InputField
             type="text"
             name="doc_url"
+            maxLength={60}
             label="Credential URL"
             placeholder="Enter credential URL"
             labelProps={labelProps}
@@ -428,9 +438,20 @@ const DropZone = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const onFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    e?.preventDefault();
     errorMessage && setErrorMessage(null);
     const file = e.target?.files?.[0];
+    console.log(file);
+
     if (!file) return;
+    if (!allowedFileTypes.includes(file?.type)) {
+      setErrorMessage(
+        `${file.type} is not allowed, Only ${allowedFileTypes?.join(
+          ", "
+        )} acceptable`
+      );
+      return;
+    }
     const isSizeValidated = validateImageSize(file);
     const isPixelsValidated = await validatePixels(URL.createObjectURL(file));
     console.log({
@@ -544,7 +565,7 @@ const DropZone = ({
             </div>
           )}
           <input
-            accept="image/jpeg,image/jpg,image/gif,,image/png"
+            accept="image/jpeg,image/jpg,image/gif,image/png"
             id={img_type}
             type="file"
             name={img_type}
@@ -554,7 +575,7 @@ const DropZone = ({
         </label>
       </div>
       <span
-        className={`text-primary text-sm animate-fade-in-down ${
+        className={`text-primary capitalize text-sm animate-fade-in-down ${
           errorMessage ? "visible" : "hidden"
         }`}
       >

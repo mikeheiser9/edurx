@@ -54,7 +54,7 @@ export default function InputField({
           {...field}
         />
         {meta?.touched && meta.error ? (
-          <span className="text-white text-xs first-letter:capitalize flex-shrink-0 opacity-50">
+          <span className="text-white text-xs first-letter:capitalize flex-auto flex flex-wrap opacity-50">
             {meta.error}
           </span>
         ) : null}

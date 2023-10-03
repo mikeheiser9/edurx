@@ -6,7 +6,7 @@ import React, { useState } from "react";
 
 interface CommentData {
   content: string;
-  taggedUsers: any[];
+  taggedUsers: UserId[];
 }
 // Custom UserCard component
 const UserCard = ({ user }: { user: UserId }) => {
@@ -72,7 +72,7 @@ const replaceTaggedUsers = ({ content, taggedUsers = [] }: CommentData) => {
       const user = taggedUsers.find(
         (taggedUser) => `@${taggedUser.username}` === part
       );
-      return <UserLink key={index} user={user} />;
+      return user && <UserLink key={index} user={user} />;
     }
     return part;
   });

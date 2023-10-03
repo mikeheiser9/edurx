@@ -3,6 +3,8 @@ type PostStatusTypes = "draft" | "published";
 type TargetTypes = "comment" | "post";
 type ReactionTypes = "like" | "dislike";
 type RolesTypes = "super_admin" | "moderator" | "professional" | "student";
+type PostFlags = "Misinformation" | "Unrelated" | "Irrelevant";
+type PostRequestStatus = "pending" | "accepted" | "denied";
 type ForumTypes =
   | "Dietetics & Nutrition"
   | "Medical professionals"
@@ -87,7 +89,10 @@ interface PostInterface {
   likeCount?: number;
   dislikeCount?: number;
   views?: number;
+  flag?: PostFlags | null;
+  userAccessRequests?: any;
   id?: string;
+  userAccessRequestCount?: number;
 }
 
 interface CreatePostFormikInterface {

@@ -7,6 +7,7 @@ import { store } from "@/redux/store";
 import { axiosParse } from "@/axios/config";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import { Toast } from "@/components/toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,6 +26,7 @@ export default function RootLayout({
       <body className={`w-full flex-auto flex bg-primary-darker ${inter.className}`}>
         <Provider store={store}>
           {/* <Header /> */}
+          <Toast />
           <RouteGuard>{children}</RouteGuard>
           {/* <Footer /> */}
         </Provider>

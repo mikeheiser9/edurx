@@ -9,10 +9,11 @@ import { getFullName } from "@/util/helpers";
 import MentionInput from "@/components/mentionInput";
 import { searchUserByAPI } from "@/service/user.service";
 import { responseCodes } from "@/util/constant";
+import { showToast } from "@/components/toast";
 
 interface CommentManagerProps {
-  post: any;
-  setPost: React.Dispatch<SetStateAction<any>>;
+  post: PostInterface;
+  setPost: React.Dispatch<SetStateAction<PostInterface | undefined>>;
   getPostById?: () => void;
   addReaction: (
     reactionType: "like" | "dislike",
@@ -52,15 +53,16 @@ export const CommentManager = ({
         let comments = response?.data?.data?.comments?.data;
         let totalRecords =
           response?.data?.data?.comments?.metadata?.totalRecords ?? 0;
-        setPost((preState: any) => {
+        setPost((preState) => {
           return {
-            ...preState,
+            ...(preState as PostInterface),
             comments: preState?.comments?.concat(comments),
           };
         });
         setcommentPagination({ page, totalRecords });
-      }
+      } else throw new Error("Unable to get comments");
     } catch (error) {
+      (error as Error)?.message && showToast.error((error as Error).message);
       console.log("Failed to load  comment", error);
     }
   };
@@ -82,8 +84,9 @@ export const CommentManager = ({
       if (response?.status === responseCodes.SUCCESS) {
         setcommentText("");
         getPostById?.(); // It'll update UI after adding comment
-      }
+      } else throw new Error("Comment submission failed");
     } catch (error) {
+      (error as Error)?.message && showToast.error((error as Error)?.message);
       console.log("Failed to add comment", error);
     }
   };
@@ -93,21 +96,25 @@ export const CommentManager = ({
     page: number = 1,
     useConcat: boolean = false
   ) => {
-    const response = await searchUserByAPI(searchKeyword, {
-      page,
-      limit: 10,
-    });
-    console.log(response);
-    if (response.status === responseCodes.SUCCESS) {
-      setUserSuggetions(
-        useConcat
-          ? userSuggetions?.concat(response?.data?.data?.records)
-          : response?.data?.data?.records
-      );
-      setUserSuggetionsPagination({
-        page: response.data?.data?.currentPage,
-        totalRecords: response?.data?.data?.totalRecords,
+    try {
+      const response = await searchUserByAPI(searchKeyword, {
+        page,
+        limit: 10,
       });
+      if (response.status === responseCodes.SUCCESS) {
+        setUserSuggetions(
+          useConcat
+            ? userSuggetions?.concat(response?.data?.data?.records)
+            : response?.data?.data?.records
+        );
+        setUserSuggetionsPagination({
+          page: response.data?.data?.currentPage,
+          totalRecords: response?.data?.data?.totalRecords,
+        });
+      } else throw new Error("Couldn't search user");
+    } catch (error) {
+      (error as Error)?.message && showToast?.error((error as Error)?.message);
+      console.log("Failed to search users", error);
     }
   };
 
@@ -191,10 +198,12 @@ export const CommentManager = ({
       </div>
       <InfiniteScroll
         className="py-4 rounded-md h-full max-h-[50vh]"
-        hasMoreData={commentPagination?.totalRecords > post?.comments?.length}
+        hasMoreData={
+          commentPagination?.totalRecords > (post?.comments?.length ?? 0)
+        }
         callBack={() => onLoadMoreComment(commentPagination?.page + 1)}
       >
-        {post?.comments?.map((comment: any) => (
+        {post?.comments?.map((comment: Comment) => (
           <CommentCard
             comment={comment}
             key={comment?._id}

@@ -18,8 +18,8 @@ import { useSelector } from "react-redux";
 import { selectUserDetail } from "@/redux/ducks/user.duck";
 import { Loader } from "@/app/signup/commonBlocks";
 import { addRemoveUserConnectionByAPI } from "@/service/user.service";
-import toast, { Toaster } from "react-hot-toast";
 import { responseCodes } from "@/util/constant";
+import { showToast } from "@/components/toast";
 
 interface LastDocRefType {
   licenses: React.RefObject<HTMLDivElement> | null;
@@ -32,6 +32,16 @@ const profileSections: profileSections = {
   certifications: "Certifications",
   licenses: "Licenses",
   profileImages: "Profile Images",
+};
+
+const countContributors = (array: any[], primaryKey: string): number => {
+  const uniqueValues = new Set();
+  array.forEach((item) => {
+    if (item[primaryKey]) {
+      uniqueValues.add(item[primaryKey]);
+    }
+  });
+  return uniqueValues.size;
 };
 
 export const UserProfile = ({ userId }: { userId: string }) => {
@@ -75,9 +85,9 @@ export const UserProfile = ({ userId }: { userId: string }) => {
         doc_type === "license" ? "licenses" : "certificates";
       let oldDocs = userData?.[key] || [];
       if (result?.status === responseCodes.SUCCESS) {
-        setUserData((preData: any) => {
+        setUserData((preData) => {
           return {
-            ...preData,
+            ...(preData as UserData),
             [key]: [...oldDocs, ...result?.data?.data?.records],
           };
         });
@@ -87,34 +97,19 @@ export const UserProfile = ({ userId }: { userId: string }) => {
             [doc_type]: result?.data?.data?.currentPage,
           };
         });
-      }
-      setTimeout(() => {
-        lastDocRef?.[key as keyof typeof lastDocRef]?.current?.scrollIntoView({
-          behavior: "smooth",
-        });
-      }, 100);
+        setTimeout(() => {
+          lastDocRef?.[key as keyof typeof lastDocRef]?.current?.scrollIntoView(
+            {
+              behavior: "smooth",
+            }
+          );
+        }, 100);
+      } else throw new Error("Something went wrong");
     } catch (err) {
+      showToast.error("Unable to more documents");
       console.log("Error loading more documents", err);
     } finally {
       setIsDocsLoading(false);
-    }
-  };
-
-  const apiCall = async (type: "add" | "remove", payload: any) => {
-    const response = await addRemoveUserConnectionByAPI(type, payload);
-    if (response.status === responseCodes.SUCCESS) {
-      setUserData((preState: any) => {
-        let followersCount = preState?.followersCount || 0;
-        type === "add" ? (followersCount += 1) : (followersCount -= 1);
-        return {
-          ...preState,
-          followers: type === "add" ? [response.data?.data] : [],
-          followersCount,
-        };
-      });
-      return response;
-    } else {
-      throw new Error("Could not add user");
     }
   };
 
@@ -124,15 +119,27 @@ export const UserProfile = ({ userId }: { userId: string }) => {
         userId: loggedInUser?._id,
         targetUserId: userId,
       };
-      toast.promise(apiCall(type, payload), {
-        loading: "Please wait...",
-        success:
+      const response = await addRemoveUserConnectionByAPI(type, payload);
+      if (response.status === responseCodes.SUCCESS) {
+        let message =
           type === "add"
             ? `Started following ${userData?.username}`
-            : "User removed from followings",
-        error: `Unable to ${type === "add" ? "follow" : "unfollow"} user`,
-      });
+            : "User removed from followings";
+        setUserData((preState) => {
+          let followersCount = preState?.followersCount || 0;
+          type === "add" ? (followersCount += 1) : (followersCount -= 1);
+          return {
+            ...(preState as UserData),
+            followers: type === "add" ? [response.data?.data] : [],
+            followersCount,
+          };
+        });
+        showToast?.[type == "add" ? "success" : "error"]?.(message);
+      } else {
+        throw Error(`Unable to ${type} connection`);
+      }
     } catch (error) {
+      showToast.error((error as Error)?.message || "Something went wrong");
       console.log(`Unable to ${type} connection`, error);
     }
   };
@@ -160,7 +167,7 @@ export const UserProfile = ({ userId }: { userId: string }) => {
   return (
     <React.Fragment>
       {isLoading ? (
-        <div className="flex justify-center w-full items-center">
+        <div className="flex justify-center w-full items-center w/">
           <Loader />
         </div>
       ) : (
@@ -169,12 +176,11 @@ export const UserProfile = ({ userId }: { userId: string }) => {
             <InternalError />
           ) : (
             <>
-              <Toaster />
               <Modal
                 visible={editModal.isOpen}
                 onClose={editModal.closeModal}
                 closeOnOutsideClick
-                modalClassName="!w-2/4 !bg-primary-dark h-full"
+                modalClassName="!w-2/5 !bg-primary-dark h-full"
                 modalBodyClassName="flex flex-auto p-4 !h-full overflow-y-auto"
                 customHeader={
                   <ModalHeader
@@ -209,7 +215,7 @@ export const UserProfile = ({ userId }: { userId: string }) => {
                     userData={userData}
                     openModal={isSelfProfile ? editModal.openModal : undefined}
                     buttonJsx={
-                      !isSelfProfile && (
+                      !isSelfProfile ? (
                         <div className="justify-self-end self-end">
                           <button
                             type="button"
@@ -228,7 +234,7 @@ export const UserProfile = ({ userId }: { userId: string }) => {
                               : `Follow ${userData?.first_name}`}
                           </button>
                         </div>
-                      )
+                      ) : undefined
                     }
                   />
                   <About

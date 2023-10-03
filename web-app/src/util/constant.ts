@@ -1,7 +1,13 @@
 import * as Yup from "yup";
 const validateField = {
   email: Yup.string().trim().required().email().max(150),
-  password: Yup.string().required(),
+  password: Yup.string()
+    .min(8, "Password must be at least 8 characters")
+    .max(25, "Password must be at most 25 characters")
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/,
+      "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character"
+    ),
   stringPrefixJoiValidation: Yup.string().trim(),
 };
 const taxonomyCodeToProfessionalMapping = {
@@ -31,6 +37,8 @@ const forumTypes = [
   "Student",
 ];
 
+const allowedFileTypes = ["image/jpeg", "image/jpg", "image/gif", "image/png"];
+
 const roles = ["super_admin", "moderator", "professional", "student"];
 
 const roleBasedForum = {
@@ -48,6 +56,7 @@ const roleBasedForum = {
 const postTypes = ["post", "poll"];
 const postStatus = ["draft", "published"];
 const postFlags = ["Misinformation", "Unrelated", "Irrelevant"];
+const postAccessRequestStatus = ["accepted", "denied", "pending"];
 const responseTypes = {
   UNAUTHORIZED: "Unauthorized",
   ERROR: "Error",
@@ -67,6 +76,59 @@ const responseCodes = {
   INTERNAL_SERVER_ERROR: 500,
   NOT_ACCEPTABLE: 406,
   FORBIDDEN: 403,
+};
+
+const statesNames = {
+  AL: "Alabama",
+  AK: "Alaska",
+  AZ: "Arizona",
+  AR: "Arkansas",
+  CA: "California",
+  CO: "Colorado",
+  CT: "Connecticut",
+  DE: "Delaware",
+  FL: "Florida",
+  GA: "Georgia",
+  HI: "Hawaii",
+  ID: "Idaho",
+  IL: "Illinois",
+  IN: "Indiana",
+  IA: "Iowa",
+  KS: "Kansas",
+  KY: "Kentucky",
+  LA: "Louisiana",
+  ME: "Maine",
+  MD: "Maryland",
+  MA: "Massachusetts",
+  MI: "Michigan",
+  MN: "Minnesota",
+  MS: "Mississippi",
+  MO: "Missouri",
+  MT: "Montana",
+  NE: "Nebraska",
+  NV: "Nevada",
+  NH: "New Hampshire",
+  NJ: "New Jersey",
+  NM: "New Mexico",
+  NY: "New York",
+  NC: "North Carolina",
+  ND: "North Dakota",
+  OH: "Ohio",
+  OK: "Oklahoma",
+  OR: "Oregon",
+  PA: "Pennsylvania",
+  RI: "Rhode Island",
+  SC: "South Carolina",
+  SD: "South Dakota",
+  TN: "Tennessee",
+  TX: "Texas",
+  UT: "Utah",
+  VT: "Vermont",
+  VA: "Virginia",
+  WA: "Washington",
+  WV: "West Virginia",
+  WI: "Wisconsin",
+  WY: "Wyoming",
 };
 
 const roleAccess = {
@@ -90,4 +152,7 @@ export {
   responseTypes,
   postFlags,
   roleAccess,
+  allowedFileTypes,
+  postAccessRequestStatus,
+  statesNames,
 };

@@ -3,11 +3,6 @@ import InputField from "@/components/input";
 import { Field, Form, Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import {
-  googleSheetPayload,
-  professionalUserRegistrationField,
-  userLoginField,
-} from "../../../util/interface/user.interface";
-import {
   responseCodes,
   taxonomyCodeToProfessionalMapping,
   validateField,
@@ -78,24 +73,18 @@ export default function SignUp() {
   const validationSchema = [
     Yup.object({
       email: stringPrefixJoiValidation.email().required(),
-      password: password
-        .min(8, "Password must be at least 8 characters")
-        .max(25, "Password must be at most 25 characters")
-        .matches(
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/,
-          "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character"
-        ),
-      confirm_password: Yup.string()
-        .oneOf([Yup.ref("password")], "password must match")
-        .required("confirm password is required")
-        .min(8, "Password must be at least 8 characters")
-        .max(25, "Password must be at most 25 characters")
-        .matches(
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/,
-          "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character"
-        ),
-      first_name: stringPrefixJoiValidation.min(2).required(),
-      last_name: stringPrefixJoiValidation.min(2).required(),
+      password: password.required(),
+      confirm_password: password
+        .required("Confirm Password is required")
+        .oneOf([Yup.ref("password")], "Password must match"),
+      first_name: stringPrefixJoiValidation
+        .min(2)
+        .required()
+        .matches(/^[a-zA-Z0-9]*$/, "Only alphanumeric characters are allowed"),
+      last_name: stringPrefixJoiValidation
+        .min(2)
+        .required()
+        .matches(/^[a-zA-Z0-9]*$/, "Only alphanumeric characters are allowed"),
     }),
     Yup.object({
       npi_number: stringPrefixJoiValidation.length(10).required(),
@@ -159,6 +148,9 @@ export default function SignUp() {
           .map((taxonomy: any) => taxonomy.code)
           .some((code: string) => validNpiCode.includes(code));
         if (exists) {
+          let primaryTaxonomy = res.data?.taxonomies?.find(
+            (taxonomy: any) => taxonomy?.primary
+          );
           actions.setFieldValue(
             npiReturnVariables[0].fieldName,
             `${res?.data?.basic?.name_prefix || ""} ${
@@ -187,8 +179,8 @@ export default function SignUp() {
               return taxonomy.code;
             })
           );
-          actions.setFieldValue("city", res.data?.addresses[0]?.city);
-          actions.setFieldValue("state", res.data?.addresses[0]?.state);
+          actions.setFieldValue("city", res.data?.taxonomies[0]?.city);
+          actions.setFieldValue("state", primaryTaxonomy?.state);
           actions.setFieldValue(
             "zip_code",
             res.data?.addresses[0]?.postal_code
@@ -386,6 +378,7 @@ export default function SignUp() {
         </p>
         <div className="px-8">
           <InputField
+            maxLength={20}
             name="npi_number"
             placeholder="License Number"
             type="text"
@@ -433,7 +426,7 @@ export default function SignUp() {
                 <label className="text-xs opacity-50">{variable.label}</label>
                 <Field
                   name={variable.fieldName}
-                  component={({ field }: any) => (
+                  component={({ field }: { field: { value: string } }) => (
                     <div>
                       <label>{field?.value}</label>
                     </div>
@@ -454,17 +447,34 @@ export default function SignUp() {
           name="addresses.0"
           placeholder="Address Line 1"
           type="text"
+          maxLength={60}
         />
         <InputField
           name="addresses.1"
           placeholder="Address Line 2"
           type="text"
+          maxLength={60}
         />
         <div className="grid grid-cols-2 gap-4">
-          <InputField name="city" placeholder="City" type="text" />
-          <InputField name="state" placeholder="State" type="text" />
+          <InputField
+            name="city"
+            placeholder="City"
+            type="text"
+            maxLength={20}
+          />
+          <InputField
+            name="state"
+            placeholder="State"
+            type="text"
+            maxLength={20}
+          />
         </div>
-        <InputField name="zip_code" placeholder="Zip Code" type="text" />
+        <InputField
+          name="zip_code"
+          placeholder="Zip Code"
+          type="text"
+          maxLength={20}
+        />
       </React.Fragment>
     );
   };
@@ -499,10 +509,8 @@ export default function SignUp() {
 
   const renderButtonLabelBasedOnStep = (): string => {
     if (currentStep == 4) {
-      return "save";
-    } else if (currentStep == 2 || currentStep == 5) {
-      return "Submit";
-    } else if (currentStep === 0 || currentStep === 3) {
+      return "Save";
+    } else if (currentStep === 3) {
       return "Register";
     } else {
       return "Next";
@@ -565,7 +573,7 @@ export default function SignUp() {
               {getStepBasedTitle()}
             </h1>
             <Form>
-              <div className="flex flex-col gap-4 text-white m-[5%]">
+              <div className="flex flex-col gap-4 text-white m-8">
                 {_renderComponentStepWise(currentStep)}
               </div>
               {isLoading && (
@@ -576,7 +584,7 @@ export default function SignUp() {
               <div className="m-2 flex justify-center">
                 <Button
                   type="submit"
-                  disabled={isSubmitting || isLoading}
+                  disabled={isSubmitting || isLoading || !actions.isValid}
                   hidden={currentStep === 7}
                   label={renderButtonLabelBasedOnStep()}
                 />

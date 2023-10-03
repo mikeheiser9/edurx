@@ -8,7 +8,11 @@ export const TextEditor = ({
   setFieldValue,
   value,
 }: {
-  setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void;
+  setFieldValue: (
+    field: string,
+    value: string,
+    shouldValidate?: boolean
+  ) => void;
   value: string;
 }) => {
   return (

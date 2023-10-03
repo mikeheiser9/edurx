@@ -33,10 +33,15 @@ module.exports = {
             transform: "scale(1)",
           },
         },
+        wiggle: {
+          "0%, 100%": { transform: "rotate(-10deg)" },
+          "50%": { transform: "rotate(10deg)" },
+        },
       },
       animation: {
         "fade-in-down": "fade-in-down .3s ease-out",
         "scale-in": "scale-in .3s ease-in-out",
+        wiggle: "wiggle 200ms ease-in-out",
       },
       colors: {
         primary: "#FDCD26",

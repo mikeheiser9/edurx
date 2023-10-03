@@ -1,4 +1,4 @@
-import { axiosGet, axiosPost } from "@/axios/config";
+import { axiosGet, axiosPost, axiosPut } from "@/axios/config";
 import { AxiosResponse } from "axios";
 
 const addNewPost = async <T>(payload: T): Promise<AxiosResponse> => {
@@ -27,10 +27,25 @@ const addUserReactionByAPI = async <T>(payload: T): Promise<AxiosResponse> => {
   return await axiosPost("/post/reaction", payload);
 };
 
+const updatePostByAPI = async <T>(payload: T): Promise<AxiosResponse> => {
+  return await axiosPut("/post/admin/update", payload);
+};
+
+const addPrivatePostRequest = async <T>(payload: T): Promise<AxiosResponse> => {
+  return await axiosPost("/post/private/create-request", payload);
+};
+
+const getPostRequests = async (postId: string): Promise<AxiosResponse> => {
+  return await axiosGet(`/post/private/${postId}/requests`);
+};
+
 export {
   addNewPost,
   getComments,
   addNewComment,
   addPostView,
   addUserReactionByAPI,
+  updatePostByAPI,
+  addPrivatePostRequest,
+  getPostRequests,
 };

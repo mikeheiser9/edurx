@@ -1,28 +1,32 @@
-import { Button } from "@/components/button";
-import { useOutsideClick } from "@/hooks";
-import { roleAccess, roles } from "@/util/constant";
+import { postFlags, roleAccess } from "@/util/constant";
 import { faComments } from "@fortawesome/free-regular-svg-icons";
 import {
   faChartColumn,
   faEllipsisVertical,
-  faL,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import moment from "moment";
-import React, { Ref, useState } from "react";
+import React, { useState } from "react";
+import { AdminActionsMenu } from "./adminActionsMenu";
+import { DummyPostCard } from "./dummyComps/dummyPostCard";
+// import { useOutsideClick } from "@/hooks";
 
 interface Props {
-  post: any;
+  post: PostInterface;
   onPostClick: () => void;
   userRole?: USER_ROLES;
+  onDeletePost?: () => void;
+  onFlagPost?: (postId: string, flag: PostFlags) => void;
 }
 
 export const PostCard = (props: Props) => {
   const isAdmin = props?.userRole === roleAccess.ADMIN;
   const [isToggle, setIsToggle] = useState<boolean>(false);
-  const toggleMenuRef: Ref<SVGSVGElement> = useOutsideClick(() =>
-    setIsToggle(false)
-  );
+  const [currentStep, setCurrentStep] = useState<number>(0);
+  const isFlagged: boolean =
+    props?.post?.flag && postFlags?.includes(props?.post?.flag) ? true : false;
+  // const toggleMenuRef = useOutsideClick(() => setIsToggle(false));
+
   const handleAdminActions = (event: React.MouseEvent<SVGSVGElement>) => {
     event.stopPropagation();
     event.preventDefault();
@@ -31,6 +35,28 @@ export const PostCard = (props: Props) => {
     //   behavior: "smooth",
     // });
   };
+
+  const flagPost = (flag: string) => {
+    props?.onFlagPost?.(props?.post?._id, flag as PostFlags);
+    setCurrentStep(0);
+    setIsToggle(false);
+  };
+
+  if (isFlagged)
+    return (
+      <DummyPostCard
+        post={props.post}
+        onViewClcik={props.onPostClick}
+        isAdmin={isAdmin}
+        currentStep={currentStep}
+        setCurrentStep={setCurrentStep}
+        isToggle={isToggle}
+        onDeletePost={props.onDeletePost}
+        onFlagPost={flagPost}
+        onEditClick={handleAdminActions as any}
+      />
+    );
+
   return (
     <div
       className="flex w-full p-4 rounded-md bg-primary-dark gap-2"
@@ -42,7 +68,7 @@ export const PostCard = (props: Props) => {
         </span>
         <span className="text-2xl text-white">{props.post.title}</span>
         <div className="flex flex-wrap gap-2">
-          {props?.post?.categories?.map((category: any) => (
+          {props?.post?.categories?.map((category) => (
             <span
               key={category._id}
               className="text-xs p-1 px-2 bg-primary/25 text-white/50 rounded-md"
@@ -50,7 +76,7 @@ export const PostCard = (props: Props) => {
               {category.name}
             </span>
           ))}
-          {props?.post?.tags?.map((tag: any) => (
+          {props?.post?.tags?.map((tag) => (
             <span
               key={tag._id}
               className="text-xs p-1 px-2 bg-[#0F366D] text-white/50 rounded-md"
@@ -69,7 +95,9 @@ export const PostCard = (props: Props) => {
         <div className="flex flex-col items-center text-sm text-white/80 gap-4">
           <div className="flex flex-col">
             <FontAwesomeIcon icon={faComments} />
-            <span className="font-sans font-bold">{props?.post?.comments}</span>
+            <span className="font-sans font-bold">
+              {props?.post?.commentCount}
+            </span>
           </div>
           <div className="flex flex-col">
             <FontAwesomeIcon icon={faChartColumn} />
@@ -78,22 +106,26 @@ export const PostCard = (props: Props) => {
         </div>
       </div>
       {isAdmin && (
-        <div className="flex justify-center items-center px-6">
+        <div
+          className="flex justify-center items-center px-6"
+          // ref={toggleMenuRef}
+          onClick={(e) => e.stopPropagation()}
+        >
           <FontAwesomeIcon
             icon={faEllipsisVertical}
             className="text-white cursor-pointer"
             size="xl"
             onClick={handleAdminActions}
-            ref={toggleMenuRef}
           />
+
           {isToggle && (
-            <div className="relative">
-              <div className="flex flex-col gap-2 bg-slate-300 -top-9 rounded-md p-2 text-sm min-w-[8em] absolute right-4 animate-fade-in-down">
-                <span>Flag</span>
-                <hr />
-                <span className="text-red-500">Delete</span>
-              </div>
-            </div>
+            <AdminActionsMenu
+              currentStep={currentStep}
+              setCurrentStep={setCurrentStep}
+              onDeletePost={props?.onDeletePost}
+              onFlagPost={flagPost}
+              currentFlag={props?.post?.flag}
+            />
           )}
         </div>
       )}

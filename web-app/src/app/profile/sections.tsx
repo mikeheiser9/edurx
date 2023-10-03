@@ -20,7 +20,7 @@ import twitter from "../../assets/icons/twitter.svg";
 import email from "../../assets/icons/email.svg";
 import facebook from "../../assets/icons/facebook.svg";
 import eduIcon from "../../assets/icons/eduIcon.svg";
-import { npiToDefinition } from "@/util/constant";
+import { npiToDefinition, statesNames } from "@/util/constant";
 import moment from "moment";
 import { TabMenu } from "@/components/tabMenu";
 import { Button } from "@/components/button";
@@ -77,7 +77,7 @@ const BasicInfo = ({
 }: {
   userData: UserData;
   openModal?: () => void;
-  buttonJsx?: React.ReactElement | any;
+  buttonJsx?: React.ReactElement;
 }): React.ReactElement => (
   <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-lg">
     {openModal && <EditIcon onClick={openModal} />}
@@ -120,7 +120,10 @@ const BasicInfo = ({
               ) : (
                 <>
                   <FontAwesomeIcon icon={faLocationDot} className="me-2" />
-                  {userData?.city}, {userData?.state} •{" "}
+                  {userData?.city},{" "}
+                  {userData?.state &&
+                    statesNames[userData?.state as keyof typeof statesNames]}
+                  •{" "}
                   {userData?.npi_designation
                     ?.map((item: string) => {
                       if (item)
@@ -136,7 +139,8 @@ const BasicInfo = ({
             </span>
             <span className="text-white/50 text-xs">
               <FontAwesomeIcon icon={faStethoscope} className="me-2" />
-              Licensed in: IL, TX, CA, FL
+              Licensed in:{" "}
+              {statesNames[userData?.state as keyof typeof statesNames]}
             </span>
             <div className="flex text-white/50 text-xs gap-x-4">
               <span>
@@ -220,13 +224,13 @@ const PostList = ({
   posts,
   noDataMessage,
 }: {
-  posts: [] | undefined;
+  posts: PostInterface[] | undefined;
   noDataMessage: string;
 }): React.ReactElement => (
   <>
     {posts?.length ? (
       <div className="grid grid-cols-2 gap-2 animate-fade-in-down">
-        {posts.map((post: any) => (
+        {posts.map((post) => (
           <div className="flex gap-2" key={post?._id}>
             <div className="w-14 h-14 bg-primary/80 rounded-md">
               <Image src="edurxLogo.svg" width={200} height={200} alt="" />
@@ -258,14 +262,14 @@ const CommentList = ({
   profileImage,
   noDataMessage,
 }: {
-  comments: [] | undefined;
+  comments: Comment[] | undefined;
   profileImage?: string | undefined;
   noDataMessage: string;
 }): React.ReactElement => (
   <>
     {comments?.length ? (
       <div className="flex flex-auto flex-wrap gap-2 animate-fade-in-down">
-        {comments.map((comment: any) => (
+        {comments.map((comment) => (
           <div
             className="flex flex-wrap flex-auto overflow-auto bg-gray-700/60 p-2 rounded-md gap-2 items-center"
             key={comment?._id}

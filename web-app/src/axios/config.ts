@@ -49,8 +49,16 @@ export const axiosPost = <T>(
   );
 };
 
-export const axiosPut = <T>(url: string, data: T) => {
-  return axios.put(`${process.env.NEXT_PUBLIC_SERVER_URL}${url}`, data);
+export const axiosPut = <T>(
+  url: string,
+  data: T,
+  options?: AxiosRequestConfig
+) => {
+  return axios.put(
+    `${process.env.NEXT_PUBLIC_SERVER_URL}${url}`,
+    data,
+    options
+  );
 };
 
 export const axiosDelete = (url: string) => {
