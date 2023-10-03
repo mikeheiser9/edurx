@@ -59,19 +59,19 @@ export const PostCard = (props: Props) => {
 
   return (
     <div
-      className="flex w-full p-4 rounded-md bg-primary-dark gap-2"
+      className="flex w-full p-4 rounded-[10px] bg-eduLightGray gap-2 !cursor-pointer"
       onClick={props.onPostClick}
     >
       <div className="flex-1 gap-4 flex-col flex">
-        <span className="text-white text-sm">
+        <span className="text-eduDarkBlue text-[12px] font-body">
           Published on {moment(props?.post?.createdAt).format("DD/MM/YYYY")}
         </span>
-        <span className="text-2xl text-white">{props.post.title}</span>
+        <span className="text-[22px] text-eduBlack font-headers"> {props.post.title}</span>
         <div className="flex flex-wrap gap-2">
           {props?.post?.categories?.map((category) => (
             <span
               key={category._id}
-              className="text-xs p-1 px-2 bg-primary/25 text-white/50 rounded-md"
+              className="text-[8px] py-2 px-4 bg-white text-eduDarkBlue rounded-[5px] border border-eduDarkBlue"
             >
               {category.name}
             </span>
@@ -79,7 +79,7 @@ export const PostCard = (props: Props) => {
           {props?.post?.tags?.map((tag) => (
             <span
               key={tag._id}
-              className="text-xs p-1 px-2 bg-[#0F366D] text-white/50 rounded-md"
+              className="text-[8px] py-2 px-4 bg-eduDarkGray text-eduDarkBlue rounded-[5px]"
             >
               {tag?.name}
             </span>
@@ -92,16 +92,16 @@ export const PostCard = (props: Props) => {
           label="Follow"
           onClick={(e) => e.stopPropagation()}
         /> */}
-        <div className="flex flex-col items-center text-sm text-white/80 gap-4">
-          <div className="flex flex-col">
-            <FontAwesomeIcon icon={faComments} />
-            <span className="font-sans font-bold">
+        <div className="flex flex-col items-center justify-center text-[12px] text-eduBlack gap-4">
+          <div className="flex flex-col text-[12px]">
+            <FontAwesomeIcon icon={faComments} className="text-[18px]" />
+            <span className="font-sans font-semibold text-center mt-[5px]">
               {props?.post?.commentCount}
             </span>
           </div>
           <div className="flex flex-col">
-            <FontAwesomeIcon icon={faChartColumn} />
-            <span className="font-sans font-bold">{props?.post?.views}</span>
+            <FontAwesomeIcon icon={faChartColumn} className="text-[18px]" />
+            <span className="font-sans font-semibold text-center mt-[5px]">{props?.post?.views}</span>
           </div>
         </div>
       </div>

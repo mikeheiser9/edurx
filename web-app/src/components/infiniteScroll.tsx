@@ -60,7 +60,7 @@ const InfiniteScroll = ({
       {children}
       {!hasMoreData && (
         <div className="flex justify-center items-center">
-          <span className=" text-white/50 text-xs">No data available</span>
+          <span className=" text-eduBlack text-xs font-body">No data available</span>
         </div>
       )}
       {infiniteLoader && showLoading && (

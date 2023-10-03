@@ -136,7 +136,7 @@ export const CommentCard = ({
     <div key={comment?._id} className={wrapperClass}>
       <div className="flex gap-2">
         <div className="flex flex-col items-center">
-          <span className="w-6 overflow-hidden h-6 justify-center items-center flex bg-white/80 rounded-full">
+          <span className="w-[32px] overflow-hidden h-[32px] justify-center items-center flex bg-white/80 rounded-full">
             {comment?.userId?.profile_img ? (
               <Image
                 src={getStaticImageUrl(comment?.userId?.profile_img)}
@@ -149,11 +149,11 @@ export const CommentCard = ({
             )}
           </span>
           {showBorder && (
-            <span className="bg-white h-full w-[1px] rounded-sm" />
+            <span className="bg-eduDarkGray h-full w-[1px] rounded-sm" />
           )}
         </div>
         <div className="flex-1 flex flex-col gap-2 pb-2">
-          <span className="text-sm font-semibold lowercase">
+          <span className="text-[14px] font-semibold lowercase font-body">
             {comment?.userId?.username ||
               getFullName(
                 comment?.userId?.first_name,
@@ -165,25 +165,25 @@ export const CommentCard = ({
                 comment?.createdAt
               ).fromNow()}`}
             </span> */}
-            <span className="text-white/60">
+            <span className="text-eduBlack/60 font-body text-[12px]">
               • {moment(comment?.createdAt).fromNow()}
             </span>
           </span>
-          <div className="py-2">
+          <div className="py-2 font-body text-[16px]">
             {comment.content &&
               replaceTaggedUsers({
                 content: comment.content,
                 taggedUsers: comment?.taggedUsers ?? [],
               })}
           </div>
-          <div className="flex gap-6 text-sm items-center text-white/60">
-            <span className="flex gap-2 justify-center items-center">
+          <div className="flex gap-6 text-[14px] items-center text-eduBlack/60">
+            <span className="flex gap-2 justify-center items-center font-body">
               <FontAwesomeIcon
                 icon={faArrowUp}
                 className={`${
                   userReactionOnComment === "like"
-                    ? "text-primary"
-                    : "cursor-pointer"
+                    ? "text-eduYellow cursor-pointer"
+                    : "text-eduBlack/60 cursor-pointer"
                 } ease-in-out duration-200`}
                 onClick={() => reactOnComment("like")}
               />
@@ -194,19 +194,23 @@ export const CommentCard = ({
                 icon={faArrowDown}
                 className={`${
                   userReactionOnComment === "dislike"
-                    ? "text-primary"
-                    : "cursor-pointer"
+                    ? "text-eduYellow cursor-pointer"
+                    : "text-eduBlack/60 cursor-pointer"
                 } ease-in-out duration-200`}
                 onClick={() => reactOnComment("dislike")}
               />
             </span>
-            <span className="cursor-pointer" onClick={onReplyClick}>
+            <span className="cursor-pointer font-body" onClick={onReplyClick}>
               <FontAwesomeIcon icon={faCommentDots} />
               &nbsp;Reply
             </span>
+            {/* <span className="cursor-not-allowed font-body text-eduBlack/30">
+              <FontAwesomeIcon icon={faShare} />
+              &nbsp;Share
+            </span> */}
             {comment?.replies && comment?.replies?.length > 0 && (
               <span
-                className="p-1 cursor-pointer px-2 rounded-md border border-primary text-xs text-primary"
+                className="p-1 cursor-pointer px-2 rounded-[10px] border border-eduBlack text-[14px] text-eduBlack font-body"
                 onClick={() => {
                   setShowReplies(!showReplies);
                 }}
@@ -254,19 +258,19 @@ export const CommentCard = ({
                     userSuggetionsPagination?.totalRecords,
                   callBack: loadMoreUsers,
                   className:
-                    "overflow-y-auto animate-fade-in-down max-h-[15em] text-white bg-primary-dark rounded-md rounded-t-none border-2 border-white/20 flex flex-auto flex-col gap-2 p-2",
+                    "overflow-y-auto bg-eduDarkGray animate-fade-in-down max-h-[15em] text-eduBlack rounded-[10px] rounded-t-none border-2 border-white/20 flex flex-auto flex-col gap-2 p-2",
                   showLoading: true,
                 }}
               />
-              <span className="bg-primary rounded-md -mt-1 p-1 w-full flex justify-end rounded-t-none gap-2">
+              <span className="bg-eduLightBlue rounded-[10px] -mt-2 p-2 w-full flex justify-end rounded-t-none gap-4">
                 <Button
                   label="Cancel"
-                  className="border border-black text-xs !m-0 w-auto !rounded-xl text-black self-end font-bold hover:!bg-primary-dark hover:text-white ease-in-out duration-300 !py-[.41rem]"
+                  className="border border-white w-[80px] !text-[12px] !m-0 !rounded-[10px] text-white self-end hover:!bg-eduBlack ease-in-out duration-300 hover:!border-eduBlack"
                   onClick={() => setisReplyBoxVisible(false)}
                 />
                 <Button
                   label="Reply"
-                  className="text-xs bg-primary-darker !m-0 w-auto !rounded-xl text-primary self-end font-bold hover:!bg-primary-dark hover:text-white ease-in-out duration-300"
+                  className="border border-white w-[80px] !text-[12px] !m-0 !rounded-[10px] text-white self-end hover:!bg-eduBlack ease-in-out duration-300 hover:!border-eduBlack"
                   type="button"
                   onClick={handleReply}
                 />

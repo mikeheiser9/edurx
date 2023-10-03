@@ -139,7 +139,7 @@ export default function SignIn() {
   };
 
   return (
-    <div className="flex justify-center gap-4 flex-auto items-center">
+    <div className="flex justify-center gap-4 flex-auto items-center bg-eduDarkBlue/60">
       <CommonUI
         fields={
           <Formik
@@ -174,7 +174,7 @@ export default function SignIn() {
                         icon={
                           <FontAwesomeIcon
                             onClick={() => setShowPassword(!showPassword)}
-                            className="text-white"
+                            className="text-eduBlack text-[body]"
                             icon={showPassword ? faEye : faEyeSlash}
                             size="xs"
                           />
@@ -183,22 +183,25 @@ export default function SignIn() {
                     </>
                   )}
                   <button
-                    className="bg-primary my-3 rounded p-2 m-auto w-1/2 text-lg hover:bg-yellow-500 disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="bg-primary my-3 rounded p-2 m-auto w-1/2 text-lg hover:bg-yellow-500 disabled:opacity-40"
                     type="submit"
                     disabled={isSubmitting || !actions.isValid}
                   >
                     Sign in
                   </button>
                   {!isVerificationPending && (
-                    <span className="text-white/50 text-xs flex justify-center">
+                    <span className="text-eduBlack text-xs flex justify-center font-body">
                       Don't have account? &nbsp;
-                      <Link className="text-white" href="signup">
+                      <Link
+                        className="text-eduBlack font-body font-semibold"
+                        href="signup"
+                      >
                         Sign up
                       </Link>
                     </span>
                   )}
                   {commonMessage && (
-                    <span className="capitalize text-white/50 text-sm text-center animate-fade-in-down">
+                    <span className="capitalize text-eduBlack text-sm text-center animate-fade-in-down">
                       {commonMessage}
                     </span>
                   )}

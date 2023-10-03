@@ -209,8 +209,8 @@ export const UserProfile = ({ userId }: { userId: string }) => {
                   isListView={isListView}
                 />
               </Modal>
-              <div className="flex justify-center w-full items-center flex-col">
-                <div className="m-auto p-4 flex-auto lg:w-3/4 flex gap-4 h-auto w-full flex-col">
+              <div className="flex justify-center w-full items-center flex-col bg-[#008080]">
+                <div className="m-auto py-10 flex-auto lg:w-3/4 flex gap-4 h-auto w-full flex-col">
                   <BasicInfo
                     userData={userData}
                     openModal={isSelfProfile ? editModal.openModal : undefined}

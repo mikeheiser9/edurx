@@ -51,12 +51,12 @@ const sortingOptions: { value: string; label: string }[] = [
 ];
 
 const tabMenuOptions = [
-  { label: "Hub", img: EduRxIcon },
+  { label: "Hub Home", img: EduRxIcon },
   { label: "Forum" },
   { label: "Resources" },
-  { label: "My Edu-Rx", isDisabled: true },
   { label: "Events", isDisabled: true },
   { label: "EduRx Library", isDisabled: true },
+  { label: "Health Check", isDisabled: true },
 ];
 
 const forumTabs = ["Forum Feed", "Your Posts", "Following"];
@@ -249,13 +249,15 @@ const Page = () => {
           selectedCategories={selectedCategories}
         />
         <div className="flex-1 flex overflow-hidden flex-col gap-2">
-          <div className="flex relative bg-primary-dark gap-4 p-4 justify-center rounded-md">
+          <div className="flex relative bg-primary-dark gap-8 p-4 justify-center rounded-md">
             {tabMenuOptions.map((item, index: number) => (
               <button
                 key={index}
-                onClick={() => !item?.isDisabled && setSelectedTab(item?.label)}
-                className={`duration-300 disabled:select-none disabled:opacity-60 disabled:cursor-not-allowed items-center ease-in-out transition-all text-sm rounded-md flex justify-center p-2 px-6 ${
-                  item?.label === selectedTab ? "bg-primary" : "bg-white cursor-pointer"
+                onClick={() => setSelectedTab(item.label)}
+                className={`text-eduBlack duration-500 ease-in-out transition-colors text-[16px] rounded-[5px] py-2 px-4 w-[145px] font-body text-center cursor-pointer disabled:opacity-60 ${
+                  item.label === selectedTab
+                    ? "bg-eduBlack text-white"
+                    : "bg-eduDarkGray"
                 }`}
                 type="button"
                 disabled={item?.isDisabled}
@@ -281,7 +283,7 @@ const Page = () => {
               <div className="flex justify-end">
                 <span
                   onClick={() => setshowDropdown(!showDropdown)}
-                  className={`flex ease-in-out duration-500 cursor-pointer ring-white border-primary overflow-hidden w-8 h-8 justify-center items-center text-primary rounded-full bg-white ${
+                  className={`flex ease-in-out duration-500 cursor-pointer ring-eduBlack overflow-hidden w-8 h-8 justify-center items-center rounded-full bg-eduDarkGray ${
                     showDropdown ? "ring-2" : ""
                   }`}
                 >
@@ -323,28 +325,32 @@ const Page = () => {
               />
             </div>
           </div>
-          <div className="flex justify-between">
+          <div className="flex justify-between items-center w-full h-[55px]">
             <div className="flex justify-center items-center gap-2">
-              <span className="bg-primary-dark w-8 h-8 flex items-center justify-center rounded-md text-white">
-                <FontAwesomeIcon icon={faSearch} size="sm" />
+              <span className="bg-primary-dark w-8 h-8 flex items-center justify-center rounded-md ">
+                <FontAwesomeIcon
+                  icon={faSearch}
+                  className="text-eduBlack text-[18px] bg-eduDarkGray p-[8px] rounded-[10px]"
+                />
               </span>
               <Button
                 onClick={addPostModal.openModal}
-                className="!w-auto border border-transparent ease-in-out duration-200 hover:border-primary hover:!bg-primary-dark bg-primary-dark text-white flex gap-2 justify-center items-center px-4"
+                className="!w-[125px] hover:!bg-eduBlack !bg-eduLightGray text-eduBlack flex gap-3 justify-center items-center px-2 py-2 !border-none"
               >
                 <FontAwesomeIcon
                   icon={faPlusCircle}
-                  className="text-primary"
-                  size="sm"
+                  className="text-primary text-[20px]"
                 />
-                <span className="text-xs">New Post</span>
+                <span className="text-[14px] font-body font-medium">
+                  New Post
+                </span>
               </Button>
             </div>
             <ul className="flex gap-6">
               {forumTabs.map((item) => (
                 <li
                   onClick={() => setSelectedForumTab(item)}
-                  className={`text-white ease-in-out duration-500 border-b-2 py-2 text-sm ${
+                  className={`text-eduBlack font-body font-medium ease-in-out duration-500 border-b-2 py-2 text-[14px] ${
                     item === selectedForumTab
                       ? "border-primary"
                       : "border-transparent"
@@ -356,7 +362,10 @@ const Page = () => {
               ))}
             </ul>
             <div className="flex justify-center items-center gap-2">
-              <label htmlFor="forumType" className="text-white">
+              <label
+                htmlFor="forumType"
+                className="text-eduBlack font-body text-[14px] font-medium"
+              >
                 Viewing :
               </label>
               <Select

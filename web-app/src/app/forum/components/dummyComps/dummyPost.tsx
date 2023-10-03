@@ -67,16 +67,16 @@ const Comment = ({
 
 export const DummyPost = () => {
   return (
-    <div className="select-none cursor-default blur-md bg-gray-700 rounded-md mt-6 p-4">
+    <div className="select-none cursor-default blur-md rounded-md mt-6 p-4">
       <ReactQuill
-        className="text-white -mx-3 cursor-default"
+        className="text-eduBlack -mx-3 post-body cursor-default"
         readOnly
         value={`<pre class="ql-syntax" spellcheck="false">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Odit culpa alias velit rerum recusandae eos vitae vel repudiandae officia? Deleniti est accusamus, ea in reiciendis adipisci porro voluptas maiores quaerat libero magni sequi vel, enim voluptatem quibusdam optio ex esse.
           </pre>`}
         theme="bubble"
       />
 
-      <div className="flex gap-2 py-4 text-sm text-white/50">
+      <div className="flex gap-2 py-4 text-sm">
         <span>
           <FontAwesomeIcon icon={faCommentDots} /> 29 Comments
         </span>
@@ -85,14 +85,14 @@ export const DummyPost = () => {
         </span>
       </div>
       <textarea
-        className="bg-[#3A3A3A] text-white rounded-lg p-2 focus-visible:border-none outline-none autofill:active:bg-black  text-xs w-full rounded-b-none rounded-t-md cursor-default"
+        className="bg-eduDarkGray text-eduBlack rounded-[10px] mt-[10px] p-2 focus-visible:border-none outline-none autofill:active:bg-black font-body placeholder:text-eduBlack/60  text-[16px] w-full rounded-t-md cursor-default"
         placeholder="Comment as @username"
-        rows={3}
+        rows={4}
         readOnly
       />
-      <span className="bg-primary rounded-md -mt-1.5 p-1 flex justify-end rounded-t-none">
+      <span className="bg-eduLightBlue rounded-md -mt-1.5 p-1 flex justify-end rounded-t-none">
         <button
-          className="text-xs bg-primary-darker !m-0 w-auto !rounded-xl text-primary self-end font-bold hover:!bg-primary-dark hover:text-white ease-in-out duration-300 p-2 cursor-default"
+          className="!m-0 w-[150px] !rounded-[10px] text-white self-end border-white hover:!bg-eduBlack hover:text-white ease-in-out duration-300 bg-transparent border-[1.5px] my-3 py-1 text-[16px] font-body"
           disabled
         >
           Comment

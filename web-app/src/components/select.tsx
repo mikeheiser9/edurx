@@ -51,7 +51,7 @@ export const Select = ({ value, options = [], icon, ...rest }: Props) => {
       {/* <input type="hidden" value={value || rest?.defaultValue} /> */}
       <button
         type="button"
-        className={`relative flex p-2 items-center gap-2 bg-white w-full bg-whiteshadow-lg text-left cursor-default sm:text-sm ${
+        className={`bg-eduDarkGray text-[12px] font-body focus:outline-none rounded-t-[5px] py-1 m-auto disabled:opacity-80 relative flex p-2 items-center gap-2 w-full bg-whiteshadow-lg text-left cursor-default sm:text-sm ${
           isOpen ? "rounded-t-md" : "rounded-md"
         } ${rest?.wrapperClass}`}
         onClick={handleClick}
@@ -71,14 +71,14 @@ export const Select = ({ value, options = [], icon, ...rest }: Props) => {
         </span>
       </button>
       {isOpen && (
-        <div className="absolute w-full z-10 bg-white rounded-b-md">
+        <div className="absolute w-full z-10 bg-eduDarkGray rounded-b-md">
           <ul className="max-h-56 rounded-md py-1 ease-in-out transition-all text-base ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
             {options?.map((option, index) => (
               <li
                 className={`
                   ${
                     rest?.optionClass || ""
-                  } group/option text-gray-900 cursor-default hover:bg-primary hover:text-white select-none relative p-2
+                  } group/option text-gray-900 cursor-default hover:bg-eduDarkBlue hover:text-white select-none relative p-2
                 `}
                 onClick={(event) => handleChange(event, option)}
                 key={index}

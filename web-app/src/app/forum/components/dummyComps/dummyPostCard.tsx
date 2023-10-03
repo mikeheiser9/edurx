@@ -26,7 +26,7 @@ interface Props {
 export const DummyPostCard = (props: Props) => {
   return (
     <div className="flex select-none w-full rounded-md bg-primary-dark gap-2 p-4 relative">
-      <div className="w-full rounded-md ease-in-out duration-200 flex items-center justify-center h-full bg-[#13222A]/80 absolute -m-4 backdrop-blur-sm p-4">
+      <div className="w-full rounded-md ease-in-out duration-200 flex items-center justify-center h-full bg-[#13222A]/70 absolute -m-4 backdrop-blur-sm p-4">
         <div className="flex gap-2 items-center p-2 border border-white rounded-md w-full">
           <span className="border animate-wiggle border-white text-white rounded-md p-1 px-2">
             <FontAwesomeIcon icon={faFlag} />

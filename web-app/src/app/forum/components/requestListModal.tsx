@@ -36,7 +36,7 @@ export const RequestListModal = ({ requestModal, postId }: Props) => {
   };
 
   const Header = () => (
-    <div className="flex p-2 gap-2 bg-[#E7E5E2]">
+    <div className="flex p-2 gap-2 bg-eduDarkGray">
       <span className="text-sm text-center flex-1">
         Private Post Access Requests
       </span>
@@ -54,7 +54,7 @@ export const RequestListModal = ({ requestModal, postId }: Props) => {
     return (
       <>
         <div className="flex gap-2 items-center">
-          <span className="w-7 overflow-hidden h-7 justify-center items-center flex bg-[#E7E5E2] rounded-full">
+          <span className="w-7 overflow-hidden h-7 justify-center items-center flex bg-eduDarkGray rounded-full">
             {request?.userId?.profile_img ? (
               <Image
                 src={getStaticImageUrl(request?.userId?.profile_img)}
