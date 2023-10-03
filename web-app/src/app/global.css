@@ -79,3 +79,10 @@ input:-webkit-autofill:active {
 /* ::-webkit-scrollbar-thumb:hover {
   background-color: #b3b3b3;
 } */
+
+
+/* timeline styles */
+.vertical-timeline-element-content {
+  padding: 0 !important;
+  background: transparent;
+}
