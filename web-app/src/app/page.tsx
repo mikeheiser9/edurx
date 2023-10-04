@@ -8,7 +8,7 @@ import {
   verifyConfirmationCode,
 } from "@/service/auth.service";
 import { responseCodes, validateField } from "@/util/constant";
-import { Form, Formik, FormikHelpers } from "formik";
+import { Form, Formik, FormikHelpers, ErrorMessage } from "formik";
 import { useDispatch } from "react-redux";
 import * as Yup from "yup";
 import { useState } from "react";
@@ -139,7 +139,7 @@ export default function SignIn() {
   };
 
   return (
-    <div className="flex justify-center gap-4 flex-auto items-center bg-eduDarkBlue/60">
+    <div className="flex justify-center gap-4 flex-auto items-center">
       <CommonUI
         fields={
           <Formik
@@ -183,7 +183,7 @@ export default function SignIn() {
                     </>
                   )}
                   <button
-                    className="bg-primary my-3 rounded p-2 m-auto w-1/2 text-lg hover:bg-yellow-500 disabled:opacity-40"
+                    className="bg-eduBlack text-white font-light text-[16px] rounded p-2 mt-8 m-auto w-1/2 hover:bg-yellow-500"
                     type="submit"
                     disabled={isSubmitting || !actions.isValid}
                   >
@@ -206,6 +206,11 @@ export default function SignIn() {
                     </span>
                   )}
                 </div>
+                <ErrorMessage
+                  name="isUnauthorized"
+                  className="text-eduBlack text-sm opacity-50 text-center m-2 animate-fade-in-down"
+                  component="div"
+                />
               </Form>
             )}
           </Formik>

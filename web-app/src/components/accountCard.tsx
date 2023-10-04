@@ -23,7 +23,7 @@ export const AccountCard = (props: componentProps): React.JSX.Element => {
     >
       <Image className="h-10 w-10 my-2" src={props.icon} alt={"icon"} />
       <div className="flex flex-col">
-        <label className="font-body font-normal text-white">{props.title}</label>
+        <label className="font-bold">{props.title}</label>
       </div>
     </div>
   );

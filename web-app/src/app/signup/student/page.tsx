@@ -400,7 +400,7 @@ export default function () {
         >
           <BackArrowIcon />
         </button>
-        <label className="text-[16px] flex-1 text-center self- font-body">
+        <label className="text-[16px] text-eduBlack flex-1 text-center font-body self-center">
           Register for Edu-Rx | Student Account
         </label>
       </div>
@@ -419,7 +419,8 @@ export default function () {
                 {stepWiseRenderer(values)}
               </div>
               <div className="m-2 flex justify-center">
-                <Button
+                <button
+                  className="bg-eduBlack text-white font-light text-[16px] rounded p-2 m-auto w-1/2 hover:bg-yellow-500 ease-in duration-300"
                   type="submit"
                   hidden={currentStep === 4}
                   disabled={isSubmitting || !actions.isValid}

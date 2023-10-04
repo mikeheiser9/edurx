@@ -255,7 +255,7 @@ const PostList = ({
         ))}
       </div>
     ) : (
-      <span className="text-white">{noDataMessage}</span>
+      <span className="text-eduBlack">{noDataMessage}</span>
     )}
   </>
 );
@@ -284,7 +284,7 @@ const CommentList = ({
             <span className="text-[12px] text-eduLightBlue">
               {moment(comment?.createdAt).fromNow()}
             </span>
-            {/* <div className="flex text-xs text-white/50 gap-2">
+            {/* <div className="flex text-xs text-eduBlack/50 gap-2">
               <FontAwesomeIcon icon={faChartColumn} />
               <span>{comment?.views} views</span>
             </div> */}
@@ -292,7 +292,7 @@ const CommentList = ({
         ))}
       </div>
     ) : (
-      <span className="text-white">{noDataMessage}</span>
+      <span className="text-eduBlack">{noDataMessage}</span>
     )}
   </>
 );
@@ -405,7 +405,7 @@ const DocList = ({
           {/* <div className="flex">
             <FontAwesomeIcon
               icon={faFileInvoice}
-              className="text-white w-10 h-10"
+              className="text-eduBlack w-10 h-10"
             />
           </div> */}
           <div className="flex flex-1 flex-col text-eduBlack gap-1">

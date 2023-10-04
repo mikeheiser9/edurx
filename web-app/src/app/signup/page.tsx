@@ -49,14 +49,14 @@ export default function ChooseAccountType() {
   return (
     <React.Fragment>
       <div className="flex justify-center p-4 bg-eduDarkGray">
-        <label className="text-[16px] font-body text-eduBlack">Register for Edu-Rx</label>
+        <label className="font-headers text-[16px]">Register for Edu-Rx</label>
       </div>
       <div className="flex flex-col text-eduBlack items-center p-4 gap-2 bg-white">
         <label className="text-3xl font-headers font-semibold">Create Account</label>
         <label className="text-eduBlack/60 font-body">Please make a selection</label>
       </div>
 
-      <div className="grid-cols-2 grid gap-1 bg-white">
+      <div className="grid-cols-2 grid gap-[2px] bg-eduDarkBlue">
         {accountTypes?.map((item: accountTypes, index: number) => (
           <AccountCard
             key={index}

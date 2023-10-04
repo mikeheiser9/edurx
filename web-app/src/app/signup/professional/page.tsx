@@ -371,7 +371,7 @@ export default function SignUp() {
   const AskNpiNumber = (): React.JSX.Element => {
     return (
       <React.Fragment>
-        <p className="text-[14px] text-eduBlack/60 text-center px-16 pb-6 font-body">
+        <p className="text-sm opacity-50 text-white text-center px-16 pb-6">
           EduRx is a curated community of medical professionals in order to
           ensure quality discussion and information please validate your NPI
           License below.
@@ -414,9 +414,8 @@ export default function SignUp() {
             <div className="absolute text-xs text-eduBlack font-body">
               <button
                 onClick={() => setCurrentStep((currentStep) => currentStep + 1)}
-                className=""
-              >
-                Edit Info
+                className="">
+                <span className="underline-offset-1">Edit Info</span>
               </button>
             </div>
           </div>
@@ -569,7 +568,7 @@ export default function SignUp() {
       >
         {({ isSubmitting, values, ...actions }) => (
           <div className="flex flex-col items-center p-4 bg-white">
-            <h1 className="text-eduBlack text-center tracking-wider text-4xl my-4 font-headers font-semibold">
+            <h1 className="text-eduBlack text-center tracking-wider font-headers text-[24px] my-4">
               {getStepBasedTitle()}
             </h1>
             <Form>
@@ -582,12 +581,14 @@ export default function SignUp() {
                 </div>
               )}
               <div className="m-2 flex justify-center">
-                <Button
+                <button
+                  className="bg-eduBlack text-white font-light text-[16px] rounded p-2 m-auto w-1/2 hover:bg-yellow-500 ease-in duration-300"
                   type="submit"
                   disabled={isSubmitting || isLoading || !actions.isValid}
                   hidden={currentStep === 7}
-                  label={renderButtonLabelBasedOnStep()}
-                />
+                >
+                  <span>{renderButtonLabelBasedOnStep()}</span>
+                </button>
               </div>
               {currentStep === 5 && (
                 <ResendCodeTemplate

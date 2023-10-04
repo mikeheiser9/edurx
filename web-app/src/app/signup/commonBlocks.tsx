@@ -89,7 +89,7 @@ const VerifyEmail = (): React.JSX.Element => {
           </p>
         )}
       />
-      <div className="mt-6">
+      <div className="mt-6 text-eduBlack">
         <InputField
           name="otp"
           maxLength={10}
@@ -117,10 +117,10 @@ const RegistrationConfirmationMessage = (): React.JSX.Element => {
 const AccountCreationSucceed = (): React.JSX.Element => {
   return (
     <React.Fragment>
-      <div className="flex flex-col gap-4 text-center">
-        <span className="text-eduBlack font-semibold font-headers text-[20px]">Welcome to EduRx</span>
-        <span className="text-eduBlack/60 font-body text-[16px]">Please wait while we set up your account</span>
-        <span className="text-eduBlack/60 font-body text-[16px]">When your account is ready you will be redirected</span>
+      <div className="flex flex-col gap-4 text-center text-white opacity-50 text-sm">
+        <span>Welcome to EduRx</span>
+        <span>Please wait while we set up your account</span>
+        <span>When your account is ready you will be redirected</span>
       </div>
       <Loader />
     </React.Fragment>
@@ -161,9 +161,9 @@ const ResendCodeTemplate = ({
   onClick: () => void;
 }): React.JSX.Element => {
   return (
-    <div className="mt-4 text-center grid gap-2">
-      <span className="font-body text-[14px] text-eduBlack">Didn’t receive a code?</span>
-      <span onClick={onClick} className="font-body text-[14px] text-eduBlack underline cursor-pointer">
+    <div className="mt-4 text-white opacity-50 text-center text-xs grid gap-2">
+      <span>Didn’t receive a code?</span>
+      <span onClick={onClick} className="underline cursor-pointer">
         Resend Code
       </span>
     </div>
