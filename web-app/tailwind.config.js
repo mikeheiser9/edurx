@@ -105,7 +105,27 @@ module.exports = {
         'modalHead': ['25px', {
           lineHeight: '35px'
         }]
-    },
+      },
+       screens: {
+        'xx-small': {'max': '360px'},
+        // => @media (max-width: 360px){...}
+        'iphone-sm': {'max': '375px'},
+        // => @media (max-width: 375px){...}
+        'iphone': {'max': '420px'},
+        // => @media (max-width: 420px){...}
+        'small': {'max': '550px'},
+        // => @media (max-width: 550px){...}
+        'ipad-under': {'max': '767px'},
+        // => @media (max-width: 767px){...}
+        'ipad': {'max': '820px'},
+        // => @media (max-width: 820px){...}
+        'tablet-lg': {'max': '1075px'},
+        // => @media (max-width: 1075px){...}
+        'medium': {'max': '1250px'},
+        // => @media (max-width: 1250px){...}
+        'x-med': {'max': '1305px'}
+        // => @media (max-width: 1305px){...}
+       },
     },
   },
   plugins: [],

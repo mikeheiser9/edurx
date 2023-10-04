@@ -43,7 +43,7 @@ export default function CompOne() {
                 </div>
                 <div className='flex flex-col w-full'>
                   <div className="w-[55px] h-[0px] border border-eduBlack z-20"></div>
-                  <p className='text-eduDarkBlue text-[24px] z-20 mt-[15px]'>Register for the EduRX beta.</p>
+                  <p className='text-eduDarkBlue text-[24px] z-20 mt-[15px]'>Register for the EduRx beta.</p>
                 </div>
               </div>
             </div>

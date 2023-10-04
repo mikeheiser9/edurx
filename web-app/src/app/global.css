@@ -85,3 +85,14 @@ input:-webkit-autofill:active {
   font-family: 'Poppins', sans-serif;
   font-weight: 500 !important;
 }
+
+/* timeline styles */
+.vertical-timeline-element-content {
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.vertical-timeline--two-columns .vertical-timeline-element-content-arrow {
+  display: none !important;
+}

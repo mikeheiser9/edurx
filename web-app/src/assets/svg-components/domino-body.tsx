@@ -89,7 +89,7 @@ const DominoBody = () => {
             width="295.418"
             height="318.9"
             filterUnits="userSpaceOnUse"
-            color-interpolation-filters="sRGB"
+            colorInterpolationFilters="sRGB"
           >
             <feFlood flood-opacity="0" result="BackgroundImageFix" />
             <feColorMatrix
