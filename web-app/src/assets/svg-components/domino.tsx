@@ -19,7 +19,7 @@ const Domino: React.FC<DominoProps> = ({forwardedRefs }) => {
 const getTransform = () => {
     const xOffset = window.innerWidth / 2 - 65;
     const yOffset = 70;
-    return `translate(${xOffset}, ${yOffset})`;
+    // return `translate(${xOffset}, ${yOffset})`;
 };
 
   return (
@@ -27,7 +27,7 @@ const getTransform = () => {
         <svg 
             xmlns="http://www.w3.org/2000/svg" 
             className='w-full h-[650px] absolute top-0 left-0'
-            viewBox={`0 0 ${window.innerWidth} ${document.documentElement.scrollHeight}`}
+            // viewBox={`0 0 ${window.innerWidth} ${document.documentElement.scrollHeight}`}
         >
             <defs>
                 <linearGradient id="linear-gradient" x1="12.84" y1="241.87" x2="12.84" y2=".72" gradientTransform="translate(0 242.37) scale(1 -1)" gradientUnits="userSpaceOnUse">
