@@ -42,6 +42,6 @@ export default function Welcome(props: any) {
           </div>
         </div>
       </AnimationProvider>
-    </>
+    </> 
   );
 }
