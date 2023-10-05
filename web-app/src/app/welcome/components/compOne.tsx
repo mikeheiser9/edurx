@@ -25,7 +25,7 @@ export default function CompOne({signUpModal}: Props) {
           </div>
         </div>
         <div className='relative flex flex-col w-1/3 h-[700px] justify-center items-center flex-1 medium:w-full'>
-          <div className='absolute w-[150%] h-auto z-10 right-[-40px] medium:order-1 medium:relative medium:w-full medium:flex medium:justify-center medium:items-center medium:ml-[-15%] ipad:w-[60%] small:w-[90%] iphone:ml-[-30%]'>
+          <div className='absolute w-[150%] h-auto z-10 right-[-40px] medium:order-1 medium:relative medium:w-full medium:flex medium:justify-center medium:items-center medium:mr-[20%] ipad:w-[60%] small:w-[80%] iphone:mr-[35%]'>
             <Image 
               src={Nurse}
               alt={'nurse'}
