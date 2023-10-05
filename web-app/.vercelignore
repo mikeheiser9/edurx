@@ -5,8 +5,8 @@
 # src/app/forum/components/addPost.tsx
 # src/app/forum/components/addPost.tsx
 # src/app/forum/components/adminActionsMenu.tsx
-src/app/signin/
-src/app/signup/
-src/app/forum/
-src/app/profile/
-src/app/signin/page.tsx
+/src/app/signin/
+/src/app/signup/
+/src/app/forum/
+/src/app/profile/
+/src/app/signin/page.tsx
