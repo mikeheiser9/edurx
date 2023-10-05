@@ -38,6 +38,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.197",
+    "@types/react-vertical-timeline-component": "^3.3.4",
     "@types/redux-persist": "^4.3.1"
   }
 }

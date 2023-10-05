@@ -113,35 +113,40 @@ export default function Hero() {
 
   return (
     <>
-    <div className='relative w-full h-full flex items-center justify-center mx-[5%] my-[50px] flex-col'>
-      <div className='relative w-[90%] flex justify-center items-center flex-col st-one'>
-        <div className='relative w-full'>
+      <div className='relative w-full h-full flex items-center justify-center mx-[5%] my-[50px] flex-col small:my-[25px] ipad:mt-0'>
+        <div className='relative w-[90%] flex justify-center items-center flex-col st-one ipad:my-[25px] tablet-lg:w-[95%] small:my-0'>
+          <div className='relative w-full'>
             <Image src={SepTop} alt={'hero-top-line'} />
-        </div>
-        <div className='relative my-[50px] flex flex-row flex-nowrap w-[90%] justify-center'>
-          <div className='w-5/12 flex flex-col justify-center items-end'>
-            <div className='relative h-full'>
-              <h3 className='relative text-[80px] font-headers uppercase leading-none x-med:text-[60px] tablet-lg:text-[50px]'>Elevate</h3>
+          </div>
+          <div className='relative my-[50px] flex flex-row flex-nowrap w-[90%] justify-center ipad:flex-col ipad:justify-center ipad:items-center'>
+            <div className='w-5/12 flex flex-col justify-center items-end ipad:w-full ipad:order-2 ipad:items-center ipad:mt-[30px]'>
+              <div className='relative h-full'>
+                <h3 className='relative text-[80px] font-headers uppercase leading-none x-large:text-[60px] tablet-lg:text-[45px] small:text-[40px] iphone:text-[35px]'>
+                  Elevate
+                </h3>
+              </div> 
+              <div className='absolute flex flex-row flex-nowrap min-w-full justify-end mt-[35px] font-headers text-right ipad:relative ipad:flex-col ipad:justify-center ipad:order-3 ipad:min-h-[35px] ipad:items-center ipad:mt-[25px]'>
+                <p className='text-[40px] text-eduLightBlue uppercase leading-none font-semibold x-large:text-[30px] tablet-lg:text-[26px] ipad:text-[30px] ipad:text-center small:text-[26px] iphone:text-[20px]' ref={wordRef}>
+                </p>
+              </div>
             </div>
-            <div className='absolute flex flex-row flex-nowrap min-w-full justify-end mt-[35px] font-headers text-right'>
-              {/* <p className='text-[40px] text-eduLightBlue uppercase leading-none'>Your </p> */}
-              <p className='text-[40px] text-eduLightBlue uppercase leading-none ml-[10px] font-semibold x-med:text-[30px]' ref={wordRef}></p>
+            <div className='w-2/12 flex flex-col justify-center items-center mt-[-35px] ipad:w-full ipad:order-1'>
+              <div className='relative w-full h-full block ml-[35px] ipad:w-[80px] ipad:ml-0'>
+                <DominoBlack />
+              </div>
+            </div>
+            <div className='w-5/12 flex flex-col justify-center items-start ml-[35px] mt-[-50px] ipad:w-full ipad:order-4 ipad:items-center ipad:ml-0 ipad:mt-[25px]'>
+              <h3 className='text-[60px] font-semibold text-eduLightBlue font-headers leading-none x-large:text-[50px] tablet-lg:text-[40px] small:text-[40px] iphone:text-[30px]'>
+                On EDURX
+              </h3>
             </div>
           </div>
-          <div className='w-2/12 flex flex-col justify-center items-center mt-[-35px]'>
-            <div className='relative w-full h-full block ml-[35px]'>
-              <DominoBlack />
-            </div>
-          </div>
-          <div className='w-5/12 flex flex-col justify-center items-start ml-[35px] mt-[-50px]'>
-            <h3 className='text-[60px] font-semibold text-eduLightBlue font-headers leading-none uppercase x-med:text-[50px] tablet-lg:text-[40px]'>On EDURX</h3>
-          </div>
-        </div>
-        <div className='relative'>
+          <div className='relative'>
             <Image src={SepBtm} alt={'hero-btm-line'} />
+          </div>
         </div>
       </div>
-    </div>
     </>
   );
+  
 };

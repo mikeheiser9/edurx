@@ -91,7 +91,7 @@ const DominoBody = () => {
             filterUnits="userSpaceOnUse"
             colorInterpolationFilters="sRGB"
           >
-            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+            <feFlood floodOpacity="0" result="BackgroundImageFix" />
             <feColorMatrix
               in="SourceAlpha"
               type="matrix"
@@ -125,8 +125,8 @@ const DominoBody = () => {
             y2="58.2662"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#F9F8F9" />
-            <stop offset="1" stop-color="#E7E5E2" />
+            <stop stopColor="#F9F8F9" />
+            <stop offset="1" stopColor="#E7E5E2" />
           </linearGradient>
           <linearGradient
             id="paint1_linear_3007_733"
@@ -136,8 +136,8 @@ const DominoBody = () => {
             y2="178.852"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#F9F8F9" />
-            <stop offset="1" stop-color="#E7E5E2" />
+            <stop stopColor="#F9F8F9" />
+            <stop offset="1" stopColor="#E7E5E2" />
           </linearGradient>
           <linearGradient
             id="paint2_linear_3007_733"
@@ -147,8 +147,8 @@ const DominoBody = () => {
             y2="69.6997"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#13222A" />
-            <stop offset="1" stop-color="#0F366D" />
+            <stop stopColor="#13222A" />
+            <stop offset="1" stopColor="#0F366D" />
           </linearGradient>
           <linearGradient
             id="paint3_linear_3007_733"
@@ -158,8 +158,8 @@ const DominoBody = () => {
             y2="192.795"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#13222A" />
-            <stop offset="1" stop-color="#0F366D" />
+            <stop stopColor="#13222A" />
+            <stop offset="1" stopColor="#0F366D" />
           </linearGradient>
           <linearGradient
             id="paint4_linear_3007_733"
@@ -169,8 +169,8 @@ const DominoBody = () => {
             y2="246.698"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#13222A" />
-            <stop offset="1" stop-color="#0F366D" />
+            <stop stopColor="#13222A" />
+            <stop offset="1" stopColor="#0F366D" />
           </linearGradient>
           <linearGradient
             id="paint5_linear_3007_733"
@@ -180,8 +180,8 @@ const DominoBody = () => {
             y2="241.016"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#13222A" />
-            <stop offset="1" stop-color="#0F366D" />
+            <stop stopColor="#13222A" />
+            <stop offset="1" stopColor="#0F366D" />
           </linearGradient>
           <linearGradient
             id="paint6_linear_3007_733"
@@ -191,8 +191,8 @@ const DominoBody = () => {
             y2="293.198"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#13222A" />
-            <stop offset="1" stop-color="#0F366D" />
+            <stop stopColor="#13222A" />
+            <stop offset="1" stopColor="#0F366D" />
           </linearGradient>
         </defs>
       </svg>

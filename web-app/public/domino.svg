@@ -2,22 +2,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 144.14 242.15">
   <defs>
     <linearGradient id="linear-gradient" x1="12.84" y1="241.87" x2="12.84" y2=".72" gradientTransform="translate(0 242.37) scale(1 -1)" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#f8f7f9"/>
-      <stop offset="1" stop-color="#e8e6e3"/>
+      <stop offset="0" stopColor="#f8f7f9"/>
+      <stop offset="1" stopColor="#e8e6e3"/>
     </linearGradient>
     <linearGradient id="linear-gradient-2" x1="8.3" y1="241.7" x2="17.68" y2="-1.86" gradientTransform="translate(0 242.37) scale(1 -1)" gradientUnits="userSpaceOnUse">
-      <stop offset=".06" stop-color="#142738"/>
-      <stop offset="1" stop-color="#1f396c"/>
-      <stop offset="1" stop-color="#14222a" stop-opacity="0"/>
+      <stop offset=".06" stopColor="#142738"/>
+      <stop offset="1" stopColor="#1f396c"/>
+      <stop offset="1" stopColor="#14222a" stopOpacity="0"/>
     </linearGradient>
     <linearGradient id="linear-gradient-3" x1="-8.44" y1="189.37" x2="175.74" y2="51.18" gradientTransform="translate(0 242.37) scale(1 -1)" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#f8f7f9"/>
-      <stop offset="1" stop-color="#e7e5e2"/>
+      <stop offset="0" stopColor="#f8f7f9"/>
+      <stop offset="1" stopColor="#e7e5e2"/>
     </linearGradient>
     <linearGradient id="linear-gradient-4" x1="77.54" y1="-1.99" x2="87.03" y2="244.14" gradientTransform="matrix(1,0,0,1,0,0)" xlink:href="#linear-gradient-2"/>
     <linearGradient id="linear-gradient-5" x1="48.52" y1="228.7" x2="48.52" y2="202.04" gradientTransform="translate(0 242.37) scale(1 -1)" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#14222a"/>
-      <stop offset="1" stop-color="#1f396c"/>
+      <stop offset="0" stopColor="#14222a"/>
+      <stop offset="1" stopColor="#1f396c"/>
     </linearGradient>
     <linearGradient id="linear-gradient-6" y1="110.03" y2="83.37" xlink:href="#linear-gradient-5"/>
     <linearGradient id="linear-gradient-7" x1="82.29" y1="76.26" x2="82.29" y2="49.59" xlink:href="#linear-gradient-5"/>

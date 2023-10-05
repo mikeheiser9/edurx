@@ -69,24 +69,18 @@ module.exports = {
         }]
       },
        screens: {
-        'xx-small': {'max': '360px'},
-        // => @media (max-width: 360px){...}
-        'iphone-sm': {'max': '375px'},
-        // => @media (max-width: 375px){...}
-        'iphone': {'max': '420px'},
-        // => @media (max-width: 420px){...}
-        'small': {'max': '550px'},
-        // => @media (max-width: 550px){...}
-        'ipad-under': {'max': '767px'},
-        // => @media (max-width: 767px){...}
-        'ipad': {'max': '820px'},
-        // => @media (max-width: 820px){...}
-        'tablet-lg': {'max': '1075px'},
-        // => @media (max-width: 1075px){...}
+        'x-large': {'max': '1305px'},
+        'large': {'max': '1280px'},
         'medium': {'max': '1250px'},
-        // => @media (max-width: 1250px){...}
-        'x-med': {'max': '1305px'}
-        // => @media (max-width: 1305px){...}
+        'tl': {'max': '1169px'},
+        'tablet-lg': {'max': '1075px'},
+        'ipad': {'max': '820px'},
+        'ipad-under': {'max': '767px'},
+        'over-small': {'max': '665px'},
+        'small': {'max': '550px'},
+        'iphone': {'max': '420px'},
+        'iphone-sm': {'max': '375px'},
+        'xx-small': {'max': '360px'},
        },
     },
   },

@@ -141,7 +141,7 @@ const DominoBlack = () => {
             filterUnits="userSpaceOnUse"
             colorInterpolationFilters="sRGB"
           >
-            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+            <feFlood floodOpacity="0" result="BackgroundImageFix" />
             <feColorMatrix
               in="SourceAlpha"
               type="matrix"
@@ -176,7 +176,7 @@ const DominoBlack = () => {
             filterUnits="userSpaceOnUse"
             colorInterpolationFilters="sRGB"
           >
-            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+            <feFlood floodOpacity="0" result="BackgroundImageFix" />
             <feColorMatrix
               in="SourceAlpha"
               type="matrix"
@@ -210,7 +210,7 @@ const DominoBlack = () => {
             y2="9.51758"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#13222A" />
+            <stop stopColor="#13222A" />
             <stop offset="1" />
           </linearGradient>
           <linearGradient
@@ -221,7 +221,7 @@ const DominoBlack = () => {
             y2="80.9415"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#13222A" />
+            <stop stopColor="#13222A" />
             <stop offset="1" />
           </linearGradient>
           <linearGradient
@@ -232,8 +232,8 @@ const DominoBlack = () => {
             y2="20.9332"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="white" />
-            <stop offset="1" stop-color="#ECEAE8" />
+            <stop stopColor="white" />
+            <stop offset="1" stopColor="#ECEAE8" />
           </linearGradient>
           <linearGradient
             id="paint3_linear_3131_740"
@@ -243,8 +243,8 @@ const DominoBlack = () => {
             y2="95.773"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="white" />
-            <stop offset="1" stop-color="#ECEAE8" />
+            <stop stopColor="white" />
+            <stop offset="1" stopColor="#ECEAE8" />
           </linearGradient>
           <linearGradient
             id="paint4_linear_3131_740"
@@ -254,8 +254,8 @@ const DominoBlack = () => {
             y2="129.228"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="white" />
-            <stop offset="1" stop-color="#ECEAE8" />
+            <stop stopColor="white" />
+            <stop offset="1" stopColor="#ECEAE8" />
           </linearGradient>
           <linearGradient
             id="paint5_linear_3131_740"
@@ -265,8 +265,8 @@ const DominoBlack = () => {
             y2="111.515"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="white" />
-            <stop offset="1" stop-color="#ECEAE8" />
+            <stop stopColor="white" />
+            <stop offset="1" stopColor="#ECEAE8" />
           </linearGradient>
           <linearGradient
             id="paint6_linear_3131_740"
@@ -276,8 +276,8 @@ const DominoBlack = () => {
             y2="129.228"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="white" />
-            <stop offset="1" stop-color="#ECEAE8" />
+            <stop stopColor="white" />
+            <stop offset="1" stopColor="#ECEAE8" />
           </linearGradient>
           <linearGradient
             id="paint7_linear_3131_740"
@@ -287,7 +287,7 @@ const DominoBlack = () => {
             y2="34.5176"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#13222A" />
+            <stop stopColor="#13222A" />
             <stop offset="1" />
           </linearGradient>
           <linearGradient
@@ -298,7 +298,7 @@ const DominoBlack = () => {
             y2="105.941"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#13222A" />
+            <stop stopColor="#13222A" />
             <stop offset="1" />
           </linearGradient>
           <linearGradient
@@ -309,8 +309,8 @@ const DominoBlack = () => {
             y2="45.9332"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="white" />
-            <stop offset="1" stop-color="#ECEAE8" />
+            <stop stopColor="white" />
+            <stop offset="1" stopColor="#ECEAE8" />
           </linearGradient>
           <linearGradient
             id="paint10_linear_3131_740"
@@ -320,8 +320,8 @@ const DominoBlack = () => {
             y2="120.773"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="white" />
-            <stop offset="1" stop-color="#ECEAE8" />
+            <stop stopColor="white" />
+            <stop offset="1" stopColor="#ECEAE8" />
           </linearGradient>
           <linearGradient
             id="paint11_linear_3131_740"
@@ -331,8 +331,8 @@ const DominoBlack = () => {
             y2="154.228"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="white" />
-            <stop offset="1" stop-color="#ECEAE8" />
+            <stop stopColor="white" />
+            <stop offset="1" stopColor="#ECEAE8" />
           </linearGradient>
           <linearGradient
             id="paint12_linear_3131_740"
@@ -342,8 +342,8 @@ const DominoBlack = () => {
             y2="136.515"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="white" />
-            <stop offset="1" stop-color="#ECEAE8" />
+            <stop stopColor="white" />
+            <stop offset="1" stopColor="#ECEAE8" />
           </linearGradient>
           <linearGradient
             id="paint13_linear_3131_740"
@@ -353,8 +353,8 @@ const DominoBlack = () => {
             y2="154.228"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="white" />
-            <stop offset="1" stop-color="#ECEAE8" />
+            <stop stopColor="white" />
+            <stop offset="1" stopColor="#ECEAE8" />
           </linearGradient>
         </defs>
       </svg>
