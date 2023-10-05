@@ -29,5 +29,5 @@ export default function RouteGuard({
       router.push("/forum");
     }
   }, [token, user]);
-  return isAuthorized ? (children as JSX.Element) : <></>;
+  return children as JSX.Element;
 }

@@ -424,8 +424,9 @@ export default function () {
                   type="submit"
                   hidden={currentStep === 4}
                   disabled={isSubmitting || !actions.isValid}
-                  label={getLabel(values)}
-                />
+                >
+                  {getLabel(values)}
+                </button>
               </div>
               {currentStep === 3 && (
                 <ResendCodeTemplate

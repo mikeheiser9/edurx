@@ -65,8 +65,8 @@ export const Modal = ({
       return props.customHeader;
     }
     return (
-      <div className="flex p-3 items-center bg-primary">
-        <span className="text-xl font-medium justify-self-start">
+      <div className="flex p-3 items-center font-body bg-eduDarkGray">
+        <span className="text-xl font-body justify-self-start">
           {props.headerTitle}
         </span>
         {showCloseIcon && (
@@ -106,7 +106,7 @@ export const Modal = ({
             <div
               className={
                 props.modalBodyClassName ||
-                "relative p-4 overflow-y-auto overflow-hidden bg-eduDarkGray"
+                "relative p-4 overflow-y-auto font-body overflow-hidden bg-eduLightGray"
               }
             >
               {props.children}

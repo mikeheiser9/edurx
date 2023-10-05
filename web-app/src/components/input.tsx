@@ -24,9 +24,8 @@ export default function InputField({
   // const [field, meta] = isFormikField ? useField(props) : [];
   const [field, meta] = isFormikField ? useField(props) : [{}, {}];
 
-
   return (
-    <>
+    <div>
       {label && (
         <label
           htmlFor={props.name}
@@ -50,8 +49,10 @@ export default function InputField({
         <input
           id={label && props.name}
           {...props}
-          className={`bg-eduLightGray text-eduBlack rounded-lg p-2 focus-visible:border-none outline-none autofill:active:bg-black ${
-            meta && meta.touched && meta.error ? "border-[1px] border-red-500" : ""
+          className={`bg-eduLightGray font-body text-eduBlack rounded-lg p-2 focus-visible:border-none outline-none autofill:active:bg-black ${
+            meta && meta.touched && meta.error
+              ? "border-[1px] border-red-500"
+              : ""
           } ${props.className}`}
           // className={`bg-eduLightGray text-eduBlack rounded-lg p-2 focus-visible:border-none outline-none autofill:active:bg-black ${
           //   meta.touched && meta.error ? "border-[1px] border-red-500" : ""
@@ -59,11 +60,11 @@ export default function InputField({
           {...field}
         />
         {meta?.touched && meta.error ? (
-          <span className="text-white text-xs first-letter:capitalize flex-shrink-0 opacity-50">
+          <span className="text-xs font-body mt-1 first-letter:capitalize flex-shrink-0 opacity-50">
             {meta.error}
           </span>
         ) : null}
       </div>
-    </>
+    </div>
   );
 }

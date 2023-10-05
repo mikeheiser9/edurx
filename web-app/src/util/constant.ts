@@ -25,6 +25,7 @@ const publicRoutes = [
   "/signup",
   "/signup/student",
   "/signup/professional",
+  "/welcome",
 ];
 
 const protectedRoutes = ["/profile", "/forum"];

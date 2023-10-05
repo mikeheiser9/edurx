@@ -8,9 +8,11 @@ import ResearchElement from '@/assets/imgs/researchElements.png';
 import ForumElement from '@/assets/imgs/forumElement.png';
 import CeElement from '@/assets/imgs/ceElement.png';
 
+interface Props {
+  signUpModal: UseModalType
+}
 
-
-export default function CompThree() {
+export default function CompThree({signUpModal}:Props) {
   return (
     <div className='relative w-screen h-full flex flex-col justify-center items-center'>
     <div className='w-full text-center flex flex-col justify-center items-center'>
@@ -40,7 +42,7 @@ export default function CompThree() {
                 <p className='z-20 text-body !font-normal !text-[16px] !leading-[30px] !mb-[20px]'>Employers may use the site to verify licenses, recommend courses, and verification of education for employment. Use profile to maintain licensures and continuing education activity.</p>
                 <div className='flex flex-row w-full justify-start items-center z-20'>
                   {/* launch modal onclick */}
-                  <button className='flex flex-row flex-nowrap justify-center items-center'>
+                  <button onClick={signUpModal?.openModal} className='flex flex-row flex-nowrap justify-center items-center'>
                     <h4 className='mr-[10px] font-normal text-[24px]'>Sign Up</h4>
                     <Arrow />
                   </button>
@@ -93,7 +95,7 @@ export default function CompThree() {
                 <p className='z-20 text-body !font-normal !text-[16px] !leading-[30px] !mb-[20px]'>Scientifically Based Healthcare Informatics:<br /> EduRx will provide medical professionals with access to up-to-date and evidence-based information related to their field, helping them make informed decisions in their practice.</p>
                 <div className='flex flex-row w-full justify-start items-center z-20'>
                   {/* launch modal onclick */}
-                  <button className='flex flex-row flex-nowrap justify-center items-center'>
+                  <button onClick={signUpModal?.openModal} className='flex flex-row flex-nowrap justify-center items-center'>
                     <h4 className='mr-[10px] font-normal text-[24px]'>Sign Up</h4>
                     <Arrow />
                   </button>
