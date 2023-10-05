@@ -11,7 +11,6 @@ web-app/src/app/forum/
 web-app/src/app/profile/
 web-app/src/components/accountCard.tsx
 web-app/src/components/badge.tsx
-web-app/src/components/button.tsx
 web-app/src/components/chip.tsx
 web-app/src/components/footer.tsx
 web-app/src/components/header.tsx
