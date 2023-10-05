@@ -8,6 +8,7 @@ import CompOne from './components/compOne';
 import CompTwo from './components/compTwo';
 import CompThree from './components/compThree';
 import { AnimationProvider } from '@/util/animationContext';
+import Footer from './components/footer';
 
 export default function Welcome(props: any) {
 
@@ -36,6 +37,7 @@ export default function Welcome(props: any) {
             <CompOne />
             <CompTwo />
             <CompThree />
+            <Footer />
         </div>
       </div>
     </AnimationProvider>
