@@ -22,3 +22,4 @@ web-app/src/components/stringToHtml.tsx
 web-app/src/components/tabMenu.tsx
 web-app/src/components/textArea.tsx
 web-app/src/components/toggleSwitch.tsx
+web-app/src/util/replaceString.ts
