@@ -7,6 +7,7 @@ import Hero from "./welcome/components/hero";
 import CompOne from "./welcome/components/compOne";
 import CompTwo from "./welcome/components/compTwo";
 import CompThree from "./welcome/components/compThree";
+import Footer from "./welcome/components/footer";
 import { AnimationProvider } from "@/util/animationContext";
 import { SignUpModal } from "./welcome/components/signUpModal";
 import { useModal } from "@/hooks";
@@ -39,6 +40,7 @@ export default function Welcome(props: any) {
             <CompOne signUpModal={signUpModal} />
             <CompTwo signUpModal={signUpModal} />
             <CompThree signUpModal={signUpModal} />
+            <Footer />
           </div>
         </div>
       </AnimationProvider>

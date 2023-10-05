@@ -142,7 +142,7 @@ export default function Hero() {
             </div>
           </div>
           <div className='relative'>
-            <Image src={SepBtm} alt={'hero-btm-line'} />
+            <Image src={SepTop} alt={'hero-btm-line'} className='rotate-180' />
           </div>
         </div>
       </div>

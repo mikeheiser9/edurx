@@ -44,7 +44,7 @@ export default function CompOne({signUpModal}: Props) {
             <div className="relative w-[320px] h-[320px] rounded-[15px] shadow-inner z-20 ipad-under:w-[180px] ipad-under:h-[130px] iphone:min-w-[180px]">
               <div className='relative w-full h-full flex flex-col justify-between rounded-[15px] py-[50px] px-[35px] after:content-[" "] after:absolute after:w-full after:h-full after:left-0 after:top-0 after:z-10 after: after:rounded-[15px] after:bg-gradient-to-br after:from-white after:to-eduDarkGray after:blur-sm after:inner-shadow after:backdrop-blur-xl after:opacity-95 ipad-under:px-[15px] ipad-under:py-[15px]'>
                 <div className='flex flex-row w-full justify-between items-center z-20'>
-                  <button onClick={signUpModal.openModal} className='w-[150px] h-[35px] text-[12px] flex justify-center items-center font-light font-body text-eduBlack bg-transparent rounded-[5px] right-[15px] bottom-[37px] z-20 border border-solid border-eduBlack ipad-under:w-[80px] ipad-under:h-[25px] ipad-under:text-[10px]'>join waitlist</button>
+                  <button onClick={signUpModal.openModal} className='w-[150px] h-[35px] text-[12px] flex justify-center items-center font-light font-body text-white bg-eduLightBlue rounded-[5px] right-[15px] bottom-[37px] z-20 border border-solid border-eduBlack ipad-under:w-[80px] ipad-under:h-[25px] ipad-under:text-[10px]'>join waitlist</button>
                   <Arrow onClick={signUpModal.openModal}/>
                 </div>
                 <div className='flex flex-col w-full'>
@@ -56,7 +56,7 @@ export default function CompOne({signUpModal}: Props) {
             <div className="relative w-[320px] h-[320px] rounded-[15px] shadow-inner z-20 mt-[50px] medium:mt-0 medium:ml-[50px] ipad-under:w-[180px] ipad-under:h-[130px] iphone:ml-[10px] iphone:min-w-[180px]">
               <div className='relative w-full h-full flex flex-col justify-between rounded-[15px] py-[50px] px-[35px] after:content-[" "] after:absolute after:w-full after:h-full after:left-0 after:top-0 after:z-10 after: after:rounded-[15px] after:bg-gradient-to-br after:from-white after:to-eduDarkGray after:blur-sm after:inner-shadow after:backdrop-blur-xl after:opacity-95 ipad-under:px-[15px] ipad-under:py-[15px]'>
                 <div className='flex flex-row w-full justify-between items-center z-20'>
-                  <button  onClick={signUpModal?.openModal} className='w-[150px] h-[35px] text-[12px] flex justify-center items-center font-body font-light text-eduBlack bg-transparent rounded-[5px] right-[15px] bottom-[37px] z-20 border border-solid border-eduBlack ipad-under:w-[80px] ipad-under:h-[25px] ipad-under:text-[10px]'>learn more</button>
+                  <button  onClick={signUpModal?.openModal} className='w-[150px] h-[35px] text-[12px] flex justify-center items-center font-body font-light text-white bg-eduLightBlue rounded-[5px] right-[15px] bottom-[37px] z-20 border border-solid border-eduBlack ipad-under:w-[80px] ipad-under:h-[25px] ipad-under:text-[10px]'>learn more</button>
                   <Arrow />
                 </div>
                 <div className='flex flex-col w-full'>

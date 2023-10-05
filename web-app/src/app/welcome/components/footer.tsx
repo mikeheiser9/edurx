@@ -11,7 +11,7 @@ export default function Footer() {
             <Image src={EduLogo} alt='Edu Logo' width={65} />
         </div>
         <div className='relative flex justify-center items-center font-body w-full'>
-        <p className=''>© {date.getFullYear()} EduRx. All Rights Reserved</p>
+        <p className='font-body'>© {date.getFullYear()} EduRx. All Rights Reserved</p>
         </div>
     </div>
   );

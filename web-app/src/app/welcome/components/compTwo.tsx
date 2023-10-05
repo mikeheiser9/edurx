@@ -19,6 +19,9 @@ export default function CompTwo({signUpModal}:Props) {
       <h2 className='text-[50px] font-headers small:text-[40px] xx-small:text-[34px]'>What We've Built</h2>
       <h4 className='font-body font-semibold mt-[10px] text-[24px] small:text-[20px]'>BETA LAUNCHING Q4 2023</h4>
       <p className='font-body font-light text-eduBlack/60 w-[60%] mt-[20px] max-w-[1000px] small:max-w-[95%] small:w-[90%]'>EduRx aims to be the leading platform for medical professionals to streamline their continued education and engage in curated professional discussions. With tailored medical research feeds and rigorous content moderation, we're redefining the way modern medical professionals learn and connect.</p>
+      <div className='flex flex-row w-full justify-center items-center mt-[50px]'>
+          <button  onClick={signUpModal?.openModal} className='w-[150px] text-[20px] py-[10px] flex justify-center items-center font-body font-light text-white bg-eduLightBlue rounded-[5px]'>join beta</button>
+      </div>
     </div>
     <div className='w-full px-[50px] py-[80px] flex flex-col tl:px-0'>
       {/* EduRx Hub  */}
@@ -96,7 +99,7 @@ export default function CompTwo({signUpModal}:Props) {
                 <div className='flex flex-row w-full justify-start items-center z-20'>
                   {/* launch modal onclick */}
                   <button  onClick={signUpModal?.openModal} className='flex flex-row flex-nowrap justify-center items-center'>
-                    <h4 className='mr-[10px] font-normal font-headers text-[24px]'>Sign Up</h4>
+                    <h4 className='mr-[10px] font-normal font-headers text-[24px]'>Join Beta</h4>
                     <Arrow />
                   </button>
                 </div>
@@ -157,7 +160,7 @@ export default function CompTwo({signUpModal}:Props) {
                 <div className='flex flex-row w-full justify-start items-center z-20'>
                   {/* launch modal onclick */}
                   <button  onClick={signUpModal?.openModal} className='flex flex-row flex-nowrap justify-center items-center'>
-                    <h4 className='mr-[10px] font-headers font-normal text-[24px]'>Sign Up</h4>
+                    <h4 className='mr-[10px] font-headers font-normal text-[24px]'>Learn More</h4>
                     <Arrow />
                   </button>
                 </div>

@@ -96,7 +96,7 @@ export default function CompThree({signUpModal}:Props) {
                 <div className='flex flex-row w-full justify-start items-center z-20'>
                   {/* launch modal onclick */}
                   <button onClick={signUpModal?.openModal} className='flex flex-row flex-nowrap justify-center items-center'>
-                    <h4 className='mr-[10px] font-headers font-normal text-[24px]'>Sign Up</h4>
+                    <h4 className='mr-[10px] font-headers font-normal text-[24px]'>Join Beta</h4>
                     <Arrow />
                   </button>
                 </div>
