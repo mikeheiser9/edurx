@@ -9,4 +9,4 @@ web-app/src/app/signin/
 web-app/src/app/signup/
 web-app/src/app/forum/
 web-app/src/app/profile/
-# web-app/src/app/signin/page.tsx
+web-app/src/app/components/
