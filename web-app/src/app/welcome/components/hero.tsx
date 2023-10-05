@@ -137,7 +137,7 @@ export default function Hero() {
             </div>
             <div className='w-5/12 flex flex-col justify-center items-start ml-[35px] mt-[-50px] ipad:w-full ipad:order-4 ipad:items-center ipad:ml-0 ipad:mt-[25px]'>
               <h3 className='text-[60px] font-semibold text-eduLightBlue font-headers leading-none x-large:text-[50px] tablet-lg:text-[40px] small:text-[40px] iphone:text-[30px]'>
-                On EDURX
+                On EduRx
               </h3>
             </div>
           </div>

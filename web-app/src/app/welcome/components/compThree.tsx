@@ -38,11 +38,11 @@ export default function CompThree({signUpModal}:Props) {
             </div>
             <div className='relative flex flex-col'>
               <div className='relative w-full h-full flex flex-col justify-between rounded-[15px] py-[50px] px-[35px] after:content-[" "] after:absolute after:w-full after:h-full after:left-0 after:top-0 after:z-10 after: after:rounded-[15px] after:bg-gradient-to-br after:from-white after:to-eduDarkGray after:blur-sm after:inner-shadow after:backdrop-blur-xl after:opacity-95 iphone:px-[15px] iphone:py-[20px] iphone:mt-[25px]'>
-                <p className='z-20 !text-body !font-normal !text-[16px] !leading-[30px] !mb-[20px] tl:!text-[20px] iphone:!text-[16px]'>Elevate your professional journey with CE Tracking. Now, effortlessly track and manage your yearly CE requirements and progress, ensuring you're always on track with your educational commitments.</p>
+                <p className='z-20 !font-body !font-normal !text-[16px] !leading-[30px] !mb-[20px] tl:!text-[20px] iphone:!text-[16px]'>Elevate your professional journey with CE Tracking. Now, effortlessly track and manage your yearly CE requirements and progress, ensuring you're always on track with your educational commitments.</p>
                 <div className='flex flex-row w-full justify-start items-center z-20'>
                   {/* launch modal onclick */}
                   <button onClick={signUpModal?.openModal} className='flex flex-row flex-nowrap justify-center items-center'>
-                    <h4 className='mr-[10px] font-normal text-[24px]'>Sign Up</h4>
+                    <h4 className='mr-[10px] font-headers font-normal text-[24px]'>Sign Up</h4>
                     <Arrow />
                   </button>
                 </div>
@@ -50,18 +50,18 @@ export default function CompThree({signUpModal}:Props) {
               <div className='flex flex-row flex-nowrap justify-between items-start border border-eduBlack mt-[50px] rounded-[10px] py-[15px] px-[25px] font-body'>
                 <div className='w-1/2 ml-[20px]'>
                   <ul className='list-disc leading-[30px] small:leading-[20px] small:text-[12px]'>
-                    <li>Track CE requirements in real-time</li>
-                    <li>Visual progress indicators</li>
-                    <li>Set reminders and milestones</li>
-                    <li>CE requirement database</li>
+                    <li className='font-body'>Track CE requirements in real-time</li>
+                    <li className='font-body'>Visual progress indicators</li>
+                    <li className='font-body'>Set reminders and milestones</li>
+                    <li className='font-body'>CE requirement database</li>
                   </ul>
                 </div>
                 <div className='w-1/2 ml-[20px]'>
                   <ul className='list-disc leading-[30px] small:leading-[20px] small:text-[12px]'>
-                    <li>Yearly progress summaries</li>
-                    <li>Continuing Education and Course Progress</li>
-                    <li>Seamless integration with EduRx</li>
-                    <li>Detailed CE analytics</li>
+                    <li className='font-body'>Yearly progress summaries</li>
+                    <li className='font-body'>Continuing Education and Course Progress</li>
+                    <li className='font-body'>Seamless integration with EduRx</li>
+                    <li className='font-body'>Detailed CE analytics</li>
                   </ul>
                 </div>
               </div>
@@ -92,11 +92,11 @@ export default function CompThree({signUpModal}:Props) {
             </div>
             <div className='relative flex flex-col'>
               <div className='relative w-full h-full flex flex-col justify-between rounded-[15px] py-[50px] px-[35px] after:content-[" "] after:absolute after:w-full after:h-full after:left-0 after:top-0 after:z-10 after: after:rounded-[15px] after:bg-gradient-to-br after:from-white after:to-eduDarkGray after:blur-sm after:inner-shadow after:backdrop-blur-xl after:opacity-95 iphone:px-[15px] iphone:py-[20px] iphone:mt-[25px]'>
-                <p className='z-20 text-body !font-normal !text-[16px] !leading-[30px] !mb-[20px] tl:!text-[20px] iphone:!text-[16px]'>The CE Library brings a personalized touch to your educational journey. Experience an automated feed tailored to your licenses, providing you with eligible courses to effortlessly meet all your CE requirements.</p>
+                <p className='z-20 font-body !font-normal !text-[16px] !leading-[30px] !mb-[20px] tl:!text-[20px] iphone:!text-[16px]'>The CE Library brings a personalized touch to your educational journey. Experience an automated feed tailored to your licenses, providing you with eligible courses to effortlessly meet all your CE requirements.</p>
                 <div className='flex flex-row w-full justify-start items-center z-20'>
                   {/* launch modal onclick */}
                   <button onClick={signUpModal?.openModal} className='flex flex-row flex-nowrap justify-center items-center'>
-                    <h4 className='mr-[10px] font-normal text-[24px]'>Sign Up</h4>
+                    <h4 className='mr-[10px] font-headers font-normal text-[24px]'>Sign Up</h4>
                     <Arrow />
                   </button>
                 </div>
@@ -104,18 +104,18 @@ export default function CompThree({signUpModal}:Props) {
               <div className='flex flex-row flex-nowrap justify-between items-start border border-eduBlack mt-[50px] rounded-[10px] py-[15px] px-[25px] font-body'>
                 <div className='w-1/2 ml-[20px]'>
                   <ul className='list-disc leading-[30px] font-body small:leading-[20px] small:text-[12px]'>
-                    <li>Personalized course feed</li>
-                    <li>Comprehensive course database</li>
-                    <li>Eligibility-based course recommendations</li>
-                    <li>One-click enrollment</li>
+                    <li className='font-body'>Personalized course feed</li>
+                    <li className='font-body'>Comprehensive course database</li>
+                    <li className='font-body'>Eligibility-based course recommendations</li>
+                    <li className='font-body'>One-click enrollment</li>
                   </ul>
                 </div>
                 <div className='w-1/2 ml-[20px]'>
                   <ul className='list-disc leading-[30px] font-body small:leading-[20px] small:text-[12px]'>
-                    <li>CE requirement matching</li>
-                    <li>Integrated purchase options</li>
-                    <li>Course progress tracking</li>
-                    <li>Quick-view course summaries</li>
+                    <li className='font-body'>CE requirement matching</li>
+                    <li className='font-body'>Integrated purchase options</li>
+                    <li className='font-body'>Course progress tracking</li>
+                    <li className='font-body'>Quick-view course summaries</li>
                   </ul>
                 </div>
               </div>

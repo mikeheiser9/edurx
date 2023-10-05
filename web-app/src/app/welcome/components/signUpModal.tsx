@@ -129,7 +129,7 @@ export const SignUpModal = ({ signUpModal }: Props) => {
       visible={signUpModal.isOpen}
       onClose={signUpModal.closeModal}
       showFooter={false}
-      modalClassName="max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg flex-auto flex justify-center items-center"
+      modalClassName="max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg flex justify-center items-center flex-col"
       modalBodyClassName="relative p-4 px-8 overflow-y-auto font-body overflow-hidden bg-eduLightGray"
     >
       <Formik
@@ -141,7 +141,7 @@ export const SignUpModal = ({ signUpModal }: Props) => {
           <div className="flex flex-col flex-auto flex-wrap items-center gap-2">
             <div className="flex flex-wrap flex-auto justify-center items-center flex-col gap-6 my-6">
               <Image src={EduLogo} alt="eduRx-logo" />
-              <div className="flex flex-col items-center justify-center">
+              <div className="flex flex-col items-center justify-center w-full">
                 <span className="font-body text-center text-sm md:text-lg">
                   Fill out the form to get beta access to EduRx
                 </span>

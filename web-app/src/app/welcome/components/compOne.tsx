@@ -20,7 +20,7 @@ export default function CompOne({signUpModal}: Props) {
             </div>
             <div className='relative ml-[30px] z-10'>
               <p className='leading-[50px] font-body text-[35px]'>Learn & connect with the best in your field</p>
-              <button onClick={signUpModal.openModal} className='absolute w-[105px] h-[35px] text-[12px] flex justify-center items-center font-light text-eduBlack bg-eduYellow rounded-[5px] right-[15px] bottom-[37px]'>start</button>
+              <button onClick={signUpModal.openModal} className='absolute w-[105px] h-[35px] text-[12px] flex justify-center items-center font-body font-light text-eduBlack bg-eduYellow rounded-[5px] right-[15px] bottom-[37px]'>start</button>
             </div>
           </div>
         </div>
@@ -44,24 +44,24 @@ export default function CompOne({signUpModal}: Props) {
             <div className="relative w-[320px] h-[320px] rounded-[15px] shadow-inner z-20 ipad-under:w-[180px] ipad-under:h-[130px] iphone:min-w-[180px]">
               <div className='relative w-full h-full flex flex-col justify-between rounded-[15px] py-[50px] px-[35px] after:content-[" "] after:absolute after:w-full after:h-full after:left-0 after:top-0 after:z-10 after: after:rounded-[15px] after:bg-gradient-to-br after:from-white after:to-eduDarkGray after:blur-sm after:inner-shadow after:backdrop-blur-xl after:opacity-95 ipad-under:px-[15px] ipad-under:py-[15px]'>
                 <div className='flex flex-row w-full justify-between items-center z-20'>
-                  <button onClick={signUpModal.openModal} className='w-[150px] h-[35px] text-[12px] flex justify-center items-center font-light text-eduBlack bg-transparent rounded-[5px] right-[15px] bottom-[37px] z-20 border border-solid border-eduBlack ipad-under:w-[80px] ipad-under:h-[25px] ipad-under:text-[10px]'>join waitlist</button>
+                  <button onClick={signUpModal.openModal} className='w-[150px] h-[35px] text-[12px] flex justify-center items-center font-light font-body text-eduBlack bg-transparent rounded-[5px] right-[15px] bottom-[37px] z-20 border border-solid border-eduBlack ipad-under:w-[80px] ipad-under:h-[25px] ipad-under:text-[10px]'>join waitlist</button>
                   <Arrow onClick={signUpModal.openModal}/>
                 </div>
                 <div className='flex flex-col w-full'>
                   <div className="w-[55px] h-[0px] border border-eduBlack z-20"></div>
-                  <p className='text-eduDarkBlue text-[24px] z-20 mt-[15px] ipad-under:text-[12px] iphone:text-[13px] iphone:mt-[8px]'>Register for the EduRx beta.</p>
+                  <p className='text-eduDarkBlue font-body text-[24px] z-20 mt-[15px] ipad-under:text-[12px] iphone:text-[13px] iphone:mt-[8px]'>Register for the EduRx beta.</p>
                 </div>
               </div>
             </div>
             <div className="relative w-[320px] h-[320px] rounded-[15px] shadow-inner z-20 mt-[50px] medium:mt-0 medium:ml-[50px] ipad-under:w-[180px] ipad-under:h-[130px] iphone:ml-[10px] iphone:min-w-[180px]">
               <div className='relative w-full h-full flex flex-col justify-between rounded-[15px] py-[50px] px-[35px] after:content-[" "] after:absolute after:w-full after:h-full after:left-0 after:top-0 after:z-10 after: after:rounded-[15px] after:bg-gradient-to-br after:from-white after:to-eduDarkGray after:blur-sm after:inner-shadow after:backdrop-blur-xl after:opacity-95 ipad-under:px-[15px] ipad-under:py-[15px]'>
                 <div className='flex flex-row w-full justify-between items-center z-20'>
-                  <button className='w-[150px] h-[35px] text-[12px] flex justify-center items-center font-body font-light text-eduBlack bg-transparent rounded-[5px] right-[15px] bottom-[37px] z-20 border border-solid border-eduBlack ipad-under:w-[80px] ipad-under:h-[25px] ipad-under:text-[10px]'>learn more</button>
+                  <button  onClick={signUpModal?.openModal} className='w-[150px] h-[35px] text-[12px] flex justify-center items-center font-body font-light text-eduBlack bg-transparent rounded-[5px] right-[15px] bottom-[37px] z-20 border border-solid border-eduBlack ipad-under:w-[80px] ipad-under:h-[25px] ipad-under:text-[10px]'>learn more</button>
                   <Arrow />
                 </div>
                 <div className='flex flex-col w-full'>
                   <div className="w-[55px] h-[0px] border border-eduBlack z-20"></div>
-                  <p className='text-eduDarkBlue text-[24px] z-20 mt-[15px] ipad-under:text-[12px] iphone:text-[13px] iphone:mt-[8px]'>Learn & connect with the best in your field</p>
+                  <p className='text-eduDarkBlue font-body text-[24px] z-20 mt-[15px] ipad-under:text-[12px] iphone:text-[13px] iphone:mt-[8px]'>View our forum demo & sign up today</p>
                 </div>
               </div>
             </div>

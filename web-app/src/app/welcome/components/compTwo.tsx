@@ -38,30 +38,30 @@ export default function CompTwo({signUpModal}:Props) {
             </div>
             <div className='relative flex flex-col'>
               <div className='relative w-full h-full flex flex-col justify-between rounded-[15px] py-[50px] px-[35px] after:content-[" "] after:absolute after:w-full after:h-full after:left-0 after:top-0 after:z-10 after: after:rounded-[15px] after:bg-gradient-to-br after:from-white after:to-eduDarkGray after:blur-sm after:inner-shadow after:backdrop-blur-xl after:opacity-95 iphone:px-[15px] iphone:py-[20px] iphone:mt-[25px]'>
-                <p className='z-20 !text-body !font-normal !text-[16px] !leading-[30px] !mb-[20px] tl:!text-[20px] iphone:!text-[16px]'>A centralized platform that makes it easy to find, complete, track and verify CEs. This closed space encourages meaningful collaboration in a way that hasn&amp;t been done in the medical field. Rooted in data and scientific evidence, this interprofessional communication sparks scientific discussions, reviews on products and programs, and endless resources.</p>
+                <p className='z-20 !font-body !font-normal !text-[16px] !leading-[30px] !mb-[20px] tl:!text-[20px] iphone:!text-[16px]'>A centralized platform that makes it easy to find, complete, track and verify CEs. This closed space encourages meaningful collaboration in a way that hasn&amp;t been done in the medical field. Rooted in data and scientific evidence, this interprofessional communication sparks scientific discussions, reviews on products and programs, and endless resources.</p>
                 <div className='flex flex-row w-full justify-start items-center z-20'>
                   {/* launch modal onclick */}
                   <button onClick={signUpModal?.openModal} className='flex flex-row flex-nowrap justify-center items-center'>
-                    <h4 className='mr-[10px] font-normal text-[24px]'>Sign Up</h4>
+                    <h4 className='mr-[10px] font-normal font-headers text-[24px]'>Sign Up</h4>
                     <Arrow />
                   </button>
                 </div>
               </div>
               <div className='flex flex-row flex-nowrap justify-between items-start border border-eduBlack mt-[50px] rounded-[10px] py-[15px] px-[25px] font-body'>
                 <div className='w-1/2 ml-[20px]'>
-                  <ul className='list-disc leading-[30px] small:leading-[20px] small:text-[12px]'>
-                    <li>Profile Notifications</li>
-                    <li>Post Notifications</li>
-                    <li>Search Your Network</li>
-                    <li>Upcoming Courses</li>
+                  <ul className='list-disc font-body leading-[30px] small:leading-[20px] small:text-[12px]'>
+                    <li className='font-body'>Profile Notifications</li>
+                    <li className='font-body'>Post Notifications</li>
+                    <li className='font-body'>Search Your Network</li>
+                    <li className='font-body'>Upcoming Courses</li>
                   </ul>
                 </div>
                 <div className='w-1/2 ml-[20px]'>
                   <ul className='list-disc leading-[30px] small:leading-[20px] small:text-[12px]'>
-                    <li>Event Calendar</li>
-                    <li>Continuing Education and Course Progress</li>
-                    <li>Chat Bot to Navcess</li>
-                    <li>News / Resources</li>
+                    <li className='font-body'>Event Calendar</li>
+                    <li className='font-body'>Continuing Education and Course Progress</li>
+                    <li className='font-body'>Chat Bot to Navcess</li>
+                    <li className='font-body'>News / Resources</li>
                   </ul>
                 </div>
               </div>
@@ -92,11 +92,11 @@ export default function CompTwo({signUpModal}:Props) {
             </div>
             <div className='relative flex flex-col'>
               <div className='relative w-full h-full flex flex-col justify-between rounded-[15px] py-[50px] px-[35px] after:content-[" "] after:absolute after:w-full after:h-full after:left-0 after:top-0 after:z-10 after: after:rounded-[15px] after:bg-gradient-to-br after:from-white after:to-eduDarkGray after:blur-sm after:inner-shadow after:backdrop-blur-xl after:opacity-95 iphone:px-[15px] iphone:py-[20px] iphone:mt-[25px]'>
-                <p className='z-20 text-body !font-normal !text-[16px] !leading-[30px] !mb-[20px] tl:!text-[20px] iphone:!text-[16px]'>Scientifically Based Healthcare Informatics:<br /> EduRx will provide medical professionals with access to up-to-date and evidence-based information related to their field, helping them make informed decisions in their practice.</p>
+                <p className='z-20 font-body !font-normal !text-[16px] !leading-[30px] !mb-[20px] tl:!text-[20px] iphone:!text-[16px]'>Scientifically Based Healthcare Informatics:<br /> EduRx will provide medical professionals with access to up-to-date and evidence-based information related to their field, helping them make informed decisions in their practice.</p>
                 <div className='flex flex-row w-full justify-start items-center z-20'>
                   {/* launch modal onclick */}
                   <button  onClick={signUpModal?.openModal} className='flex flex-row flex-nowrap justify-center items-center'>
-                    <h4 className='mr-[10px] font-normal text-[24px]'>Sign Up</h4>
+                    <h4 className='mr-[10px] font-normal font-headers text-[24px]'>Sign Up</h4>
                     <Arrow />
                   </button>
                 </div>
@@ -104,18 +104,18 @@ export default function CompTwo({signUpModal}:Props) {
               <div className='flex flex-row flex-nowrap justify-between items-start border border-eduBlack mt-[50px] rounded-[10px] py-[15px] px-[25px] font-body'>
                 <div className='w-1/2 ml-[20px]'>
                   <ul className='list-disc leading-[30px] font-body small:leading-[20px] small:text-[12px]'>
-                    <li>Profile Notifications</li>
-                    <li>Post Notifications</li>
-                    <li>Search Your Network</li>
-                    <li>Upcoming Courses</li>
+                    <li className='font-body'>Profile Notifications</li>
+                    <li className='font-body'>Post Notifications</li>
+                    <li className='font-body'>Search Your Network</li>
+                    <li className='font-body'>Upcoming Courses</li>
                   </ul>
                 </div>
                 <div className='w-1/2 ml-[20px]'>
                   <ul className='list-disc leading-[30px] font-body small:leading-[20px] small:text-[12px]'>
-                    <li>Event Calendar</li>
-                    <li>Continuing Education and Course Progress</li>
-                    <li>Chat Bot to Navcess</li>
-                    <li>News / Resources</li>
+                    <li className='font-body'>Event Calendar</li>
+                    <li className='font-body'>Continuing Education and Course Progress</li>
+                    <li className='font-body'>Chat Bot to Navcess</li>
+                    <li className='font-body'>News / Resources</li>
                   </ul>
                 </div>
               </div>
@@ -153,11 +153,11 @@ export default function CompTwo({signUpModal}:Props) {
             </div>
             <div className='relative flex flex-col'>
               <div className='relative w-full h-full flex flex-col justify-between rounded-[15px] py-[50px] px-[35px] after:content-[" "] after:absolute after:w-full after:h-full after:left-0 after:top-0 after:z-10 after: after:rounded-[15px] after:bg-gradient-to-br after:from-white after:to-eduDarkGray after:blur-sm after:inner-shadow after:backdrop-blur-xl after:opacity-95 iphone:px-[15px] iphone:py-[20px] iphone:mt-[25px]'>
-                <p className='z-20 text-body !font-normal !text-[16px] !leading-[30px] !mb-[20px] tl:!text-[20px] iphone:!text-[16px]'>Join or start a forum! Knowledge sharing and networking among medical professionals from different regions and institutions to collaborate on research and science.</p>
+                <p className='z-20 font-body !font-normal !text-[16px] !leading-[30px] !mb-[20px] tl:!text-[20px] iphone:!text-[16px]'>Join or start a forum! Knowledge sharing and networking among medical professionals from different regions and institutions to collaborate on research and science.</p>
                 <div className='flex flex-row w-full justify-start items-center z-20'>
                   {/* launch modal onclick */}
                   <button  onClick={signUpModal?.openModal} className='flex flex-row flex-nowrap justify-center items-center'>
-                    <h4 className='mr-[10px] font-normal text-[24px]'>Sign Up</h4>
+                    <h4 className='mr-[10px] font-headers font-normal text-[24px]'>Sign Up</h4>
                     <Arrow />
                   </button>
                 </div>
@@ -165,18 +165,18 @@ export default function CompTwo({signUpModal}:Props) {
               <div className='flex flex-row flex-nowrap justify-between items-start border border-eduBlack mt-[50px] rounded-[10px] py-[15px] px-[25px] font-body'>
                 <div className='w-1/2 ml-[20px]'>
                   <ul className='list-disc leading-[30px] small:leading-[20px] small:text-[12px]'>
-                    <li>Public Forums</li>
-                    <li>Private Forums</li>
-                    <li>Join or Follow Forums</li>
-                    <li>Create a Forum</li>
+                    <li className='font-body'>Public Forums</li>
+                    <li className='font-body'>Private Forums</li>
+                    <li className='font-body'>Join or Follow Forums</li>
+                    <li className='font-body'>Create a Forum</li>
                   </ul>
                 </div>
                 <div className='w-1/2 ml-[20px]'>
                   <ul className='list-disc leading-[30px] small:leading-[20px] small:text-[12px]'>
-                    <li>Create a Poll</li>
-                    <li>See Trending Discussions</li>
-                    <li>View Analytics</li>
-                    <li>See a Thread of all Forums, Your Posts, or What You Are Follwing</li>
+                    <li className='font-body'>Create a Poll</li>
+                    <li className='font-body'>See Trending Discussions</li>
+                    <li className='font-body'>View Analytics</li>
+                    <li className='font-body'>See a Thread of all Forums, Your Posts, or What You Are Follwing</li>
                   </ul>
                 </div>
               </div>
