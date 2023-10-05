@@ -16,9 +16,9 @@ const npiToDefinition = {
 
 const publicRoutes = [
   "/",
-  "/signup",
-  "/signup/student",
-  "/signup/professional",
+  // "/signup",
+  // "/signup/student",
+  // "/signup/professional",
   "/welcome"
 ];
 
