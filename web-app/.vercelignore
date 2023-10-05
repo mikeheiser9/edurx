@@ -13,7 +13,6 @@ web-app/src/components/accountCard.tsx
 web-app/src/components/badge.tsx
 web-app/src/components/chip.tsx
 web-app/src/components/footer.tsx
-web-app/src/components/header.tsx
 web-app/src/components/infiniteScroll.tsx
 web-app/src/components/internalError.tsx
 web-app/src/components/loadMore.tsx
