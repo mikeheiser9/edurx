@@ -3,10 +3,10 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "./components/header";
 import Hero from "./components/hero";
-import Intro from "./components/intro";
 import CompOne from "./components/compOne";
 import CompTwo from "./components/compTwo";
 import CompThree from "./components/compThree";
+import Footer from "./components/footer";
 import { AnimationProvider } from "@/util/animationContext";
 import { SignUpModal } from "./components/signUpModal";
 import { useModal } from "@/hooks";
@@ -39,6 +39,7 @@ export default function Welcome(props: any) {
             <CompOne signUpModal={signUpModal} />
             <CompTwo signUpModal={signUpModal} />
             <CompThree signUpModal={signUpModal} />
+            <Footer />
           </div>
         </div>
       </AnimationProvider>

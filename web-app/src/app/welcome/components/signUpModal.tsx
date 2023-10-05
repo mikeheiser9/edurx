@@ -129,8 +129,8 @@ export const SignUpModal = ({ signUpModal }: Props) => {
       visible={signUpModal.isOpen}
       onClose={signUpModal.closeModal}
       showFooter={false}
-      modalClassName="max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg flex justify-center items-center flex-col"
-      modalBodyClassName="relative p-4 px-8 overflow-y-auto font-body overflow-hidden bg-eduLightGray"
+      modalClassName="flex justify-center items-center flex-col w-[550px] ipad-under:w-[350px]"
+      modalBodyClassName="relative overflow-y-auto font-body overflow-hidden bg-eduLightGray w-full pb-[50px] px-[50px] ipad-under:px-[20px]"
     >
       <Formik
         initialValues={formInitialValues}
@@ -139,59 +139,65 @@ export const SignUpModal = ({ signUpModal }: Props) => {
       >
         {({ isSubmitting, isValid }) => (
           <div className="flex flex-col flex-auto flex-wrap items-center gap-2">
-            <div className="flex flex-wrap flex-auto justify-center items-center flex-col gap-6 my-6">
+            <div className="flex justify-center items-center flex-col gap-6 my-6">
               <Image src={EduLogo} alt="eduRx-logo" />
               <div className="flex flex-col items-center justify-center w-full">
                 <span className="font-body text-center text-sm md:text-lg">
                   Fill out the form to get beta access to EduRx
                 </span>
-                <span className="font-body text-xs mt-2 italic">
+                <span className="font-body text-[12px] mt-2 italic">
                   (Must have valid NPI)
                 </span>
               </div>
             </div>
 
-            <Form>
-              <div className="relative flex flex-col flex-auto flex-wrap gap-4">
-                <div className="grid gap-4 md:grid-cols-2 md:gap-6">
+            <Form className="w-full">
+              <div className="relative flex flex-col flex-auto flex-wrap w-full">
+                <div className="flex flex-row flex-nowrap w-full justify-between items-start ipad-under:flex-col">
+                  <div className="w-[49% min-h-[85px] justify-start ipad-under:w-full">
+                    <InputField
+                      label="First Name"
+                      type="text"
+                      name="first_name"
+                      className="block w-full text-[16px] bg-white"
+                      maxLength={20}
+                      labelProps={labelProps}
+                      mandatory
+                    />
+                  </div>
+                  <div className="w-[49%] min-h-[85px] justify-start ipad-under:w-full">
+                    <InputField
+                      name="last_name"
+                      type="text"
+                      maxLength={20}
+                      className="block w-full text-[16px]  bg-white"
+                      label="Last name"
+                      labelProps={labelProps}
+                      mandatory
+                    />
+                  </div>
+                </div>
+                <div className='w-full flex flex-col min-w-full min-h-[85px] justify-start'>
                   <InputField
-                    label="First Name"
-                    type="text"
-                    name="first_name"
-                    className="block w-full text-sm  bg-white"
-                    maxLength={20}
-                    labelProps={labelProps}
-                    mandatory
-                  />
-                  <InputField
-                    name="last_name"
-                    type="text"
-                    maxLength={20}
-                    className="block w-full text-sm  bg-white"
-                    label="Last name"
+                    name="email"
+                    type="email"
+                    maxLength={50}
+                    className="block w-full text-[16px] bg-white"
+                    label="Email Address"
                     labelProps={labelProps}
                     mandatory
                   />
                 </div>
-
-                <InputField
-                  name="email"
-                  type="email"
-                  maxLength={50}
-                  className="block w-full text-sm  bg-white"
-                  label="Email Address"
-                  labelProps={labelProps}
-                  mandatory
-                />
-
-                <InputField
-                  name="npi_number"
-                  maxLength={10}
-                  className="bg-white block w-full text-sm tracking-[.25rem] uppercase"
-                  label="NPI"
-                  labelProps={labelProps}
-                  mandatory
-                />
+                <div className='w-full flex flex-col min-h-[85px] justify-start'>
+                  <InputField
+                    name="npi_number"
+                    maxLength={10}
+                    className="bg-white block w-full text-[16px] tracking-[.25rem] uppercase"
+                    label="NPI"
+                    labelProps={labelProps}
+                    mandatory
+                  />
+                </div>
                 <button
                   type="submit"
                   className="border-2 my-4 border-eduBlack rounded-lg px-[25px] py-[4px] font-body text-eduBlack hover:bg-eduYellow hover:border-eduYellow ease-in-out flex justify-center items-center gap-2 duration-500 m-auto disabled:opacity-60"

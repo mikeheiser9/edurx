@@ -65,7 +65,7 @@ export const Modal = ({
       return props.customHeader;
     }
     return (
-      <div className="flex p-3 items-center font-body bg-eduDarkGray">
+      <div className="flex p-3 items-center font-body bg-eduDarkGray w-full">
         <span className="text-xl font-body justify-self-start">
           {props.headerTitle}
         </span>
