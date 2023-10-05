@@ -9,3 +9,4 @@ src/app/signin/
 src/app/signup/
 src/app/forum/
 src/app/profile/
+src/app/signin/page.tsx
