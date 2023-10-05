@@ -42,10 +42,10 @@ const useOutsideClick = (callback: () => void) => {
     }
   };
 
-  useEffect(() => {
-    document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
-  }, []);
+  // useEffect(() => {
+  //   document.addEventListener("click", handleClick);
+  //   return () => document.removeEventListener("click", handleClick);
+  // }, []);
 
   return innerRef;
 };
