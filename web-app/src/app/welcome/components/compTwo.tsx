@@ -8,7 +8,11 @@ import ResearchElement from '@/assets/imgs/researchElements.png';
 import ForumElement from '@/assets/imgs/forumElement.png';
 import ResearchElementMobile from '@/assets/imgs/researchElementMobile.png'
 
-export default function CompTwo() {
+interface Props {
+  signUpModal: UseModalType
+}
+
+export default function CompTwo({signUpModal}:Props) {
   return (
     <div className='relative w-screen h-full flex flex-col justify-center items-center'>
     <div className='w-full text-center flex flex-col justify-center items-center'>
@@ -37,7 +41,7 @@ export default function CompTwo() {
                 <p className='z-20 !text-body !font-normal !text-[16px] !leading-[30px] !mb-[20px] tl:!text-[20px] iphone:!text-[16px]'>A centralized platform that makes it easy to find, complete, track and verify CEs. This closed space encourages meaningful collaboration in a way that hasn&amp;t been done in the medical field. Rooted in data and scientific evidence, this interprofessional communication sparks scientific discussions, reviews on products and programs, and endless resources.</p>
                 <div className='flex flex-row w-full justify-start items-center z-20'>
                   {/* launch modal onclick */}
-                  <button className='flex flex-row flex-nowrap justify-center items-center'>
+                  <button onClick={signUpModal?.openModal} className='flex flex-row flex-nowrap justify-center items-center'>
                     <h4 className='mr-[10px] font-normal text-[24px]'>Sign Up</h4>
                     <Arrow />
                   </button>
@@ -91,7 +95,7 @@ export default function CompTwo() {
                 <p className='z-20 text-body !font-normal !text-[16px] !leading-[30px] !mb-[20px] tl:!text-[20px] iphone:!text-[16px]'>Scientifically Based Healthcare Informatics:<br /> EduRx will provide medical professionals with access to up-to-date and evidence-based information related to their field, helping them make informed decisions in their practice.</p>
                 <div className='flex flex-row w-full justify-start items-center z-20'>
                   {/* launch modal onclick */}
-                  <button className='flex flex-row flex-nowrap justify-center items-center'>
+                  <button  onClick={signUpModal?.openModal} className='flex flex-row flex-nowrap justify-center items-center'>
                     <h4 className='mr-[10px] font-normal text-[24px]'>Sign Up</h4>
                     <Arrow />
                   </button>
@@ -152,7 +156,7 @@ export default function CompTwo() {
                 <p className='z-20 text-body !font-normal !text-[16px] !leading-[30px] !mb-[20px] tl:!text-[20px] iphone:!text-[16px]'>Join or start a forum! Knowledge sharing and networking among medical professionals from different regions and institutions to collaborate on research and science.</p>
                 <div className='flex flex-row w-full justify-start items-center z-20'>
                   {/* launch modal onclick */}
-                  <button className='flex flex-row flex-nowrap justify-center items-center'>
+                  <button  onClick={signUpModal?.openModal} className='flex flex-row flex-nowrap justify-center items-center'>
                     <h4 className='mr-[10px] font-normal text-[24px]'>Sign Up</h4>
                     <Arrow />
                   </button>

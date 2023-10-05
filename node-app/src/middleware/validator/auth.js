@@ -51,7 +51,6 @@ export const signUpFieldValidator = async (req, res, next) => {
     await schema.validateAsync(req.body);
     next();
   } catch (error) {
-    console.log("err");
     returnAppropriateError(res, error);
   }
 };

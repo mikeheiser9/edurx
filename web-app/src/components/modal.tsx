@@ -65,8 +65,8 @@ export const Modal = ({
       return props.customHeader;
     }
     return (
-      <div className="flex p-3 items-center bg-primary">
-        <span className="text-xl font-medium justify-self-start">
+      <div className="flex p-3 items-center font-body bg-eduDarkGray">
+        <span className="text-xl font-body justify-self-start">
           {props.headerTitle}
         </span>
         {showCloseIcon && (
@@ -95,18 +95,18 @@ export const Modal = ({
     <>
       {props.visible && (
         <div
-          className={`fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-50 flex justify-center items-center transition-opacity duration-300 ease-in-out backdrop-filter backdrop-blur-sm backdrop-brightness-50 ${animationClass} ${props.maskClassName}`}
+          className={`fixed top-0 left-0 w-full h-full bg-eduBlack/60 z-50 flex justify-center items-center transition-opacity duration-300 ease-in-out backdrop-filter backdrop-blur-sm backdrop-brightness-50 ${animationClass} ${props.maskClassName}`}
           onClick={handleMaskClick}
         >
           <div
             onClick={handleModalClick}
-            className={`bg-white flex flex-col rounded-md shadow-lg xl:w-1/3 lg:w-1/2 md:w-2/3 sm:w-3/4 w-11/12 h-auto xl:max-h-[80vh] lg:max-h-[80vh] md:max-h-[80vh] sm:max-h-[80vh] max-h-[80vh] overflow-hidden transition-opacity duration-300 ease-in-out ${props.modalClassName}`}
+            className={`flex flex-col bg-white rounded-[10px] w-3/4 max-w-[1000px] shadow-lg  h-auto xl:max-h-[80vh] lg:max-h-[80vh] md:max-h-[80vh] sm:max-h-[80vh] max-h-[80vh] overflow-hidden transition-opacity duration-300 ease-in-out ${props.modalClassName}`}
           >
             {showHeader && <Header />}
             <div
               className={
                 props.modalBodyClassName ||
-                "relative p-4 overflow-y-auto overflow-hidden bg-eduDarkGray"
+                "relative p-4 overflow-y-auto font-body overflow-hidden bg-eduLightGray"
               }
             >
               {props.children}

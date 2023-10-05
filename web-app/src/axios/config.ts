@@ -1,5 +1,6 @@
 import { removeToken, removeUserDetail } from "@/redux/ducks/user.duck";
 import { AppDispatch } from "@/redux/store";
+import { responseCodes } from "@/util/constant";
 import axios, {
   Axios,
   AxiosBasicCredentials,
@@ -23,7 +24,7 @@ export const axiosParse = (store: AppDispatch) => {
       // console.log(e.response);
 
       const status = e?.response?.status;
-      if (status == 403) {
+      if (status == responseCodes.FORBIDDEN) {
         store.dispatch(removeToken());
         store.dispatch(removeUserDetail());
       }
@@ -48,8 +49,16 @@ export const axiosPost = <T>(
   );
 };
 
-export const axiosPut = <T>(url: string, data: T) => {
-  return axios.put(`${process.env.NEXT_PUBLIC_SERVER_URL}${url}`, data);
+export const axiosPut = <T>(
+  url: string,
+  data: T,
+  options?: AxiosRequestConfig
+) => {
+  return axios.put(
+    `${process.env.NEXT_PUBLIC_SERVER_URL}${url}`,
+    data,
+    options
+  );
 };
 
 export const axiosDelete = (url: string) => {

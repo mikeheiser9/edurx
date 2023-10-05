@@ -62,6 +62,9 @@ const userSchema = new Schema(
 );
 userSchema.pre("save", async function (next) {
   if (this.password) {
+    this.username = `${this.first_name}_${this.last_name}_${this._id
+      ?.toString()
+      ?.slice(-2)}`;
     this.password = await bcrypt.hash(this.password, 10);
   }
   next();
@@ -143,6 +146,12 @@ userSchema.virtual("recentComments", {
       createdAt: -1,
     },
   },
+});
+
+userSchema.virtual("followers", {
+  ref: "userConnections",
+  localField: "_id",
+  foreignField: "targetUserId",
 });
 
 export const userModel = model("users", userSchema);

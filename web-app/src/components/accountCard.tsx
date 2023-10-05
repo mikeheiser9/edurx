@@ -11,8 +11,8 @@ interface componentProps {
 export const AccountCard = (props: componentProps): React.JSX.Element => {
   return (
     <div
-      className={`flex flex-col items-center bg-eduDarkGray p-4 ${
-        props.isDisabled ? "cursor-not-allowed opacity-60" : ""
+      className={`flex flex-col items-center bg-eduLightBlue cursor-pointer p-4 ${
+        props.isDisabled ? "!cursor-not-allowed opacity-60 text-white/60" : ""
       }`}
       onClick={() => {
         if (props.isDisabled) return;
@@ -23,7 +23,7 @@ export const AccountCard = (props: componentProps): React.JSX.Element => {
     >
       <Image className="h-10 w-10 my-2" src={props.icon} alt={"icon"} />
       <div className="flex flex-col">
-        <label className="text-eduDarkBlue">{props.title}</label>
+        <label className="font-bold">{props.title}</label>
       </div>
     </div>
   );

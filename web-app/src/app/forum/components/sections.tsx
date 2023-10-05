@@ -1,6 +1,7 @@
 import { Button } from "@/components/button";
 import { postStatus } from "@/util/constant";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 interface NavOption {
@@ -10,9 +11,13 @@ interface NavOption {
   label: string;
 }
 
-const ModalHeader = (): React.ReactElement => {
+const ModalHeader = ({
+  onClose,
+}: {
+  onClose: () => void;
+}): React.ReactElement => {
   return (
-    <div className="flex p-3 items-center bg-primary">
+    <div className="flex p-3 items-center bg-primary gap-2">
       <span className="text-xl flex-1 font-medium justify-self-start">
         New Post
       </span>
@@ -22,15 +27,18 @@ const ModalHeader = (): React.ReactElement => {
           <b>0</b>
         </span>
       </span>
+      <FontAwesomeIcon
+        icon={faXmark}
+        onClick={onClose}
+        className="cursor-pointer ml-auto"
+      />
     </div>
   );
 };
 
 const ModalFooter = ({
-  message,
   setFieldValue,
 }: {
-  message: string | null;
   setFieldValue: (field: string, value: string) => void;
 }): React.ReactElement => {
   return (
@@ -49,13 +57,6 @@ const ModalFooter = ({
           onMouseEnter={() => setFieldValue("postStatus", postStatus[1])}
         />
       </div>
-      {message && (
-        <div className="inline-flex justify-center">
-          <span className="text-primary capitalize text-xs text-center animate-fade-in-down">
-            {message}
-          </span>
-        </div>
-      )}
     </div>
   );
 };
@@ -90,4 +91,30 @@ const DropDownPopover = ({
   );
 };
 
-export { ModalHeader, ModalFooter, DropDownPopover };
+const ReviewRequestButton = ({
+  onClick,
+  count = 0,
+}: {
+  onClick?: () => void;
+  count: number;
+}) => (
+  <div className="m-auto relative">
+    <span
+      className={`w-5 font-semibold text-xs h-5 flex absolute right-0 -m-1.5 justify-center items-center rounded-full bg-primary ${
+        !count ? "opacity-60" : ""
+      }`}
+    >
+      {count}
+    </span>
+    <button
+      type="button"
+      onClick={() => count && onClick?.()}
+      className="p-2 px-4 text-sm text-black rounded-md bg-white disabled:opacity-60"
+      disabled={!count}
+    >
+      Review Requests
+    </button>
+  </div>
+);
+
+export { ModalHeader, ModalFooter, DropDownPopover, ReviewRequestButton };

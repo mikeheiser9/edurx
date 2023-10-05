@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 
-const Arrow = () => {
+const Arrow = (props: React.SVGAttributes<SVGSVGElement>) => {
   return (
     <>
       <svg
@@ -10,6 +10,7 @@ const Arrow = () => {
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         className="z-20"
+        {...props}
       >
         <ellipse cx="18" cy="18.5" rx="18" ry="18.5" fill="#FDCD26" />
         <path

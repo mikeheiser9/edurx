@@ -10,19 +10,28 @@ import {
   getPost,
   getAllPosts,
   addNewView,
+  updatePost,
+  addPrivatePostRequest,
+  getUserRequests,
+  bultUpdateRequests,
 } from "../controllers/post.js";
 import {
   addCommentValidator,
   addReactionValidator,
+  addRequestValidator,
   addViewValidator,
+  bulkRequestUpdateValidator,
   createMetaLabelValidator,
   createPostValidator,
   getAllPostValidator,
   getPostCommentsValidator,
+  getRequestValidator,
   getUsersPostsValidator,
   searchMetaLabelValidator,
+  updatePostValidator,
   validateCategoryTag,
 } from "../middleware/validator/post.js";
+import { adminAuthValidation } from "../middleware/validator/user.js";
 
 const postRoute = Router();
 postRoute.post(
@@ -56,5 +65,29 @@ postRoute.get(
 );
 postRoute.get("/forum/all", userAuth, getAllPostValidator, getAllPosts);
 postRoute.get("/forum/user", userAuth, getUsersPostsValidator, getAllPosts);
+postRoute.put(
+  "/admin/update",
+  userAuth,
+  adminAuthValidation,
+  updatePostValidator,
+  updatePost
+);
+
+//private post requests
+postRoute.post(
+  "/private/create-request",
+  userAuth,
+  addRequestValidator,
+  addPrivatePostRequest
+);
+
+postRoute.get(
+  "/private/:postId/requests",
+  userAuth,
+  getRequestValidator,
+  getUserRequests
+);
+
+postRoute.put("/private/:postId/requests-update", userAuth, bulkRequestUpdateValidator, bultUpdateRequests)
 
 export default postRoute;

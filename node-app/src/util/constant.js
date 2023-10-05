@@ -22,8 +22,10 @@ export const forumTypes = [
 export const postType = ["post", "poll"];
 export const postStatus = ["draft", "published"];
 export const postCategoryTagsTypes = ["tag", "category"];
+export const postFlags = ["Misinformation", "Unrelated", "Irrelevant"];
+export const postAccessRequestStatus = ["accepted", "denied", "pending"];
 
-export const allowFileType = [
+export const allowedFileTypes = [
   "image/jpeg",
   "image/jpg",
   "image/gif",
@@ -101,6 +103,7 @@ export const userValidations = {
         is_in_progress: joi.boolean().default(true),
         activities: validateField.stringPrefixJoiValidation.allow(""),
         _id: validateField.stringPrefixJoiValidation,
+        id: joi.string()
       })
     ),
   licenses: joi.array().items(userDocValidation),
@@ -108,6 +111,27 @@ export const userValidations = {
 };
 
 const paginationAllowedLimits = [5, 10, 20, 50, 100, 200, 500, 1000];
+
+export const responseTypes = {
+  UNAUTHORIZED: "Unauthorized",
+  ERROR: "Error",
+  SUCCESS: "Success",
+  OK: "OK",
+  BAD_REQUEST: "Bad request",
+  NOT_FOUND: "Resource not found",
+  INVALID_REQUEST: "Invalid request",
+  INTERNAL_SERVER_ERROR: "Internal server error",
+};
+
+export const responseCodes = {
+  UNAUTHORIZED: 401,
+  SUCCESS: 200,
+  ERROR: 400,
+  NOT_FOUND: 404,
+  INTERNAL_SERVER_ERROR: 500,
+  NOT_ACCEPTABLE: 406,
+  FORBIDDEN: 403,
+};
 
 export const paginationValidation = {
   page: joi.number().min(1),

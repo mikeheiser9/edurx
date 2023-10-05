@@ -12,15 +12,14 @@ import {
   faSignOut,
   faUserAlt,
 } from "@fortawesome/free-solid-svg-icons";
-import { Select } from "@/components/select";
-import { forumTypes } from "@/util/constant";
+import { responseCodes, roleAccess, roleBasedForum } from "@/util/constant";
 import { Chip } from "@/components/chip";
 import { LeftPanel } from "./components/leftPanel";
 import { PostCard } from "./components/postCard";
 import InfiniteScroll from "@/components/infiniteScroll";
 import { PostModal } from "./components/postModal";
 import { requireAuthentication } from "@/components/requireAuthentication";
-import { DropDownPopover } from "./sections";
+import { DropDownPopover } from "./components/sections";
 import { faBell } from "@fortawesome/free-regular-svg-icons";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
@@ -28,10 +27,13 @@ import {
   removeToken,
   removeUserDetail,
   selectUserDetail,
-  setUserDetail,
 } from "@/redux/ducks/user.duck";
 import Image from "next/image";
 import { getStaticImageUrl } from "@/util/helpers";
+import { showToast } from "@/components/toast";
+import { updatePostByAPI } from "@/service/post.service";
+import { Select } from "@/components/select";
+import EduRxIcon from "../../assets/icons/eduRx-black.svg";
 
 const sortingOptions: { value: string; label: string }[] = [
   {
@@ -49,11 +51,12 @@ const sortingOptions: { value: string; label: string }[] = [
 ];
 
 const tabMenuOptions = [
-  "Forum",
-  "Resources",
-  "My Edu-Rx",
-  "Events",
-  "EduRx Library",
+  { label: "Hub Home", img: EduRxIcon },
+  { label: "Forum" },
+  { label: "Resources" },
+  { label: "Events", isDisabled: true },
+  { label: "EduRx Library", isDisabled: true },
+  { label: "Health Check", isDisabled: true },
 ];
 
 const forumTabs = ["Forum Feed", "Your Posts", "Following"];
@@ -70,12 +73,16 @@ const Page = () => {
     totalRecords: 0,
   });
   const [selectedFilters, setSelectedFilters] = useState<FilterOptionsState>();
-  const [selectedCategories, setSelectedCategories] = useState<any[]>([]);
-  const [selectedTab, setSelectedTab] = useState<string>(tabMenuOptions[0]);
+  const [selectedCategories, setSelectedCategories] = useState<
+    TagCategoryType[]
+  >([]);
+  const [selectedTab, setSelectedTab] = useState<string>(
+    tabMenuOptions[0]?.label
+  );
   const [selectedForumTab, setSelectedForumTab] = useState<string>(
     forumTabs[0]
   );
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<PostInterface[]>([]);
   const [postPagination, setPostPagination] = useState<PageDataState>({
     page: 1,
     totalRecords: 0,
@@ -83,6 +90,7 @@ const Page = () => {
   const [selectedPostId, setSelectedPostId] = useState<string>("");
   const [showDropdown, setshowDropdown] = useState<boolean>(false);
   const dropDownRef = useOutsideClick(() => setshowDropdown(false));
+  const isAdmin = loggedInUser?.role === roleAccess.ADMIN;
 
   const fetchCategories = async (page: number = 1) => {
     try {
@@ -94,14 +102,17 @@ const Page = () => {
           page,
         },
       });
-      if (response.status === 200) {
+      if (response.status === responseCodes.SUCCESS) {
         setCategoryList(categoryList.concat(response?.data?.data?.records));
         setCategoryPagination({
           page: response?.data?.data?.currentPage,
           totalRecords: response?.data?.data?.totalRecords,
         });
-      }
+      } else throw new Error("Unable to retrieve category list");
     } catch (error) {
+      showToast.error(
+        (error as Error)?.message || "Unable to retrieve category list"
+      );
       console.error("Error processing category list", error);
     }
   };
@@ -110,6 +121,7 @@ const Page = () => {
     type: keyof FilterOptionsState,
     value: string | any[]
   ) => {
+    if (selectedFilters?.[type] === value) return;
     setSelectedFilters((preState) => {
       return {
         ...preState,
@@ -120,22 +132,28 @@ const Page = () => {
 
   const fetchPosts = async (page: Number, useConcat: boolean = true) => {
     try {
+      let payload = {
+        limit: 10,
+        page,
+      };
+      if (selectedFilters?.categories?.length) {
+        Object.assign(payload, {
+          categories: selectedFilters.categories
+            .map((item) => item?._id)
+            .toString(),
+        });
+      }
+      if (selectedFilters?.forumType) {
+        Object.assign(payload, { forumType: selectedFilters.forumType });
+      }
+      if (selectedFilters?.sortBy) {
+        Object.assign(payload, { sortBy: selectedFilters.sortBy });
+      }
       const response = await axiosGet("/post/forum/all", {
-        params: {
-          ...selectedFilters,
-          ...(selectedFilters?.categories?.length
-            ? {
-                categories: selectedFilters.categories
-                  .map((item) => item._id)
-                  .toString(),
-              }
-            : {}),
-          limit: 5,
-          page,
-        },
+        params: payload,
       });
 
-      if (response?.status === 200) {
+      if (response?.status === responseCodes.SUCCESS) {
         setPosts(
           useConcat
             ? posts.concat(response?.data?.data?.posts?.data)
@@ -158,6 +176,48 @@ const Page = () => {
   const onPostClick = (postId: string) => {
     viewPostModal.openModal();
     setSelectedPostId(postId);
+  };
+
+  const onDeletePost = async (postId: string) => {
+    try {
+      const response = await updatePostByAPI({
+        _id: postId,
+        isDeleted: true,
+      });
+      if (response.status === responseCodes.SUCCESS) {
+        showToast.success("Post deleted successfully");
+        // fetchPosts(1, false); // fetching posts again after deleting
+        setPosts(posts?.filter((p) => p?._id !== postId));
+      } else
+        throw new Error(response?.data?.message || "Unable to delete post");
+    } catch (error) {
+      showToast.error((error as Error)?.message || "Something went wrong");
+      console.log("Failed to delete post", error);
+    }
+  };
+
+  const onFlagPost = async (postId: string, flag: PostFlags | null) => {
+    try {
+      const response = await updatePostByAPI({
+        _id: postId,
+        flag: flag || null,
+      });
+      console.log(response);
+      if (response.status === responseCodes.SUCCESS) {
+        let updatedPostIndex = posts?.findIndex((p) => p?._id === postId);
+        if (updatedPostIndex !== -1) {
+          posts[updatedPostIndex].flag = flag || null;
+        }
+        showToast.success(
+          flag ? `Post flagged as ${flag}` : "Post flag removed successfully"
+        );
+        setPosts((pre) => [...pre]);
+        // fetchPosts(1, false); // fetching posts again after deleting
+      } else
+        throw new Error(response?.data?.message || "Unable to update post");
+    } catch (error) {
+      console.log("Failed to update post", error);
+    }
   };
 
   const logOutUser = () => {
@@ -189,28 +249,41 @@ const Page = () => {
           selectedCategories={selectedCategories}
         />
         <div className="flex-1 flex overflow-hidden flex-col gap-2">
-          <div className="flex relative bg-primary-dark gap-4 p-4 justify-center rounded-md">
-            {tabMenuOptions.map((item: string, index: number) => (
-              <label
+          <div className="flex relative bg-primary-dark gap-8 p-4 justify-center rounded-md">
+            {tabMenuOptions.map((item, index: number) => (
+              <button
                 key={index}
-                onClick={() => setSelectedTab(item)}
-                className={`text-white duration-500 ease-in-out transition-colors border text-sm rounded-md p-2 px-4 ${
-                  item === selectedTab ? "border-primary" : "border-white/50"
+                onClick={() => setSelectedTab(item.label)}
+                className={`text-eduBlack duration-500 ease-in-out transition-colors text-[16px] rounded-[5px] py-2 px-4 w-[145px] font-body text-center cursor-pointer disabled:opacity-60 ${
+                  item.label === selectedTab
+                    ? "bg-eduBlack text-white"
+                    : "bg-eduDarkGray"
                 }`}
+                type="button"
+                disabled={item?.isDisabled}
               >
-                {item}
-              </label>
+                <span className="flex items-center justify-center font-semibold gap-1">
+                  {item?.img && (
+                    <Image
+                      src={item.img}
+                      alt={item?.label}
+                      className="w-6 h-6"
+                    />
+                  )}
+                  {item?.label}
+                </span>
+              </button>
             ))}
             <div
-              className={`absolute transition-colors rounded-md ease-in-out duration-100 p-2 flex gap-2 flex-col right-4 ${
+              className={`absolute transition-colors rounded-md ease-in-out duration-100 p-2 z-40 flex gap-2 flex-col right-4 ${
                 showDropdown ? "bg-primary-darker" : "bg-transparent"
               }`}
-              ref={dropDownRef as any}
+              ref={dropDownRef}
             >
               <div className="flex justify-end">
                 <span
                   onClick={() => setshowDropdown(!showDropdown)}
-                  className={`flex ease-in-out duration-500 cursor-pointer ring-white border-primary overflow-hidden w-8 h-8 justify-center items-center text-primary rounded-full bg-white ${
+                  className={`flex ease-in-out duration-500 cursor-pointer ring-eduBlack overflow-hidden w-8 h-8 justify-center items-center rounded-full bg-eduDarkGray ${
                     showDropdown ? "ring-2" : ""
                   }`}
                 >
@@ -252,28 +325,32 @@ const Page = () => {
               />
             </div>
           </div>
-          <div className="flex justify-between">
+          <div className="flex justify-between items-center w-full h-[55px]">
             <div className="flex justify-center items-center gap-2">
-              <span className="bg-primary-dark w-8 h-8 flex items-center justify-center rounded-md text-white">
-                <FontAwesomeIcon icon={faSearch} size="sm" />
+              <span className="bg-primary-dark w-8 h-8 flex items-center justify-center rounded-md ">
+                <FontAwesomeIcon
+                  icon={faSearch}
+                  className="text-eduBlack text-[18px] bg-eduDarkGray p-[8px] rounded-[10px]"
+                />
               </span>
               <Button
                 onClick={addPostModal.openModal}
-                className="!w-auto border border-transparent ease-in-out duration-200 hover:border-primary hover:!bg-primary-dark bg-primary-dark text-white flex gap-2 justify-center items-center px-4"
+                className="!w-[125px] hover:!bg-eduBlack !bg-eduLightGray text-eduBlack flex gap-3 justify-center items-center px-2 py-2 !border-none"
               >
                 <FontAwesomeIcon
                   icon={faPlusCircle}
-                  className="text-primary"
-                  size="sm"
+                  className="text-primary text-[20px]"
                 />
-                <span className="text-xs">New Post</span>
+                <span className="text-[14px] font-body font-medium">
+                  New Post
+                </span>
               </Button>
             </div>
             <ul className="flex gap-6">
               {forumTabs.map((item) => (
                 <li
                   onClick={() => setSelectedForumTab(item)}
-                  className={`text-white ease-in-out duration-500 border-b-2 py-2 text-sm ${
+                  className={`text-eduBlack font-body font-medium ease-in-out duration-500 border-b-2 py-2 text-[14px] ${
                     item === selectedForumTab
                       ? "border-primary"
                       : "border-transparent"
@@ -285,24 +362,30 @@ const Page = () => {
               ))}
             </ul>
             <div className="flex justify-center items-center gap-2">
-              <label htmlFor="forumType" className="text-white">
+              <label
+                htmlFor="forumType"
+                className="text-eduBlack font-body text-[14px] font-medium"
+              >
                 Viewing :
               </label>
               <Select
-                options={forumTypes.map((item) => {
+                options={roleBasedForum[
+                  loggedInUser?.role as keyof typeof roleBasedForum
+                ]?.map((item) => {
                   return {
                     label: item,
                     value: item,
                   };
                 })}
-                onChange={(e) => handleFilters("forumType", e.target.value)}
-                value={selectedFilters?.forumType ?? "Choose a forum type"}
-                label="Choose a forum type"
+                onSelect={(e) => handleFilters("forumType", e?.value)}
+                onClear={() => handleFilters("forumType", "")}
+                value={selectedFilters?.forumType || "Choose a forum type"}
+                wrapperClass="!w-[12rem]"
               />
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            {selectedFilters?.categories?.map((item: any) => (
+            {selectedFilters?.categories?.map((item: TagCategoryType) => (
               <Chip
                 key={item._id}
                 label={item.name}
@@ -310,7 +393,7 @@ const Page = () => {
                 onClear={() => {
                   const values =
                     selectedFilters?.categories?.filter(
-                      (i: any) => i.name !== item.name
+                      (i: TagCategoryType) => i.name !== item.name
                     ) ?? [];
                   handleFilters("categories", values);
                   setSelectedCategories(values);
@@ -331,6 +414,11 @@ const Page = () => {
                 post={post}
                 key={post._id}
                 onPostClick={() => onPostClick(post?._id)}
+                userRole={loggedInUser?.role}
+                onDeletePost={
+                  isAdmin ? () => onDeletePost(post?._id) : undefined
+                }
+                onFlagPost={isAdmin ? onFlagPost : undefined}
               />
             ))}
           </InfiniteScroll>

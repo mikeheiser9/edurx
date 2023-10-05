@@ -1,9 +1,9 @@
 "use client";
 import { useRouter } from "next/navigation";
-import ProfessionalImg from "@/assets/icons/user.svg";
-import StudentImg from "@/assets/icons/student.svg";
-import CeProviderImg from "@/assets/icons/provider.svg";
-import IntitutionImg from "@/assets/icons/institution.svg";
+import ProfessionalImg from "@/assets/icons/doctor.svg";
+import StudentImg from "@/assets/icons/studentNew.svg";
+import CeProviderImg from "@/assets/icons/ceProvider.svg";
+import IntitutionImg from "@/assets/icons/institutionNew.svg";
 import { AccountCard } from "@/components/accountCard";
 import React from "react";
 
@@ -52,8 +52,8 @@ export default function ChooseAccountType() {
         <label className="font-headers text-[16px]">Register for Edu-Rx</label>
       </div>
       <div className="flex flex-col text-eduBlack items-center p-4 gap-2 bg-white">
-        <label className="text-[24px] font-headers">Create Accout</label>
-        <label className="opacity-60 font-body mt-[10px]">Please make a selection</label>
+        <label className="text-3xl font-headers font-semibold">Create Account</label>
+        <label className="text-eduBlack/60 font-body">Please make a selection</label>
       </div>
 
       <div className="grid-cols-2 grid gap-[2px] bg-eduDarkBlue">

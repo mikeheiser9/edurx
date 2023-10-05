@@ -10,10 +10,6 @@ const commentSchema = new Schema(
       type: Types.ObjectId,
       ref: "users",
     },
-    repliedTo: {
-      type: Types.ObjectId,
-      ref: "users",
-    },
     postId: Types.ObjectId,
     taggedUsers: [
       {

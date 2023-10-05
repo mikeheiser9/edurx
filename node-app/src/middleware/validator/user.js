@@ -1,7 +1,13 @@
 import Joi from "joi";
-import { returnAppropriateError } from "../../util/commonFunctions.js";
+import {
+  generalResponse,
+  returnAppropriateError,
+} from "../../util/commonFunctions.js";
 import {
   paginationValidation,
+  responseCodes,
+  responseTypes,
+  roles,
   userDocValidation,
   userDocumentTypes,
   userValidations,
@@ -35,7 +41,6 @@ const updateUserValidator = async (req, res, next) => {
     await schema.validateAsync(req.body);
     next();
   } catch (error) {
-    console.log(error);
     returnAppropriateError(res, error);
   }
 };
@@ -84,7 +89,6 @@ const getUserDocumentsValidator = async (req, res, next) => {
     });
     next();
   } catch (err) {
-    console.log(err);
     returnAppropriateError(res, err);
   }
 };
@@ -94,7 +98,9 @@ const userConnectionsValidator = async (req, res, next) => {
     const schema = Joi.object({
       action: Joi.string().valid("add", "remove"),
       userId: validateField.objectId.required(),
-      targetUserId: validateField.objectId.required().disallow(Joi.ref("userId")),
+      targetUserId: validateField.objectId
+        .required()
+        .disallow(Joi.ref("userId")),
     });
     await schema.validateAsync({
       action: req.params.action,
@@ -102,7 +108,6 @@ const userConnectionsValidator = async (req, res, next) => {
     });
     next();
   } catch (error) {
-    console.log("Failed to validate request", error);
     returnAppropriateError(res, error);
   }
 };
@@ -124,6 +129,36 @@ const getConnectionsValidator = async (req, res, next) => {
   }
 };
 
+const searchUsersValidator = async (req, res, next) => {
+  try {
+    const schema = Joi.object({
+      ...paginationValidation,
+      searchKeyword: Joi.string().allow("").max(50),
+    });
+    await schema.validateAsync(req.query);
+    next();
+  } catch (error) {
+    returnAppropriateError(res, error);
+  }
+};
+
+const adminAuthValidation = async (req, res, next) => {
+  try {
+    if (req.user?.role === roles[0]) await next();
+    else {
+      return generalResponse(
+        res,
+        responseCodes.UNAUTHORIZED,
+        responseTypes.UNAUTHORIZED,
+        "You are not authorized to perform this action",
+        null
+      );
+    }
+  } catch (error) {
+    returnAppropriateError(res, error);
+  }
+};
+
 export {
   updateUserValidator,
   getUserProfileValidator,
@@ -131,4 +166,6 @@ export {
   getUserDocumentsValidator,
   userConnectionsValidator,
   getConnectionsValidator,
+  searchUsersValidator,
+  adminAuthValidation,
 };

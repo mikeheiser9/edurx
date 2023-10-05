@@ -3,11 +3,7 @@ import InputField from "@/components/input";
 import { Field, Form, Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import {
-  googleSheetPayload,
-  professionalUserRegistrationField,
-  userLoginField,
-} from "../../../util/interface/user.interface";
-import {
+  responseCodes,
   taxonomyCodeToProfessionalMapping,
   validateField,
 } from "@/util/constant";
@@ -77,24 +73,18 @@ export default function SignUp() {
   const validationSchema = [
     Yup.object({
       email: stringPrefixJoiValidation.email().required(),
-      password: password
-        .min(8, "Password must be at least 8 characters")
-        .max(25, "Password must be at most 25 characters")
-        .matches(
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/,
-          "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character"
-        ),
-      confirm_password: Yup.string()
-        .oneOf([Yup.ref("password")], "password must match")
-        .required("confirm password is required")
-        .min(8, "Password must be at least 8 characters")
-        .max(25, "Password must be at most 25 characters")
-        .matches(
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/,
-          "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character"
-        ),
-      first_name: stringPrefixJoiValidation.min(2).required(),
-      last_name: stringPrefixJoiValidation.min(2).required(),
+      password: password.required(),
+      confirm_password: password
+        .required("Confirm Password is required")
+        .oneOf([Yup.ref("password")], "Password must match"),
+      first_name: stringPrefixJoiValidation
+        .min(2)
+        .required()
+        .matches(/^[a-zA-Z0-9]*$/, "Only alphanumeric characters are allowed"),
+      last_name: stringPrefixJoiValidation
+        .min(2)
+        .required()
+        .matches(/^[a-zA-Z0-9]*$/, "Only alphanumeric characters are allowed"),
     }),
     Yup.object({
       npi_number: stringPrefixJoiValidation.length(10).required(),
@@ -158,6 +148,9 @@ export default function SignUp() {
           .map((taxonomy: any) => taxonomy.code)
           .some((code: string) => validNpiCode.includes(code));
         if (exists) {
+          let primaryTaxonomy = res.data?.taxonomies?.find(
+            (taxonomy: any) => taxonomy?.primary
+          );
           actions.setFieldValue(
             npiReturnVariables[0].fieldName,
             `${res?.data?.basic?.name_prefix || ""} ${
@@ -186,8 +179,8 @@ export default function SignUp() {
               return taxonomy.code;
             })
           );
-          actions.setFieldValue("city", res.data?.addresses[0]?.city);
-          actions.setFieldValue("state", res.data?.addresses[0]?.state);
+          actions.setFieldValue("city", res.data?.taxonomies[0]?.city);
+          actions.setFieldValue("state", primaryTaxonomy?.state);
           actions.setFieldValue(
             "zip_code",
             res.data?.addresses[0]?.postal_code
@@ -232,7 +225,8 @@ export default function SignUp() {
     };
     await userAlreadyExists(payload.email)
       .then(async (response) => {
-        const userRes = response.status === 200 && response.data.data;
+        const userRes =
+          response.status === responseCodes.SUCCESS && response.data.data;
         if (!userRes.isExist && !userRes.user) {
           // user is new and can proceed further
           setCurrentStep((prevStep) => prevStep + 1);
@@ -261,7 +255,7 @@ export default function SignUp() {
       email: values.email,
     })
       .then((res) => {
-        if (res.status === 200) {
+        if (res.status === responseCodes.SUCCESS) {
           setCommonErrorMessage("Verification code sent");
           setTimeout(() => {
             setCommonErrorMessage(null);
@@ -343,7 +337,10 @@ export default function SignUp() {
           : currentStep == 3
           ? setCurrentStep((pre) => pre + 2)
           : "";
-      } else {
+      } else if (
+        res.status === responseCodes.SUCCESS &&
+        res?.data?.response_type === "error"
+      ) {
         // already verified handle it
         setCurrentStep(5);
       }
@@ -374,13 +371,14 @@ export default function SignUp() {
   const AskNpiNumber = (): React.JSX.Element => {
     return (
       <React.Fragment>
-        <p className="text-sm opacity-50 text-eduBlack text-center px-16 pb-6">
+        <p className="text-sm opacity-50 text-white text-center px-16 pb-6">
           EduRx is a curated community of medical professionals in order to
           ensure quality discussion and information please validate your NPI
           License below.
         </p>
         <div className="px-8">
           <InputField
+            maxLength={20}
             name="npi_number"
             placeholder="License Number"
             type="text"
@@ -393,7 +391,7 @@ export default function SignUp() {
   const NpiDetailsNotAcceptableFound = (): React.JSX.Element => {
     return (
       <div className="px-6">
-        <p className="text-sm opacity-50 text-center">
+        <p className="text-[14px] font-body text-eduBlack/60 text-center">
           EduRx is new and building! We are excited to be creating a hub for all
           medical professionals to come together. However we are not accepting
           accounts for your specific taxonomy right now. Please enter your email
@@ -407,13 +405,13 @@ export default function SignUp() {
   const NpiDetailsShow = (): React.JSX.Element => {
     return (
       <div className="px-6 text-center">
-        <p className="text-sm opacity-50">
+        <p className="text-[14px] font-body text-eduBlack/60">
           Please confirm the following information is accurate and up to date.
           Note: you will be able to add additional licenses and info later.
         </p>
         <div className="bg-eduLightGray mt-4 text-eduBlack rounded flex flex-col gap-2 p-2">
           <div className="flex justify-end w-full relative">
-            <div className="absolute text-xs text-eduBlack">
+            <div className="absolute text-xs text-eduBlack font-body">
               <button
                 onClick={() => setCurrentStep((currentStep) => currentStep + 1)}
                 className="">
@@ -424,12 +422,12 @@ export default function SignUp() {
           {npiReturnVariables.map((variable, index: number) => {
             return (
               <div key={index}>
-                <label className="text-xs opacity-50">{variable.label}</label>
+                <label className="text-[16px] text-eduBlack/60 font-body">{variable.label}</label>
                 <Field
                   name={variable.fieldName}
-                  component={({ field }: any) => (
+                  component={({ field }: { field: { value: string } }) => (
                     <div>
-                      <label>{field?.value}</label>
+                      <label className="text-[14px] font-body text-eduBlack">{field?.value}</label>
                     </div>
                   )}
                 ></Field>
@@ -448,17 +446,34 @@ export default function SignUp() {
           name="addresses.0"
           placeholder="Address Line 1"
           type="text"
+          maxLength={60}
         />
         <InputField
           name="addresses.1"
           placeholder="Address Line 2"
           type="text"
+          maxLength={60}
         />
         <div className="grid grid-cols-2 gap-4">
-          <InputField name="city" placeholder="City" type="text" />
-          <InputField name="state" placeholder="State" type="text" />
+          <InputField
+            name="city"
+            placeholder="City"
+            type="text"
+            maxLength={20}
+          />
+          <InputField
+            name="state"
+            placeholder="State"
+            type="text"
+            maxLength={20}
+          />
         </div>
-        <InputField name="zip_code" placeholder="Zip Code" type="text" />
+        <InputField
+          name="zip_code"
+          placeholder="Zip Code"
+          type="text"
+          maxLength={20}
+        />
       </React.Fragment>
     );
   };
@@ -494,9 +509,7 @@ export default function SignUp() {
   const renderButtonLabelBasedOnStep = (): string => {
     if (currentStep == 4) {
       return "Save";
-    } else if (currentStep == 2 || currentStep == 5) {
-      return "Submit";
-    } else if (currentStep === 0 || currentStep === 3) {
+    } else if (currentStep === 3) {
       return "Register";
     } else {
       return "Next";
@@ -507,7 +520,7 @@ export default function SignUp() {
     return currentStep === 1
       ? "Enter NPI"
       : currentStep === 2
-      ? "Oops! Looks like you are a little early!"
+      ? "Oops! Looks like you're a little early!"
       : currentStep === 3
       ? "Your Information"
       : currentStep === 4
@@ -544,7 +557,7 @@ export default function SignUp() {
         >
           <BackArrowIcon />
         </button>
-        <label className="text-[16px] text-eduBlack flex-1 text-center self-center font-headers">
+        <label className="text-[16px] flex-1 text-center self-center font-body">
           Register for Edu-Rx | Professional
         </label>
       </div>
@@ -555,11 +568,11 @@ export default function SignUp() {
       >
         {({ isSubmitting, values, ...actions }) => (
           <div className="flex flex-col items-center p-4 bg-white">
-            <h1 className="text-eduBlack text-center tracking-wider text-[24px] my-4 font-serif">
+            <h1 className="text-eduBlack text-center tracking-wider font-headers text-[24px] my-4">
               {getStepBasedTitle()}
             </h1>
             <Form>
-              <div className="flex flex-col gap-4 text-eduBlack m-[5%]">
+              <div className="flex flex-col gap-4 text-eduBlack m-8">
                 {_renderComponentStepWise(currentStep)}
               </div>
               {isLoading && (
@@ -571,7 +584,7 @@ export default function SignUp() {
                 <button
                   className="bg-eduBlack text-white font-light text-[16px] rounded p-2 m-auto w-1/2 hover:bg-yellow-500 ease-in duration-300"
                   type="submit"
-                  disabled={isSubmitting || isLoading}
+                  disabled={isSubmitting || isLoading || !actions.isValid}
                   hidden={currentStep === 7}
                 >
                   <span>{renderButtonLabelBasedOnStep()}</span>
@@ -584,7 +597,7 @@ export default function SignUp() {
               )}
               <span
                 hidden={!commonErrorMessage}
-                className="text-eduBlack flex place-content-center text-sm opacity-50 m-2 animate-fade-in-down"
+                className="text-eduBlack/60 flex place-content-center text-[14px] font-body m-2 animate-fade-in-down"
               >
                 {commonErrorMessage}
               </span>

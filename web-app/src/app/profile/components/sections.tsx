@@ -16,6 +16,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileCircleCheck, faPlus } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 import { getStaticImageUrl } from "@/util/helpers";
+import { allowedFileTypes } from "@/util/constant";
 
 const socialMediaIcons: socials = {
   instagram,
@@ -24,7 +25,7 @@ const socialMediaIcons: socials = {
   linkedin,
 };
 const labelProps = {
-  className: "text-white/50 text-sm font-semibold",
+  className: "text-eduBlack font-body text-[16px] mb-[5px]",
 };
 
 const About = (): React.JSX.Element => {
@@ -35,18 +36,20 @@ const About = (): React.JSX.Element => {
         placeholder="Write about your self"
         name="personal_bio"
         className="w-full resize-y"
+        isFormikField
       />
       <InputField
         name="contact_email"
         placeholder="admin@example.com"
         type="text"
         label="Preferred Contact Email"
+        maxLength={50}
       />
-      <div className="my-4">
-        <span className="text-white/50 text-sm font-semibold">
+      <div className="mt-6">
+        <span className="text-eduBlack text-[16px] font-body">
           Link Socials
         </span>
-        <div className="flex flex-wrap flex-auto justify-between gap-6 mt-2">
+        <div className="flex flex-wrap text-sm flex-auto justify-between gap-6 mt-2">
           {Object.keys(socialMediaIcons).map((socialMedia: string) => (
             <div className="flex gap-4" key={socialMedia}>
               <span className="bg-primary flex justify-center rounded-full h-10 w-10">
@@ -64,6 +67,7 @@ const About = (): React.JSX.Element => {
                 className="flex-1"
                 name={`socials.${socialMedia}`}
                 placeholder={`${socialMedia}@123`}
+                maxLength={30}
                 onKeyDown={(event) => {
                   if (event.code === "Space") event.preventDefault();
                 }}
@@ -109,17 +113,17 @@ const Education = ({
           <div className="flex">
             <Image src={eduIcon} alt={`${value?._id as string}alt`} />
           </div>
-          <div className="flex flex-1 flex-col text-white gap-1">
-            <span className="text-lg">{value.school_name}</span>
-            <span className="text-white/50 text-xs">
+          <div className="flex flex-1 flex-col text-eduBlack gap-1">
+            <span className="text-[16px] font-headers">{value.school_name}</span>
+            <span className="text-eduBlack text-[14px] font-body">
               {value.field_of_study}
             </span>
             <div>
-              <span className="text-white/50 text-xs">
+              <span className="text-eduBlack/60 text-[14px] font-body">
                 {moment(value?.start_date).format("YYYY")}
               </span>
               {" - "}
-              <span className="text-white/50 text-xs">
+              <span className="text-eduBlack/60 text-[14px] font-body">
                 {value?.is_in_progress
                   ? "Present"
                   : moment(value?.start_date).format("YYYY")}
@@ -129,21 +133,21 @@ const Education = ({
           <div className="flex p-4 py-2 justify-end">
             <FontAwesomeIcon
               icon={faPenToSquare}
-              className="text-white cursor-pointer"
+              className="text-eduBlack cursor-pointer"
               onClick={() => onEdit(value)}
             />
           </div>
         </div>
       ))}
-      <div className="flex gap-x-4 my-4">
+      <div className="flex gap-x-2 my-4">
         <span
-          className="bg-[#3A3A3A] rounded-xl cursor-pointer w-10 h-10 flex justify-center"
+          className="bg-eduYellow rounded-xl cursor-pointer w-10 h-10 flex justify-center"
           onClick={addMore}
         >
           <FontAwesomeIcon icon={faPlus} className="text-white self-center" />
         </span>
         <span
-          className="cursor-pointer bg-[#3A3A3A] text-white/50 rounded-lg p-2 px-6"
+          className=" cursor-pointer text-[16px] text-eduBlack/60 font-body p-2"
           onClick={addMore}
         >
           Add another
@@ -153,23 +157,26 @@ const Education = ({
   );
   return (
     <React.Fragment>
-      <div className="flex gap-2 flex-col">
+      <div className="flex gap-2 flex-col ">
         {isListView && userData?.educations?.length ? (
           <ListView />
         ) : (
           <>
+          <div className="w-full flex justify-end">
             {userData?.educations?.length && (
               <FontAwesomeIcon
                 icon={faCircleXmark}
-                className="text-white cursor-pointer animate-fade-in-down"
+                className="text-eduBlack text-[24px] cursor-pointer animate-fade-in-down"
                 onClick={() => setIsListView?.(true)}
               />
             )}
+            </div>
             <InputField
               type="text"
               name="school_name"
               placeholder="Enter school name"
               label="School"
+              maxLength={20}
               labelProps={labelProps}
               mandatory
             />
@@ -177,6 +184,7 @@ const Education = ({
               type="text"
               name="degree"
               placeholder="Enter name of degree"
+              maxLength={20}
               label="Degree"
               labelProps={labelProps}
             />
@@ -185,6 +193,7 @@ const Education = ({
               name="field_of_study"
               placeholder="Enter field of study"
               label="Field of Study"
+              maxLength={20}
               labelProps={labelProps}
               mandatory
             />
@@ -198,8 +207,8 @@ const Education = ({
                   labelProps={labelProps}
                   mandatory
                 />
-                <div className="flex items-center gap-2 text-white/50">
-                  <label className="cursor-pointer" htmlFor="is_in_progress">
+                <div className="flex items-center gap-2 text-eduBlack/60 font-body mt-[5px]">
+                  <label className="cursor-pointer !font-body" htmlFor="is_in_progress">
                     In Progress
                   </label>
                   <InputField
@@ -281,24 +290,24 @@ const UserDocs = ({
     <>
       {userData?.[dataKey]?.map((value: userDocs) => (
         <div className="flex gap-x-6" key={value?._id || Date.now()}>
-          <div className="flex">
+          {/* <div className="flex">
             <FontAwesomeIcon
               icon={faFileCircleCheck}
               className="text-white w-10 h-10"
             />
-          </div>
-          <div className="flex flex-1 flex-col text-white gap-1">
+          </div> */}
+          <div className="flex flex-1 flex-col text-eduBlack text-[16px] font-headers gap-1">
             <span className="text-lg capitalize">{value.doc_name}</span>
-            <span className="text-white/50 text-xs capitalize">
+            <span className="text-eduBlack/60 text-[14px] font-body capitalize">
               {value.issuer_organization}
             </span>
             {value?.issue_date && (
-              <span className="text-white/50 text-xs">
+              <span className="text-eduBlack/60 text-[14px] font-body capitalize">
                 Issued {value?.issue_date}
               </span>
             )}
             {(value?.doc_id?.length as number) > 0 && (
-              <span className="text-white/50 text-xs">
+              <span className="text-eduBlack/60 text-[14px] font-body capitalize">
                 Credential ID {value?.doc_id || "-"}
               </span>
             )}
@@ -306,7 +315,7 @@ const UserDocs = ({
           <div className="flex p-4 py-2 justify-end">
             <FontAwesomeIcon
               icon={faPenToSquare}
-              className="text-white cursor-pointer"
+              className="text-eduBlack cursor-pointer"
               onClick={() => onEdit(value)}
             />
           </div>
@@ -339,16 +348,19 @@ const UserDocs = ({
         <ListView />
       ) : (
         <>
+        <div className="w-full flex justify-end">
           {showIcon && (
             <FontAwesomeIcon
               icon={faCircleXmark}
-              className="text-white cursor-pointer animate-fade-in-down"
+              className="!text-eduBlack cursor-pointer animate-fade-in-down text-[24px]"
               onClick={() => setIsListView?.(true)}
             />
           )}
+        </div>
           <InputField
             type="text"
             name="doc_name"
+            maxLength={20}
             placeholder="Enter name"
             label="Name"
             labelProps={labelProps}
@@ -356,6 +368,7 @@ const UserDocs = ({
           />
           <InputField
             type="text"
+            maxLength={20}
             name="issuer_organization"
             placeholder="Enter issuer"
             label="Issuing Organization"
@@ -382,8 +395,8 @@ const UserDocs = ({
                 disabled={values.has_no_expiry}
               />
             </div>
-            <div className="flex items-center gap-2 text-white/50">
-              <label className="cursor-pointer" htmlFor="has_no_expiry">
+            <div className="flex items-center gap-2 text-eduBlack/60">
+              <label className="cursor-pointer !font-body" htmlFor="has_no_expiry">
                 No Expiry
               </label>
               <InputField
@@ -397,6 +410,7 @@ const UserDocs = ({
           <InputField
             type="text"
             name="doc_id"
+            maxLength={40}
             label="Credential ID"
             placeholder="Enter credential ID"
             labelProps={labelProps}
@@ -404,6 +418,7 @@ const UserDocs = ({
           <InputField
             type="text"
             name="doc_url"
+            maxLength={60}
             label="Credential URL"
             placeholder="Enter credential URL"
             labelProps={labelProps}
@@ -427,9 +442,20 @@ const DropZone = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const onFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    e?.preventDefault();
     errorMessage && setErrorMessage(null);
     const file = e.target?.files?.[0];
+    console.log(file);
+
     if (!file) return;
+    if (!allowedFileTypes.includes(file?.type)) {
+      setErrorMessage(
+        `${file.type} is not allowed, Only ${allowedFileTypes?.join(
+          ", "
+        )} acceptable`
+      );
+      return;
+    }
     const isSizeValidated = validateImageSize(file);
     const isPixelsValidated = await validatePixels(URL.createObjectURL(file));
     console.log({
@@ -543,7 +569,7 @@ const DropZone = ({
             </div>
           )}
           <input
-            accept="image/jpeg,image/jpg,image/gif,,image/png"
+            accept="image/jpeg,image/jpg,image/gif,image/png"
             id={img_type}
             type="file"
             name={img_type}
@@ -553,7 +579,7 @@ const DropZone = ({
         </label>
       </div>
       <span
-        className={`text-primary text-sm animate-fade-in-down ${
+        className={`text-primary capitalize text-sm animate-fade-in-down ${
           errorMessage ? "visible" : "hidden"
         }`}
       >
@@ -573,17 +599,17 @@ const ProfileImages = ({
   return (
     <div className="flex flex-col gap-4 mb-3">
       <div className="flex flex-col items-start gap-2">
-        <span className="text-white">Upload Profile Picture</span>
+        <span className="text-eduBlack font-body text-[16px]">Upload Profile Picture</span>
         <DropZone img_type="profile_img" values={values} actions={actions} />
-        <span className="text-white/50 text-xs">
+        <span className="text-eduBlack/60 text-[12px] font-body">
           (Image file should not exceed 500x500 pixels or 8MB)
         </span>
       </div>
-      <span className="w-full border border-primary/50" />
+      <span className="w-full border border-eduBlack/60" />
       <div className="flex flex-col items-start gap-2">
-        <span className="text-white">Upload Banner Image</span>
+        <span className="text-eduBlack font-body text-[16px]">Upload Banner Image</span>
         <DropZone img_type="banner_img" values={values} actions={actions} />
-        <span className="text-white/50 text-xs">
+        <span className="text-eduBlack/60 text-[12px] font-body">
           (Image file should not exceed 1400x250 pixels or 18MB)
         </span>
       </div>

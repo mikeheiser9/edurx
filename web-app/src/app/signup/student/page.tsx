@@ -6,11 +6,7 @@ import {
   userAlreadyExists,
   verifyConfirmationCode,
 } from "@/service/auth.service";
-import { validateField } from "@/util/constant";
-import {
-  commonRegistrationField,
-  userLoginField,
-} from "@/util/interface/user.interface";
+import { responseCodes, validateField } from "@/util/constant";
 import { Field, Form, Formik, FormikHelpers } from "formik";
 import React, { useState } from "react";
 import * as Yup from "yup";
@@ -66,22 +62,10 @@ export default function () {
 
   const validationSchema: Yup.AnyObject = [
     Yup.object({
-      password: password
-        .min(8, "Password must be at least 8 characters")
-        .max(25, "Password must be at most 25 characters")
-        .matches(
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/,
-          "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character"
-        ),
-      confirm_password: Yup.string()
-        .oneOf([Yup.ref("password")], "password must match")
-        .required("confirm password is required")
-        .min(8, "Password must be at least 8 characters")
-        .max(25, "Password must be at most 25 characters")
-        .matches(
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/,
-          "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character"
-        ),
+      password: password.required(),
+      confirm_password: password
+        .required("Confirm Password is required")
+        .oneOf([Yup.ref("password")], "Password must match"),
       first_name: stringPrefixJoiValidation.min(2).required(),
       last_name: stringPrefixJoiValidation.min(2).required(),
       email: Yup.string()
@@ -130,7 +114,8 @@ export default function () {
     };
     await userAlreadyExists(payload.email)
       .then(async (response) => {
-        const userRes = response.status === 200 && response.data.data;
+        const userRes =
+          response.status === responseCodes.SUCCESS && response.data.data;
         if (!userRes?.isExist && !userRes?.user) {
           // user is new and can proceed with .edu verification
           await verifyEduMail(values.email)
@@ -180,12 +165,12 @@ export default function () {
     };
     await verifyConfirmationCode(payload)
       .then((res) => {
-        if (res.status === 200) {
+        if (res.status === responseCodes.SUCCESS) {
           setCurrentStep((prevStep: number) => prevStep + 1);
           setTimeout(() => {
             router.push("/");
           }, 1000);
-        } else if (res.status === 401) {
+        } else if (res.status === responseCodes.NOT_ACCEPTABLE) {
           actions.setFieldError("otp", "Incorrect code, please try again");
         } else {
           setCommonErrorMessage("Something went wrong");
@@ -214,12 +199,12 @@ export default function () {
     await signUp(payload)
       .then((response) => {
         if (
-          response?.status === 200 &&
+          response?.status === responseCodes.SUCCESS &&
           response?.data?.response_type === "success"
         ) {
           setCurrentStep(3);
         } else if (
-          response?.status === 200 &&
+          response?.status === responseCodes.SUCCESS &&
           response?.data?.response_type === "error"
         ) {
           setCommonErrorMessage(response.data.message);
@@ -242,7 +227,7 @@ export default function () {
       email: values.email,
     })
       .then((res) => {
-        if (res.status === 200) {
+        if (res.status === responseCodes.SUCCESS) {
           setCurrentStep(3);
         }
       })
@@ -286,16 +271,16 @@ export default function () {
 
   const UniversityInfo = (): React.JSX.Element => {
     return (
-      <div className="text-eduBlack px-6 text-center">
-        <p className="opacity-50 my-4">
-          if the information below is correct click next to continue sign up
-          process
+      <div className="px-6 text-center">
+        <p className="my-4 font-body text-[14px] text-eduBlack/60">
+          If the information below is correct click next to continue sign up
+          process.
         </p>
         <div className="py-6">
           <Field
             name="universityName"
             component={({ field }: formikField) => (
-              <span className="text-2xl">
+              <span className="text-[24px] font-headers text-eduBlack">
                 {field?.value?.replaceAll(",", " -")}
               </span>
             )}
@@ -304,9 +289,12 @@ export default function () {
         <Field
           name="email"
           component={({ field }: formikField) => (
-            <span className="opacity-50">
+            <span className="font-body text-[12px] text-eduBlack/60">
               email:{" "}
-              <a href={`mailto:${field.value}`} className="underline">
+              <a
+                href={`mailto:${field.value}`}
+                className="underline font-body text-[12px] text-eduBlack/60"
+              >
                 {field.value}
               </a>
             </span>
@@ -319,7 +307,7 @@ export default function () {
   const EduVerificationFailed = (): React.JSX.Element => {
     return (
       <div>
-        <p className="text-eduBlack px-8 opacity-50 text-center">
+        <p className="text-eduBlack/60 text-[14px] font-body px-8 text-center">
           It looks like the university associated with your .edu email address
           is not yet eligible for an EduRx account. Please come back soon to
           check again...
@@ -331,7 +319,7 @@ export default function () {
   const VerifyYourEmail = (): React.JSX.Element => {
     return (
       <React.Fragment>
-        <p className="text-eduBlack px-8 opacity-50 text-center">
+        <p className="text-eduBlack/60 text-[14px] font-body px-8 text-center">
           We need to verify your .edu email address. Click the “Send Code”
           button below to receive an email with a 6-digit code for email
           verification
@@ -341,7 +329,6 @@ export default function () {
   };
 
   const stepWiseRenderer = (
-    currentStep: number,
     values: studentSignUpSchema
   ): React.JSX.Element | null => {
     switch (currentStep) {
@@ -371,28 +358,26 @@ export default function () {
     }
   };
 
-  const getLabel = (step: number, values: studentSignUpSchema): string => {
-    return step === 0
-      ? "Register"
-      : step === 1 && !values.isEduVerified
-      ? "Go Back"
-      : step === 2
+  const getLabel = (values: studentSignUpSchema): string => {
+    return currentStep === 1 && !values.isEduVerified
+      ? "Back"
+      : currentStep === 2
       ? "Send Code"
-      : step === 3
+      : currentStep === 3
       ? "Submit"
       : "Next";
   };
 
-  const getHeadTitle = (step: number, values: studentSignUpSchema): string => {
-    return step === 1
+  const getHeadTitle = (values: studentSignUpSchema): string => {
+    return currentStep === 1
       ? values.isEduVerified
         ? "Confirm University"
         : "Oops... Something went wrong"
-      : step === 2
+      : currentStep === 2
       ? "Verify Email"
-      : step === 3
+      : currentStep === 3
       ? "Enter Verification Code"
-      : step === 4
+      : currentStep === 4
       ? "Creating Account"
       : "Create Student Account";
   };
@@ -415,7 +400,7 @@ export default function () {
         >
           <BackArrowIcon />
         </button>
-        <label className="text-[16px] text-eduBlack flex-1 text-center self-center">
+        <label className="text-[16px] text-eduBlack flex-1 text-center font-body self-center">
           Register for Edu-Rx | Student Account
         </label>
       </div>
@@ -426,21 +411,21 @@ export default function () {
       >
         {({ isSubmitting, values, ...actions }) => (
           <div className="flex flex-col items-center p-4 bg-white">
-            <h1 className="text-eduBlack tracking-wider text-[24px] my-4 font-serif ">
-              {getHeadTitle(currentStep, values)}
+            <h1 className="text-eduBlack tracking-wider text-4xl my-4 font-headers font-semibold text-center">
+              {getHeadTitle(values)}
             </h1>
             <Form>
               <div className="flex flex-col gap-4 m-[5%]">
-                {stepWiseRenderer(currentStep, values)}
+                {stepWiseRenderer(values)}
               </div>
               <div className="m-2 flex justify-center">
                 <button
                   className="bg-eduBlack text-white font-light text-[16px] rounded p-2 m-auto w-1/2 hover:bg-yellow-500 ease-in duration-300"
                   type="submit"
                   hidden={currentStep === 4}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !actions.isValid}
                 >
-                  <span>{getLabel(currentStep, values)}</span>
+                  {getLabel(values)}
                 </button>
               </div>
               {currentStep === 3 && (

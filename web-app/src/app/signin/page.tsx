@@ -12,7 +12,7 @@ import { Form, Formik, FormikHelpers, ErrorMessage } from "formik";
 import { useDispatch } from "react-redux";
 import * as Yup from "yup";
 import { useState } from "react";
-import { userLoginField } from "@/util/interface/user.interface";
+// import { userLoginField } from "@/util/interface/user.interface";
 import EyeIcon from "@/assets/icons/eye.svg";
 import EyeSlashIcon from "@/assets/icons/eye-slash.svg";
 import Image from "next/image";

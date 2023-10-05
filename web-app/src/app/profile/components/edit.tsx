@@ -1,10 +1,12 @@
 import { axiosPut } from "@/axios/config";
 import { selectUserDetail, setUserDetail } from "@/redux/ducks/user.duck";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { sections } from "./sections";
 import { Form, Formik, FormikHelpers } from "formik";
 import { validationSchema } from "@/util/validations/userProfile";
+import { responseCodes } from "@/util/constant";
+import { showToast } from "@/components/toast";
 
 interface Props {
   setCurrentSection: React.Dispatch<
@@ -13,10 +15,9 @@ interface Props {
   currentSection: keyof profileSections;
   profileSections: profileSections;
   userData: UserData;
-  setUserData: React.Dispatch<React.SetStateAction<UserData | null>>;
+  setUserData: React.Dispatch<React.SetStateAction<UserData | undefined>>;
   setIsListView: React.Dispatch<React.SetStateAction<boolean>>;
   isListView: boolean;
-  loggedInUser: any;
 }
 
 const EditProfile = ({
@@ -27,10 +28,11 @@ const EditProfile = ({
   setUserData,
   setIsListView,
   isListView,
-  loggedInUser,
 }: Props) => {
   const dispatch = useDispatch();
+  const loggedInUser = useSelector(selectUserDetail);
   const userId: string | undefined = loggedInUser?._id;
+  let message = `Failed to save user profile [${currentSection}]`;
 
   const intialFormikValues: userProfileInterface = {
     about: {
@@ -83,19 +85,22 @@ const EditProfile = ({
 
   const handleAboutSection = async (values: about) => {
     try {
-      setUserData((preData: any) => {
+      setUserData((preData) => {
         return {
-          ...preData,
+          ...(preData as UserData),
           ...values,
         };
       });
-      await axiosPut("/user/profile", {
+      const response = await axiosPut("/user/profile", {
         userId,
         ...values,
       });
+      if (response.status !== responseCodes.SUCCESS)
+        throw new Error("Unable to update profile");
       setCurrentSection("education");
     } catch (err) {
-      console.log(`Failed to save user profile/${currentSection}`, err);
+      showToast.error(message);
+      console.log(message, err);
     }
   };
 
@@ -113,8 +118,8 @@ const EditProfile = ({
         userId,
         educations: [...payload, values],
       });
-      if (res.status === 200) {
-        setUserData((preData: any) => {
+      if (res.status === responseCodes.SUCCESS) {
+        setUserData((preData) => {
           return {
             ...preData,
             ...res?.data?.data?.user,
@@ -122,9 +127,12 @@ const EditProfile = ({
         });
         setIsListView(true);
         setCurrentSection("certifications");
+      } else {
+        throw new Error("Something went wrong");
       }
     } catch (err) {
-      console.log(`Failed to save user profile/${currentSection}`, err);
+      showToast.error(message);
+      console.log(message, err);
     }
   };
 
@@ -137,7 +145,7 @@ const EditProfile = ({
     const editId = values?._id;
     try {
       const response = await axiosPut(`/user/${userId}/documents`, payload);
-      if (response.status === 200) {
+      if (response.status === responseCodes.SUCCESS) {
         let key = doc_type === "license" ? "licenses" : "certificates";
         setUserData((preData: any) => {
           let data = preData?.[key] || [];
@@ -151,15 +159,16 @@ const EditProfile = ({
         setCurrentSection(
           doc_type === "license" ? "profileImages" : "licenses"
         );
+      } else {
+        throw new Error("Something went wrong");
       }
     } catch (err) {
-      console.log(`Failed to save user profile/${currentSection}`, err);
+      showToast.error(message);
+      console.log(message, err);
     }
   };
 
   const handleProfileImages = async (values: profileImages) => {
-    console.log(values);
-
     try {
       if (!values.profile_img && !values.banner_img) return;
       const formData = new FormData();
@@ -168,16 +177,17 @@ const EditProfile = ({
       );
       formData.append("data", JSON.stringify({ userId }));
       const response = await axiosPut("/user/profile", formData);
-      if (response?.status === 200) {
+      if (response?.status === responseCodes.SUCCESS) {
         dispatch(
           setUserDetail({
             ...loggedInUser,
             profile_img: response?.data?.data?.user?.profile_img,
           })
         );
-      }
+      } else throw new Error("Something went wrong");
     } catch (err) {
-      console.log(`Failed to save user profile/${currentSection}`, err);
+      showToast.error(message);
+      console.log(message, err);
     }
   };
 
@@ -199,7 +209,8 @@ const EditProfile = ({
       await update(values, doc_type);
       actions.setSubmitting(false);
     } catch (err) {
-      console.log(`Failed to save user profile/${currentSection}`, err);
+      showToast.error("Something went wrong");
+      console.log(message);
     }
   };
 

@@ -6,6 +6,7 @@ import { store } from "@/redux/store";
 import { axiosParse } from "@/axios/config";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import { Toast } from "@/components/toast";
 
 export default function RootLayout({
   children,
@@ -22,6 +23,7 @@ export default function RootLayout({
       <body className={'w-full flex-auto flex bg-eduBlack text-body'}>
         <Provider store={store}>
           {/* <Header /> */}
+          <Toast />
           <RouteGuard>{children}</RouteGuard>
           {/* <Footer /> */}
         </Provider>

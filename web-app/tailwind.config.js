@@ -33,16 +33,54 @@ module.exports = {
             transform: "scale(1)",
           },
         },
+        wiggle: {
+          "0%, 100%": { transform: "rotate(-10deg)" },
+          "50%": { transform: "rotate(10deg)" },
+        },
       },
       animation: {
         "fade-in-down": "fade-in-down .3s ease-out",
         "scale-in": "scale-in .3s ease-in-out",
+        wiggle: "wiggle 200ms ease-in-out",
       },
+      // colors: {
+      //   primary: "#FDCD26",
+      //   "primary-light": "#F8F8F8",
+      //   "primary-dark": "#20201E",
+      //   "primary-darker": "#000000",
+      // },
       colors: {
         primary: "#FDCD26",
-        "primary-light": "#F8F8F8",
-        "primary-dark": "#20201E",
-        "primary-darker": "#000000",
+        eduBlack: "#13222A",
+        eduLightBlue: "#0F366D",
+        eduDarkBlue: "#05233B",
+        eduYellow: "#FDCD26",
+        eduDarkGray: "#E7E5E2",
+        eduLightGray: "#F9F8F9",
+      },
+      fontFamily: {
+        body: ["Poppins", "sans-serif"],
+        headers: ["Hahmlet", "serif"],
+      },
+      fontSize: {
+        h1: [
+          "40px",
+          {
+            lineHeight: "50px",
+          },
+        ],
+        h2: [
+          "32px",
+          {
+            lineHeight: "42px",
+          },
+        ],
+        modalHead: [
+          "25px",
+          {
+            lineHeight: "35px",
+          },
+        ],
       },
       colors:{
         'primary': '#FDCD26',

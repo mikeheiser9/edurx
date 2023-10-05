@@ -34,13 +34,14 @@ const getUserProfileById = async (
     type: "exclude",
     attributes: null,
   },
-  usePopulate
+  usePopulate,
+  loggedInUserId
 ) => {
   try {
+    console.log({ loggedInUserId });
     let skippedAttributes = getSkippedAttributes(excludeAttributeList);
     const userProfileQuery = userModel.findById({ _id: userId }).select({
       ...skippedAttributes,
-      "educations.id": 0,
     });
     let docOptions = {
       limit: 10,
@@ -50,45 +51,53 @@ const getUserProfileById = async (
         updatedAt: 0,
       },
     };
+    let populateArray = [
+      {
+        path: "userPosts",
+        options: {
+          limit: 6,
+          sort: {
+            createdAt: -1,
+          },
+        },
+        populate: ["views", "commentCount"],
+      },
+      {
+        path: "licenses",
+        options: docOptions,
+      },
+      {
+        path: "certificates",
+        options: docOptions,
+      },
+      {
+        path: "followersCount",
+      },
+      {
+        path: "followingCount",
+      },
+      {
+        path: "certificatesCount",
+      },
+      {
+        path: "licensesCount",
+      },
+      // last comments of user
+      {
+        path: "recentComments",
+        // populate: "views",
+      },
+    ];
+    if (loggedInUserId) {
+      populateArray.push({
+        path: "followers",
+        match: { userId: loggedInUserId },
+        // match with logged in user id and return if logged in user follows this userId
+      });
+    }
 
     if (usePopulate) {
-      userProfileQuery.populate([
-        {
-          path: "userPosts",
-          options: {
-            limit: 6,
-            sort: {
-              createdAt: -1,
-            },
-          },
-          populate: ["views", "commentCount"],
-        },
-        {
-          path: "licenses",
-          options: docOptions,
-        },
-        {
-          path: "certificates",
-          options: docOptions,
-        },
-        {
-          path: "followersCount",
-        },
-        {
-          path: "followingCount",
-        },
-        {
-          path: "certificatesCount",
-        },
-        {
-          path: "licensesCount",
-        },
-        // last comments of user
-        {
-          path: "recentComments",
-          // populate: "views",
-        },
-      ]);
+      userProfileQuery.populate(populateArray);
     }
 
     const userProfile = await userProfileQuery.exec();
@@ -222,6 +231,76 @@ const unfollowUser = async (userId, targetUserId) => {
   }
 };
 
+const searchUsersByName = async (searchKeyword, page, limit) => {
+  try {
+    // searching users based on username or concated first_name and last_name
+    const query = searchKeyword?.length
+      ? {
+          $expr: {
+            $or: [
+              {
+                $regexMatch: {
+                  input: { $concat: ["$first_name", " ", "$last_name"] },
+                  regex: searchKeyword,
+                  options: "i",
+                },
+              },
+              {
+                $regexMatch: {
+                  input: "$username",
+                  regex: searchKeyword,
+                  options: "i",
+                },
+              },
+            ],
+          },
+        }
+      : {};
+
+    const options = {
+      select: {
+        first_name: 1,
+        last_name: 1,
+        username: 1,
+        email: 1,
+        role: 1,
+        profile_img: 1,
+      },
+    };
+    return await findAndPaginate(
+      userModel,
+      query,
+      page && Number(page),
+      limit && Number(limit),
+      options
+    );
+  } catch (error) {
+    return error.message;
+  }
+};
+
+const getUserConnections = async (userId, type, page, limit) => {
+  const query = {
+    [type === "following" ? "userId" : "targetUserId"]: userId,
+  };
+  const options = {
+    populate: {
+      path: type === "following" ? "targetUserId" : "userId",
+      select: ["_id", "first_name", "last_name", "role"],
+    },
+    select: {
+      [type === "following" ? "targetUserId" : "userId"]: 1,
+    },
+  };
+  return await findAndPaginate(
+    userConnections,
+    query,
+    page && Number(page),
+    limit && Number(limit),
+    options
+  );
+};
+
 export {
   getUserProfileById,
   findUserByEmail,
@@ -236,4 +315,6 @@ export {
   getDocumentById,
   followUser,
   unfollowUser,
+  searchUsersByName,
+  getUserConnections,
 };
