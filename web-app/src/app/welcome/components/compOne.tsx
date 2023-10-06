@@ -32,15 +32,15 @@ export default function CompOne({signUpModal}: Props) {
               width={600}
               height={600}
             />
-            <div className='absolute hidden w-[300px] top-0 z-[-1] right-0 medium:flex tablet-lg:w-[250px] ipad:right-[-120px] small:w-[200px] small:right-[-70px] iphone:w-[150px]'>
+            {/* <div className='absolute hidden w-[300px] top-0 z-[-1] right-0 medium:flex tablet-lg:w-[250px] ipad:right-[-120px] small:w-[200px] small:right-[-70px] iphone:w-[150px]'>
               <DominoBody />
-            </div>
+            </div> */}
           </div>
         </div>
         <div className='relative flex flex-col w-1/3 justify-start items-end flex-1 h-[700px] medium:order-3 medium:flex-row medium:flex-nowrap medium:w-full medium:justify-center medium:items-center medium:mt-[30px]'>
-            <div className='absolute w-[300px] top-0 z-0 medium:hidden'>
+            {/* <div className='absolute w-[300px] top-0 z-0 medium:hidden'>
               <DominoBody />
-            </div>
+            </div> */}
             <div className="relative w-[320px] h-[320px] rounded-[15px] shadow-inner z-20 ipad-under:w-[180px] ipad-under:h-[130px] iphone:min-w-[180px]">
               <div className='relative w-full h-full flex flex-col justify-between rounded-[15px] py-[50px] px-[35px] after:content-[" "] after:absolute after:w-full after:h-full after:left-0 after:top-0 after:z-10 after: after:rounded-[15px] after:bg-gradient-to-br after:from-white after:to-eduDarkGray after:blur-sm after:inner-shadow after:backdrop-blur-xl after:opacity-95 ipad-under:px-[15px] ipad-under:py-[15px]'>
                 <div className='flex flex-row w-full justify-between items-center z-20'>
