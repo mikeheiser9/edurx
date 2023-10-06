@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import EduLogo from '@/assets/imgs/edurx-logo.svg';
+import EduLogo from '@/assets/imgs/eduRx-logo-2.png';
 
 const date = new Date();
 
