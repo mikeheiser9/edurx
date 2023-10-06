@@ -29,7 +29,7 @@ export default function Hero() {
     const tl = gsap.timeline({ repeat: -1, repeatDelay: 1 });
     words.forEach((word) => {
       tl.to(wordRef.current, {
-        duration: 2,
+        duration: 3,
         text: word,
         ease: "none"
       }).to(wordRef.current, {
@@ -118,14 +118,14 @@ export default function Hero() {
           <div className='relative w-full'>
             <Image src={SepTop} alt={'hero-top-line'} />
           </div>
-          <div className='relative my-[50px] flex flex-row flex-nowrap w-[90%] justify-center ipad:flex-col ipad:justify-center ipad:items-center'>
-            <div className='w-5/12 flex flex-col justify-center items-end ipad:w-full ipad:order-2 ipad:items-center ipad:mt-[30px]'>
+          <div className='relative my-[50px] flex flex-row flex-nowrap w-[90%] justify-center ipad:flex-col ipad:justify-center ipad:items-center ipad:mb-[25px]'>
+            <div className='w-5/12 flex flex-col justify-center items-end ipad:w-full ipad:order-2 ipad:items-center ipad:mt-[20px]'>
               <div className='relative h-full'>
                 <h3 className='relative text-[80px] font-headers uppercase leading-none x-large:text-[60px] tablet-lg:text-[45px] small:text-[40px] iphone:text-[35px]'>
                   Elevate
                 </h3>
               </div> 
-              <div className='absolute flex flex-row flex-nowrap min-w-full justify-end mt-[35px] font-headers text-right ipad:relative ipad:flex-col ipad:justify-center ipad:order-3 ipad:min-h-[35px] ipad:items-center ipad:mt-[25px]'>
+              <div className='absolute flex flex-row flex-nowrap min-w-full justify-end mt-[35px] font-headers text-right ipad:relative ipad:flex-col ipad:justify-center ipad:order-3 ipad:min-h-[35px] ipad:items-center ipad:mt-[20px]'>
                 <p className='text-[40px] text-eduLightBlue uppercase leading-none font-semibold x-large:text-[30px] tablet-lg:text-[26px] ipad:text-[30px] ipad:text-center small:text-[26px] iphone:text-[20px]' ref={wordRef}>
                 </p>
               </div>
@@ -135,7 +135,7 @@ export default function Hero() {
                 <DominoBlack />
               </div>
             </div>
-            <div className='w-5/12 flex flex-col justify-center items-start ml-[35px] mt-[-50px] ipad:w-full ipad:order-4 ipad:items-center ipad:ml-0 ipad:mt-[25px]'>
+            <div className='w-5/12 flex flex-col justify-center items-start ml-[35px] mt-[-50px] ipad:w-full ipad:order-4 ipad:items-center ipad:ml-0 ipad:mt-[15px]'>
               <h3 className='text-[60px] font-semibold text-eduLightBlue font-headers leading-none x-large:text-[50px] tablet-lg:text-[40px] small:text-[40px] iphone:text-[30px]'>
                 On EduRx
               </h3>

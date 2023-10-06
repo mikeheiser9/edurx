@@ -4,8 +4,8 @@ const LeftBarrier = () => {
   return (
     <>
       <svg
-        width="137"
-        height="176"
+        // width="137"
+        // height="176"
         viewBox="0 0 137 176"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

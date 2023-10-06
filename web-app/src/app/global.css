@@ -96,3 +96,30 @@ input:-webkit-autofill:active {
 .vertical-timeline--two-columns .vertical-timeline-element-content-arrow {
   display: none !important;
 }
+
+/* .vertical-timeline--animate .vertical-timeline-element-content.bounce-in {
+  visibility: visible;
+  -webkit-animation: cd-bounce-2-inverse 1s !important;
+  animation: cd-bounce-2-inverse 1s !important;
+} */
+
+/* .vertical-timeline--animate .vertical-timeline-element-content.bounce-in {
+  visibility: visible;
+  -webkit-animation: cd-bounce-2 1s !important;
+  animation: cd-bounce-2 1s !important;
+} */
+
+.left-barrier svg {
+  position: relative;
+  width: 137px;
+  height: 176px;
+}
+
+@media only screen and (max-width: 450px) {
+  .left-barrier svg {
+    position: relative;
+    width: 137px;
+    height: 150px;
+    top: 8px;
+  }
+}
