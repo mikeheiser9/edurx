@@ -22,10 +22,11 @@ const npiToDefinition = {
 
 const publicRoutes = [
   "/",
-  // "/signup",
-  // "/signup/student",
-  // "/signup/professional",
-  "/welcome"
+  "/signup",
+  "/signin",
+  "/signup/student",
+  "/signup/professional",
+  "/welcome",
 ];
 
 const protectedRoutes = ["/profile", "/forum"];

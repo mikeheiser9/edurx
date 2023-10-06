@@ -58,10 +58,6 @@ module.exports = {
         eduDarkGray: "#E7E5E2",
         eduLightGray: "#F9F8F9",
       },
-      fontFamily: {
-        body: ["Poppins", "sans-serif"],
-        headers: ["Hahmlet", "serif"],
-      },
       fontSize: {
         h1: [
           "40px",
@@ -94,17 +90,6 @@ module.exports = {
       fontFamily:{
         body: ['Poppins', 'sans-serif'],
         headers: ['Hahmlet', 'serif']
-      },
-      fontSize:{
-        'h1': ['40px', {
-          lineHeight: '50px'
-        }],
-        'h2': ['32px', {
-          lineHeight: '42px'
-        }],
-        'modalHead': ['25px', {
-          lineHeight: '35px'
-        }]
       },
        screens: {
         'x-large': {'max': '1305px'},
