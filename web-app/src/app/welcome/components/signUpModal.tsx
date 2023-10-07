@@ -154,7 +154,7 @@ export const SignUpModal = ({ signUpModal }: Props) => {
             <Form className="w-full">
               <div className="relative flex flex-col flex-auto flex-wrap w-full">
                 <div className="flex flex-row flex-nowrap w-full justify-between items-start ipad-under:flex-col">
-                  <div className="w-[49% min-h-[85px] justify-start ipad-under:w-full">
+                  <div className="w-[49%] min-h-[85px] justify-start ipad-under:w-full">
                     <InputField
                       label="First Name"
                       type="text"

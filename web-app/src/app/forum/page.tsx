@@ -51,7 +51,7 @@ const sortingOptions: { value: string; label: string }[] = [
 ];
 
 const tabMenuOptions = [
-  { label: "Hub Home", img: EduRxIcon },
+  { label: "Hub", img: EduRxIcon },
   { label: "Forum" },
   { label: "Resources" },
   { label: "Events", isDisabled: true },
@@ -254,7 +254,7 @@ const Page = () => {
               <button
                 key={index}
                 onClick={() => setSelectedTab(item.label)}
-                className={`text-eduBlack duration-500 ease-in-out transition-colors text-[16px] rounded-[5px] py-2 px-4 w-[145px] font-body text-center cursor-pointer disabled:opacity-60 ${
+                className={`text-eduBlack duration-300 py-2 ease-in-out transition-colors text-[16px] rounded-[5px] font-semibold px-4 w-[145px] text-center cursor-pointer disabled:opacity-60 ${
                   item.label === selectedTab
                     ? "bg-eduBlack text-white"
                     : "bg-eduDarkGray"
@@ -267,7 +267,7 @@ const Page = () => {
                     <Image
                       src={item.img}
                       alt={item?.label}
-                      className="w-6 h-6"
+                      className={`w-6 h-6 transition-all duration-300 ${item.label === selectedTab && "invert"}`}
                     />
                   )}
                   {item?.label}

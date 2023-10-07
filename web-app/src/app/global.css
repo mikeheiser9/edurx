@@ -18,7 +18,7 @@
   box-sizing: border-box;
   padding: 0;
   margin: 0;
-  font-family: "Poppins, sans-serif";
+  font-family: "Poppins";
 }
 
 @media (prefers-color-scheme: dark) {
@@ -82,7 +82,7 @@ input:-webkit-autofill:active {
 
 .post-body p, .ql-container p, .ql-editor p {
   font-size: 18px;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Poppins';
   font-weight: 500 !important;
 }
 

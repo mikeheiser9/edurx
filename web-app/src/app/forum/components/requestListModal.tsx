@@ -35,6 +35,14 @@ export const RequestListModal = ({ requestModal, postId }: Props) => {
     }
   };
 
+  const onUserActtion = (type: "accept" | "reject" | "undo", request: any) => {
+    // TO DO: update request status
+  };
+
+  const onSave = () => {
+    // TO DO: bulk save requests
+  };
+
   const Header = () => (
     <div className="flex p-2 gap-2 bg-eduDarkGray">
       <span className="text-sm text-center flex-1">
@@ -82,11 +90,13 @@ export const RequestListModal = ({ requestModal, postId }: Props) => {
                 <FontAwesomeIcon
                   icon={faCheck}
                   className="text-primary cursor-pointer"
+                  onClick={() => onUserActtion("accept", request)}
                   size="lg"
                 />
                 <FontAwesomeIcon
                   icon={faX}
                   className="text-red-400 cursor-pointer"
+                  onClick={() => onUserActtion("reject", request)}
                 />
               </>
             ) : (
@@ -103,6 +113,7 @@ export const RequestListModal = ({ requestModal, postId }: Props) => {
                     icon={faRotateLeft}
                     size="xs"
                     className="to-gray-500 cursor-pointer animate-scale-in"
+                    onClick={() => onUserActtion("undo", request)}
                   />
                 )}
               </>
@@ -149,6 +160,7 @@ export const RequestListModal = ({ requestModal, postId }: Props) => {
           className="text-xs bg-transparent outline outline-1 outline-[#0F366D] text-[#0F366D] w-auto mt-2 justify-end !px-6 hover:text-white hover:bg-[#0F366D] duration-200 transition-colors"
           label="Save"
           disabled={!isUpdated}
+          onClick={onSave}
         />
       </div>
     </Modal>
