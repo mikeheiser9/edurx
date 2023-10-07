@@ -13,6 +13,6 @@ export default function Footer() {
         <div className='relative flex justify-center items-center font-body w-full'>
         <p className='font-body'>© {date.getFullYear()} EduRx. All Rights Reserved</p>
         </div>
-    </div>
+    </div> 
   );
 };
