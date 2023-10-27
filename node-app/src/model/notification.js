@@ -1,4 +1,5 @@
 import { Schema, model } from "mongoose";
+import { NOTIFICATION_TYPES } from "../util/constant";
 
 const notificationSchema = new Schema({
   createdBy: {
@@ -19,17 +20,7 @@ const notificationSchema = new Schema({
   },
   notificationType: {
     type: Schema.Types.String,
-    enum: [
-      "someone_you_follow_published_a_new_post",
-      "someone_who_you_follow_commented_on_a_post",
-      "someone_commented_on_a_post_you_follow",
-      "someone_approved_your_reuqest_to_follow_a_private_post",
-      "comments_on_your_post",
-      "someone_replied_to_your_comment",
-      "someone_requested_to_follow_your_private_post",
-      "someone_followed_your_post",
-      "someone_followed_you",
-    ],
+    enum: Object.values(NOTIFICATION_TYPES),
   },
   notificationTypeId: Schema.Types.ObjectId,
   // relatedLinks: {

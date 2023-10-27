@@ -4,11 +4,7 @@ import { requireAuthentication } from "@/components/requireAuthentication";
 import React from "react";
 
 const Page = () => {
-  return (
-    <DashboardLayout leftPanelChildren={<div>Hub menu left panel here</div>}>
-      Hub menu comp here
-    </DashboardLayout>
-  );
+  return <>Hub menu comp here</>;
 };
 
 export default requireAuthentication(Page);
