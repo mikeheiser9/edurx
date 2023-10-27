@@ -55,5 +55,11 @@ userRoute.get(
 );
 
 userRoute.get("/search", userAuth, searchUsersValidator, searchUsers);
+userRoute.post(
+  "/account-settings",
+  userAuth
+  // createAccountSettingsValidator
+  // , createAccountSettings
+);
 
 export default userRoute;

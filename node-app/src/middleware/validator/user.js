@@ -4,6 +4,7 @@ import {
   returnAppropriateError,
 } from "../../util/commonFunctions.js";
 import {
+  NOTIFICATION_TYPES,
   paginationValidation,
   responseCodes,
   responseTypes,
@@ -154,6 +155,19 @@ const adminAuthValidation = async (req, res, next) => {
         null
       );
     }
+  } catch (error) {
+    returnAppropriateError(res, error);
+  }
+};
+
+const createAccountSettingsValidator = async (req, res, next) => {
+  try {
+    const schema = Joi.object({
+      userId: validateField.objectId.required(),
+      notification: Joi.object({
+        allowedTypes: Joi.array().valid(...Object.values(NOTIFICATION_TYPES)),
+      }),
+    });
   } catch (error) {
     returnAppropriateError(res, error);
   }

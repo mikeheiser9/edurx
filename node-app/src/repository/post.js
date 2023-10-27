@@ -22,14 +22,15 @@ const createNewPost = async (payload) => {
 };
 
 const findPostsByUserId = async (userId, page, limit) => {
-  const query = { userId, isDeleted: { $ne: true } };
-  const options = {
-    populate: [{ path: "categories" }],
-    sort: {
-      createdAt: 1,
-    },
-    // other options
-  };
+  const query = { userId, isDeleted: { $ne: true } },
+    options = {
+      populate: [{ path: "categories" }],
+      sort: {
+        createdAt: 1,
+      },
+      // other options
+    };
+
   return await findAndPaginate(
     postModal,
     query,
@@ -443,7 +444,7 @@ const getPostById = async (postId, userId) => {
 };
 
 const getPosts = async ({
-  page = 1,
+  page = 1, // TODO: this should
   limit = 10,
   sortBy,
   forumType,
@@ -488,64 +489,10 @@ const getPosts = async ({
       },
       {
         $lookup: {
-          from: "users",
-          localField: "userId",
-          foreignField: "_id",
-          as: "userId",
-          pipeline: [
-            {
-              $lookup: {
-                from: "userconnections",
-                localField: "_id",
-                foreignField: "targetUserId",
-                as: "followings",
-                pipeline: [
-                  {
-                    $project: {
-                      userId: 1,
-                      targetUserId: 1,
-                    },
-                  },
-                ],
-              },
-            },
-            {
-              $addFields: {
-                followings: "$followings",
-              },
-            },
-            {
-              $project: {
-                email: 1,
-                role: 1,
-                followings: 1,
-              },
-            },
-          ],
-        },
-      },
-      { $unwind: "$userId" },
-      {
-        $lookup: {
           from: "views",
           localField: "_id",
           foreignField: "itemId",
           as: "views",
-        },
-      },
-      {
-        $lookup: {
-          from: "reactions",
-          localField: "_id",
-          foreignField: "postId",
-          as: "reactions",
-          pipeline: [
-            {
-              $match: {
-                reactionType: "like",
-              },
-            },
-          ],
         },
       },
       {
@@ -566,7 +513,6 @@ const getPosts = async ({
       {
         $addFields: {
           views: { $size: "$views" },
-          likes: { $size: "$reactions" },
           commentCount: { $size: "$comments" },
           categories: "$categoryData",
         },
@@ -682,12 +628,29 @@ const addPostAccessRequest = async ({ postId, userId, status }) => {
   }
 };
 
-const getRequestsByPostId = async (postId) => {
+const getRequestsByPostId = async (postId, page, limit) => {
   try {
-    return await postRequestModal.find({ postId }).populate({
-      path: "userId",
-      select: ["first_name", "last_name", "username", "profile_img"],
-    });
+    const query = { postId },
+      options = {
+        populate: {
+          path: "userId",
+          select: ["first_name", "last_name", "username", "profile_img"],
+        },
+        sort: {
+          createdAt: -1,
+        },
+      };
+    return await findAndPaginate(
+      postRequestModal,
+      query,
+      page && Number(page),
+      limit && Number(limit),
+      options
+    );
+    // return await postRequestModal.find().populate({
+    //   path: "userId",
+    //   select: ["first_name", "last_name", "username", "profile_img"],
+    // });
   } catch (error) {
     return error;
   }
@@ -702,8 +665,7 @@ const updatePostRequests = async (requestsToUpdate) => {
       },
     }));
 
-    const result = await postRequestModal.bulkWrite(bulkOperations);
-    return result;
+    return await postRequestModal.bulkWrite(bulkOperations);
   } catch (error) {
     console.error("Error updating documents:", error);
   }

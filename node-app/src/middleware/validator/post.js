@@ -1,7 +1,6 @@
 import { validateObjectIds } from "../../repository/post.js";
 import {
   generalResponse,
-  joiObjectIdValidator,
   returnAppropriateError,
 } from "../../util/commonFunctions.js";
 import {
@@ -289,16 +288,16 @@ const addRequestValidator = async (req, res, next) => {
 
 const getRequestValidator = async (req, res, next) => {
   try {
-    console.log(req.user._id);
     const { objectId } = validateField;
     // userId = req?.user?._id?.toString();
     const schema = Joi.object({
+      ...paginationValidation,
       postId: objectId.required(),
       // userId: objectId.required().disallow(Joi.ref("postId")),
     });
     await schema.validateAsync({
       ...req.params,
-      // userId,
+      ...req.query,
     });
     next();
   } catch (error) {

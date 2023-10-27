@@ -103,7 +103,7 @@ export const userValidations = {
         is_in_progress: joi.boolean().default(true),
         activities: validateField.stringPrefixJoiValidation.allow(""),
         _id: validateField.stringPrefixJoiValidation,
-        id: joi.string()
+        id: joi.string(),
       })
     ),
   licenses: joi.array().items(userDocValidation),
@@ -133,7 +133,25 @@ export const responseCodes = {
   FORBIDDEN: 403,
 };
 
+export const NOTIFICATION_TYPES = {
+  USER_YOU_FOLLOW_PUBLISHED_NEW_POST: "user_you_follow_published_a_new_post",
+  USER_YOU_FOLLOW_COMMENTED_ON_FOLLOWED_POST:
+    "user_who_you_follow_commented_on_a_post",
+  USER_COMMENTED_ON_YOUR_FOLLOWED_POST: "user_commented_on_a_post_you_follow",
+  USER_APPROVED_FOLLOW_REQUEST:
+    "user_approved_your_request_to_follow_a_private_post",
+  USER_COMMENTED_ON_YOUR_POST: "user_comments_on_your_post",
+  USER_REPLIED_TO_YOUR_COMMENT: "user_replied_to_your_comment",
+  USER_REQUESTED_TO_FOLLOW_YOUR_PRIVATE_POST:
+    "user_requested_to_follow_your_private_post",
+  USER_FOLLOWED_YOUR_POST: "user_followed_your_post",
+  USER_FOLLOWED_YOU: "user_followed_you",
+};
+
 export const paginationValidation = {
-  page: joi.number().min(1),
-  limit: joi.number().valid(...paginationAllowedLimits),
+  page: joi.number().integer().min(1),
+  limit: joi
+    .number()
+    .integer()
+    .valid(...paginationAllowedLimits),
 };
