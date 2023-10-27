@@ -3,7 +3,7 @@ import { validateField } from "../constant";
 
 // will return schema based on the selected section from about, education.. etc.
 
-const { stringPrefixJoiValidation } = validateField;
+const { stringPrefixJoiValidation, email } = validateField;
 
 const userDocValidation = {
   doc_type: Yup.string().oneOf(["license", "certificate"]),
@@ -23,7 +23,7 @@ const userDocValidation = {
 
 const validationSchema: Yup.AnyObject = {
   about: Yup.object({
-    contact_email: stringPrefixJoiValidation.email(),
+    contact_email: email,
     personal_bio: Yup.string().max(1000, "Can't exceed 2000 characters"),
     socials: Yup.object({
       instagram: Yup.string().max(100, "Can't exceed 100 characters"),

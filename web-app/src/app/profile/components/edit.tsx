@@ -18,6 +18,7 @@ interface Props {
   setUserData: React.Dispatch<React.SetStateAction<UserData | undefined>>;
   setIsListView: React.Dispatch<React.SetStateAction<boolean>>;
   isListView: boolean;
+  editModal: UseModalType;
 }
 
 const EditProfile = ({
@@ -28,6 +29,7 @@ const EditProfile = ({
   setUserData,
   setIsListView,
   isListView,
+  editModal,
 }: Props) => {
   const dispatch = useDispatch();
   const loggedInUser = useSelector(selectUserDetail);
@@ -184,6 +186,8 @@ const EditProfile = ({
             profile_img: response?.data?.data?.user?.profile_img,
           })
         );
+        showToast?.success("Profile updated successfully");
+        editModal?.closeModal();
       } else throw new Error("Something went wrong");
     } catch (err) {
       showToast.error(message);
@@ -210,7 +214,7 @@ const EditProfile = ({
       actions.setSubmitting(false);
     } catch (err) {
       showToast.error("Something went wrong");
-      console.log(message);
+      console.log(message, err);
     }
   };
 

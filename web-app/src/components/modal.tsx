@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "./button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faX } from "@fortawesome/free-solid-svg-icons";
 
 interface ModalProps {
   visible: boolean;
@@ -71,7 +71,7 @@ export const Modal = ({
         </span>
         {showCloseIcon && (
           <FontAwesomeIcon
-            icon={faXmark}
+            icon={faX}
             onClick={props.onClose}
             className="cursor-pointer ml-auto"
           />

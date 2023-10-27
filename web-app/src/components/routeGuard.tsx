@@ -3,6 +3,7 @@ import { publicRoutes } from "@/util/constant";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
+import DashboardLayout from "./dashboardLayout";
 
 export default function RouteGuard({
   children,
@@ -13,7 +14,10 @@ export default function RouteGuard({
   const token = useSelector(selectToken);
   const user = useSelector(selectUserDetail);
   const pathName = usePathname();
-  let isAuthorized = true;
+  const customLayoutPaths = ["/forum", "/hub", "/resource"]; // IF path includes one of these then use custom layout
+  const useCustomLayout = customLayoutPaths?.some(
+    (path: string) => path === pathName
+  );
 
   useEffect(() => {
     if (
@@ -29,5 +33,10 @@ export default function RouteGuard({
       router.push("/forum");
     }
   }, [token, user]);
-  return children as JSX.Element;
+
+  return useCustomLayout ? (
+    <DashboardLayout>{children}</DashboardLayout>
+  ) : (
+    (children as JSX.Element)
+  );
 }

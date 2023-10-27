@@ -193,7 +193,7 @@ export default function SignIn() {
                     </span>
                   )}
                   {commonMessage && (
-                    <span className="capitalize text-white/50 text-sm text-center animate-fade-in-down">
+                    <span className="capitalize font-medium text-eduBlack text-sm text-center animate-fade-in-down">
                       {commonMessage}
                     </span>
                   )}

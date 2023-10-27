@@ -7,19 +7,21 @@ import React, { useState } from "react";
 interface CommentData {
   content: string;
   taggedUsers: UserId[];
+  showCard?: boolean;
 }
 // Custom UserCard component
 const UserCard = ({ user }: { user: UserId }) => {
   return (
     <div className="relative inline-block z-10">
-      <div className="absolute border-white/30 border w-max rounded-md bg-gray-700 p-2 animate-fade-in-down mt-1 right-0">
-        <span className="absolute w-2 right-[50%] h-2 -top-1 z-30 rounded-sm bg-gray-700 block rotate-45 border-white/30 border-l border-t" />
+      <div className="absolute w-max rounded-md bg-eduLightBlue p-2 animate-fade-in-down mt-1 right-0">
+        <span className="absolute w-2 right-[50%] h-2 -top-1 z-30 rounded-sm bg-eduLightBlue block rotate-45 border-l border-t" />
         <div className="flex gap-2 items-center flex-auto">
-          <span className="flex cursor-pointer border-primary overflow-hidden w-12 h-12 justify-center items-center text-primary rounded-full bg-white">
+          <span className="flex cursor-pointer p-[2px] border-primary overflow-hidden w-12 h-12 justify-center items-center text-primary rounded-full bg-white">
             {user.profile_img ? (
               <img
                 src={getStaticImageUrl(user.profile_img)}
                 alt={user.username}
+                className="rounded-full"
               />
             ) : (
               <FontAwesomeIcon icon={faUserAlt} />
@@ -29,7 +31,7 @@ const UserCard = ({ user }: { user: UserId }) => {
             <span className="text-xs font-bold capitalize text-primary">
               {user?.role}
             </span>
-            <span className="text-sm capitalize">
+            <span className="text-sm text-white capitalize">
               {user.first_name} {user.last_name}
             </span>
           </div>
@@ -39,7 +41,7 @@ const UserCard = ({ user }: { user: UserId }) => {
   );
 };
 
-const UserLink = ({ user }: { user: UserId }) => {
+const UserLink = ({ user, showCard }: { user: UserId; showCard: boolean }) => {
   const [showUserCard, setShowUserCard] = useState<boolean>(false);
   return (
     <div
@@ -50,17 +52,21 @@ const UserLink = ({ user }: { user: UserId }) => {
       <Link
         title={`View Profile of ${user.username}`}
         href={`/profile/${user._id}`}
-        className="text-blue-600"
+        className="text-eduLightBlue"
       >
         @{user.username}
-        {user && showUserCard && <UserCard user={user} />}
+        {user && showCard && showUserCard && <UserCard user={user} />}
       </Link>
     </div>
   );
 };
 
 // Utility function to replace tagged users with UserCard components
-const replaceTaggedUsers = ({ content, taggedUsers = [] }: CommentData) => {
+const replaceTaggedUsers = ({
+  content,
+  taggedUsers = [],
+  showCard = true,
+}: CommentData) => {
   const userMentions = taggedUsers.map((user) => `@${user.username}`);
 
   const splitContent = content.split(
@@ -72,7 +78,7 @@ const replaceTaggedUsers = ({ content, taggedUsers = [] }: CommentData) => {
       const user = taggedUsers.find(
         (taggedUser) => `@${taggedUser.username}` === part
       );
-      return user && <UserLink key={index} user={user} />;
+      return user && <UserLink showCard={showCard} key={index} user={user} />;
     }
     return part;
   });

@@ -77,7 +77,7 @@ export const CommentManager = ({
         taggedUsers: getTaggedUserIds(),
         ...commentData,
       };
-      console.log(payload);
+      // console.log(payload);
       // return
 
       const response = await addNewComment(payload);
@@ -161,7 +161,7 @@ export const CommentManager = ({
             userSuggetions?.length < userSuggetionsPagination?.totalRecords,
           callBack: loadMoreUsers,
           className:
-            "overflow-y-auto animate-fade-in-down max-h-[15em] text-white bg-primary-dark rounded-md rounded-t-none border-2 border-white/20 flex flex-auto flex-col gap-2 p-2",
+            "overflow-y-auto animate-fade-in-down max-h-[15em] text-white bg-eduDarkGray rounded-md border-white/20 flex flex-auto flex-col gap-2 p-2",
           showLoading: true,
         }}
         textAreaProps={{

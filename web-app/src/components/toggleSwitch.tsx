@@ -18,13 +18,13 @@ export const ToggleSwitch = ({ on, off, name }: Props) => {
 
   return (
     <label
-      className={`flex rounded-full focus:outline-none border-2 border-primary focus:ring-offset-black bg-transparent items-center p-[.125rem] cursor-pointer ${
+      className={`flex rounded-full focus:outline-none border-2 border-eduDarkBlue focus:ring-offset-black bg-transparent items-center p-[.125rem] cursor-pointer ${
         field.value ? "flex-row-reverse" : "flex-row"
       }`}
       htmlFor={name}
     >
       <input id={name} type="checkbox" className="appearance-none" {...field} />
-      <span className="rounded-full flex-auto flex justify-center items-center bg-primary w-5 h-5">
+      <span className="rounded-full flex-auto flex justify-center items-center bg-eduDarkBlue w-5 h-5 text-white">
         <FontAwesomeIcon
           icon={field.value ? on.icon : off.icon}
           className={`shadow-sm ${
@@ -33,7 +33,7 @@ export const ToggleSwitch = ({ on, off, name }: Props) => {
           size="xs"
         />
       </span>
-      <span className="font-medium mx-2 flex-1 text-xs capitalize text-white">
+      <span className="font-medium mx-2 flex-1 text-xs capitalize">
         {field.value ? on.label : off.label}
       </span>
     </label>

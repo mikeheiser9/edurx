@@ -6,17 +6,16 @@ import {
   faCommentDots,
   faThumbsDown,
   faEye,
-  faXmarkCircle,
 } from "@fortawesome/free-regular-svg-icons";
 import {
   faArrowDown,
   faArrowUp,
   faChartColumn,
-  faEllipsisVertical,
   faImage,
   faLock,
   faNewspaper,
   faThumbsUp,
+  faX,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import moment from "moment";
@@ -33,11 +32,11 @@ import { selectUserDetail } from "@/redux/ducks/user.duck";
 import dynamic from "next/dynamic";
 import { CommentManager } from "./commentManager";
 import { showToast } from "@/components/toast";
-import { Badge } from "@/components/badge";
 import { DummyPost } from "./dummyComps/dummyPost";
 import { ReviewRequestButton } from "./sections";
 import { useModal } from "@/hooks";
 import { RequestListModal } from "./requestListModal";
+import "react-quill/dist/quill.snow.css";
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 interface Props {
@@ -258,7 +257,7 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
         </span>
       </div>
       <FontAwesomeIcon
-        icon={faXmarkCircle}
+        icon={faX}
         onClick={viewPostModal.closeModal}
         className="ml-auto self-center cursor-pointer text-[24px] text-eduBlack"
       />
@@ -273,11 +272,8 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
 
   if (!postId || !post) return <></>;
 
-  console.log(post);
-
   return (
     <Modal
-      // headerTitle="Post"
       onClose={viewPostModal.closeModal}
       visible={viewPostModal.isOpen}
       showCloseIcon
@@ -383,9 +379,6 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
                         className="animate-fade-in-down justify-center"
                         size="sm"
                       />
-                      <span className="flex flex-1 justify-end text-eduBlack">
-                        <FontAwesomeIcon icon={faEllipsisVertical} />
-                      </span>
                     </div>
                     {/* {post?.flag && <Badge label={post?.flag} type="default" />} */}
                   </div>
@@ -413,31 +406,37 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
                     ))}
                   </div>
                 </div>
-                {isSelfPost ? (
-                  <ReviewRequestButton
-                    onClick={requestModal.openModal}
-                    count={post?.userAccessRequestCount || 0}
-                  />
-                ) : (
-                  <button
-                    onClick={requestAccess}
-                    className="p-2 px-4 text-sm text-black rounded-md bg-white m-auto"
-                  >
-                    {getRequestButtonLabel()}
-                  </button>
+                {post?.isPrivate && (
+                  <>
+                    {isSelfPost ? (
+                      <ReviewRequestButton
+                        onClick={requestModal.openModal}
+                        count={post?.userAccessRequestCount || 0}
+                      />
+                    ) : (
+                      <button
+                        onClick={requestAccess}
+                        className="p-2 px-4 text-sm text-black bg-white rounded-md w-auto font-medium bg-transparent border-eduBlack border-[1.5px] py-1 m-auto font-body transition-colors duration-500 hover:bg-eduBlack hover:text-white disabled:opacity-70"
+                      >
+                        {getRequestButtonLabel()}
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
               <>
-                {post?.isPrivate && !isSelfPost ? (
+                {post?.isPrivate &&
+                !isSelfPost &&
+                requestStatus !== "accepted" ? (
                   <DummyPost />
                 ) : (
                   <>
                     {post?.content && (
                       <ReactQuill
                         className="text-eduBlack -mx-3 post-body"
-                        readOnly
                         value={post?.content}
                         theme="bubble"
+                        readOnly
                       />
                     )}
                     <div className="flex flex-1 gap-4 py-4 text-eduDarkBlue items-center">

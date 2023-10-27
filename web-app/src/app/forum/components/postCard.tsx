@@ -9,6 +9,7 @@ import moment from "moment";
 import React, { useState } from "react";
 import { AdminActionsMenu } from "./adminActionsMenu";
 import { DummyPostCard } from "./dummyComps/dummyPostCard";
+import { Button } from "@/components/button";
 // import { useOutsideClick } from "@/hooks";
 
 interface Props {
@@ -66,7 +67,10 @@ export const PostCard = (props: Props) => {
         <span className="text-eduDarkBlue text-[12px] font-body">
           Published on {moment(props?.post?.createdAt).format("DD/MM/YYYY")}
         </span>
-        <span className="text-[22px] text-eduBlack font-headers"> {props.post.title}</span>
+        <span className="text-[22px] text-eduBlack font-headers">
+          {" "}
+          {props.post.title}
+        </span>
         <div className="flex flex-wrap gap-2">
           {props?.post?.categories?.map((category) => (
             <span
@@ -87,11 +91,11 @@ export const PostCard = (props: Props) => {
         </div>
       </div>
       <div className="flex-1 flex gap-8 justify-end items-center">
-        {/* <Button
-          className="w-auto !m-0 text-sm px-4"
+        <Button
+          className="w-auto rounded-md font-medium !m-0 text-sm px-4"
           label="Follow"
           onClick={(e) => e.stopPropagation()}
-        /> */}
+        />
         <div className="flex flex-col items-center justify-center text-[12px] text-eduBlack gap-4">
           <div className="flex flex-col text-[12px]">
             <FontAwesomeIcon icon={faComments} className="text-[18px]" />
@@ -101,7 +105,9 @@ export const PostCard = (props: Props) => {
           </div>
           <div className="flex flex-col">
             <FontAwesomeIcon icon={faChartColumn} className="text-[18px]" />
-            <span className="font-sans font-semibold text-center mt-[5px]">{props?.post?.views}</span>
+            <span className="font-sans font-semibold text-center mt-[5px]">
+              {props?.post?.views}
+            </span>
           </div>
         </div>
       </div>

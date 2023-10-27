@@ -26,7 +26,6 @@ import {
   ResendCodeTemplate,
   VerifyEmail,
 } from "../commonBlocks";
-import { Button } from "@/components/button";
 
 interface professionalAccountSignUpField
   extends professionalUserRegistrationField {
@@ -414,7 +413,8 @@ export default function SignUp() {
             <div className="absolute text-xs text-eduBlack font-body">
               <button
                 onClick={() => setCurrentStep((currentStep) => currentStep + 1)}
-                className="">
+                className=""
+              >
                 <span className="underline-offset-1">Edit Info</span>
               </button>
             </div>
@@ -422,12 +422,16 @@ export default function SignUp() {
           {npiReturnVariables.map((variable, index: number) => {
             return (
               <div key={index}>
-                <label className="text-[16px] text-eduBlack/60 font-body">{variable.label}</label>
+                <label className="text-[16px] text-eduBlack/60 font-body">
+                  {variable.label}
+                </label>
                 <Field
                   name={variable.fieldName}
                   component={({ field }: { field: { value: string } }) => (
                     <div>
-                      <label className="text-[14px] font-body text-eduBlack">{field?.value}</label>
+                      <label className="text-[14px] font-body text-eduBlack">
+                        {field?.value}
+                      </label>
                     </div>
                   )}
                 ></Field>

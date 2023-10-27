@@ -1,7 +1,11 @@
 import { Button } from "@/components/button";
+import InfiniteScroll from "@/components/infiniteScroll";
 import { Modal } from "@/components/modal";
 import { showToast } from "@/components/toast";
-import { getPostRequests } from "@/service/post.service";
+import {
+  getPostRequests,
+  updatePostRequestsByAPI,
+} from "@/service/post.service";
 import { responseCodes } from "@/util/constant";
 import { getFullName, getStaticImageUrl } from "@/util/helpers";
 import {
@@ -22,13 +26,22 @@ interface Props {
 export const RequestListModal = ({ requestModal, postId }: Props) => {
   const [requests, setRequests] = useState<any[]>([]);
   const isUpdated: boolean = requests?.some((r) => r?.isLocallyUpdated);
+  const [pagination, setPagination] = useState<PageDataState>({
+    page: 0,
+    totalRecords: 0,
+  });
   // const [updatedRequests, setUpdatedRequests] = useState<any[]>([]);
 
-  const getRequestListByAPI = async () => {
+  const getRequestListByAPI = async (page: number = 1) => {
     try {
-      const response = await getPostRequests(postId);
+      let pagination = { page, limit: 5 };
+      const response = await getPostRequests(postId, pagination);
       if (response?.status === responseCodes.SUCCESS) {
-        setRequests(response?.data?.data);
+        setRequests(requests?.concat(response?.data?.data?.records || []));
+        setPagination({
+          page: response?.data?.data?.currentPage,
+          totalRecords: response?.data?.data?.totalRecords,
+        });
       } else throw new Error("Could not get requests");
     } catch (error) {
       showToast?.error((error as Error)?.message || "Unable to get requests");
@@ -37,15 +50,50 @@ export const RequestListModal = ({ requestModal, postId }: Props) => {
 
   const onUserActtion = (type: "accept" | "reject" | "undo", request: any) => {
     // TO DO: update request status
+    const updatedRequestIndex = requests?.findIndex(
+      (r) => r?._id === request?._id
+    );
+
+    console.log({ updatedRequestIndex, type, request });
+
+    if (updatedRequestIndex === -1) return;
+    requests[updatedRequestIndex].status =
+      type === "accept" ? "accepted" : type === "reject" ? "denied" : "pending";
+    if (type !== "undo") {
+      Object.assign(requests?.[updatedRequestIndex], {
+        // ...requests[updatedRequestIndex],
+        isLocallyUpdated: true,
+      });
+    } else delete requests[updatedRequestIndex].isLocallyUpdated;
+    setRequests((pre) => [...pre]);
   };
 
-  const onSave = () => {
+  const onSave = async () => {
     // TO DO: bulk save requests
+    try {
+      const requestToUpdate = requests
+        ?.filter((r) => r?.isLocallyUpdated)
+        ?.map((r) => {
+          return {
+            _id: r?._id,
+            status: r?.status,
+          };
+        });
+      const response = await updatePostRequestsByAPI(postId, requestToUpdate);
+      console.log({ requestToUpdate, response });
+      if (response?.status === responseCodes.SUCCESS) {
+        await getRequestListByAPI();
+        showToast?.success(response?.data?.message);
+        requestModal?.closeModal();
+      } else throw new Error(response?.data?.message || "Unable to update");
+    } catch (error) {
+      showToast?.error((error as Error).message || "Something went wrong");
+    }
   };
 
   const Header = () => (
     <div className="flex p-2 gap-2 bg-eduDarkGray">
-      <span className="text-sm text-center flex-1">
+      <span className="text-base text-center flex-1">
         Private Post Access Requests
       </span>
       <FontAwesomeIcon
@@ -84,7 +132,7 @@ export const RequestListModal = ({ requestModal, postId }: Props) => {
               request?.userId?.last_name
             )}
           </span>
-          <span className="flex items-center w-1/4 justify-around gap-2">
+          <span className="flex items-center w-1/3 justify-around gap-4">
             {status === "pending" ? (
               <>
                 <FontAwesomeIcon
@@ -128,6 +176,9 @@ export const RequestListModal = ({ requestModal, postId }: Props) => {
   useEffect(() => {
     if (!requestModal.isOpen) return;
     getRequestListByAPI();
+    return () => {
+      setRequests([]);
+    };
   }, [requestModal.isOpen]);
 
   console.log(requests);
@@ -143,21 +194,31 @@ export const RequestListModal = ({ requestModal, postId }: Props) => {
       closeOnEscape
     >
       <div className="p-4 flex gap-2 flex-col bg-white flex-auto">
-        <div className="flex text-xs my-4 mt-2 gap-2 items-center">
-          <span>Name</span>
-          <span className="text-sm flex-1" />
-          <span className="flex w-1/4 items-center gap-2 justify-around">
-            <span>Approve</span>
-            <span>Deny</span>
+        <div className="flex text-base my-4 mt-2 gap-2 items-center">
+          <span className="font-headers">Name</span>
+          <span className="flex-1" />
+          <span className="flex flex-1 w-1/3 items-center gap-2 justify-around">
+            <span className="font-headers">Approve</span>
+            <span className="font-headers">Deny</span>
           </span>
         </div>
+        {/* <InfiniteScroll
+          callBack={() => getRequestListByAPI(pagination.page + 1)}
+          hasMoreData={pagination?.totalRecords > requests?.length}
+          className="flex gap-2 flex-col flex-auto max-h-[30vh] overflow-y-auto no-scrollbar"
+          showLoading
+        >
+          {requests?.map((request) => (
+            <Card request={request} key={request?._id} />
+          ))}
+        </InfiniteScroll> */}
         <div className="flex gap-2 flex-col flex-auto">
           {requests?.map((request) => (
             <Card request={request} key={request?._id} />
           ))}
         </div>
         <Button
-          className="text-xs bg-transparent outline outline-1 outline-[#0F366D] text-[#0F366D] w-auto mt-2 justify-end !px-6 hover:text-white hover:bg-[#0F366D] duration-200 transition-colors"
+          className="text-xs rounded-md !border-2 font-medium border-eduLightBlue !text-eduLightBlue w-auto mb-2 justify-end !px-8 hover:!text-white hover:bg-eduLightBlue duration-200 transition-colors"
           label="Save"
           disabled={!isUpdated}
           onClick={onSave}

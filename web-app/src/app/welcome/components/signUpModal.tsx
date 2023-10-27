@@ -74,7 +74,6 @@ export const SignUpModal = ({ signUpModal }: Props) => {
     values: SignUpSchema,
     actions: FormikHelpers<SignUpSchema>
   ) => {
-    console.log({ values });
     actions.setSubmitting(true);
     const payload = {
       "First Name": values.first_name,
@@ -83,8 +82,6 @@ export const SignUpModal = ({ signUpModal }: Props) => {
       NPI: values.npi_number?.toUpperCase(),
       "Join Date": new Date().toLocaleDateString(),
     };
-    console.log({ payload });
-    // return;
 
     await axios
       .post(

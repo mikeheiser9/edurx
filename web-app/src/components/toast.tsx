@@ -5,7 +5,7 @@ interface ToastProps {}
 const showToast = toast;
 
 const Toast = (props: ToastProps) => {
-  return <Toaster {...props} />;
+  return <Toaster containerClassName="capitalize" {...props} />;
 };
 
 export { showToast, Toast };

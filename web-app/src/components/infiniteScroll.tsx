@@ -58,7 +58,7 @@ const InfiniteScroll = ({
   return (
     <div ref={containerRef} className={className} style={{ overflow: "auto" }}>
       {children}
-      {!hasMoreData && (
+      {!hasMoreData || infiniteLoader && (
         <div className="flex justify-center items-center">
           <span className=" text-eduBlack text-xs font-body">No data available</span>
         </div>
