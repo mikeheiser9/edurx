@@ -13,7 +13,7 @@ import moment from "moment";
 import { Button } from "@/components/button";
 import MentionInput from "@/components/mentionInput";
 import { searchUserByAPI } from "@/service/user.service";
-import replaceTaggedUsers from "./replaceTags";
+import replaceTaggedUsers from "../../../components/replaceTags";
 import { responseCodes } from "@/util/constant";
 import { showToast } from "@/components/toast";
 interface Props {
@@ -69,7 +69,6 @@ export const CommentCard = ({
       ),
       parentId,
     };
-    console.log(payload);
     onSubmitReply?.(payload);
     setcommentText("");
     setisReplyBoxVisible(false);

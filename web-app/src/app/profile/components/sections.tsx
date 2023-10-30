@@ -49,10 +49,10 @@ const About = (): React.JSX.Element => {
         <span className="text-eduBlack text-[16px] font-body">
           Link Socials
         </span>
-        <div className="flex flex-wrap text-sm flex-auto justify-between gap-6 mt-2">
+        <div className="flex flex-wrap text-sm flex-auto justify-between gap-4 mt-2">
           {Object.keys(socialMediaIcons).map((socialMedia: string) => (
-            <div className="flex gap-4" key={socialMedia}>
-              <span className="bg-primary flex justify-center rounded-full h-10 w-10">
+            <div className="flex gap-2 items-center" key={socialMedia}>
+              <span className="bg-eduDarkBlue flex justify-center rounded-full h-9 w-9">
                 <Image
                   src={
                     socialMediaIcons[
@@ -60,7 +60,7 @@ const About = (): React.JSX.Element => {
                     ] as keyof StaticImageData
                   }
                   alt={socialMedia}
-                  className="w-5"
+                  className="w-5 invert"
                 />
               </span>
               <InputField
@@ -114,7 +114,9 @@ const Education = ({
             <Image src={eduIcon} alt={`${value?._id as string}alt`} />
           </div>
           <div className="flex flex-1 flex-col text-eduBlack gap-1">
-            <span className="text-[16px] font-headers">{value.school_name}</span>
+            <span className="text-[16px] font-headers">
+              {value.school_name}
+            </span>
             <span className="text-eduBlack text-[14px] font-body">
               {value.field_of_study}
             </span>
@@ -141,7 +143,7 @@ const Education = ({
       ))}
       <div className="flex gap-x-2 my-4">
         <span
-          className="bg-eduYellow rounded-xl cursor-pointer w-10 h-10 flex justify-center"
+          className="bg-eduLightBlue rounded-xl cursor-pointer w-10 h-10 flex justify-center"
           onClick={addMore}
         >
           <FontAwesomeIcon icon={faPlus} className="text-white self-center" />
@@ -162,14 +164,14 @@ const Education = ({
           <ListView />
         ) : (
           <>
-          <div className="w-full flex justify-end">
-            {userData?.educations?.length && (
-              <FontAwesomeIcon
-                icon={faCircleXmark}
-                className="text-eduBlack text-[24px] cursor-pointer animate-fade-in-down"
-                onClick={() => setIsListView?.(true)}
-              />
-            )}
+            <div className="w-full flex justify-end">
+              {userData?.educations?.length && (
+                <FontAwesomeIcon
+                  icon={faCircleXmark}
+                  className="text-eduBlack text-[24px] cursor-pointer animate-fade-in-down"
+                  onClick={() => setIsListView?.(true)}
+                />
+              )}
             </div>
             <InputField
               type="text"
@@ -203,12 +205,15 @@ const Education = ({
                   label="Start Date"
                   name="start_date"
                   type="date"
-                  className="dark:[color-scheme:dark]"
+                  // className="dark:[color-scheme:dark]"
                   labelProps={labelProps}
                   mandatory
                 />
-                <div className="flex items-center gap-2 text-eduBlack/60 font-body mt-[5px]">
-                  <label className="cursor-pointer !font-body" htmlFor="is_in_progress">
+                <div className="flex items-center gap-2 text-eduBlack font-body mt-[5px]">
+                  <label
+                    className="cursor-pointer !font-body"
+                    htmlFor="is_in_progress"
+                  >
                     In Progress
                   </label>
                   <InputField
@@ -224,7 +229,7 @@ const Education = ({
                   label="End Date (or expected)"
                   name="end_date"
                   placeholder="Last name"
-                  className="dark:[color-scheme:dark]"
+                  // className="dark:[color-scheme:dark]"
                   type="date"
                   min={
                     values?.is_in_progress
@@ -323,13 +328,13 @@ const UserDocs = ({
       ))}
       <div className="flex gap-x-4 my-4">
         <span
-          className="bg-eduYellow rounded-xl cursor-pointer w-10 h-10 flex justify-center"
+          className="bg-eduLightBlue rounded-xl cursor-pointer w-10 h-10 flex justify-center"
           onClick={addMore}
         >
-          <FontAwesomeIcon icon={faPlus} className="text-eduBlack self-center" />
+          <FontAwesomeIcon icon={faPlus} className="self-center text-white" />
         </span>
         <span
-          className="cursor-pointer transparent text-eduBlack/60 rounded-lg p-2 px-6"
+          className="cursor-pointer bg-eduLightBlue text-white rounded-lg p-2 px-6"
           onClick={addMore}
         >
           Add another
@@ -348,15 +353,15 @@ const UserDocs = ({
         <ListView />
       ) : (
         <>
-        <div className="w-full flex justify-end">
-          {showIcon && (
-            <FontAwesomeIcon
-              icon={faCircleXmark}
-              className="!text-eduBlack cursor-pointer animate-fade-in-down text-[24px]"
-              onClick={() => setIsListView?.(true)}
-            />
-          )}
-        </div>
+          <div className="w-full flex justify-end">
+            {showIcon && (
+              <FontAwesomeIcon
+                icon={faCircleXmark}
+                className="!text-eduBlack cursor-pointer animate-fade-in-down text-[24px]"
+                onClick={() => setIsListView?.(true)}
+              />
+            )}
+          </div>
           <InputField
             type="text"
             name="doc_name"
@@ -381,7 +386,7 @@ const UserDocs = ({
                 label="Issue Date"
                 name="issue_date"
                 type="month"
-                className="dark:[color-scheme:dark]"
+                // className="dark:[color-scheme:dark]"
                 labelProps={labelProps}
               />
             </div>
@@ -389,14 +394,17 @@ const UserDocs = ({
               <InputField
                 label="Expiration Date"
                 name="expiration_date"
-                className="dark:[color-scheme:dark] disabled:opacity-50"
+                className="disabled:opacity-50"
                 type="month"
                 labelProps={labelProps}
                 disabled={values.has_no_expiry}
               />
             </div>
             <div className="flex items-center gap-2 text-eduBlack/60">
-              <label className="cursor-pointer !font-body" htmlFor="has_no_expiry">
+              <label
+                className="cursor-pointer !font-body"
+                htmlFor="has_no_expiry"
+              >
                 No Expiry
               </label>
               <InputField
@@ -445,7 +453,6 @@ const DropZone = ({
     e?.preventDefault();
     errorMessage && setErrorMessage(null);
     const file = e.target?.files?.[0];
-    console.log(file);
 
     if (!file) return;
     if (!allowedFileTypes.includes(file?.type)) {
@@ -529,7 +536,7 @@ const DropZone = ({
           htmlFor={img_type}
           className={`${
             img_type === "profile_img" ? "w-1/5" : "w-full"
-          } flex h-[12rem] flex-col overflow-hidden items-center justify-center min-h-[10rem] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600`}
+          } flex h-[12rem] flex-col overflow-hidden items-center justify-center min-h-[10rem] border transition-colors duration-300 border-white border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-white dark:hover:bg-gray-600`}
         >
           {values[img_type] ? (
             <div className="flex items-center justify-center">
@@ -579,7 +586,7 @@ const DropZone = ({
         </label>
       </div>
       <span
-        className={`text-primary capitalize text-sm animate-fade-in-down ${
+        className={`text-eduBlack capitalize text-sm animate-fade-in-down ${
           errorMessage ? "visible" : "hidden"
         }`}
       >
@@ -599,7 +606,9 @@ const ProfileImages = ({
   return (
     <div className="flex flex-col gap-4 mb-3">
       <div className="flex flex-col items-start gap-2">
-        <span className="text-eduBlack font-body text-[16px]">Upload Profile Picture</span>
+        <span className="text-eduBlack font-body text-[16px]">
+          Upload Profile Picture
+        </span>
         <DropZone img_type="profile_img" values={values} actions={actions} />
         <span className="text-eduBlack/60 text-[12px] font-body">
           (Image file should not exceed 500x500 pixels or 8MB)
@@ -607,7 +616,9 @@ const ProfileImages = ({
       </div>
       <span className="w-full border border-eduBlack/60" />
       <div className="flex flex-col items-start gap-2">
-        <span className="text-eduBlack font-body text-[16px]">Upload Banner Image</span>
+        <span className="text-eduBlack font-body text-[16px]">
+          Upload Banner Image
+        </span>
         <DropZone img_type="banner_img" values={values} actions={actions} />
         <span className="text-eduBlack/60 text-[12px] font-body">
           (Image file should not exceed 1400x250 pixels or 18MB)

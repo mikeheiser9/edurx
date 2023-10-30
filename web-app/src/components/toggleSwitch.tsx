@@ -24,7 +24,7 @@ export const ToggleSwitch = ({ on, off, name }: Props) => {
       htmlFor={name}
     >
       <input id={name} type="checkbox" className="appearance-none" {...field} />
-      <span className="rounded-full flex-auto flex justify-center items-center bg-primary w-5 h-5">
+      <span className="rounded-full flex-auto flex justify-center items-center bg-eduDarkBlue w-5 h-5 text-white">
         <FontAwesomeIcon
           icon={field.value ? on.icon : off.icon}
           className={`shadow-sm text-eduDarkBlue ${

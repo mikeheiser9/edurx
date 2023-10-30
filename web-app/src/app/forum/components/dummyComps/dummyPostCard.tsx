@@ -28,7 +28,7 @@ export const DummyPostCard = (props: Props) => {
     <div className="flex select-none w-full rounded-md bg-primary-dark gap-2 p-4 relative">
       <div className="w-full rounded-md ease-in-out duration-200 flex items-center justify-center h-full bg-[#13222A]/70 absolute -m-4 backdrop-blur-sm p-4">
         <div className="flex gap-2 items-center p-2 border border-white rounded-md w-full">
-          <span className="border animate-wiggle border-white text-white rounded-md p-1 px-2">
+          <span className="border animate-wiggle text-white border-white rounded-md p-1 px-2">
             <FontAwesomeIcon icon={faFlag} />
           </span>
           <span className="text-white text-sm font-semibold flex-1">
@@ -53,25 +53,24 @@ export const DummyPostCard = (props: Props) => {
         </div>
       </div>
       <div className="flex-1 gap-4 flex-col flex">
-        <span className="text-white text-sm">Published on 29/05/1997</span>
-        <span className="text-2xl text-white">Post</span>
+        <span className="text-sm">Published on 29/05/1997</span>
+        <span className="text-2xl">Post</span>
         <div className="flex flex-wrap gap-2">
           {Array.from({ length: 3 }).map((category, index) => (
             <span
               key={index}
-              className="text-xs p-1 px-2 bg-primary/25 text-eduBlack/60 rounded-md"
+              className="text-[8px] leading-6 items-center flex justify-center px-2 border border-eduLightBlue rounded-md"
             >
               {`Category ${index + 1}`}
             </span>
           ))}
-
-          <span className="text-xs p-1 px-2 bg-[#0F366D] text-eduBlack/60 rounded-md">
+          <span className="text-[8px] leading-6 items-center flex justify-center px-2 bg-eduDarkGray rounded-md">
             tag
           </span>
         </div>
       </div>
       <div className="flex-1 flex gap-8 justify-end items-center">
-        <div className="flex flex-col items-center text-sm text-white/80 gap-4">
+        <div className="flex flex-col items-center text-sm gap-4">
           <div className="flex flex-col">
             <FontAwesomeIcon icon={faComments} />
             <span className="font-sans font-bold">16</span>

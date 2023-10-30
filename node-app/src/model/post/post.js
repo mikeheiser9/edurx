@@ -58,15 +58,6 @@ const postSchema = new Schema(
       type: String,
       enum: postFlags, // ["Spam", "Inappropriate", "Other"], // Example flag options
     },
-    accessRequests: [
-      {
-        userId: Schema.Types.ObjectId,
-        status: {
-          type: Schema.Types.String,
-          enum: ["accepted", "denied", "pending"],
-        },
-      },
-    ],
   },
   {
     timestamps: true,

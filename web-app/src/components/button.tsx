@@ -10,7 +10,7 @@ export const Button = ({
 }: buttonProps) => {
   return (
     <button
-      className={`${className} bg-transparent border-eduBlack border-[1.5px] my-3 rounded-[10px] py-1 w-[150px] m-auto text-[16px] font-body transition-colors duration-500 hover:bg-eduBlack hover:text-white hover:animate-pulse disabled:opacity-40 disabled:text-eduBlack/40`}
+      className={`${className} bg-transparent border-eduBlack border-[1.5px] my-3 rounded-[10px] py-1 w-[150px] m-auto text-[16px] font-body transition-colors duration-500 hover:bg-eduBlack hover:text-white disabled:opacity-70`}
       onClick={onClick}
       {...restProps}
     >

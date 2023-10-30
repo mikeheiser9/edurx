@@ -191,7 +191,9 @@ const addPrivatePostRequest = async (req, res) => {
 const getUserRequests = async (req, res) => {
   try {
     const { postId } = req.params;
-    const response = await getRequestsByPostId(postId);
+    const { page, limit } = req.query;
+    console.log({ postId, page, limit });
+    const response = await getRequestsByPostId(postId, page, limit);
     return generalResponse(
       res,
       responseCodes.SUCCESS,

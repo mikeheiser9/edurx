@@ -70,7 +70,6 @@ export const UserProfile = ({ userId }: { userId: string }) => {
   );
   const [buttonText, setButtonText] = useState("Following");
   const editModal = useModal();
-  console.log({ isFollowing }, userData?.followers);
 
   const loadMoreDocuments = async (doc_type: "license" | "certificate") => {
     try {
@@ -167,7 +166,7 @@ export const UserProfile = ({ userId }: { userId: string }) => {
   return (
     <React.Fragment>
       {isLoading ? (
-        <div className="flex justify-center w-full items-center w/">
+        <div className="flex justify-center flex-auto h-screen items-center">
           <Loader />
         </div>
       ) : (
@@ -180,7 +179,7 @@ export const UserProfile = ({ userId }: { userId: string }) => {
                 visible={editModal.isOpen}
                 onClose={editModal.closeModal}
                 closeOnOutsideClick
-                modalClassName="!w-2/5 !bg-primary-dark h-full"
+                modalClassName="!w-2/5"
                 modalBodyClassName="flex flex-auto p-4 !h-full overflow-y-auto"
                 customHeader={
                   <ModalHeader
@@ -207,9 +206,10 @@ export const UserProfile = ({ userId }: { userId: string }) => {
                   setUserData={setUserData}
                   setIsListView={setIsListView}
                   isListView={isListView}
+                  editModal={editModal}
                 />
               </Modal>
-              <div className="flex justify-center w-full items-center flex-col bg-[#008080]">
+              <div className="flex justify-center w-full items-center flex-col">
                 <div className="m-auto py-10 flex-auto lg:w-3/4 flex gap-4 h-auto w-full flex-col">
                   <BasicInfo
                     userData={userData}
@@ -219,7 +219,7 @@ export const UserProfile = ({ userId }: { userId: string }) => {
                         <div className="justify-self-end self-end">
                           <button
                             type="button"
-                            className="border border-primary hover:bg-primary/10 rounded-md p-2 bg-primary w-auto px-4 font-medium text-sm hover:text-white transition-all ease-in-out duration-300 capitalize"
+                            className="border rounded-md py-2 px-6 font-body text-sm min-w-[8rem] text-eduBlack border-eduBlack hover:text-white hover:bg-eduBlack transition-colors ease-in-out duration-300 capitalize"
                             onMouseEnter={() => setButtonText("Unfollow")}
                             onMouseLeave={() => setButtonText("Following")}
                             // onClick={} // TODO: follow / un-follow user interaction

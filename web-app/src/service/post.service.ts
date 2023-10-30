@@ -35,8 +35,20 @@ const addPrivatePostRequest = async <T>(payload: T): Promise<AxiosResponse> => {
   return await axiosPost("/post/private/create-request", payload);
 };
 
-const getPostRequests = async (postId: string): Promise<AxiosResponse> => {
-  return await axiosGet(`/post/private/${postId}/requests`);
+const getPostRequests = async (
+  postId: string,
+  pagination: { page: number; limit: number }
+): Promise<AxiosResponse> => {
+  return await axiosGet(`/post/private/${postId}/requests`, {
+    params: pagination,
+  });
+};
+
+const updatePostRequestsByAPI = async (
+  postId: string,
+  payload: { _id: string; status: PostRequestStatus }[]
+): Promise<AxiosResponse> => {
+  return await axiosPut(`/post/private/${postId}/requests-update`, payload);
 };
 
 export {
@@ -48,4 +60,5 @@ export {
   updatePostByAPI,
   addPrivatePostRequest,
   getPostRequests,
+  updatePostRequestsByAPI,
 };

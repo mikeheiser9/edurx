@@ -12,7 +12,7 @@ import {
   faPoll,
 } from "@fortawesome/free-solid-svg-icons";
 import React, { useCallback, useEffect, useState } from "react";
-import { ModalFooter, ModalHeader } from "../components/sections";
+import { ModalFooter, ModalHeader } from "./sections";
 import { TextEditor } from "./rich-editor";
 import { Chip } from "@/components/chip";
 import { axiosGet } from "@/axios/config";
@@ -242,6 +242,11 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
                     searchText?.[type === "categories" ? "category" : "tag"]
                   ) as string
                 }
+                className={`${
+                  type === "categories"
+                    ? "bg-transparent border border-eduLightBlue"
+                    : "!bg-eduDarkGray"
+                }  text-xs px-2 leading-6 rounded-md`}
                 onSelect={() => onChipSelect(type, item)}
                 onClear={() => onChipeDelete(type, item)}
                 isSelected={selectedList?.[type]?.some(
@@ -302,15 +307,14 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
     >
       {({ isSubmitting, values, ...actions }) => (
         <Modal
-          headerTitle="New Post"
           visible={addPostModal.isOpen}
           onClose={addPostModal.closeModal}
           customHeader={<ModalHeader onClose={addPostModal.closeModal} />}
           showFooter={false}
           modalClassName="!rounded-xl"
+          modalBodyClassName="relative p-4 overflow-y-auto font-body overflow-hidden bg-white"
         >
           <Form>
-            {/* {console.log(actions.errors)} */}
             <div className="flex flex-col gap-4 p-2">
               <div className="flex justify-between">
                 <Select
@@ -357,7 +361,7 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
                   {
                     component() {
                       return (
-                        <>
+                        <div>
                           <InputField
                             name="title"
                             placeholder="Title"
@@ -389,24 +393,26 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
                             ))}
                           </div>
                           <div className="flex flex-auto items-center py-2 justify-between gap-2">
-                            <span
-                              onClick={() =>
-                                setPollOptionsCount((prev) => prev + 1)
-                              }
-                              className="text-white/80 font-bold inline-block text-xs cursor-pointer"
-                            >
-                              Add Option
-                            </span>
-                            {pollOptionsCount > 2 && (
+                            <div className="gap-2 flex items-center">
                               <span
                                 onClick={() =>
-                                  setPollOptionsCount((prev) => prev - 1)
+                                  setPollOptionsCount((prev) => prev + 1)
                                 }
                                 className="text-eduBlack/60 animate-scale-in inline-block mt-2 bg-gray-600 p-2 py-1 rounded-md text-xs cursor-pointer"
                               >
-                                Remove
+                                Add Option
                               </span>
-                            )}
+                              {pollOptionsCount > 2 && (
+                                <span
+                                  onClick={() =>
+                                    setPollOptionsCount((prev) => prev - 1)
+                                  }
+                                  className="animate-scale-in inline-block mt-2 bg-eduBlack text-white p-2 py-1 rounded-md text-xs cursor-pointer"
+                                >
+                                  Remove
+                                </span>
+                              )}
+                            </div>
                             <div className="text-white text-xs flex gap-1 items-center">
                               <label htmlFor="votingLength">
                                 Voting Length
@@ -432,13 +438,14 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
                               />
                             </div>
                           </div>
-                        </>
+                        </div>
                       );
                     },
                     label: "Poll",
                     icon: faPoll,
                   },
                 ]}
+
                 iconClass="text-eduLightBlue"
                 tabItemClass="bg-eduDarkGray p-1 text-eduLightBlue font-normal px-3 ease-in-out duration-300 text-[10px] rounded-[5px] capitalize"
                 activeTabClass="ring-1 ring-eduLightBlue outline-eduLightBlue"

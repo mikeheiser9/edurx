@@ -1,14 +1,23 @@
 import { Button } from "@/components/button";
 import { postStatus } from "@/util/constant";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState } from "react";
 
 interface NavOption {
   // link: string;
   onClick?: () => void;
   icon: IconProp;
   label: string;
+}
+
+interface Option {
+  label: string;
+  onClick?: () => void;
+  icon?: IconProp | React.JSX.Element;
+  isDisabled?: boolean;
+  isDefault?: boolean;
 }
 
 const ModalHeader = ({
@@ -18,7 +27,7 @@ const ModalHeader = ({
 }): React.ReactElement => {
   return (
     <div className="flex p-3 items-center bg-eduDarkGray gap-2">
-      <span className="text-xl flex-1 font-medium justify-self-start">
+      <span className="text-2xl flex-1 font-medium font-headers justify-self-start">
         New Post
       </span>
       <span className="text-xs inline-flex gap-2 font-semibold">
@@ -28,7 +37,7 @@ const ModalHeader = ({
         </span>
       </span>
       <FontAwesomeIcon
-        icon={faXmark}
+        icon={faX}
         onClick={onClose}
         className="cursor-pointer ml-auto"
       />
@@ -47,13 +56,13 @@ const ModalFooter = ({
         <Button
           label="Save Draft"
           type="submit"
-          className="!m-0 w-1/4 bg-transparent border hover:text-black text-sm hover:!bg-primary border-primary outline-primary text-white"
+          className="!m-0"
           onMouseEnter={() => setFieldValue("postStatus", postStatus[0])}
         />
         <Button
           label="Post"
           type="submit"
-          className="w-1/4 !m-0 text-sm"
+          className="!m-0"
           onMouseEnter={() => setFieldValue("postStatus", postStatus[1])}
         />
       </div>
@@ -99,17 +108,13 @@ const ReviewRequestButton = ({
   count: number;
 }) => (
   <div className="m-auto relative">
-    <span
-      className={`w-5 font-semibold text-xs h-5 flex absolute right-0 -m-1.5 justify-center items-center rounded-full bg-primary ${
-        !count ? "opacity-60" : ""
-      }`}
-    >
+    <span className="w-5 font-semibold text-white z-10 text-xs h-5 flex absolute right-0 -m-1.5 justify-center items-center rounded-full bg-eduBlack">
       {count}
     </span>
     <button
       type="button"
       onClick={() => count && onClick?.()}
-      className="p-2 px-4 text-sm text-black rounded-md bg-white disabled:opacity-60"
+      className="p-2 px-4 text-sm text-black bg-white rounded-md w-auto font-medium bg-transparent border-eduBlack border-[1.5px] py-1 m-auto font-body transition-colors duration-500 hover:bg-eduBlack hover:text-white disabled:opacity-70"
       disabled={!count}
     >
       Review Requests
@@ -117,4 +122,46 @@ const ReviewRequestButton = ({
   </div>
 );
 
-export { ModalHeader, ModalFooter, DropDownPopover, ReviewRequestButton };
+const NavList = ({ options }: { options: Option[] }) => {
+  const [selectedTab, setSelectedTab] = useState<string>(
+    options?.find((option) => option?.isDefault)?.label || ""
+  );
+  const onClick = (item: Option) => {
+    setSelectedTab(item?.label);
+    item?.onClick?.();
+  };
+
+  return (
+    <ul className="flex gap-2 flex-auto flex-col">
+      {options?.map((item, index) => {
+        return (
+          <li
+            key={index}
+            onClick={() => onClick(item)}
+            className={`${
+              item?.label === selectedTab
+                ? "decoration-primary"
+                : "decoration-transparent"
+            } underline duration-300 decoration-2 ease-in-out animate-fade-in-down touch-pinch-zoom text-sm transition-colors text-eduBlack underline-offset-4`}
+          >
+            {item?.label}
+            {item?.icon &&
+              (typeof item?.icon === "object" ? (
+                <FontAwesomeIcon icon={item.icon as IconProp} />
+              ) : (
+                item.icon
+              ))}
+          </li>
+        );
+      })}
+    </ul>
+  );
+};
+
+export {
+  ModalHeader,
+  ModalFooter,
+  DropDownPopover,
+  ReviewRequestButton,
+  NavList,
+};

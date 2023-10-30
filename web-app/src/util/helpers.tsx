@@ -40,7 +40,7 @@ const boldOnSearch = (text: string, search: string) => {
 };
 
 const areArraysEqual = (array1: string[], array2: string[]) => {
-  if (array1.length !== array2.length) {
+  if (array1?.length !== array2?.length) {
     return false;
   }
 

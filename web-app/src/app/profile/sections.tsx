@@ -6,11 +6,9 @@ import {
 } from "@fortawesome/free-regular-svg-icons";
 import {
   faChartColumn,
-  faFileInvoice,
   faLocationDot,
   faStethoscope,
-  faUser,
-  faXmark,
+  faX,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Image from "next/image";
@@ -25,6 +23,7 @@ import moment from "moment";
 import { TabMenu } from "@/components/tabMenu";
 import { Button } from "@/components/button";
 import { LoadMore } from "@/components/loadMore";
+import replaceTaggedUsers from "../../components/replaceTags";
 
 const socialMediaIcons: socials = {
   instagram,
@@ -57,7 +56,7 @@ const EditIcon = ({ onClick }: { onClick: () => void }) => (
 
 const SocialIcon = ({ value, href }: { value: string; href: string }) => (
   <a
-    className="bg-primary flex justify-center rounded-full h-7 w-7"
+    className="bg-eduDarkBlue flex justify-center rounded-full h-7 w-7"
     href={href}
     target="_blank"
     rel="noopener noreferrer"
@@ -65,6 +64,7 @@ const SocialIcon = ({ value, href }: { value: string; href: string }) => (
   >
     <Image
       src={socialMediaIcons[value as keyof socials] as string}
+      className="invert"
       alt={value}
     />
   </a>
@@ -81,7 +81,7 @@ const BasicInfo = ({
 }): React.ReactElement => (
   <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-lg">
     {openModal && <EditIcon onClick={openModal} />}
-    <div className="w-full hover:blur-sm duration-500 h-40 overflow-hidden bg-eduLightGray bg-gradient-to-b from-eduDarkGray/100 items-center justify-center flex">
+    <div className="w-full hover:blur-sm duration-500 h-40 overflow-hidden bg-eduDarkGray items-center justify-center flex">
       {userData?.banner_img ? (
         <Image
           src={getStaticImageUrl(userData?.banner_img)}
@@ -91,7 +91,7 @@ const BasicInfo = ({
           className="h-40 w-full object-cover"
         />
       ) : (
-        <FontAwesomeIcon icon={faImage} className="text-primary text-4xl" />
+        <FontAwesomeIcon icon={faImage} className="text-eduDarkBlue text-4xl" />
       )}
     </div>
     <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 bg-eduLightGray">
@@ -105,7 +105,7 @@ const BasicInfo = ({
             className="w-24 h-24 object-cover"
           />
         ) : (
-          <FontAwesomeIcon icon={faImage} className="text-primary text-4xl" />
+          <FontAwesomeIcon icon={faImage} className="text-eduDarkBlue text-4xl" />
         )}
       </div>
       <div className="flex gap-2 mt-4">
@@ -274,14 +274,19 @@ const CommentList = ({
       <div className="flex flex-auto flex-col gap-2 animate-fade-in-down">
         {comments.map((comment) => (
           <div
-            className="flex flex-wrap flex-auto overflow-auto bg-eduDarkGray py-2 px-6 rounded-md gap-2 items-center"
+            className="flex flex-wrap flex-auto overflow-visible bg-eduDarkGray py-2 px-6 rounded-md gap-2 items-center"
             key={comment?._id}
           >
-            <span className="text-eduBlack text-[14px]">
-              {comment?.content}
-            </span>
+            <div className="text-eduBlack relative text-[14px]">
+              {comment.content &&
+                replaceTaggedUsers({
+                  content: comment.content,
+                  taggedUsers: comment?.taggedUsers ?? [],
+                  showCard: false,
+                })}
+            </div>
             <span className="text-eduBlack text-[14px]">•</span>
-            <span className="text-[12px] text-eduLightBlue">
+            <span className="text-[12px] text-eduDarkBlue">
               {moment(comment?.createdAt).fromNow()}
             </span>
             {/* <div className="flex text-xs text-eduBlack/50 gap-2">
@@ -310,7 +315,7 @@ const Activity = ({
   noPostMessage: string;
   noCommentMessage: string;
 }): React.ReactElement => (
-  <div className="bg-eduLightGray overflow-hidden flex-auto relative rounded-lg lg:min-h-[12rem]">
+  <div className="bg-eduLightGray overflow-visible flex-auto relative rounded-lg lg:min-h-[12rem]">
     <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-col gap-2">
       <span className="text-eduBlack text-[24px] font-semibold font-headers tracking-wide">
         Activity
@@ -520,7 +525,7 @@ const ModalHeader = ({
         {profileSections[currentSection] as string}
       </span>
       <FontAwesomeIcon
-        icon={faXmark}
+        icon={faX}
         onClick={closeModal}
         className="cursor-pointer ml-auto text-eduBlack"
       />
