@@ -323,13 +323,13 @@ const UserDocs = ({
       ))}
       <div className="flex gap-x-4 my-4">
         <span
-          className="bg-[#3A3A3A] rounded-xl cursor-pointer w-10 h-10 flex justify-center"
+          className="bg-eduYellow rounded-xl cursor-pointer w-10 h-10 flex justify-center"
           onClick={addMore}
         >
-          <FontAwesomeIcon icon={faPlus} className="text-white self-center" />
+          <FontAwesomeIcon icon={faPlus} className="text-eduBlack self-center" />
         </span>
         <span
-          className="cursor-pointer bg-[#3A3A3A] text-white/50 rounded-lg p-2 px-6"
+          className="cursor-pointer transparent text-eduBlack/60 rounded-lg p-2 px-6"
           onClick={addMore}
         >
           Add another

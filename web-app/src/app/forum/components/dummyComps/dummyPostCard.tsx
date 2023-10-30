@@ -59,13 +59,13 @@ export const DummyPostCard = (props: Props) => {
           {Array.from({ length: 3 }).map((category, index) => (
             <span
               key={index}
-              className="text-xs p-1 px-2 bg-primary/25 text-white/50 rounded-md"
+              className="text-xs p-1 px-2 bg-primary/25 text-eduBlack/60 rounded-md"
             >
               {`Category ${index + 1}`}
             </span>
           ))}
 
-          <span className="text-xs p-1 px-2 bg-[#0F366D] text-white/50 rounded-md">
+          <span className="text-xs p-1 px-2 bg-[#0F366D] text-eduBlack/60 rounded-md">
             tag
           </span>
         </div>

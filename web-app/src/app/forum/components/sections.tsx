@@ -17,7 +17,7 @@ const ModalHeader = ({
   onClose: () => void;
 }): React.ReactElement => {
   return (
-    <div className="flex p-3 items-center bg-primary gap-2">
+    <div className="flex p-3 items-center bg-eduDarkGray gap-2">
       <span className="text-xl flex-1 font-medium justify-self-start">
         New Post
       </span>
@@ -74,7 +74,7 @@ const DropDownPopover = ({
 }): React.ReactElement => {
   return (
     <ul
-      className={`${wrapperClass} flex p-2 relative rounded-md gap-2 bg-primary/50 text-white flex-col ease-in-out ${
+      className={`${wrapperClass} flex p-2 relative rounded-md gap-2 bg-eduDarkGray text-eduBlack flex-col ease-in-out ${
         isVisible ? "animate-fade-in-down" : "hidden"
       }`}
     >

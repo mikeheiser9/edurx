@@ -327,12 +327,12 @@ const Page = () => {
           </div>
           <div className="flex justify-between items-center w-full h-[55px]">
             <div className="flex justify-center items-center gap-2">
-              <span className="bg-primary-dark w-8 h-8 flex items-center justify-center rounded-md ">
+              {/* <span className="bg-primary-dark w-8 h-8 flex items-center justify-center rounded-md ">
                 <FontAwesomeIcon
                   icon={faSearch}
                   className="text-eduBlack text-[18px] bg-eduDarkGray p-[8px] rounded-[10px]"
                 />
-              </span>
+              </span> */}
               <Button
                 onClick={addPostModal.openModal}
                 className="!w-[125px] hover:!bg-eduBlack !bg-eduLightGray text-eduBlack flex gap-3 justify-center items-center px-2 py-2 !border-none"
@@ -350,7 +350,7 @@ const Page = () => {
               {forumTabs.map((item) => (
                 <li
                   onClick={() => setSelectedForumTab(item)}
-                  className={`text-eduBlack font-body font-medium ease-in-out duration-500 border-b-2 py-2 text-[14px] ${
+                  className={`text-eduBlack font-body font-medium ease-in-out duration-500 border-b-2 py-2 text-[14px] cursor-pointer ${
                     item === selectedForumTab
                       ? "border-primary"
                       : "border-transparent"
@@ -398,7 +398,7 @@ const Page = () => {
                   handleFilters("categories", values);
                   setSelectedCategories(values);
                 }}
-                className="text-sm p-1 px-2 gap-1 flex items-center justify-center text-white/50 rounded-md"
+                className="text-sm p-1 px-2 gap-1 flex items-center justify-center eduBlack-white/60 rounded-md"
                 isSelected
               />
             ))}

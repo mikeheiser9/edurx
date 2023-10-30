@@ -525,10 +525,10 @@ const ModalHeader = ({
         className="cursor-pointer ml-auto text-eduBlack"
       />
     </div>
-    <ul className="flex gap-4 justify-center px-8 py-4 font-body">
+    <ul className="flex gap-2 justify-center px-8 py-4 font-body">
       {Object.keys(profileSections).map((section: string, index: number) => (
         <li
-          className={`flex items-center font-body font-normal ${
+          className={`flex items-center font-body font-normal text-[14px] ${
             currentSection === section
               ? "text-primary"
               : "text-eduBlack cursor-pointer"

@@ -185,15 +185,15 @@ export default function SignIn() {
                     Sign in
                   </button>
                   {!isVerificationPending && (
-                    <span className="text-white/50 text-xs flex justify-center">
+                    <span className="text-eduBlack/60 text-xs flex justify-center">
                       Don't have account? &nbsp;
-                      <Link className="text-white" href="signup">
+                      <Link className="text-eduBlack" href="signup">
                         Sign up
                       </Link>
                     </span>
                   )}
                   {commonMessage && (
-                    <span className="capitalize text-white/50 text-sm text-center animate-fade-in-down">
+                    <span className="capitalize text-eduBlack/60 text-sm text-center animate-fade-in-down">
                       {commonMessage}
                     </span>
                   )}
