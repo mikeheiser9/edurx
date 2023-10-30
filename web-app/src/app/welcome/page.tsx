@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "./components/header";
+import Domino from "./components/domino";
 import Hero from "./components/hero";
 import CompOne from "./components/compOne";
 import CompTwo from "./components/compTwo";
@@ -35,6 +36,7 @@ export default function Welcome(props: any) {
         <div className="relative w-screen flex justify-center items-start bg-eduLightGray overflow-x-hidden">
           <div className="relative max-w-[1640px] w-full h-auto flex justify-center items-center flex-col px-[5%]">
             <Header signUpModal={signUpModal} />
+            <Domino />
             <Hero />
             <CompOne signUpModal={signUpModal} />
             <CompTwo signUpModal={signUpModal} />

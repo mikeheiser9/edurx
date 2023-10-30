@@ -16,15 +16,6 @@ export default function Hero() {
   const wordRef = useRef(null);
   const words = ['your education', 'collaboration', 'your research', 'the conversation', 'your network', 'your career', 'your practice'];
 
-  // const circleOne = useRef<SVGGElement | null>(null);
-  // const circleTwo = useRef(null);
-  // const circleThree = useRef(null);
-  // const circleFour = useRef(null);
-  // const circleFive = useRef(null);
-  // const rxOne = useRef(null);
-  // const rxTwo = useRef(null);
-  // const hiddenPathOne = useRef<SVGPathElement>(null);
-
   useEffect(() => {
     const tl = gsap.timeline({ repeat: -1, repeatDelay: 1 });
     words.forEach((word) => {
@@ -46,71 +37,6 @@ export default function Hero() {
     };
 }, []);
 
-// const setupAnimation = () => {
-//   const circleElement = circleOne.current;
-  
-//   if (!circleElement) return;
-
-//   // Define a simple vertical path for the circle to follow
-//   const pathD = `M${690.5213623046875} ${175.23997497558594} V${document.documentElement.scrollHeight}`;
-
-//   gsap.to(circleElement, {
-//     // motionPath: {
-//     //   path: pathD,
-//     //   alignOrigin: [0.5, 0.5],
-//     // },
-//     scrollTrigger: {
-//       trigger: "body",
-//       start: "top top",
-//       end: "bottom bottom",
-//       scrub: true,
-//       markers: true
-//     }
-//   });
-// };
-
-// useEffect(() => {
-//   const handleResize = debounce(() => {
-//     setupAnimation();
-//   }, 250);
-
-//   window.addEventListener('resize', handleResize);
-
-//   return () => {
-//     window.removeEventListener('resize', handleResize);
-//   };
-// }, []);
-
-
-// useEffect(() => {
-//   if (circleOne.current) {
-//     const position = circleOne.current.getBoundingClientRect();
-//     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-//     const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-
-//     console.log("CircleOne Position:", {
-//       top: position.top + scrollTop,
-//       left: position.left + scrollLeft,
-//       right: position.right + scrollLeft,
-//       bottom: position.bottom + scrollTop,
-//       width: position.width,
-//       height: position.height
-//     });
-//   }
-// }, []);
-
-
-// useEffect(() => {
-//   setupAnimation();
-//   return () => {
-//       gsap.killTweensOf(circleOne.current);
-//   };
-// }, []);
-
-// useEffect(() => {
-//   MotionPathHelper.create(circleOne.current);
-// }, []);
-
   return (
     <>
       <div className='relative w-full h-full flex items-center justify-center mx-[5%] my-[50px] flex-col small:my-[25px] ipad:mt-0'>
@@ -130,9 +56,9 @@ export default function Hero() {
                 </p>
               </div>
             </div>
-            <div className='w-2/12 flex flex-col justify-center items-center mt-[-35px] ipad:w-full ipad:order-1'>
+            <div className='w-2/12 flex flex-col justify-center items-center mt-[-35px] ipad:w-full ipad:order-1 min-h-[220px]'>
               <div className='relative w-full h-full block ml-[35px] ipad:w-[80px] ipad:ml-0'>
-                <DominoBlack />
+                {/* <DominoBlack /> */}
               </div>
             </div>
             <div className='w-5/12 flex flex-col justify-center items-start ml-[35px] mt-[-50px] ipad:w-full ipad:order-4 ipad:items-center ipad:ml-0 ipad:mt-[15px]'>
