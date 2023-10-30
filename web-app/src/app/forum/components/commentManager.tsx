@@ -161,7 +161,7 @@ export const CommentManager = ({
             userSuggetions?.length < userSuggetionsPagination?.totalRecords,
           callBack: loadMoreUsers,
           className:
-            "overflow-y-auto animate-fade-in-down max-h-[15em] text-white bg-eduDarkGray rounded-md border-white/20 flex flex-auto flex-col gap-2 p-2",
+            "overflow-y-auto animate-fade-in-down max-h-[15em] text-eduBlack bg-eduDarkGray rounded-md rounded-t-none border-2 flex flex-auto flex-col gap-2 p-2",
           showLoading: true,
         }}
         textAreaProps={{

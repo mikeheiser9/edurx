@@ -217,14 +217,134 @@ const Page = () => {
               }`}
               key={item}
             >
-              {item}
-            </li>
-          ))}
-        </ul>
-        <div className="flex justify-center items-center gap-2">
-          <label
-            htmlFor="forumType"
-            className="text-eduBlack font-body text-[14px] font-medium"
+              <div className="flex justify-end">
+                <span
+                  onClick={() => setshowDropdown(!showDropdown)}
+                  className={`flex ease-in-out duration-500 cursor-pointer ring-eduBlack overflow-hidden w-8 h-8 justify-center items-center rounded-full bg-eduDarkGray ${
+                    showDropdown ? "ring-2" : ""
+                  }`}
+                >
+                  {loggedInUser?.profile_img ? (
+                    <Image
+                      src={getStaticImageUrl(loggedInUser?.profile_img)}
+                      alt="user_profile_img"
+                      width={100}
+                      height={100}
+                    />
+                  ) : (
+                    <FontAwesomeIcon icon={faUserAlt} />
+                  )}
+                </span>
+              </div>
+              <DropDownPopover
+                itemClassName="px-1 text-sm flex items-center gap-2 cursor-pointer"
+                isVisible={showDropdown}
+                options={[
+                  {
+                    label: "Profile",
+                    icon: faUserAlt,
+                    onClick: () => router.push("profile"),
+                  },
+                  {
+                    label: "Notifications",
+                    icon: faBell,
+                  },
+                  {
+                    label: "Account",
+                    icon: faGear,
+                  },
+                  {
+                    label: "Logout",
+                    icon: faSignOut,
+                    onClick: logOutUser,
+                  },
+                ]}
+              />
+            </div>
+          </div>
+          <div className="flex justify-between items-center w-full h-[55px]">
+            <div className="flex justify-center items-center gap-2">
+              {/* <span className="bg-primary-dark w-8 h-8 flex items-center justify-center rounded-md ">
+                <FontAwesomeIcon
+                  icon={faSearch}
+                  className="text-eduBlack text-[18px] bg-eduDarkGray p-[8px] rounded-[10px]"
+                />
+              </span> */}
+              <Button
+                onClick={addPostModal.openModal}
+                className="!w-[125px] hover:!bg-eduBlack !bg-eduLightGray text-eduBlack flex gap-3 justify-center items-center px-2 py-2 !border-none"
+              >
+                <FontAwesomeIcon
+                  icon={faPlusCircle}
+                  className="text-primary text-[20px]"
+                />
+                <span className="text-[14px] font-body font-medium">
+                  New Post
+                </span>
+              </Button>
+            </div>
+            <ul className="flex gap-6">
+              {forumTabs.map((item) => (
+                <li
+                  onClick={() => setSelectedForumTab(item)}
+                  className={`text-eduBlack font-body font-medium ease-in-out duration-500 border-b-2 py-2 text-[14px] cursor-pointer ${
+                    item === selectedForumTab
+                      ? "border-primary"
+                      : "border-transparent"
+                  }`}
+                  key={item}
+                >
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <div className="flex justify-center items-center gap-2">
+              <label
+                htmlFor="forumType"
+                className="text-eduBlack font-body text-[14px] font-medium"
+              >
+                Viewing :
+              </label>
+              <Select
+                options={roleBasedForum[
+                  loggedInUser?.role as keyof typeof roleBasedForum
+                ]?.map((item) => {
+                  return {
+                    label: item,
+                    value: item,
+                  };
+                })}
+                onSelect={(e) => handleFilters("forumType", e?.value)}
+                onClear={() => handleFilters("forumType", "")}
+                value={selectedFilters?.forumType || "Choose a forum type"}
+                wrapperClass="!w-[12rem]"
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {selectedFilters?.categories?.map((item: TagCategoryType) => (
+              <Chip
+                key={item._id}
+                label={item.name}
+                // onSelect={() => onCipSelect(type, item)}
+                onClear={() => {
+                  const values =
+                    selectedFilters?.categories?.filter(
+                      (i: TagCategoryType) => i.name !== item.name
+                    ) ?? [];
+                  handleFilters("categories", values);
+                  setSelectedCategories(values);
+                }}
+                className="text-sm p-1 px-2 gap-1 flex items-center justify-center eduBlack-white/60 rounded-md"
+                isSelected
+              />
+            ))}
+          </div>
+          <InfiniteScroll
+            className="flex flex-col w-full h-full rounded-md gap-4"
+            callBack={loadMorePosts}
+            hasMoreData={posts.length < postPagination.totalRecords}
+            showLoading
           >
             Viewing :
           </label>

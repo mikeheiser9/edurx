@@ -380,7 +380,7 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
                                 <FontAwesomeIcon
                                   size="lg"
                                   icon={faGripVertical}
-                                  className="self-center"
+                                  className="self-center text-eduBlack/60"
                                 />
                                 <InputField
                                   name={`options.${index}`}
@@ -398,7 +398,7 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
                                 onClick={() =>
                                   setPollOptionsCount((prev) => prev + 1)
                                 }
-                                className="inline-block mt-2 bg-eduBlack text-white p-2 py-1 rounded-md text-xs cursor-pointer"
+                                className="text-eduBlack/60 animate-scale-in inline-block mt-2 bg-gray-600 p-2 py-1 rounded-md text-xs cursor-pointer"
                               >
                                 Add Option
                               </span>
@@ -445,14 +445,15 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
                     icon: faPoll,
                   },
                 ]}
-                iconClass="opacity-100 text-eduBlack"
-                tabItemClass="bg-eduLightGray p-1 font-medium px-3 ease-in-out duration-300 text-xs rounded capitalize"
-                activeTabClass="ring-2 ring-eduBlack"
+
+                iconClass="text-eduLightBlue"
+                tabItemClass="bg-eduDarkGray p-1 text-eduLightBlue font-normal px-3 ease-in-out duration-300 text-[10px] rounded-[5px] capitalize"
+                activeTabClass="ring-1 ring-eduLightBlue outline-eduLightBlue"
                 // componentWrapperClass="flex-auto"
                 formikFieldName="postType"
               />
               <div className="flex gap-2 flex-col">
-                <label className="text-white/50" htmlFor="categories">
+                <label className="text-eduBlack/60" htmlFor="categories">
                   Categories
                 </label>
                 <InputField
@@ -478,7 +479,7 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
                       }
                     />
                   )}
-                <label className="text-white/50" htmlFor="categories">
+                <label className="text-eduBlack/60" htmlFor="categories">
                   Tags
                 </label>
                 <InputField

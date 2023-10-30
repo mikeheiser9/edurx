@@ -83,7 +83,7 @@ const DropDownPopover = ({
 }): React.ReactElement => {
   return (
     <ul
-      className={`${wrapperClass} flex p-2 relative rounded-md gap-2 bg-eduDarkGray text-eduDarkBlue flex-col ease-in-out ${
+      className={`${wrapperClass} flex p-2 relative rounded-md gap-2 bg-eduDarkGray text-eduBlack flex-col ease-in-out ${
         isVisible ? "animate-fade-in-down" : "hidden"
       }`}
     >

@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import EduLogo from '@/assets/imgs/edurx-logo.svg';
+import EduLogo from '@/assets/imgs/eduRx-logo-2.png';
 
 const date = new Date();
 
@@ -13,6 +13,6 @@ export default function Footer() {
         <div className='relative flex justify-center items-center font-body w-full'>
         <p className='font-body'>© {date.getFullYear()} EduRx. All Rights Reserved</p>
         </div>
-    </div>
+    </div> 
   );
 };
