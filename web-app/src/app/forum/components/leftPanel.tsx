@@ -203,8 +203,10 @@ export const LeftPanel = () => {
       {categoryList?.length > 5 && (
         <div
           onClick={() => {
-            onLoadMore();
             setShowMoreCatagories(!showMoreCatagories);
+            if (categoryPagination?.totalRecords > categoryList?.length) {
+              onLoadMore();
+            }
           }}
           className="text-eduBlack mt-2 flex text-xs justify-center items-center cursor-pointer animate-fade-in-down flex-col"
         >

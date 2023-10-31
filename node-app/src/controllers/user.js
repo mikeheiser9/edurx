@@ -7,11 +7,14 @@ import {
   getUsersDocs,
   searchUsersByName,
   getUserConnections,
+  addUpdateAccountSettings,
+  getAccountSettingById,
 } from "../repository/user.js";
 import {
   generalResponse,
   getKeyValueFromFiles,
 } from "../util/commonFunctions.js";
+import { responseCodes, responseTypes } from "../util/constant.js";
 
 const getUserProfile = async (req, res) => {
   try {
@@ -212,6 +215,48 @@ const searchUsers = async (req, res) => {
   }
 };
 
+const createAccountSettings = async (req, res) => {
+  try {
+    const response = await addUpdateAccountSettings(req.body);
+    return generalResponse(
+      res,
+      responseCodes.SUCCESS,
+      responseTypes.OK,
+      "account settings created / updated successfully",
+      response
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      responseCodes.ERROR,
+      responseTypes.ERROR,
+      "Something went wrong",
+      error
+    );
+  }
+};
+
+const getAccountSettings = async (req, res) => {
+  try {
+    const response = await getAccountSettingById(req.user._id);
+    return generalResponse(
+      res,
+      responseCodes.SUCCESS,
+      responseTypes.OK,
+      "account settings fetched",
+      response
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      responseCodes.ERROR,
+      responseTypes.ERROR,
+      "Something went wrong",
+      error
+    );
+  }
+};
+
 export {
   getUserProfile,
   updateUserByID,
@@ -220,4 +265,6 @@ export {
   postConnections,
   searchUsers,
   getConnections,
+  createAccountSettings,
+  getAccountSettings,
 };

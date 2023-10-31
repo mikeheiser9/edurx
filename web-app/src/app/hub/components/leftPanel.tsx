@@ -1,13 +1,8 @@
 import { NavList } from "@/app/forum/components/sections";
-import EditProfile from "@/app/profile/components/edit";
-import { UserProfile } from "@/app/profile/components/profile";
-import { ModalFooter, ModalHeader } from "@/app/profile/sections";
 import { Loader } from "@/app/signup/commonBlocks";
 import { axiosGet } from "@/axios/config";
 import { Button } from "@/components/button";
-import { Modal } from "@/components/modal";
 import { ProgressBar } from "@/components/progressBar";
-import { showToast } from "@/components/toast";
 import { useModal } from "@/hooks";
 import {
   removeToken,
@@ -16,26 +11,15 @@ import {
 } from "@/redux/ducks/user.duck";
 import { responseCodes } from "@/util/constant";
 import { getStaticImageUrl } from "@/util/helpers";
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faEdit } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
-interface LastDocRefType {
-  licenses: React.RefObject<HTMLDivElement> | null;
-  certificates: React.RefObject<HTMLDivElement> | null;
-}
-
-const profileSections: profileSections = {
-  about: "About",
-  education: "Education",
-  certifications: "Certifications",
-  licenses: "Licenses",
-  profileImages: "Profile Images",
-};
+import { ProfileDialog } from "./profileDialog";
+import { EditProfileDialog } from "./editProfileDialog";
+import { AccountSetting } from "./accountSetting";
 
 export const HubLeftPenal = () => {
   const router = useRouter();
@@ -43,24 +27,9 @@ export const HubLeftPenal = () => {
   const loggedInUser = useSelector(selectUserDetail);
   const [userData, setUserData] = useState<UserData>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [currentSection, setCurrentSection] = useState<keyof profileSections>(
-    Object.keys(profileSections)[0] as keyof profileSections
-  );
-  const [isListView, setIsListView] = useState<boolean>(true);
-  const [isDocsLoading, setIsDocsLoading] = useState<boolean>(false);
-  const [currentPage, setCurrentPage] = useState<{
-    license: number;
-    certificate: number;
-  }>({
-    license: 1,
-    certificate: 1,
-  });
-  const lastDocRef: LastDocRefType = {
-    licenses: useRef<HTMLDivElement>(null),
-    certificates: useRef<HTMLDivElement>(null),
-  };
   const profileModal = useModal();
   const editProfileModal = useModal();
+  const accountSettingModal = useModal();
 
   const getUserByApi = async () => {
     const userId = loggedInUser?._id;
@@ -83,47 +52,6 @@ export const HubLeftPenal = () => {
       });
   };
 
-  const loadMoreDocuments = async (doc_type: "license" | "certificate") => {
-    try {
-      setIsDocsLoading(true);
-      const result = await axiosGet(`/user/${loggedInUser?._id}/documents`, {
-        params: {
-          doc_type,
-          page: currentPage[doc_type] + 1,
-        },
-      });
-      let key: keyof UserData =
-        doc_type === "license" ? "licenses" : "certificates";
-      let oldDocs = userData?.[key] || [];
-      if (result?.status === responseCodes.SUCCESS) {
-        setUserData((preData) => {
-          return {
-            ...(preData as UserData),
-            [key]: [...oldDocs, ...result?.data?.data?.records],
-          };
-        });
-        setCurrentPage((prePages) => {
-          return {
-            ...prePages,
-            [doc_type]: result?.data?.data?.currentPage,
-          };
-        });
-        setTimeout(() => {
-          lastDocRef?.[key as keyof typeof lastDocRef]?.current?.scrollIntoView(
-            {
-              behavior: "smooth",
-            }
-          );
-        }, 100);
-      } else throw new Error("Something went wrong");
-    } catch (err) {
-      showToast.error("Unable to more documents");
-      console.log("Error loading more documents", err);
-    } finally {
-      setIsDocsLoading(false);
-    }
-  };
-
   const logOutUser = () => {
     dispatch(removeToken());
     dispatch(removeUserDetail());
@@ -135,44 +63,25 @@ export const HubLeftPenal = () => {
 
   return (
     <React.Fragment>
-      <Modal visible={profileModal.isOpen} onClose={profileModal.closeModal}>
-        <UserProfile userId={loggedInUser?._id} />
-      </Modal>
+      {loggedInUser && (
+        <ProfileDialog
+          loggedInUser={loggedInUser}
+          profileModal={profileModal}
+        />
+      )}
       {userData && (
-        <Modal
-          visible={editProfileModal.isOpen}
-          onClose={editProfileModal.closeModal}
-          closeOnOutsideClick
-          modalClassName="!w-2/5"
-          modalBodyClassName="flex flex-auto p-4 !h-full overflow-y-auto"
-          customHeader={
-            <ModalHeader
-              closeModal={editProfileModal.closeModal}
-              currentSection={currentSection}
-              setCurrentSection={setCurrentSection}
-            />
-          }
-          customFooter={
-            <ModalFooter
-              currentSection={currentSection}
-              isLoading={isDocsLoading}
-              onLoadMore={loadMoreDocuments}
-              userData={userData}
-              isListView={isListView}
-            />
-          }
-        >
-          <EditProfile
-            currentSection={currentSection}
-            setCurrentSection={setCurrentSection}
-            profileSections={profileSections}
+        <>
+          <EditProfileDialog
+            editProfileModal={editProfileModal}
+            loggedInUser={loggedInUser}
             userData={userData}
             setUserData={setUserData}
-            editModal={editProfileModal}
-            setIsListView={setIsListView}
-            isListView={isListView}
           />
-        </Modal>
+          <AccountSetting
+            userData={userData}
+            accountSettingModal={accountSettingModal}
+          />
+        </>
       )}
 
       {isLoading ? (
@@ -217,11 +126,10 @@ export const HubLeftPenal = () => {
               {
                 label: "Notifications",
                 isDefault: true,
-                onClick() {},
               },
               {
                 label: "My Profile",
-                onClick: () => profileModal?.openModal(),
+                onClick: profileModal?.openModal,
               },
               {
                 label: "Forum Hub",
@@ -268,7 +176,7 @@ export const HubLeftPenal = () => {
             options={[
               {
                 label: "Manage Account",
-                onClick() {},
+                onClick: accountSettingModal.openModal,
               },
               {
                 label: "Logout",

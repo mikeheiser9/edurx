@@ -135,8 +135,7 @@ export const responseCodes = {
 
 export const NOTIFICATION_TYPES = {
   USER_YOU_FOLLOW_PUBLISHED_NEW_POST: "user_you_follow_published_a_new_post",
-  USER_YOU_FOLLOW_COMMENTED_ON_FOLLOWED_POST:
-    "user_who_you_follow_commented_on_a_post",
+  USER_YOU_FOLLOW_COMMENTED_ON_POST: "user_who_you_follow_commented_on_a_post",
   USER_COMMENTED_ON_YOUR_FOLLOWED_POST: "user_commented_on_a_post_you_follow",
   USER_APPROVED_FOLLOW_REQUEST:
     "user_approved_your_request_to_follow_a_private_post",

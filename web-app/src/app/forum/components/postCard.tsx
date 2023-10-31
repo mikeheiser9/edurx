@@ -119,7 +119,7 @@ export const PostCard = (props: Props) => {
         >
           <FontAwesomeIcon
             icon={faEllipsisVertical}
-            className="text-white cursor-pointer"
+            className="cursor-pointer"
             size="xl"
             onClick={handleAdminActions}
           />

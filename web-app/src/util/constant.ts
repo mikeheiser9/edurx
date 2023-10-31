@@ -142,8 +142,7 @@ const roleAccess = {
 
 const NOTIFICATION_TYPES = {
   USER_YOU_FOLLOW_PUBLISHED_NEW_POST: "user_you_follow_published_a_new_post",
-  USER_YOU_FOLLOW_COMMENTED_ON_FOLLOWED_POST:
-    "user_who_you_follow_commented_on_a_post",
+  USER_YOU_FOLLOW_COMMENTED_ON_POST: "user_who_you_follow_commented_on_a_post",
   USER_COMMENTED_ON_YOUR_FOLLOWED_POST: "user_commented_on_a_post_you_follow",
   USER_APPROVED_FOLLOW_REQUEST:
     "user_approved_your_request_to_follow_a_private_post",
@@ -154,6 +153,15 @@ const NOTIFICATION_TYPES = {
   USER_FOLLOWED_YOUR_POST: "user_followed_your_post",
   USER_FOLLOWED_YOU: "user_followed_you",
 };
+
+const profileSections: profileSections = {
+  about: "About",
+  education: "Education",
+  certifications: "Certifications",
+  licenses: "Licenses",
+  profileImages: "Profile Images",
+};
+
 export {
   validateField,
   taxonomyCodeToProfessionalMapping,
@@ -173,4 +181,5 @@ export {
   postAccessRequestStatus,
   statesNames,
   NOTIFICATION_TYPES,
+  profileSections,
 };

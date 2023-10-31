@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt"
-import { findUserByEmail, storeUserRegistrationInfoInDb, updateUser, userExistWithEmail } from "../repository/user.js";
+import { addUpdateAccountSettings, findUserByEmail, storeUserRegistrationInfoInDb, updateUser, userExistWithEmail } from "../repository/user.js";
 import { generalResponse, prepareVerificationCodeForEmailConfirmation, trimFields } from "../util/commonFunctions.js"
 import sgMail from "@sendgrid/mail"
-import { taxonomyCodeToProfessionalMapping } from "../util/constant.js";
+import { NOTIFICATION_TYPES, taxonomyCodeToProfessionalMapping } from "../util/constant.js";
 import jwt from "jsonwebtoken"
 import axios from 'axios';
 import { readFileSync } from "fs";
@@ -32,7 +32,16 @@ export const signUp=async(req,res)=>{
         {
             req.body.npi_designation=req.body.npi_designation.map((designation)=>taxonomyCodeToProfessionalMapping[designation])
         }
-        await storeUserRegistrationInfoInDb({...req.body,verification_code_expiry_time:codeExpireTime,verification_code:randomCode})
+        await storeUserRegistrationInfoInDb({...req.body,verification_code_expiry_time:codeExpireTime,verification_code:randomCode}).then(async(userRes)=> {
+            if(userRes?._id){
+                await addUpdateAccountSettings({
+                    userId:userRes?._id,
+                    notification:{
+                        allowedTypes:Object.values(NOTIFICATION_TYPES)
+                    }
+                })
+            }
+        })
         if(process.env.ENVIRONMENT=="production")
         {
                 sgMail.send(mail).then(async(mailStatus)=>{

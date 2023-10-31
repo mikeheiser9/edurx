@@ -6,6 +6,8 @@ import {
   findAndPaginate,
   getSkippedAttributes,
 } from "../util/commonFunctions.js";
+import { accountSettingModal } from "../model/user/accountSetting.js";
+import { request } from "express";
 
 const userExistWithEmail = async (email, excludeAttributeList = null) => {
   const user = await userModel.findByEmail(email, excludeAttributeList);
@@ -316,6 +318,18 @@ const getUserConnections = async (userId, type, page, limit) => {
   );
 };
 
+const addUpdateAccountSettings = async (payload) => {
+  return await accountSettingModal.updateOne(
+    { userId: payload.userId },
+    { $set: payload },
+    { upsert: true }
+  );
+};
+
+const getAccountSettingById = async (userId) => {
+  return await accountSettingModal.findOne({ userId });
+};
+
 export {
   getUserProfileById,
   findUserByEmail,
@@ -332,4 +346,6 @@ export {
   unfollowUser,
   searchUsersByName,
   getUserConnections,
+  addUpdateAccountSettings,
+  getAccountSettingById,
 };

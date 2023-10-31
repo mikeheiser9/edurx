@@ -18,7 +18,7 @@ import twitter from "../../assets/icons/twitter.svg";
 import email from "../../assets/icons/email.svg";
 import facebook from "../../assets/icons/facebook.svg";
 import eduIcon from "../../assets/icons/eduIcon.svg";
-import { npiToDefinition, statesNames } from "@/util/constant";
+import { npiToDefinition, profileSections, statesNames } from "@/util/constant";
 import moment from "moment";
 import { TabMenu } from "@/components/tabMenu";
 import { Button } from "@/components/button";
@@ -31,14 +31,6 @@ const socialMediaIcons: socials = {
   twitter,
   linkedin,
   email,
-};
-
-const profileSections: profileSections = {
-  about: "About",
-  education: "Education",
-  certifications: "Certifications",
-  licenses: "Licenses",
-  profileImages: "Profile Images",
 };
 
 interface LastDocRefType {
@@ -105,7 +97,10 @@ const BasicInfo = ({
             className="w-24 h-24 object-cover"
           />
         ) : (
-          <FontAwesomeIcon icon={faImage} className="text-eduDarkBlue text-4xl" />
+          <FontAwesomeIcon
+            icon={faImage}
+            className="text-eduDarkBlue text-4xl"
+          />
         )}
       </div>
       <div className="flex gap-2 mt-4">

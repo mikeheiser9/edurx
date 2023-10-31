@@ -65,8 +65,8 @@ export const Modal = ({
       return props.customHeader;
     }
     return (
-      <div className="flex p-3 items-center font-body bg-eduDarkGray w-full">
-        <span className="text-xl font-body justify-self-start">
+      <div className="flex p-3 items-center bg-eduDarkGray w-full">
+        <span className="text-lg font-medium justify-self-start text-eduLightBlue">
           {props.headerTitle}
         </span>
         {showCloseIcon && (
@@ -95,7 +95,7 @@ export const Modal = ({
     <>
       {props.visible && (
         <div
-          className={`fixed top-0 left-0 w-full h-full bg-eduBlack/60 z-50 flex justify-center items-center transition-opacity duration-300 ease-in-out backdrop-filter backdrop-blur-sm backdrop-brightness-50 ${animationClass} ${props.maskClassName}`}
+          className={`fixed top-0 left-0 w-full h-full bg-eduBlack/60 z-50 flex justify-center items-center transition-opacity duration-200 ease-in-out backdrop-filter backdrop-blur-sm backdrop-brightness-50 ${animationClass} ${props.maskClassName}`}
           onClick={handleMaskClick}
         >
           <div

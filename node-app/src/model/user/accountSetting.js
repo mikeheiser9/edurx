@@ -1,4 +1,5 @@
 import { model, Schema } from "mongoose";
+import { NOTIFICATION_TYPES } from "../../util/constant.js";
 
 const settingsSchema = new Schema(
   {

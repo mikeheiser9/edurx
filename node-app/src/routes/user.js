@@ -8,6 +8,8 @@ import {
   updateUserByID,
   searchUsers,
   getConnections,
+  createAccountSettings,
+  getAccountSettings,
 } from "../controllers/user.js";
 import {
   addDocumentValidator,
@@ -17,6 +19,7 @@ import {
   updateUserValidator,
   getConnectionsValidator,
   searchUsersValidator,
+  createAccountSettingsValidator,
 } from "../middleware/validator/user.js";
 
 const userRoute = Router();
@@ -57,9 +60,10 @@ userRoute.get(
 userRoute.get("/search", userAuth, searchUsersValidator, searchUsers);
 userRoute.post(
   "/account-settings",
-  userAuth
-  // createAccountSettingsValidator
-  // , createAccountSettings
+  userAuth,
+  createAccountSettingsValidator,
+  createAccountSettings
 );
+userRoute.get("/account-settings", userAuth, getAccountSettings);
 
 export default userRoute;

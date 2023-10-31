@@ -20,4 +20,17 @@ const addRemoveUserConnectionByAPI = async <T>(
   return await axiosPost(`/user/connections/${type}`, payload);
 };
 
-export { searchUserByAPI, addRemoveUserConnectionByAPI };
+const updateAccountSettingsByAPI = async <T>(payload: T) => {
+  return await axiosPost("/user/account-settings", payload);
+};
+
+const getAccountSettingsByAPI = async () => {
+  return await axiosGet("/user/account-settings");
+};
+
+export {
+  searchUserByAPI,
+  addRemoveUserConnectionByAPI,
+  getAccountSettingsByAPI,
+  updateAccountSettingsByAPI,
+};
