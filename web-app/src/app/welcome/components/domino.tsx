@@ -37,15 +37,26 @@ const GLBContent: React.FC = () => {
   const gltf = useGLTF('/models/domino.glb');
   const mouse = useLerpedMouse();
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [scrollPos, setScrollPos] = useState(0);
 
-  let startYRotation = 0;
+  let startYRotation = useRef(0);
 
   useEffect(() => {
     function handleResize() {
       setWindowWidth(window.innerWidth);
     }
+    
+    function handleScroll() {
+      setScrollPos(window.scrollY);
+    }
+
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener('scroll', handleScroll);
+  
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -59,19 +70,24 @@ const GLBContent: React.FC = () => {
     dominoRef.current = model;
     scene.add(model);
 
-    // GSAP scroll-triggered animation
-    gsap.to(model.rotation, {
+    const movementPercentage = 0.33;
+    const movementValue = windowWidth * movementPercentage;
+
+    const tl = gsap.timeline({
       onUpdate: () => {
-        startYRotation = model.rotation.y;
+        startYRotation.current = model.rotation.y;
       },
-      y: Math.PI * 2,
       scrollTrigger: {
         trigger: document.body,
         start: 'top top',
         end: 'bottom bottom',
         scrub: true
       }
-    });
+    })
+    .to(model.rotation, { y: Math.PI * 2 })
+    .to(model.position, { x: movementValue, duration: '33%' }, "250px")
+    .to(model.position, { x: -movementValue, duration: '33%' }, "<")
+    .to(model.position, { x: 0, duration: '33%' }, "<");
 
     return () => {
       scene.remove(model);
@@ -80,12 +96,13 @@ const GLBContent: React.FC = () => {
 
   useFrame(() => {
     if (dominoRef.current) {
-      const maxYRotation = THREE.MathUtils.degToRad(80);
-      const maxXRotation = THREE.MathUtils.degToRad(80);
-      const offsetYRotation = THREE.MathUtils.clamp((mouse.current.x * Math.PI) / 10, -maxYRotation, maxYRotation);
-      const offsetXRotation = THREE.MathUtils.clamp((mouse.current.y * Math.PI) / -10, -maxXRotation, maxXRotation);
-      
-      dominoRef.current.rotation.y = startYRotation + offsetYRotation;
+      const maxYRotation = scrollPos > 0 ? THREE.MathUtils.degToRad(80) : THREE.MathUtils.degToRad(20);
+      const maxXRotation = scrollPos > 0 ? THREE.MathUtils.degToRad(80) : THREE.MathUtils.degToRad(10);
+
+      const offsetYRotation = THREE.MathUtils.clamp((mouse.current.x * Math.PI) / 2, -maxYRotation, maxYRotation);
+      const offsetXRotation = THREE.MathUtils.clamp((mouse.current.y * Math.PI) / -2, -maxXRotation, maxXRotation);
+
+      dominoRef.current.rotation.y = startYRotation.current + offsetYRotation;
       dominoRef.current.rotation.x = offsetXRotation;
     }
   });
