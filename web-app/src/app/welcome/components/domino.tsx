@@ -3,6 +3,7 @@ import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ScrollSmoother } from 'gsap/ScrollSmoother';
 import * as THREE from 'three';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -38,7 +39,9 @@ const GLBContent: React.FC = () => {
   const mouse = useLerpedMouse();
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [scrollPos, setScrollPos] = useState(0);
-
+  const [shouldRotate, setShouldRotate] = useState(true);
+  const prevScrollPos = useRef(0);
+  
   let startYRotation = useRef(0);
 
   useEffect(() => {
@@ -59,8 +62,49 @@ const GLBContent: React.FC = () => {
     };
   }, []);
 
+useEffect(() => {
+  if (dominoRef.current) {
+    if (scrollPos === 0) {
+      setShouldRotate(false);
+      gsap.to(dominoRef.current.rotation, {
+        x: 0,
+        y: 0,
+        duration: 1.5,
+        ease: 'power4.out',
+        onComplete: () => {
+          setShouldRotate(true);
+        },
+      });
+    } else if (prevScrollPos.current === 0) {
+      const targetRotationX = THREE.MathUtils.clamp(
+        (mouse.current.y * Math.PI) / -2,
+        THREE.MathUtils.degToRad(-80),
+        THREE.MathUtils.degToRad(10)
+      );
+      const targetRotationY = THREE.MathUtils.clamp(
+        (mouse.current.x * Math.PI) / 2,
+        THREE.MathUtils.degToRad(-20),
+        THREE.MathUtils.degToRad(80)
+      );
+      
+      setShouldRotate(false);
+      gsap.to(dominoRef.current.rotation, {
+        x: targetRotationX,
+        y: targetRotationY,
+        duration: 1.5,
+        ease: 'power4.out',
+        onComplete: () => {
+          setShouldRotate(true);
+        },
+      });
+    }
+    
+    prevScrollPos.current = scrollPos;
+  }
+}, [scrollPos]);
+
   useEffect(() => {
-    const model = gltf.scene;
+    const model = gltf.scene;  
 
     if (windowWidth <= 1600) {
       model.scale.set(0.65, 0.65, 0.65);
@@ -70,7 +114,7 @@ const GLBContent: React.FC = () => {
     dominoRef.current = model;
     scene.add(model);
 
-    const movementPercentage = 0.33;
+    const movementPercentage = 0.5;
     const movementValue = windowWidth * movementPercentage;
 
     const tl = gsap.timeline({
@@ -83,11 +127,12 @@ const GLBContent: React.FC = () => {
         end: 'bottom bottom',
         scrub: true
       }
-    })
-    .to(model.rotation, { y: Math.PI * 2 })
-    .to(model.position, { x: movementValue, duration: '33%' }, "250px")
-    .to(model.position, { x: -movementValue, duration: '33%' }, "<")
-    .to(model.position, { x: 0, duration: '33%' }, "<");
+    });
+    
+    tl.to(model.rotation, { y: Math.PI * 2 })
+    tl.to(model.position, { x: movementValue, duration: '33%' }, "250px")
+    tl.to(model.position, { x: -movementValue, duration: '33%' }, "<")
+    tl.to(model.position, { x: 0, duration: '33%' }, "<");
 
     return () => {
       scene.remove(model);
@@ -95,12 +140,20 @@ const GLBContent: React.FC = () => {
   }, [gltf, scene, windowWidth]);
 
   useFrame(() => {
-    if (dominoRef.current) {
+    if (dominoRef.current && shouldRotate) {
       const maxYRotation = scrollPos > 0 ? THREE.MathUtils.degToRad(80) : THREE.MathUtils.degToRad(20);
       const maxXRotation = scrollPos > 0 ? THREE.MathUtils.degToRad(80) : THREE.MathUtils.degToRad(10);
 
-      const offsetYRotation = THREE.MathUtils.clamp((mouse.current.x * Math.PI) / 2, -maxYRotation, maxYRotation);
-      const offsetXRotation = THREE.MathUtils.clamp((mouse.current.y * Math.PI) / -2, -maxXRotation, maxXRotation);
+      const offsetYRotation = THREE.MathUtils.clamp(
+        (mouse.current.x * Math.PI) / 2,
+        -maxYRotation,
+        maxYRotation
+      );
+      const offsetXRotation = THREE.MathUtils.clamp(
+        (mouse.current.y * Math.PI) / -2,
+        -maxXRotation,
+        maxXRotation
+      );
 
       dominoRef.current.rotation.y = startYRotation.current + offsetYRotation;
       dominoRef.current.rotation.x = offsetXRotation;
