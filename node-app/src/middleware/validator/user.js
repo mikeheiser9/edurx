@@ -163,7 +163,6 @@ const adminAuthValidation = async (req, res, next) => {
 const createAccountSettingsValidator = async (req, res, next) => {
   try {
     const schema = Joi.object({
-      userId: validateField.objectId.required(),
       notification: Joi.object({
         allowedTypes: Joi.array()
           .items(

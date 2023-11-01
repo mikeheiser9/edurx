@@ -464,9 +464,6 @@ const getPosts = async ({
       ...(userId ? { userId } : {}),
       isDeleted: { $ne: true },
     };
-
-    console.log("query", query);
-
     const pipeline = [
       {
         $match: query,
@@ -495,19 +492,34 @@ const getPosts = async ({
           as: "views",
         },
       },
+      // {
+      //   $lookup: {
+      //     from: "comments",
+      //     let:{id:"$_id"},
+      //     pipeline: [
+      //       {
+      //         $match: {
+      //           $expr:{$eq: ["$postId","$$id"]},
+      //           'id.isDeleted':false
+      //         },
+      //       },
+      //     ],
+      //     as:"comments",
+      //   },
+      // }
       {
         $lookup: {
           from: "comments",
           localField: "_id",
           foreignField: "postId",
           as: "comments",
-          pipeline: [
-            {
-              $match: {
-                isDeleted: false,
-              },
-            },
-          ],
+          // pipeline: [
+          //   {
+          //     $match: {
+          //       isDeleted: false,
+          //     },
+          //   },
+          // ],
         },
       },
       {

@@ -562,7 +562,7 @@ const ModalFooter = ({
   <>
     {currentSection === "licenses" &&
       isListView &&
-      userData?.licenses.length < userData?.licensesCount && (
+      userData?.licenses?.length < userData?.licensesCount && (
         <LoadMore isLoading={isLoading} onClick={() => onLoadMore("license")} />
       )}
     {currentSection === "certifications" &&

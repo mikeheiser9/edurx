@@ -8,13 +8,13 @@ import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { Toast } from "@/components/toast";
 import Head from "next/head";
-
+import ToastNotification from "@/components/ToastNotification";
+axiosParse(store);
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  axiosParse(store);
   return (
     <html lang="en" className="!p-0 !m-0">
       <Head>
@@ -43,6 +43,7 @@ export default function RootLayout({
         <Provider store={store}>
           {/* <Header /> */}
           <Toast />
+          <ToastNotification/>
           <RouteGuard>{children}</RouteGuard>
           {/* <Footer /> */}
         </Provider>

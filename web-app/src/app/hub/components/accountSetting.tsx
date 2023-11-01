@@ -1,10 +1,15 @@
 import { Modal } from "@/components/modal";
 import { Switch } from "@/components/switch";
 import { showToast } from "@/components/toast";
-import { getAccountSettingsByAPI } from "@/service/user.service";
+import { selectToast } from "@/redux/ducks/toast.duck";
+import {
+  getAccountSettingsByAPI,
+  updateAccountSettingsByAPI,
+} from "@/service/user.service";
 import { NOTIFICATION_TYPES, responseCodes } from "@/util/constant";
 import { getFullName } from "@/util/helpers";
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 interface Props {
   accountSettingModal: UseModalType;
@@ -73,9 +78,9 @@ const notificationCategories: {
 
 export const AccountSetting = ({ accountSettingModal, userData }: Props) => {
   const [settings, setSettings] = useState<any>();
+  const [settingSubmitLoader, setSettingSubmitLoader] = useState(false);
   const allowedTypes = settings?.notification?.allowedTypes;
-  console.log({ settings });
-
+  const toast=useSelector(selectToast); 
   const onToggle = (type: any) => {
     let values: string[] = [...(allowedTypes ?? [])];
     if (allowedTypes?.includes(type?.value)) {
@@ -99,7 +104,7 @@ export const AccountSetting = ({ accountSettingModal, userData }: Props) => {
     getAccountSettingsByAPI()
       .then((response) => {
         if (response.status === responseCodes.SUCCESS) {
-          setSettings(response.data?.data);
+          setSettings({ notification: response.data?.data.notification });
         }
       })
       .catch((error) => {
@@ -109,6 +114,14 @@ export const AccountSetting = ({ accountSettingModal, userData }: Props) => {
         );
       });
   }, []);
+
+  const handleClick = async () => {
+    setSettingSubmitLoader(true);
+    await updateAccountSettingsByAPI(settings);
+    setTimeout(() => {
+      setSettingSubmitLoader(false);
+    }, 3000);
+  };
 
   return (
     <Modal
@@ -154,6 +167,18 @@ export const AccountSetting = ({ accountSettingModal, userData }: Props) => {
                 <hr className="text-black last:hidden" />
               </React.Fragment>
             ))}
+          </div>
+          <div>
+            <div className="flex justify-center ">
+              <button
+                className={`bg-eduBlack text-white border-eduBlack border-[1.5px] my-3 rounded-[10px] py-1 w-[150px] m-auto text-[16px]  font-body transition-colors duration-500 disabled:opacity-70 `}
+                onClick={handleClick} 
+                disabled={settingSubmitLoader}
+                type="submit"
+              >
+                Save
+              </button>
+            </div>
           </div>
         </div>
       </div>

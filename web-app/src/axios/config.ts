@@ -1,3 +1,4 @@
+import { setToast } from "@/redux/ducks/toast.duck";
 import { removeToken, removeUserDetail } from "@/redux/ducks/user.duck";
 import { AppDispatch } from "@/redux/store";
 import { responseCodes } from "@/util/constant";
@@ -12,17 +13,28 @@ export const axiosParse = (store: AppDispatch) => {
   });
   axios.interceptors.response.use(
     (response) => {
+      if (response?.data?.toast) {
+        store.dispatch(
+          setToast({
+            toastMessage: { msg: response.data.message, type: "success" },
+          })
+        );
+      }
       return response;
     },
     (e) => {
-      // console.log(e.response);
-
       const status = e?.response?.status;
       if (status == responseCodes.FORBIDDEN) {
         store.dispatch(removeToken());
         store.dispatch(removeUserDetail());
       }
-      // e.response? e.response : Promise.reject(new Error(e))
+      if (status == 400 && e?.response?.data?.toast) {
+        store.dispatch(
+          setToast({
+            toastMessage: { msg: e.response.data.message, type: "error" },
+          })
+        );
+      }
       return e.response;
     }
   );

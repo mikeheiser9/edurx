@@ -217,13 +217,18 @@ const searchUsers = async (req, res) => {
 
 const createAccountSettings = async (req, res) => {
   try {
-    const response = await addUpdateAccountSettings(req.body);
+    const payload={
+      userId:req.user._id,
+      ...req.body
+    }
+    const response = await addUpdateAccountSettings(payload);
     return generalResponse(
       res,
       responseCodes.SUCCESS,
       responseTypes.OK,
       "account settings created / updated successfully",
-      response
+      response,
+      true
     );
   } catch (error) {
     return generalResponse(
@@ -231,7 +236,8 @@ const createAccountSettings = async (req, res) => {
       responseCodes.ERROR,
       responseTypes.ERROR,
       "Something went wrong",
-      error
+      error,
+      true
     );
   }
 };

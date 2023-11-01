@@ -4,6 +4,7 @@ import storage from "redux-persist/es/storage";
 import userReducer from "./ducks/user.duck";
 import forumReducer from "./ducks/forum.duck";
 import persistStore from "redux-persist/es/persistStore";
+import toastReducer from "./ducks/toast.duck"
 
 const persistConfig = {
   key: "user",
@@ -20,6 +21,7 @@ export const store = configureStore({
     combineReducers({
       user: userReducer,
       forum: forumReducer,
+      toast:toastReducer
     })
   ),
   devTools: devToolAllow,
