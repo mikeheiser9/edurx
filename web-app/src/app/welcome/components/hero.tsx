@@ -46,7 +46,6 @@ useEffect(() => {
       start: 'top top',
       end: '+760px',
       scrub: true,
-      markers: true
     }
   });
   st.to(sepOne.current, {opacity: 0, duration: 1}, 0)

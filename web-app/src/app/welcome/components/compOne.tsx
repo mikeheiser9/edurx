@@ -14,7 +14,7 @@ export default function CompOne({signUpModal}: Props) {
     <div className='relative w-screen h-[700px] flex flex-col justify-center items-center flex-1 max-w-[1600px] medium:min-h-[1300px] ipad:min-h-[1000px] iphone:min-h-[800px]'>
       <div className='relative flex flex-row flex-nowrap px-[5%] py-[80px] items-start justify-center flex-1 w-[90%] h-full medium:flex-col medium:items-center ipad:pt-0 ipad:px-0 ipad:pb-[80px]'>
         <div className='relative flex flex-col items-start justify-end flex-1 w-1/3 h-[700px] medium:order-2 medium:w-full medium:items-center medium:justify-center medium:mt-[60px] iphone:mt-[10px]'>
-          <div className='relative flex flex-row flex-nowrap z-30 w-[345px] h-[180px] iphone:w-[245px] iphone:h-[105px] after:content-[" "] after:absolute after:w-full after:h-full after:left-0 after:top-0 after:z-10 after: after:rounded-[15px] after:bg-eduLightGray after:blur-sm after:inner-shadow after:backdrop-blur-xl after:opacity-95'>
+          <div className='relative flex flex-row flex-nowrap z-30 w-[345px] h-[180px] iphone:w-[245px] iphone:h-[105px] after:content-[" "] after:absolute after:w-full after:h-full after:left-0 after:top-[-10px] after:z-10 after: after:rounded-[15px] after:bg-eduLightGray after:blur-sm after:inner-shadow after:backdrop-blur-xl after:opacity-95'>
             <div className='absolute w-full z-30 left-0 bottom-[10px] h-[180px] iphone:h-[125px] left-barrier'>
               <LeftBarrier />
             </div>
@@ -31,6 +31,7 @@ export default function CompOne({signUpModal}: Props) {
               alt={'nurse'}
               width={600}
               height={600}
+              style={{opacity: "95%"}}
             />
             {/* <div className='absolute hidden w-[300px] top-0 z-[-1] right-0 medium:flex tablet-lg:w-[250px] ipad:right-[-120px] small:w-[200px] small:right-[-70px] iphone:w-[150px]'>
               <DominoBody />

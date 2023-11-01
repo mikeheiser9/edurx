@@ -18,7 +18,9 @@ export default function CompThree({signUpModal}:Props) {
     <div className='w-full text-center flex flex-col justify-center items-center'>
       <h2 className='text-[50px] font-headers small:text-[40px] xx-small:text-[34px]'>Coming Soon</h2>
       <h4 className='font-body font-semibold mt-[10px] text-[24px] small:text-[20px]'>Q1 2024</h4>
-      <p className='font-body font-light text-eduBlack/60 w-[60%] mt-[20px] max-w-[1000px] small:max-w-[95%] small:w-[90%]'>EduRx is relentlessly innovating to further streamline your experience as a medical professional. Explore below as we unveil our upcoming features designed for your continued growth and convenience.</p>
+      <div className='relative w-[60%] mt-[20px] max-w-[1000px] small:max-w-[95%] small:w-[90%] after:content-[" "] after:absolute after:w-full after:h-full after:left-0 after:top-0 after:z-10 after: after:rounded-[15px] after:bg-eduLightGray after:blur-sm after:inner-shadow after:backdrop-blur-xl after:opacity-95'>
+          <p className='relative z-30 font-body font-light text-eduBlack/60 p-[10px]'>EduRx is relentlessly innovating to further streamline your experience as a medical professional. Explore below as we unveil our upcoming features designed for your continued growth and convenience.</p>
+        </div>
     </div>
     <div className='w-full px-[50px] py-[80px] flex flex-col tl:px-0'>
       
@@ -67,12 +69,13 @@ export default function CompThree({signUpModal}:Props) {
               </div>
 
             </div>
-            <div className='absolute w-[700px] h-auto left-[120%] top-[15%] tl:top-[-120%] tl:left-[27%] tl:w-[800px] tl:h-[610px] tablet-lg:left-[20%] ipad:w-[700px] ipad:h-[550px] ipad:left-[5%] ipad:top-[-100%] ipad-under:top-[-85%] ipad-under:w-[600px] ipad-under:h-[450px] ipad-under:left-[13%] small:w-[400px] small:h-[300px] small:top-[-52%] small:left-[16%] iphone:w-[340px] iphone:h-[260px] iphone:top-[-44%] iphone:left-[3%] iphone-sm:top-[-43%] over-small:top-[-75%]'>
+            <div className='absolute z-30 w-[700px] h-auto left-[120%] top-[15%] tl:top-[-120%] tl:left-[27%] tl:w-[800px] tl:h-[610px] tablet-lg:left-[20%] ipad:w-[700px] ipad:h-[550px] ipad:left-[5%] ipad:top-[-100%] ipad-under:top-[-85%] ipad-under:w-[600px] ipad-under:h-[450px] ipad-under:left-[13%] small:w-[400px] small:h-[300px] small:top-[-52%] small:left-[16%] iphone:w-[340px] iphone:h-[260px] iphone:top-[-44%] iphone:left-[3%] iphone-sm:top-[-43%] over-small:top-[-75%]'>
               <Image
                 src={CeElement}
                 alt={'ce-screen'}
                 width={1000}
                 height={1000}
+                className='z-30 opacity-95'
               />
             </div>
            
@@ -127,7 +130,7 @@ export default function CompThree({signUpModal}:Props) {
                 alt={'library-screen'} 
                 width={700}
                 height={700}
-                className='block tl:hidden'
+                className='block tl:hidden z-30 opacity-95'
               />
               <Image 
                 src={libraryElementMobile}
