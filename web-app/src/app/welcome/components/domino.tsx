@@ -22,9 +22,10 @@ function useLerpedMouse() {
 }
 
 const Domino: React.FC = () => {
+
   return (
     <div className="fixed top-0 left-0 w-full h-full z-10 overflow-hidden">
-      <Canvas>
+      <Canvas style={{ position: 'relative', zIndex: 10 }}>
         <ambientLight />
         <GLBContent />
       </Canvas>
@@ -104,23 +105,64 @@ useEffect(() => {
 }, [scrollPos]);
 
   useEffect(() => {
-    const model = gltf.scene;  
+  const model = gltf.scene;  
 
-    if (windowWidth <= 1600) {
-      model.scale.set(0.65, 0.65, 0.65);
-      model.position.set(0, 0.35, 0);
+  if (windowWidth <= 1600) {
+    model.scale.set(0.65, 0.65, 0.65);
+    model.position.set(0, 0.35, 0);
+  }
+
+  dominoRef.current = model;
+  scene.add(model);
+
+  const movementPercentage = 0.5;
+  const movementValue = windowWidth * movementPercentage;
+  const startX = model.position.x;
+
+  const tl = gsap.timeline({
+    onUpdate: () => {
+      startYRotation.current = model.rotation.y;
+    },
+    scrollTrigger: {
+      trigger: document.body,
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: true
     }
+  });
+  
+  tl.to(model.rotation, { y: Math.PI * 2, duration: 1, ease: 'power1.inOut' })
 
-    dominoRef.current = model;
-    scene.add(model);
+  const tlEnd = gsap.timeline({
+    scrollTrigger: {
+      trigger: document.body,
+      start: '97% bottom',
+      end: 'bottom bottom',
+      scrub: 4
+    }
+  });
 
-    const movementPercentage = 0.5;
-    const movementValue = windowWidth * movementPercentage;
+  tlEnd.to(dominoRef.current.position, {
+    y: dominoRef.current.position.y - 3,
+    duration: 20,
+    ease: 'power4.out'
+  });
 
-    const tl = gsap.timeline({
-      onUpdate: () => {
-        startYRotation.current = model.rotation.y;
-      },
+  tlEnd.to(dominoRef.current.scale, {
+    x: 0.25,
+    y: 0.25,
+    z: 0.25,
+    duration: 20,
+    ease: 'power4.out'
+  }, "<");  
+  return () => {
+    scene.remove(model);
+  };
+}, [gltf, scene, windowWidth]);
+
+useEffect(() => {
+  if (dominoRef.current) {
+    const mt = gsap.timeline({
       scrollTrigger: {
         trigger: document.body,
         start: 'top top',
@@ -128,16 +170,13 @@ useEffect(() => {
         scrub: true
       }
     });
-    
-    tl.to(model.rotation, { y: Math.PI * 2 })
-    tl.to(model.position, { x: movementValue, duration: '33%' }, "250px")
-    tl.to(model.position, { x: -movementValue, duration: '33%' }, "<")
-    tl.to(model.position, { x: 0, duration: '33%' }, "<");
 
-    return () => {
-      scene.remove(model);
-    };
-  }, [gltf, scene, windowWidth]);
+    mt
+      .to(dominoRef.current.position, { x: -5, duration: 6, ease: 'power1.inOut' })
+      .to(dominoRef.current.position, { x: 5, duration: 6, ease: 'power1.inOut' })
+      .to(dominoRef.current.position, { x: 0, duration: 6, ease: 'power1.inOut' });
+  }
+}, [dominoRef]);
 
   useFrame(() => {
     if (dominoRef.current && shouldRotate) {

@@ -14,12 +14,12 @@ export default function CompOne({signUpModal}: Props) {
     <div className='relative w-screen h-[700px] flex flex-col justify-center items-center flex-1 max-w-[1600px] medium:min-h-[1300px] ipad:min-h-[1000px] iphone:min-h-[800px]'>
       <div className='relative flex flex-row flex-nowrap px-[5%] py-[80px] items-start justify-center flex-1 w-[90%] h-full medium:flex-col medium:items-center ipad:pt-0 ipad:px-0 ipad:pb-[80px]'>
         <div className='relative flex flex-col items-start justify-end flex-1 w-1/3 h-[700px] medium:order-2 medium:w-full medium:items-center medium:justify-center medium:mt-[60px] iphone:mt-[10px]'>
-          <div className='relative flex flex-row flex-nowrap w-[345px] h-[180px] iphone:w-[245px] iphone:h-[105px] '>
-            <div className='absolute w-full z-0 left-0 bottom-[10px] h-[180px] iphone:h-[125px] left-barrier'>
+          <div className='relative flex flex-row flex-nowrap z-30 w-[345px] h-[180px] iphone:w-[245px] iphone:h-[105px] after:content-[" "] after:absolute after:w-full after:h-full after:left-0 after:top-0 after:z-10 after: after:rounded-[15px] after:bg-eduLightGray after:blur-sm after:inner-shadow after:backdrop-blur-xl after:opacity-95'>
+            <div className='absolute w-full z-30 left-0 bottom-[10px] h-[180px] iphone:h-[125px] left-barrier'>
               <LeftBarrier />
             </div>
-            <div className='relative ml-[30px] z-10'>
-              <p className='leading-[50px] font-body text-[35px] iphone:text-[24px] iphone:leading-[35px]'>Learn & connect with the best in your field</p>
+            <div className='relative ml-[30px] z-30'>
+              <p className='relative leading-[50px] font-body text-[35px] z-30 iphone:text-[24px] iphone:leading-[35px]'>Learn & connect with the best in your field</p>
               <button onClick={signUpModal.openModal} className='absolute w-[105px] h-[35px] text-[12px] flex justify-center items-center font-body font-light text-eduBlack bg-eduYellow rounded-[5px] right-[15px] bottom-[37px] iphone:w-[75px] iphone:bottom-[0]'>start</button>
             </div>
           </div>

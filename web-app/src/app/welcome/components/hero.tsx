@@ -1,20 +1,22 @@
 import React, { useRef, useEffect, useLayoutEffect, useState } from 'react';
 import Image from 'next/image';
 import SepTop from '@/assets/imgs/hero-sep-top.svg';
-import SepBtm from '@/assets/imgs/hero-sep-btm.svg';
-// import Domino from '@/assets/svg-components/domino';
-import DominoBlack from '@/assets/svg-components/domino-black';
 import { gsap } from 'gsap';
-import { MotionPathHelper } from 'gsap/MotionPathHelper';
 import { useAnimationContext } from '@/util/animationContext';
-import debounce from 'lodash/debounce';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 export default function Hero() {
 
   const { registerAnimation } = useAnimationContext();
+  gsap.registerPlugin(ScrollTrigger);
 
   const wordRef = useRef(null);
   const words = ['your education', 'collaboration', 'your research', 'the conversation', 'your network', 'your career', 'your practice'];
+  const sepOne = useRef(null);
+  const sepTwo = useRef(null);
+  const elRef = useRef(null);
+  const edRef = useRef(null);
+
 
   useEffect(() => {
     const tl = gsap.timeline({ repeat: -1, repeatDelay: 1 });
@@ -37,17 +39,35 @@ export default function Hero() {
     };
 }, []);
 
+useEffect(() => {
+  const st = gsap.timeline({
+    scrollTrigger: {
+      trigger: document.body,
+      start: 'top top',
+      end: '+760px',
+      scrub: true,
+      markers: true
+    }
+  });
+  st.to(sepOne.current, {opacity: 0, duration: 1}, 0)
+    .to(sepTwo.current, {opacity: 0, duration: 1}, 0)
+    .to(elRef.current, {opacity: 0, duration: 1}, 0)
+    .to(edRef.current, {opacity: 0, duration: 1}, 0)
+    .to(wordRef.current, {opacity: 0, duration: 1}, 0)
+
+}, []);
+
   return (
     <>
       <div className='relative w-full h-full flex items-center justify-center mx-[5%] my-[50px] flex-col small:my-[25px] ipad:mt-0'>
         <div className='relative w-[90%] flex justify-center items-center flex-col st-one ipad:my-[25px] tablet-lg:w-[95%] small:my-0'>
           <div className='relative w-full'>
-            <Image src={SepTop} alt={'hero-top-line'} />
+            <Image src={SepTop} alt={'hero-top-line'} ref={sepOne} />
           </div>
           <div className='relative my-[50px] flex flex-row flex-nowrap w-[90%] justify-center ipad:flex-col ipad:justify-center ipad:items-center ipad:mb-[25px]'>
             <div className='w-5/12 flex flex-col justify-center items-end ipad:w-full ipad:order-2 ipad:items-center ipad:mt-[20px]'>
               <div className='relative h-full'>
-                <h3 className='relative text-[80px] font-headers uppercase leading-none x-large:text-[60px] tablet-lg:text-[45px] small:text-[40px] iphone:text-[35px]'>
+                <h3 className='relative text-[80px] font-headers uppercase leading-none x-large:text-[60px] tablet-lg:text-[45px] small:text-[40px] iphone:text-[35px]' ref={elRef}>
                   Elevate
                 </h3>
               </div> 
@@ -62,13 +82,13 @@ export default function Hero() {
               </div>
             </div>
             <div className='w-5/12 flex flex-col justify-center items-start ml-[35px] mt-[-50px] ipad:w-full ipad:order-4 ipad:items-center ipad:ml-0 ipad:mt-[15px]'>
-              <h3 className='text-[60px] font-semibold text-eduLightBlue font-headers leading-none x-large:text-[50px] tablet-lg:text-[40px] small:text-[40px] iphone:text-[30px]'>
+              <h3 className='text-[60px] font-semibold text-eduLightBlue font-headers leading-none x-large:text-[50px] tablet-lg:text-[40px] small:text-[40px] iphone:text-[30px]' ref={edRef}>
                 On EduRx
               </h3>
             </div>
           </div>
           <div className='relative'>
-            <Image src={SepTop} alt={'hero-btm-line'} className='rotate-180' />
+            <Image src={SepTop} alt={'hero-btm-line'} className='rotate-180' ref={sepTwo} />
           </div>
         </div>
       </div>
