@@ -3,7 +3,6 @@ import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ScrollSmoother } from 'gsap/ScrollSmoother';
 import * as THREE from 'three';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -26,7 +25,10 @@ const Domino: React.FC = () => {
   return (
     <div className="fixed top-0 left-0 w-full h-full z-10 overflow-hidden">
       <Canvas style={{ position: 'relative', zIndex: 10 }}>
-        <ambientLight />
+        <ambientLight intensity={1} />
+        <directionalLight position={[0, 20, 5]} intensity={1} castShadow />
+        {/* <pointLight position={[10, 10, 10]} intensity={1} /> */}
+        <spotLight position={[10, 15, 10]} angle={0.3} />
         <GLBContent />
       </Canvas>
     </div>

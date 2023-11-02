@@ -16,6 +16,14 @@ export default function Hero() {
   const sepTwo = useRef(null);
   const elRef = useRef(null);
   const edRef = useRef(null);
+  const letOne = useRef(null);
+  const letTwo = useRef(null);
+  const letThree = useRef(null);
+  const letFour = useRef(null);
+  const letFive = useRef(null);
+  const letSix = useRef(null);
+  const letSeven = useRef(null);
+
 
 
   useEffect(() => {
@@ -49,11 +57,28 @@ useEffect(() => {
     }
   });
   st.to(sepOne.current, {opacity: 0, duration: 1}, 0)
+    .to(sepOne.current, {y: '-=50px', duration: 0.5}, 0)
     .to(sepTwo.current, {opacity: 0, duration: 1}, 0)
+    .to(sepTwo.current, {y: '-=50px', duration: 0.5}, 0)
     .to(elRef.current, {opacity: 0, duration: 1}, 0)
     .to(edRef.current, {opacity: 0, duration: 1}, 0)
     .to(wordRef.current, {opacity: 0, duration: 1}, 0)
 
+}, []);
+
+useEffect(() => {
+  const lt = gsap.timeline({
+    repeat: 1,
+    yoyo: true,
+    ease: 'power1.inOut',
+    delay: 1
+  });
+
+  lt.to([letOne.current, letTwo.current, letThree.current, letFour.current, letFive.current, letSix.current, letSeven.current], {
+    y: '-=15px',
+    duration: 1,
+    stagger: 0.2, // Start next animation after 0.1 seconds
+  });
 }, []);
 
   return (
@@ -66,9 +91,29 @@ useEffect(() => {
           <div className='relative my-[50px] flex flex-row flex-nowrap w-[90%] justify-center ipad:flex-col ipad:justify-center ipad:items-center ipad:mb-[25px]'>
             <div className='w-5/12 flex flex-col justify-center items-end ipad:w-full ipad:order-2 ipad:items-center ipad:mt-[20px]'>
               <div className='relative h-full'>
-                <h3 className='relative text-[80px] font-headers uppercase leading-none x-large:text-[60px] tablet-lg:text-[45px] small:text-[40px] iphone:text-[35px]' ref={elRef}>
-                  Elevate
-                </h3>
+                <div className='relative flex flex-row flex-nowrap text-[80px] font-headers uppercase leading-none x-large:text-[60px] tablet-lg:text-[45px] small:text-[40px] iphone:text-[35px]' ref={elRef}>
+                  <div ref={letOne}>
+                    <span className='relative font-headers'>E</span>
+                  </div>
+                  <div ref={letTwo}>
+                    <span className='relative font-headers' >L</span>
+                  </div>
+                  <div ref={letThree}>
+                    <span className='relative font-headers'>E</span>
+                  </div>
+                  <div ref={letFour}>
+                    <span className='relative font-headers'>V</span>
+                  </div>
+                  <div ref={letFive}>
+                    <span className='relative font-headers'>A</span>
+                  </div>
+                  <div ref={letSix}>
+                    <span className='relative font-headers'>T</span>
+                  </div>
+                  <div ref={letSeven}>
+                    <span className='relative font-headers'>E</span>
+                  </div>
+                </div>
               </div> 
               <div className='absolute flex flex-row flex-nowrap min-w-full justify-end mt-[35px] font-headers text-right ipad:relative ipad:flex-col ipad:justify-center ipad:order-3 ipad:min-h-[35px] ipad:items-center ipad:mt-[20px]'>
                 <p className='text-[40px] text-eduLightBlue uppercase leading-none font-semibold x-large:text-[30px] tablet-lg:text-[26px] ipad:text-[30px] ipad:text-center small:text-[26px] iphone:text-[20px]' ref={wordRef}>
