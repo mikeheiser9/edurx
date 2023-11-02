@@ -130,7 +130,6 @@ export default function CompTwo({signUpModal}:Props) {
           <div ref={introText} className='relative z-30'>
             <p className='relative z-30 font-body font-light text-eduBlack/60 p-[10px]'>EduRx aims to be the leading platform for medical professionals to streamline their continued education and engage in curated professional discussions. With tailored medical research feeds and rigorous content moderation, we're redefining the way modern medical professionals learn and connect.</p>
           </div>
-
         </div>
       </div>
       <div className='relative z-30 flex flex-row w-full justify-center items-center mt-[50px]' ref={introBtn}>
