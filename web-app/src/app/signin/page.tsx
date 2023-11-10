@@ -185,9 +185,9 @@ export default function SignIn() {
                     Sign in
                   </button>
                   {!isVerificationPending && (
-                    <span className="text-white/50 text-xs flex justify-center">
+                    <span className="text-eduBlack/60 text-xs flex justify-center">
                       Don't have account? &nbsp;
-                      <Link className="text-white" href="signup">
+                      <Link className="text-eduBlack" href="signup">
                         Sign up
                       </Link>
                     </span>

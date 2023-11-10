@@ -64,7 +64,6 @@ export const DummyPostCard = (props: Props) => {
               {`Category ${index + 1}`}
             </span>
           ))}
-
           <span className="text-[8px] leading-6 items-center flex justify-center px-2 bg-eduDarkGray rounded-md">
             tag
           </span>
