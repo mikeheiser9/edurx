@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { postCategoryTagsTypes } from "../../util/constant.js";
+import { postCategoryFilterTypes } from "../../util/constant.js";
 
 const schema = new Schema(
   {
@@ -10,7 +10,7 @@ const schema = new Schema(
     },
     type: {
       type: String,
-      enum: postCategoryTagsTypes,
+      enum: postCategoryFilterTypes,
       required: true,
     },
     // createdBy: {
@@ -24,4 +24,4 @@ const schema = new Schema(
   }
 );
 
-export const categoryTagModal = model("postCategoryTags", schema);
+export const categoryFilterModal = model("postCategoryFilters", schema);

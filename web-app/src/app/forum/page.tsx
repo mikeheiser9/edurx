@@ -51,7 +51,7 @@ const Page = () => {
   let apiEndpoint: string = `/post/forum/${
     selectedForumTab === forumTabs[1] ? "user" : "all"
   }`;
-
+  
   const handleFilters = (
     type: keyof FilterOptionsState,
     value: string | any[]
@@ -81,6 +81,12 @@ const Page = () => {
             .toString(),
         });
       }
+      if(selectedFilters?.filters?.length)
+      {
+        Object.assign(payload,{
+          filters:selectedFilters.filters.map((item)=>item?.id)
+        })
+      }
       if (selectedFilters?.forumType) {
         Object.assign(payload, { forumType: selectedFilters.forumType });
       }
@@ -90,7 +96,7 @@ const Page = () => {
       const response = await axiosGet(endPoint, {
         params: payload,
       });
-
+      
       if (response?.status === responseCodes.SUCCESS) {
         setPosts(
           useConcat
@@ -170,7 +176,7 @@ const Page = () => {
   };
 
   // const onForumTabChange = async (tab: string) => {
-  //   if (selectedForumTab === tab) return;
+  //   if (select === tab) return;
   //   if (tab === forumTabs[1]) {
   //     await fetchPosts(1, "/post/forum/user", false);
   //   }
@@ -181,7 +187,7 @@ const Page = () => {
     if (selectedForumTab === forumTabs[2]) return;
     fetchPosts(1, apiEndpoint, false);
   }, [selectedFilters, selectedForumTab]);
-
+  
   return (
     <React.Fragment>
       {addPostModal.isOpen && <AddPost addPostModal={addPostModal} />}
@@ -267,7 +273,9 @@ const Page = () => {
         hasMoreData={posts?.length < postPagination.totalRecords}
         showLoading
       >
+        
         {posts?.map((post) => (
+          <div>
           <PostCard
             post={post}
             key={post._id}
@@ -275,7 +283,10 @@ const Page = () => {
             userRole={loggedInUser?.role}
             onDeletePost={isAdmin ? () => onDeletePost(post?._id) : undefined}
             onFlagPost={isAdmin ? onFlagPost : undefined}
+            isPostOwner={post.userId==loggedInUser._id}
+            loggedUserId={loggedInUser._id}
           />
+          </div>
         ))}
       </InfiniteScroll>
     </React.Fragment>

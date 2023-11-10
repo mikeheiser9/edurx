@@ -77,9 +77,6 @@ export const CommentManager = ({
         taggedUsers: getTaggedUserIds(),
         ...commentData,
       };
-      // console.log(payload);
-      // return
-
       const response = await addNewComment(payload);
       if (response?.status === responseCodes.SUCCESS) {
         setcommentText("");

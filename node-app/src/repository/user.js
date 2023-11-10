@@ -40,7 +40,6 @@ const getUserProfileById = async (
   loggedInUserId
 ) => {
   try {
-    console.log({ loggedInUserId });
     let skippedAttributes = getSkippedAttributes(excludeAttributeList);
     const userProfileQuery = userModel
       .findById({ _id: userId })
@@ -221,7 +220,7 @@ const followUser = async (userId, targetUserId) => {
     });
 
     if (existingConnection) {
-      return "You are already following this user.";
+      throw new Error("You are already following this user.");
     }
 
     // Create a new user connection
@@ -330,6 +329,31 @@ const getAccountSettingById = async (userId) => {
   return await accountSettingModal.findOne({ userId });
 };
 
+const findFollowerById=async(userId)=>{
+  return userConnections.find({targetUserId:userId})
+}
+
+const findUserFollowPostDetails=async(userId,postId)=>{
+  return await userConnections.findOne({userId,postId})
+}
+
+const insertFollowPost=(userId,postId)=>{
+  return  userConnections.create({
+    postId,
+    userId
+  })
+}
+
+const removeFollowPost=(userId,postId)=>{
+  return  userConnections.deleteOne({
+    userId,
+    postId
+  })
+}
+
+const insertFollowPostMultiple=async(data)=>{
+  return await userConnections.insertMany(data);
+}
 export {
   getUserProfileById,
   findUserByEmail,
@@ -348,4 +372,9 @@ export {
   getUserConnections,
   addUpdateAccountSettings,
   getAccountSettingById,
+  findFollowerById,
+  findUserFollowPostDetails,
+  insertFollowPost,
+  removeFollowPost,
+  insertFollowPostMultiple
 };

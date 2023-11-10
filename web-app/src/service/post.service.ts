@@ -51,6 +51,14 @@ const updatePostRequestsByAPI = async (
   return await axiosPut(`/post/private/${postId}/requests-update`, payload);
 };
 
+const followPost=async(postId:string)=>{
+  return await axiosPost(`/post/follow/${postId}/add`,{})
+}
+
+const getFilters=()=>{
+  return axiosGet(`/post/filter/all`)
+}
+
 export {
   addNewPost,
   getComments,
@@ -61,4 +69,6 @@ export {
   addPrivatePostRequest,
   getPostRequests,
   updatePostRequestsByAPI,
+  followPost,
+  getFilters
 };

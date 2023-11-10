@@ -1,25 +1,52 @@
 import { Types } from "mongoose";
 import {
-  addCategoryTag,
+  addCategoryFilter,
   addComment,
   addPostAccessRequest,
   addReaction,
   addViews,
   createNewPost,
+  deletePostRequest,
+  fetchFilters,
+  findPostById,
   getCommentsByPostId,
   getPostById,
   getPosts,
   getRequestsByPostId,
-  searchCategoryTagByName,
+  searchCategoryFilterByName,
   updatePostById,
   updatePostRequests,
 } from "../repository/post.js";
 import { generalResponse } from "../util/commonFunctions.js";
 import { responseCodes, responseTypes } from "../util/constant.js";
+import {
+  findFollowerById,
+  findUserFollowPostDetails,
+  getBasicProfile,
+  insertFollowPost,
+  insertFollowPostMultiple,
+  removeFollowPost,
+} from "../repository/user.js";
+import { insertNotification } from "../repository/notification.js";
+import { findCommentById } from "../repository/comment.js";
+import { postRequestModal } from "../model/post/postAccessRequest.js";
 
 const createPost = async (req, res) => {
   try {
     const post = await createNewPost(req.body);
+    const followers = await findFollowerById(req.user._id);
+    if (followers && followers.length > 0) {
+      const notificationReceiverUserIds = followers.map((follower) => {
+        return follower.userId;
+      });
+      await insertNotification({
+        type: "user_you_follow_published_a_new_post",
+        contentId: post._id,
+        destinationId: notificationReceiverUserIds,
+        eventTime: new Date(),
+        sourceId: req.user._id,
+      });
+    }
     generalResponse(res, 200, "OK", "Post created", post, null);
   } catch (error) {
     return generalResponse(res, 400, "error", error.message, null, true);
@@ -29,7 +56,7 @@ const createPost = async (req, res) => {
 const searchPostMetaLabel = async (req, res) => {
   try {
     const { name, type, page, limit } = req.query;
-    const searchResult = await searchCategoryTagByName(name, type, page, limit);
+    const searchResult = await searchCategoryFilterByName(name, type, page, limit);
     let message = searchResult.records.length
       ? "records found"
       : "No records found";
@@ -42,7 +69,7 @@ const searchPostMetaLabel = async (req, res) => {
 const addPostMetaLabel = async (req, res) => {
   try {
     const { metaLabel } = req.params;
-    const response = await addCategoryTag({ ...req.body, type: metaLabel });
+    const response = await addCategoryFilter({ ...req.body, type: metaLabel });
     return generalResponse(
       res,
       200,
@@ -72,7 +99,71 @@ const addNewReaction = async (req, res) => {
 
 const addNewComment = async (req, res) => {
   try {
-    const newComment = await addComment(req.body);
+    const { userId, postId, taggedUsers, content, parentId, replyOnDetails } =
+      req.body;
+    if (userId != req.user._id) {
+      throw new Error("something went wrong with token");
+    }
+    const postDetails = await findPostById(postId);
+    if (!postDetails) {
+      throw new Error("post doesn't exists with given id");
+    }
+    if (taggedUsers) {
+      for (let i = 0; i < taggedUsers.length; i++) {
+        const isExist = await getBasicProfile(taggedUsers[i]);
+        if (!isExist) {
+          throw new Error("one or more tagged user not exists");
+        }
+      }
+    }
+    const newComment = await addComment({
+      userId,
+      postId,
+      taggedUsers,
+      content,
+      parentId,
+    });
+    const eventTime = new Date();
+    if (!parentId) {
+      await insertNotification({
+        type: "user_comments_on_your_post",
+        sourceId: req.user._id,
+        destinationId: postDetails.userId,
+        contentId: newComment._id,
+        eventTime: eventTime,
+      });
+
+      const followers = await findFollowerById(req.user._id);
+      if (followers && followers.length > 0) {
+        const notificationReceiverUserIds = followers.map((follower) => {
+          return follower.userId;
+        });
+        await insertNotification({
+          type: "user_who_you_follow_commented_on_a_post",
+          sourceId: req.user._id,
+          destinationId: notificationReceiverUserIds,
+          contentId: newComment._id,
+          eventTime: eventTime,
+        });
+      }
+    } else {
+      const commentDetails = await findCommentById(replyOnDetails.commentId);
+      if (
+        !commentDetails ||
+        commentDetails.userId != replyOnDetails.commentOwner
+      ) {
+        throw new Error(
+          "something went wrong with comment id or comment owner"
+        );
+      }
+      await insertNotification({
+        type: "user_replied_to_your_comment",
+        sourceId: req.user._id,
+        destinationId: replyOnDetails.commentOwner,
+        contentId: newComment._id,
+        eventTime: eventTime,
+      });
+    }
     return generalResponse(
       res,
       200,
@@ -127,6 +218,7 @@ const getAllPosts = async (req, res) => {
         categoryList?.length > 0 &&
         categoryList.map((category) => new Types.ObjectId(category)),
       userId,
+      loggedInUser: req.user._id,
     });
     return generalResponse(res, 200, "OK", "posts fetched successfully", posts);
   } catch (error) {
@@ -168,7 +260,22 @@ const updatePost = async (req, res) => {
 
 const addPrivatePostRequest = async (req, res) => {
   try {
+    const { postId, userId, status } = req.body;
+    if (req.user._id != userId) {
+      throw new Error("you are not logged in user");
+    }
+    const postDetail = await findPostById(postId);
+    if (!postDetail) {
+      throw new Error("post doesn't exists");
+    }
     const response = await addPostAccessRequest(req.body);
+    await insertNotification({
+      type: "user_requested_to_follow_your_private_post",
+      sourceId: userId,
+      destinationId: postDetail.userId,
+      contentId: postDetail._id,
+      eventTime: new Date(),
+    });
     return generalResponse(
       res,
       responseCodes.SUCCESS,
@@ -212,16 +319,104 @@ const getUserRequests = async (req, res) => {
   }
 };
 
-const bultUpdateRequests = async (req, res) => {
+const bulkUpdateRequests = async (req, res) => {
   try {
-    const response = await updatePostRequests(req.body);
-    console.log(response);
+    const requestIds = req.body.map(
+      (requestData) => new Types.ObjectId(requestData._id)
+    );
+    const postRequestLength = requestIds.length;
+    const allDetail = await postRequestModal.aggregate([
+      {
+        $match: {
+          $expr: {
+            $in: ["$_id", requestIds],
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "posts",
+          localField: "postId",
+          foreignField: "_id",
+          as: "postDetails",
+        },
+      },
+      { $unwind: "$postDetails" },
+    ]);
+    const allDetailLength = allDetail.length;
+    if (allDetailLength < postRequestLength) {
+      throw new Error("invalid request send");
+    }
+    const insertFollowPost = [];
+    for (let i = 0; i < allDetailLength; i++) {
+      insertFollowPost.push({
+        userId: allDetail[i].userId,
+        postId: allDetail[i].postId,
+        requestId: allDetail[i]._id.toString(),
+      });
+      if (
+        allDetail[i].postDetails.userId.toString() != req.user._id.toString()
+      ) {
+        throw new Error("invalid request send");
+      }
+    }
+    const deniedPostRequestIds = req.body
+      .filter((request) => request.status == "denied")
+      .map((request) => request._id);
+    const acceptedPostRequests = req.body.filter(
+      (request) => request.status == "accepted"
+    );
+    await updatePostRequests(acceptedPostRequests);
+    await deletePostRequest({ _id: { $in: deniedPostRequestIds } });
+    const insertPostFollowRequest = insertFollowPost
+      .filter((follow) => !deniedPostRequestIds.includes(follow.requestId))
+      .map((follow) => {
+        return {
+          userId: follow.userId,
+          postId: follow.postId,
+        };
+      });
+
+    for (let i = 0; i < insertPostFollowRequest.length; i++) {
+      if (
+        await findUserFollowPostDetails(
+          insertPostFollowRequest[i].userId,
+          insertPostFollowRequest[i].postId
+        )
+      ) {
+        throw new Error("some of the user already follow this post");
+      }
+    }
+    await insertFollowPostMultiple(insertPostFollowRequest);
+
+    const eventTime = new Date();
+    const notificationReceiverUserIds = [];
+
+    allDetail.map((detail) => {
+      if (
+        req.body.findIndex(
+          (request) => request._id == detail._id && request.status == "accepted"
+        ) != -1
+      ) {
+        notificationReceiverUserIds.push(detail.userId);
+      }
+    });
+
+    // save notification data
+    await insertNotification({
+      type: "user_approved_your_request_to_follow_a_private_post",
+      contentId: allDetail[0].postId,
+      eventTime: eventTime,
+      sourceId: req.user._id,
+      destinationId: notificationReceiverUserIds,
+    });
+
     return generalResponse(
       res,
       responseCodes.SUCCESS,
       responseTypes.OK,
       "requests updated successfully",
-      response
+      null
     );
   } catch (error) {
     return generalResponse(
@@ -229,10 +424,75 @@ const bultUpdateRequests = async (req, res) => {
       responseCodes.INTERNAL_SERVER_ERROR,
       responseTypes.INTERNAL_SERVER_ERROR,
       error?.message || "Something went wrong",
-      error
+      error,
+      true
     );
   }
 };
+
+const followPost = async (req, res) => {
+  try {
+    // check loggedin user should not be the owner of this post
+    const { postId, action } = req.params;
+    const postDetail = await findPostById(postId);
+    if (!postDetail || postDetail.userId == req.user._id) {
+      throw new Error(
+        "either forum doesn't exists with id or you are owner of this forum"
+      );
+    }
+    if (action == "add") {
+      const connectionDetails = await findUserFollowPostDetails(
+        req.user._id,
+        postId
+      );
+      if (connectionDetails) {
+        throw new Error("you are already following this forum");
+      }
+      await insertFollowPost(req.user._id.toString(), postId);
+    } else if (req.params.action == "remove") {
+      await removeFollowPost(req.user._id, postId);
+    }
+    return generalResponse(
+      res,
+      200,
+      "success",
+      "requests updated successfully",
+      ""
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      responseCodes.ERROR,
+      responseTypes.INTERNAL_SERVER_ERROR,
+      error?.message || "Something went wrong",
+      error,
+      true
+    );
+  }
+};
+
+const getFilters=async(req,res)=>{
+  try {
+    console.log("reached the controllerd");
+    const filters=await fetchFilters()
+    return generalResponse(
+      res,
+      responseCodes.SUCCESS,
+      responseTypes.OK,
+      "result successfully fetched",
+      filters
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      responseCodes.ERROR,
+      responseTypes.INTERNAL_SERVER_ERROR,
+      error?.message || "Something went wrong",
+      error,
+      true
+    );
+  }
+}
 
 export {
   createPost,
@@ -247,5 +507,7 @@ export {
   updatePost,
   addPrivatePostRequest,
   getUserRequests,
-  bultUpdateRequests,
+  bulkUpdateRequests,
+  followPost,
+  getFilters
 };

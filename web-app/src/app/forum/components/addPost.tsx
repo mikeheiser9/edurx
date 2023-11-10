@@ -28,9 +28,9 @@ import { selectUserDetail } from "@/redux/ducks/user.duck";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { showToast } from "@/components/toast";
 
-interface TagCategoryInput {
+interface filterCategoryInput {
   category?: string | boolean;
-  tag?: string | boolean;
+  filter?: string | boolean;
 }
 
 interface PageData {
@@ -40,45 +40,45 @@ interface PageData {
 
 interface CurrentPageRecords {
   category: PageData;
-  tag: PageData;
+  filter: PageData;
 }
 
-interface TagCategoryList {
+interface filterCategoryList {
   categories: [];
-  tags: [];
+  filters: [];
 }
 
 export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
   const loggedInUser = useSelector(selectUserDetail);
   const [pollOptionsCount, setPollOptionsCount] = useState<number>(2);
-  const [isLoading, setIsLoading] = useState<TagCategoryInput>({
-    tag: false,
+  const [isLoading, setIsLoading] = useState<filterCategoryInput>({
+    filter: false,
     category: false,
   });
   const [searchText, setSearchText] = useState<{
     category: string;
-    tag: string;
+    filter: string;
   }>({
     category: "",
-    tag: "",
+    filter: "",
   });
-  const [tagCategoryList, setTagCategoryList] = useState<{
+  const [filterCategoryList, setFilterCategoryList] = useState<{
     categories: [];
-    tags: [];
-  }>({ categories: [], tags: [] });
+    filters: [];
+  }>({ categories: [], filters: [] });
   const [currentPage, setCurrentPage] = useState<CurrentPageRecords>({
     category: {
       page: 1,
       totalRecords: 0,
     },
-    tag: {
+    filter: {
       page: 1,
       totalRecords: 0,
     },
   });
-  const [selectedList, setSelectedList] = useState<TagCategoryList>({
+  const [selectedList, setSelectedList] = useState<filterCategoryList>({
     categories: [],
-    tags: [],
+    filters: [],
   });
 
   const dropdownOptions = roleBasedForum[
@@ -94,7 +94,7 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
     postType: "post",
     title: "",
     categories: [],
-    tags: [],
+    filters: [],
     isPrivate: false,
     content: "",
     options: [...Array(pollOptionsCount)].map((_) => ""),
@@ -102,7 +102,7 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
   };
 
   const debouncedCategory = useDebounce(searchText.category, 1000);
-  const debouncedTag = useDebounce(searchText.tag, 1000);
+  const debouncedTag = useDebounce(searchText.filter, 1000);
 
   const onSearch = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -118,7 +118,11 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
   );
 
   const searchAPI = useCallback(
-    async (type: keyof TagCategoryInput, value: string, isIntial?: boolean) => {
+    async (
+      type: keyof filterCategoryInput,
+      value: string,
+      isIntial?: boolean
+    ) => {
       try {
         setIsLoading((preState) => {
           return {
@@ -141,15 +145,15 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
               [type]: false,
             };
           });
-          let key: keyof typeof tagCategoryList =
-            type === "category" ? "categories" : "tags";
+          let key: keyof typeof filterCategoryList =
+            type === "category" ? "categories" : "filters";
           let prevList = isIntial
             ? selectedList[key]?.length
-              ? tagCategoryList?.[key]?.filter((item: TagCategoryType) =>
+              ? filterCategoryList?.[key]?.filter((item: TagCategoryType) =>
                   selectedList?.[key]?.some((_id) => _id === item._id)
                 )
               : []
-            : tagCategoryList?.[key];
+            : filterCategoryList?.[key];
           let newRecords = response?.data?.data?.records?.filter(
             (item: TagCategoryType) => {
               if (selectedList?.[key]?.length) {
@@ -161,7 +165,7 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
             }
           );
 
-          setTagCategoryList((preState) => {
+          setFilterCategoryList((preState) => {
             return {
               ...preState,
               [key]: [...prevList, ...newRecords],
@@ -190,10 +194,13 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
         console.error("Error occurred during search:", error);
       }
     },
-    [currentPage, searchText, tagCategoryList]
+    [currentPage, searchText, filterCategoryList]
   );
 
-  const onChipSelect = (type: keyof TagCategoryList, item: TagCategoryType) => {
+  const onChipSelect = (
+    type: keyof filterCategoryList,
+    item: TagCategoryType
+  ) => {
     setSelectedList((preState) => {
       return {
         ...preState,
@@ -203,7 +210,7 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
   };
 
   const onChipeDelete = (
-    type: keyof TagCategoryList,
+    type: keyof filterCategoryList,
     item: TagCategoryType
   ) => {
     setSelectedList((preState) => {
@@ -221,25 +228,25 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
     actions,
     values,
   }: {
-    type: "categories" | "tags";
+    type: "categories" | "filters";
     actions: FormikHelpers<CreatePostFormikInterface>;
     values: CreatePostFormikInterface;
   }) => (
     <>
-      {isLoading?.[type === "categories" ? "category" : "tag"] ? (
+      {isLoading?.[type === "categories" ? "category" : "filter"] ? (
         <div className="flex flex-auto justify-center h-20">
           <Loader />
         </div>
       ) : (
         <div className="flex flex-wrap gap-2 flex-auto">
-          {tagCategoryList?.[type]?.length ? (
-            tagCategoryList?.[type]?.map((item: TagCategoryType) => (
+          {filterCategoryList?.[type]?.length ? (
+            filterCategoryList?.[type]?.map((item: TagCategoryType) => (
               <Chip
                 key={item?._id}
                 label={
                   boldOnSearch(
                     item?.name,
-                    searchText?.[type === "categories" ? "category" : "tag"]
+                    searchText?.[type === "categories" ? "category" : "filter"]
                   ) as string
                 }
                 className={`${
@@ -295,7 +302,7 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
   }, [debouncedCategory]);
 
   useEffect(() => {
-    searchAPI("tag", debouncedTag, true);
+    searchAPI("filter", debouncedTag, true);
   }, [debouncedTag]);
 
   return (
@@ -315,7 +322,7 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
           modalBodyClassName="relative p-4 overflow-y-auto font-body overflow-hidden bg-white"
         >
           <Form>
-            <div className="flex flex-col gap-4 p-2">
+            <div className="flex flex-col gap-4 p-2 ">
               <div className="flex justify-between">
                 <Select
                   defaultValue="Choose Group"
@@ -452,9 +459,7 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
                 formikFieldName="postType"
               />
               <div className="flex gap-2 flex-col">
-                <label className="text-white/50" htmlFor="categories">
-                  Categories
-                </label>
+                <label htmlFor="categories">Categories</label>
                 <InputField
                   name="category"
                   placeholder="Search"
@@ -470,7 +475,7 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
                 />
                 {!isLoading?.category &&
                   currentPage?.category?.totalRecords >
-                    tagCategoryList?.categories?.length && (
+                    filterCategoryList?.categories?.length && (
                     <LoadMore
                       isLoading={isLoading.category as boolean}
                       onClick={() =>
@@ -478,24 +483,28 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
                       }
                     />
                   )}
-                <label className="text-white/50" htmlFor="categories">
-                  Tags
+                <label className="text-eduBlack" htmlFor="categories">
+                  filter
                 </label>
                 <InputField
-                  name="tag"
+                  name="filter"
                   placeholder="Search"
                   type="search"
                   onChange={onSearch}
-                  value={searchText?.tag}
+                  value={searchText?.filter}
                   isFormikField={false}
                 />
-                <ChipsTemplate type="tags" actions={actions} values={values} />
-                {isLoading?.tag &&
-                  currentPage?.tag?.totalRecords >
-                    tagCategoryList?.tags?.length && (
+                <ChipsTemplate
+                  type="filters"
+                  actions={actions}
+                  values={values}
+                />
+                {isLoading?.filter &&
+                  currentPage?.filter?.totalRecords >
+                    filterCategoryList?.filters?.length && (
                     <LoadMore
-                      isLoading={isLoading.tag as boolean}
-                      onClick={() => searchAPI("tag", searchText?.tag)}
+                      isLoading={isLoading.filter as boolean}
+                      onClick={() => searchAPI("filter", searchText?.filter)}
                     />
                   )}
               </div>

@@ -8,14 +8,12 @@ const settingsSchema = new Schema(
       ref: "users",
       required: true,
     },
-    notification: {
-      allowedTypes: [
-        {
-          type: Schema.Types.String,
-          enum: Object.values(NOTIFICATION_TYPES),
-        },
-      ],
-    },
+    allowedTypes: [
+      {
+        type: Schema.Types.String,
+        enum: Object.values(NOTIFICATION_TYPES.All),
+      },
+    ],
   },
   {
     timestamps: true,

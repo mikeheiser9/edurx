@@ -162,6 +162,14 @@ const profileSections: profileSections = {
   profileImages: "Profile Images",
 };
 
+const postLabelType={
+  "Follow":"Follow",
+  "Following":"Following",
+  "Requested":"Requested",
+  "View":"View",
+  "Review Requests":"Review Requests"
+}
+
 export {
   validateField,
   taxonomyCodeToProfessionalMapping,
@@ -182,4 +190,5 @@ export {
   statesNames,
   NOTIFICATION_TYPES,
   profileSections,
+  postLabelType
 };

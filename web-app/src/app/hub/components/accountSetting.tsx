@@ -79,8 +79,8 @@ const notificationCategories: {
 export const AccountSetting = ({ accountSettingModal, userData }: Props) => {
   const [settings, setSettings] = useState<any>();
   const [settingSubmitLoader, setSettingSubmitLoader] = useState(false);
-  const allowedTypes = settings?.notification?.allowedTypes;
-  const toast=useSelector(selectToast); 
+  const allowedTypes = settings?.allowedTypes;
+  const toast = useSelector(selectToast);
   const onToggle = (type: any) => {
     let values: string[] = [...(allowedTypes ?? [])];
     if (allowedTypes?.includes(type?.value)) {
@@ -91,9 +91,7 @@ export const AccountSetting = ({ accountSettingModal, userData }: Props) => {
     setSettings((pre: any) => {
       return {
         ...pre,
-        notification: {
-          allowedTypes: values,
-        },
+        allowedTypes: values,
       };
     });
   };
@@ -104,7 +102,7 @@ export const AccountSetting = ({ accountSettingModal, userData }: Props) => {
     getAccountSettingsByAPI()
       .then((response) => {
         if (response.status === responseCodes.SUCCESS) {
-          setSettings({ notification: response.data?.data.notification });
+          setSettings({ allowedTypes: response.data?.data.allowedTypes });
         }
       })
       .catch((error) => {
@@ -172,7 +170,7 @@ export const AccountSetting = ({ accountSettingModal, userData }: Props) => {
             <div className="flex justify-center ">
               <button
                 className={`bg-eduBlack text-white border-eduBlack border-[1.5px] my-3 rounded-[10px] py-1 w-[150px] m-auto text-[16px]  font-body transition-colors duration-500 disabled:opacity-70 `}
-                onClick={handleClick} 
+                onClick={handleClick}
                 disabled={settingSubmitLoader}
                 type="submit"
               >

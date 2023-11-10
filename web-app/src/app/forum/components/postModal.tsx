@@ -396,12 +396,12 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
                         {category?.name}
                       </span>
                     ))}
-                    {post?.tags?.map((tag: any) => (
+                    {post?.filters?.map((filter: any) => (
                       <span
-                        key={tag._id}
+                        key={filter._id}
                         className="text-[12px] p-2 px-4 bg-eduDarkGray rounded-[10px]"
                       >
-                        {tag.name}
+                        {filter.name}
                       </span>
                     ))}
                   </div>

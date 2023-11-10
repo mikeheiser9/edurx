@@ -20,12 +20,13 @@ interface FilterOptionsState {
   sortBy?: string;
   forumType?: string;
   categories?: any[];
+  filters?:any[]
 }
 
 interface TagCategoryType {
   _id: string;
   name: string;
-  type: "category" | "tag";
+  type: "category" | "filter";
   createdAt?: string;
   updatedAt?: string;
 }
@@ -66,6 +67,19 @@ interface Comment {
   id?: string;
 }
 
+interface postRequestType {
+  postId: string;
+  status: PostRequestStatus;
+  userId: string;
+  _id: string;
+}
+
+interface userPostFollowList {
+  postId: string;
+  userId: string;
+  _id: string;
+}
+
 interface PostInterface {
   _id: string;
   userId?: string & UserId;
@@ -75,7 +89,8 @@ interface PostInterface {
   title?: string;
   content?: string;
   categories?: TagCategoryType[];
-  tags?: TagCategoryType[];
+  // tags?: TagCategoryType[];
+  filters?: TagCategoryType[];
   votingLength?: number;
   isPrivate?: boolean;
   isDeleted?: boolean;
@@ -93,6 +108,8 @@ interface PostInterface {
   userAccessRequests?: any;
   id?: string;
   userAccessRequestCount?: number;
+  postRequests?: postRequestType[];
+  userPostFollowList?: userPostFollowList[];
 }
 
 interface CreatePostFormikInterface {
@@ -100,7 +117,7 @@ interface CreatePostFormikInterface {
   postType: PostTypes;
   title: string;
   categories: string[];
-  tags: string[];
+  filters: string[];
   isPrivate?: boolean;
   content: string;
   options: string[];

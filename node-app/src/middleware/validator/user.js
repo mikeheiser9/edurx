@@ -163,15 +163,13 @@ const adminAuthValidation = async (req, res, next) => {
 const createAccountSettingsValidator = async (req, res, next) => {
   try {
     const schema = Joi.object({
-      notification: Joi.object({
-        allowedTypes: Joi.array()
-          .items(
-            Joi.string()
-              .required()
-              .valid(...Object.values(NOTIFICATION_TYPES))
-          )
-          .required(),
-      }).required(),
+      allowedTypes: Joi.array()
+        .items(
+          Joi.string()
+            .required()
+            .valid(...Object.values(NOTIFICATION_TYPES.All))
+        )
+        .required(),
     });
     await schema.validateAsync(req.body);
     next();

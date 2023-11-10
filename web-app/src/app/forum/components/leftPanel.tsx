@@ -19,6 +19,8 @@ import { Checkbox } from "@/components/checkbox";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import InfiniteScroll from "@/components/infiniteScroll";
+import { useModal } from "@/hooks";
+import { FilterSetting } from "./filterSelection";
 
 const sortingOptions: { value: string; label: string; icon: any }[] = [
   {
@@ -43,7 +45,6 @@ export const LeftPanel = () => {
   const selectedFilters: FilterOptionsState = useSelector(
     getSelectedForumFilters
   );
-
   const [isCategoriesLoading, setIsCategoriesLoading] = useState<boolean>(true);
   const [categoryList, setCategoryList] = useState<TagCategoryType[]>([]);
   const [categoryPagination, setCategoryPagination] = useState<PageDataState>({
@@ -57,6 +58,8 @@ export const LeftPanel = () => {
     selectedFilters?.categories?.map((i) => i._id) ?? [],
     selectedLocalFilters?.categories?.map((i) => i?._id) ?? []
   );
+  const filterSetting = useModal();
+  
   const isUpdated: boolean =
     !isCategoriesSame || selectedLocalFilters?.sortBy != null;
 
@@ -76,6 +79,12 @@ export const LeftPanel = () => {
         [type]: selectedLocalFilters?.[type] === value ? null : value,
       };
     });
+    dispatch(
+      setSelectedFilter({
+        ...selectedLocalFilters,
+        [type]: selectedLocalFilters?.[type] === value ? null : value,
+      })
+    );
   };
 
   const fetchCategories = async (page: number = 1) => {
@@ -118,6 +127,9 @@ export const LeftPanel = () => {
         categories: values,
       };
     });
+    dispatch(
+      setSelectedFilter({ ...selectedLocalFilters, categories: values })
+    );
   };
 
   const onLoadMore = () => fetchCategories(categoryPagination.page + 1);
@@ -131,107 +143,112 @@ export const LeftPanel = () => {
   }, [selectedFilters]);
 
   return (
-    <div className="flex flex-col h-full flex-auto">
-      <span className="text-eduBlack text-2xl font-medium font-headers">
-        Sort By
-      </span>
-      <ul className="flex flex-col gap-3">
-        {sortingOptions?.map((item) => (
-          <li
-            key={item.value}
-            // onClick={() =>
-            //   selectedFilters?.sortBy !== item.value &&
-            //   handleFilters("sortBy", item.value)
-            // }
-            className="font-body flex-auto items-center flex gap-2 text-[16px] text-eduBlack"
-          >
-            <Checkbox
-              id={item?.value}
-              name={item?.value}
-              checked={item.value === selectedLocalFilters?.sortBy}
-              onChange={() => handleFilters("sortBy", item.value)}
-            />
-            {item?.icon && (
-              <span className="w-3 flex justify-center items-center h-3">
-                <Image
-                  src={item?.icon}
-                  height={50}
-                  width={50}
-                  alt={item?.value}
-                />
-              </span>
-            )}
-            <label htmlFor={item?.value}>{item.label}</label>
-          </li>
-        ))}
-      </ul>
-      <hr className="my-4 h-[3px] bg-eduBlack border-0" />
-      <span className="text-eduBlack text-[22px] font-bold font-headers">
-        Category
-      </span>
-      {/* {console.log(categoryList.length)} */}
-      <InfiniteScroll
-        hasMoreData={categoryPagination?.totalRecords > categoryList?.length}
-        callBack={onLoadMore}
-        className={`flex flex-col gap-3 h-full overflow-hidden ${
-          showMoreCatagories ? "max-h-[20vh] !overflow-y-hidden" : "max-h-max"
-        }`}
-      >
-        {categoryList?.map((item) => {
-          let isSelected =
-            selectedLocalFilters?.categories?.some(
-              (i) => i.name === item.name
-            ) || false;
-          return (
+    <>
+      <FilterSetting accountSettingModal={filterSetting} />
+
+      <div className="flex flex-col h-full flex-auto">
+        <span className="text-eduBlack text-2xl font-medium font-headers">
+          Sort By
+        </span>
+        <ul className="flex flex-col gap-3">
+          {sortingOptions?.map((item) => (
             <li
-              key={item._id}
-              className="animate-fade-in-down text-sm font-normal text-eduBlack flex gap-2"
-              onClick={() => onCategorySelect(item, isSelected)}
+              key={item.value}
+              // onClick={() =>
+              //   selectedFilters?.sortBy !== item.value &&
+              //   handleFilters("sortBy", item.value)
+              // }
+              className="font-body flex-auto items-center flex gap-2 text-[16px] text-eduBlack"
             >
               <Checkbox
-                id={item?._id}
-                name={item?.name}
-                checked={isSelected}
-                onChange={() => onCategorySelect(item, isSelected)}
+                id={item?.value}
+                name={item?.value}
+                checked={item.value === selectedLocalFilters?.sortBy}
+                onChange={() => handleFilters("sortBy", item.value)}
               />
-              <label id={item?._id}>{item.name}</label>
+              {item?.icon && (
+                <span className="w-3 flex justify-center items-center h-3">
+                  <Image
+                    src={item?.icon}
+                    height={50}
+                    width={50}
+                    alt={item?.value}
+                  />
+                </span>
+              )}
+              <label htmlFor={item?.value}>{item.label}</label>
             </li>
-          );
-        })}
-      </InfiniteScroll>
-
-      {categoryList?.length > 5 && (
-        <div
-          onClick={() => {
-            setShowMoreCatagories(!showMoreCatagories);
-            if (categoryPagination?.totalRecords > categoryList?.length) {
-              onLoadMore();
-            }
-          }}
-          className="text-eduBlack mt-2 flex text-xs justify-center items-center cursor-pointer animate-fade-in-down flex-col"
+          ))}
+        </ul>
+        <hr className="my-4 h-[3px] bg-eduBlack border-0" />
+        <span className="text-eduBlack text-[22px] font-bold font-headers">
+          Category
+        </span>
+        {/* {console.log(categoryList.length)} */}
+        <InfiniteScroll
+          hasMoreData={categoryPagination?.totalRecords > categoryList?.length}
+          callBack={onLoadMore}
+          className={`flex flex-col gap-3 h-full overflow-hidden ${
+            showMoreCatagories ? "max-h-[20vh] !overflow-y-hidden" : "max-h-max"
+          }`}
         >
-          <span>{showMoreCatagories ? "More" : "Less"}</span>
-          <FontAwesomeIcon
-            icon={faChevronDown}
-            className={`ease-in-out duration-500 ${
-              showMoreCatagories ? "rotate-0" : "rotate-180"
-            }`}
+          {categoryList?.map((item) => {
+            let isSelected =
+              selectedLocalFilters?.categories?.some(
+                (i) => i.name === item.name
+              ) || false;
+            return (
+              <li
+                key={item._id}
+                className="animate-fade-in-down text-sm font-normal text-eduBlack flex gap-2"
+                onClick={() => onCategorySelect(item, isSelected)}
+              >
+                <Checkbox
+                  id={item?._id}
+                  name={item?.name}
+                  checked={isSelected}
+                  onChange={() => onCategorySelect(item, isSelected)}
+                />
+                <label id={item?._id}>{item.name}</label>
+              </li>
+            );
+          })}
+        </InfiniteScroll>
+
+        {categoryList?.length > 5 && (
+          <div
+            onClick={() => {
+              setShowMoreCatagories(!showMoreCatagories);
+              if (categoryPagination?.totalRecords > categoryList?.length) {
+                onLoadMore();
+              }
+            }}
+            className="text-eduBlack mt-2 flex text-xs justify-center items-center cursor-pointer animate-fade-in-down flex-col"
+          >
+            <span>{showMoreCatagories ? "More" : "Less"}</span>
+            <FontAwesomeIcon
+              icon={faChevronDown}
+              className={`ease-in-out duration-500 ${
+                showMoreCatagories ? "rotate-0" : "rotate-180"
+              }`}
+            />
+          </div>
+        )}
+        <hr className="my-2 h-[3px] bg-eduBlack border-0" />
+        <div className="flex-1 flex flex-col justify-end">
+          <Button
+            className="rounded-md w-auto px-4 font-medium text-sm"
+            label="Sort by Filter"
+            type="button"
+            onClick={() => {
+
+              console.log("function called",);
+              filterSetting.openModal()
+            }}
+            // disabled={!isUpdated}
           />
         </div>
-      )}
-      <hr className="my-2 h-[3px] bg-eduBlack border-0" />
-      <div className="flex-1 flex flex-col justify-end">
-        <Button
-          className="rounded-md w-auto px-4 font-medium text-sm"
-          label="Sort by Filter"
-          type="button"
-          onClick={() =>
-            selectedLocalFilters &&
-            dispatch(setSelectedFilter(selectedLocalFilters))
-          }
-          disabled={!isUpdated}
-        />
       </div>
-    </div>
+    </>
   );
 };

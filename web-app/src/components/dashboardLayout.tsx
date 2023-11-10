@@ -31,7 +31,7 @@ export default function DashboardLayout({
       <div className="flex-1 flex overflow-hidden flex-col gap-2">
         <HeaderNav />
         {/* Nested inner routes */}
-        <div className="w-full p-4 flex flex-col h-full">{children}</div>
+        <div className="w-full p-4 flex flex-col h-full overflow-hidden">{children}</div>
       </div>
     </div>
   );
