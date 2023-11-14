@@ -6,6 +6,8 @@ import {
   findAndPaginate,
   getSkippedAttributes,
 } from "../util/commonFunctions.js";
+import { accountSettingModal } from "../model/user/accountSetting.js";
+import { request } from "express";
 
 const userExistWithEmail = async (email, excludeAttributeList = null) => {
   const user = await userModel.findByEmail(email, excludeAttributeList);
@@ -38,7 +40,6 @@ const getUserProfileById = async (
   loggedInUserId
 ) => {
   try {
-    console.log({ loggedInUserId });
     let skippedAttributes = getSkippedAttributes(excludeAttributeList);
     const userProfileQuery = userModel
       .findById({ _id: userId })
@@ -219,7 +220,7 @@ const followUser = async (userId, targetUserId) => {
     });
 
     if (existingConnection) {
-      return "You are already following this user.";
+      throw new Error("You are already following this user.");
     }
 
     // Create a new user connection
@@ -316,6 +317,43 @@ const getUserConnections = async (userId, type, page, limit) => {
   );
 };
 
+const addUpdateAccountSettings = async (payload) => {
+  return await accountSettingModal.updateOne(
+    { userId: payload.userId },
+    { $set: payload },
+    { upsert: true }
+  );
+};
+
+const getAccountSettingById = async (userId) => {
+  return await accountSettingModal.findOne({ userId });
+};
+
+const findFollowerById=async(userId)=>{
+  return userConnections.find({targetUserId:userId})
+}
+
+const findUserFollowPostDetails=async(userId,postId)=>{
+  return await userConnections.findOne({userId,postId})
+}
+
+const insertFollowPost=(userId,postId)=>{
+  return  userConnections.create({
+    postId,
+    userId
+  })
+}
+
+const removeFollowPost=(userId,postId)=>{
+  return  userConnections.deleteOne({
+    userId,
+    postId
+  })
+}
+
+const insertFollowPostMultiple=async(data)=>{
+  return await userConnections.insertMany(data);
+}
 export {
   getUserProfileById,
   findUserByEmail,
@@ -332,4 +370,11 @@ export {
   unfollowUser,
   searchUsersByName,
   getUserConnections,
+  addUpdateAccountSettings,
+  getAccountSettingById,
+  findFollowerById,
+  findUserFollowPostDetails,
+  insertFollowPost,
+  removeFollowPost,
+  insertFollowPostMultiple
 };

@@ -216,6 +216,9 @@ export const RequestListModal = ({ requestModal, postId }: Props) => {
           {requests?.map((request) => (
             <Card request={request} key={request?._id} />
           ))}
+          {
+            requests.length==0 && <div className="flex justify-center text-center text-eduBlack text-[0.8em]">No Access Request Found...</div>
+          }
         </div>
         <Button
           className="text-xs rounded-md !border-2 font-medium border-eduLightBlue !text-eduLightBlue w-auto mb-2 justify-end !px-8 hover:!text-white hover:bg-eduLightBlue duration-200 transition-colors"

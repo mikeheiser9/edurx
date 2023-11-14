@@ -18,21 +18,13 @@ import { useSelector } from "react-redux";
 import { selectUserDetail } from "@/redux/ducks/user.duck";
 import { Loader } from "@/app/signup/commonBlocks";
 import { addRemoveUserConnectionByAPI } from "@/service/user.service";
-import { responseCodes } from "@/util/constant";
+import { profileSections, responseCodes } from "@/util/constant";
 import { showToast } from "@/components/toast";
 
 interface LastDocRefType {
   licenses: React.RefObject<HTMLDivElement> | null;
   certificates: React.RefObject<HTMLDivElement> | null;
 }
-
-const profileSections: profileSections = {
-  about: "About",
-  education: "Education",
-  certifications: "Certifications",
-  licenses: "Licenses",
-  profileImages: "Profile Images",
-};
 
 const countContributors = (array: any[], primaryKey: string): number => {
   const uniqueValues = new Set();

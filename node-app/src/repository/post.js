@@ -1,4 +1,4 @@
-import { categoryTagModal } from "../model/post/categoryTag.js";
+import { categoryFilterModal } from "../model/post/categoryTag.js";
 import { commentModal } from "../model/post/comment.js";
 import { postModal } from "../model/post/post.js";
 import { postRequestModal } from "../model/post/postAccessRequest.js";
@@ -8,7 +8,6 @@ import { findAndPaginate } from "../util/commonFunctions.js";
 import mongoose from "mongoose";
 
 const createNewPost = async (payload) => {
-  console.log(payload);
   const isExist = await postModal.findOne({
     title: payload.title,
     forumType: payload.forumType,
@@ -40,7 +39,7 @@ const findPostsByUserId = async (userId, page, limit) => {
   );
 };
 
-const searchCategoryTagByName = async (name, type, page, limit) => {
+const searchCategoryFilterByName = async (name, type, page, limit) => {
   const query = {
     $and: [
       { name: { $regex: name, $options: "i" } },
@@ -50,22 +49,22 @@ const searchCategoryTagByName = async (name, type, page, limit) => {
   };
 
   return await findAndPaginate(
-    categoryTagModal,
+    categoryFilterModal,
     query,
     page && Number(page),
     limit && Number(limit)
   );
 };
 
-const addCategoryTag = async (payload) => {
-  const isExist = await categoryTagModal.findOne(payload);
+const addCategoryFilter = async (payload) => {
+  const isExist = await categoryFilterModal.findOne(payload);
   if (isExist)
     throw new Error(`${payload.name} already exists in ${payload.type}`);
-  return await categoryTagModal.create(payload);
+  return await categoryFilterModal.create(payload);
 };
 
 const validateObjectIds = async (objectIds) => {
-  return await categoryTagModal.count({
+  return await categoryFilterModal.count({
     _id: {
       $in: objectIds,
     },
@@ -380,7 +379,7 @@ const getPostById = async (postId, userId) => {
       "userAccessRequestCount",
       userPopulator,
       {
-        path: "tags",
+        path: "filters",
         select: ["name"],
       },
       {
@@ -450,6 +449,7 @@ const getPosts = async ({
   forumType,
   categories,
   userId,
+  loggedInUser,
 }) => {
   try {
     const skippedPages = (page - 1) * limit;
@@ -464,16 +464,13 @@ const getPosts = async ({
       ...(userId ? { userId } : {}),
       isDeleted: { $ne: true },
     };
-
-    console.log("query", query);
-
     const pipeline = [
       {
         $match: query,
       },
       {
         $lookup: {
-          from: "postcategorytags",
+          from: "postcategoryfilters",
           localField: "categories",
           foreignField: "_id",
           as: "categoryData",
@@ -481,10 +478,10 @@ const getPosts = async ({
       },
       {
         $lookup: {
-          from: "postcategorytags",
-          localField: "tags",
+          from: "postcategoryfilters",
+          localField: "filters",
           foreignField: "_id",
-          as: "tags",
+          as: "filters",
         },
       },
       {
@@ -495,19 +492,91 @@ const getPosts = async ({
           as: "views",
         },
       },
+      // {
+      //   $lookup: {
+      //     from: "comments",
+      //     let:{id:"$_id"},
+      //     pipeline: [
+      //       {
+      //         $match: {
+      //           $expr:{$eq: ["$postId","$$id"]},
+      //           'id.isDeleted':false
+      //         },
+      //       },
+      //     ],
+      //     as:"comments",
+      //   },
+      // }
       {
         $lookup: {
           from: "comments",
           localField: "_id",
           foreignField: "postId",
           as: "comments",
+          // pipeline: [
+          //   {
+          //     $match: {
+          //       isDeleted: false,
+          //     },
+          //   },
+          // ],
+        },
+      },
+      {
+        // join postrequest collection to check what is status of private post request
+        $lookup: {
+          from: "postrequests",
+          let: { postIdentifier: "$_id" },
           pipeline: [
             {
               $match: {
-                isDeleted: false,
+                $and: [
+                  {
+                    $expr: { $eq: ["$postId", "$$postIdentifier"] },
+                  },
+                  {
+                    userId: loggedInUser,
+                  },
+                ],
+              },
+            },
+            {
+              $project: {
+                userId: 1,
+                postId: 1,
+                status: 1,
               },
             },
           ],
+          as: "postRequests",
+        },
+      },
+      {
+        $lookup: {
+          // join userconnections to check logged user follows which post
+          from: "userconnections",
+          let: { postIdentifier: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $and: [
+                  {
+                    $expr: { $eq: ["$postId", "$$postIdentifier"] },
+                  },
+                  {
+                    userId: loggedInUser,
+                  },
+                ],
+              },
+            },
+            {
+              $project: {
+                userId: 1,
+                postId: 1,
+              },
+            },
+          ],
+          as: "userPostFollowList",
         },
       },
       {
@@ -533,7 +602,7 @@ const getPosts = async ({
 
     const posts = await postModal.aggregate(pipeline);
     const totalCount = posts?.[0]?.metadata[0]?.totalCount || 0;
-
+    
     return {
       posts: {
         metadata: {
@@ -620,7 +689,6 @@ const addPostAccessRequest = async ({ postId, userId, status }) => {
         upsert: true,
         new: true,
       };
-    console.log({ filter, update, options });
     return await postRequestModal.findOneAndUpdate(filter, update, options);
   } catch (error) {
     console.log(error);
@@ -671,11 +739,27 @@ const updatePostRequests = async (requestsToUpdate) => {
   }
 };
 
+const findPostById = async (postId) => {
+  return await postModal.findById(postId);
+};
+
+const deletePostRequest=async(condition)=>{
+  return await postRequestModal.deleteMany(condition)
+}
+
+const fetchFilters=async()=>{
+  return await categoryFilterModal.find({type:"filter"},{
+    name:1,
+    type:1,
+    _id:1
+  })
+}
+
 export {
   createNewPost,
   findPostsByUserId,
-  searchCategoryTagByName,
-  addCategoryTag,
+  searchCategoryFilterByName,
+  addCategoryFilter,
   validateObjectIds,
   addReaction,
   addComment,
@@ -687,4 +771,7 @@ export {
   addPostAccessRequest,
   getRequestsByPostId,
   updatePostRequests,
+  findPostById,
+  deletePostRequest,
+  fetchFilters
 };

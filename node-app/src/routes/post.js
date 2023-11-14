@@ -13,7 +13,9 @@ import {
   updatePost,
   addPrivatePostRequest,
   getUserRequests,
-  bultUpdateRequests,
+  bulkUpdateRequests,
+  followPost,
+  getFilters,
 } from "../controllers/post.js";
 import {
   addCommentValidator,
@@ -23,13 +25,14 @@ import {
   bulkRequestUpdateValidator,
   createMetaLabelValidator,
   createPostValidator,
+  followUnfollowPostValidator,
   getAllPostValidator,
   getPostCommentsValidator,
   getRequestValidator,
   getUsersPostsValidator,
   searchMetaLabelValidator,
   updatePostValidator,
-  validateCategoryTag,
+  validateCategoryFilter,
 } from "../middleware/validator/post.js";
 import { adminAuthValidation } from "../middleware/validator/user.js";
 
@@ -38,7 +41,7 @@ postRoute.post(
   "/create",
   userAuth,
   createPostValidator,
-  validateCategoryTag,
+  validateCategoryFilter,
   createPost
 );
 postRoute.get("/:postId", userAuth, getPostCommentsValidator, getPost);
@@ -88,6 +91,20 @@ postRoute.get(
   getUserRequests
 );
 
-postRoute.put("/private/:postId/requests-update", userAuth, bulkRequestUpdateValidator, bultUpdateRequests)
+postRoute.post(
+  "/follow/:postId/:action",
+  userAuth,
+  followUnfollowPostValidator,
+  followPost
+);
+
+postRoute.put(
+  "/private/:postId/requests-update",
+  userAuth,
+  bulkRequestUpdateValidator,
+  bulkUpdateRequests
+);
+
+postRoute.get("/filter/all", userAuth, getFilters);
 
 export default postRoute;

@@ -1,4 +1,5 @@
 import { model, Schema } from "mongoose";
+import { NOTIFICATION_TYPES } from "../../util/constant.js";
 
 const settingsSchema = new Schema(
   {
@@ -7,14 +8,12 @@ const settingsSchema = new Schema(
       ref: "users",
       required: true,
     },
-    notification: {
-      allowedTypes: [
-        {
-          type: Schema.Types.String,
-          enum: Object.values(NOTIFICATION_TYPES),
-        },
-      ],
-    },
+    allowedTypes: [
+      {
+        type: Schema.Types.String,
+        enum: Object.values(NOTIFICATION_TYPES.All),
+      },
+    ],
   },
   {
     timestamps: true,

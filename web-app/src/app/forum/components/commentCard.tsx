@@ -68,6 +68,10 @@ export const CommentCard = ({
         !isReplyMentionExist && comment?.userId?._id ? comment?.userId?._id : []
       ),
       parentId,
+      replyOnDetails:{
+        commentId:comment?._id,
+        commentOwner:comment?.userId?._id
+      }
     };
     onSubmitReply?.(payload);
     setcommentText("");

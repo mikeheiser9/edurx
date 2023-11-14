@@ -35,11 +35,15 @@ const postSchema = new Schema(
     content: String,
     categories: {
       type: [Schema.Types.ObjectId],
-      ref: "postCategoryTags",
+      ref: "postCategoryFilters",
     },
-    tags: {
+    // tags: {
+    //   type: [Schema.Types.ObjectId],
+    //   ref: "postCategoryFilters",
+    // },
+    filters: {
       type: [Schema.Types.ObjectId],
-      ref: "postCategoryTags",
+      ref: "postCategoryFilters",
     },
     votingLength: Number,
     isPrivate: {

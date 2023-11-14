@@ -7,7 +7,7 @@ import {
   forumTypes,
   paginationValidation,
   postAccessRequestStatus,
-  postCategoryTagsTypes,
+  postCategoryFilterTypes,
   postFlags,
   postStatus,
   postType,
@@ -29,7 +29,7 @@ const allPostValidations = {
 const createPostValidator = async (req, res, next) => {
   try {
     const { stringPrefixJoiValidation, objectId } = validateField;
-    const tagCategoryValidation = Joi.array().max(50).items(objectId);
+    const filterCategoryValidation = Joi.array().max(50).items(objectId);
     const schema = Joi.object({
       userId: validateField.objectId.required(),
       forumType: stringPrefixJoiValidation.valid(...forumTypes).required(),
@@ -37,8 +37,8 @@ const createPostValidator = async (req, res, next) => {
       postStatus: stringPrefixJoiValidation.valid(...postStatus).required(),
       title: stringPrefixJoiValidation.required().max(26),
       content: stringPrefixJoiValidation.allow("").max(100000),
-      categories: tagCategoryValidation,
-      tags: tagCategoryValidation,
+      categories: filterCategoryValidation,
+      filters: filterCategoryValidation,
       options: Joi.array().when("postType", {
         is: "poll",
         then: Joi.array().min(2).items(stringPrefixJoiValidation),
@@ -91,7 +91,7 @@ const createMetaLabelValidator = async (req, res, next) => {
     }
     const schema = Joi.object({
       type: Joi.string()
-        .valid(...postCategoryTagsTypes)
+        .valid(...postCategoryFilterTypes)
         .required(),
       name: Joi.string().required().min(3),
     });
@@ -109,7 +109,7 @@ const searchMetaLabelValidator = async (req, res, next) => {
   try {
     const schema = Joi.object({
       type: Joi.string()
-        .valid(...postCategoryTagsTypes)
+        .valid(...postCategoryFilterTypes)
         .required(),
       name: validateField.stringPrefixJoiValidation
         .required()
@@ -124,11 +124,11 @@ const searchMetaLabelValidator = async (req, res, next) => {
   }
 };
 
-const validateCategoryTag = async (req, res, next) => {
+const validateCategoryFilter = async (req, res, next) => {
   try {
-    if (req.body?.categories?.length || req.body?.tags?.length) {
+    if (req.body?.categories?.length || req.body?.filters?.length) {
       const objectIds = [
-        ...new Set([...req.body.categories, ...req.body.tags]),
+        ...new Set([...req.body.categories, ...req.body.filters]),
       ];
       const response = await validateObjectIds(objectIds);
       if (response === objectIds.length) {
@@ -174,7 +174,7 @@ const addReactionValidator = async (req, res, next) => {
 const addCommentValidator = async (req, res, next) => {
   try {
     const schema = Joi.object({
-      content: Joi.string().required(),
+      content: Joi.string().required().max(500),
       userId: validateField.objectId.required(),
       postId: validateField.objectId.required().disallow(Joi.ref("userId")),
       taggedUsers: Joi.array()
@@ -186,6 +186,11 @@ const addCommentValidator = async (req, res, next) => {
         Joi.ref("userId"),
         Joi.ref("postId")
       ),
+      ...(req.body.parentId && {replyOnDetails:Joi.object({
+        commentId:validateField.objectId.required().disallow(Joi.ref("postId"),Joi.ref("userId")),
+        commentOwner:validateField.objectId.required().disallow(Joi.ref("postId")),
+      }).required()})
+
     });
     await schema.validateAsync(req.body);
     next();
@@ -329,12 +334,26 @@ const bulkRequestUpdateValidator = async (req, res, next) => {
   }
 };
 
+const followUnfollowPostValidator=async(req,res,next)=>{
+  try {
+    const { objectId } = validateField;
+    const schema=Joi.object({
+      postId: objectId.required(),
+      action:Joi.string().valid(...["add","remove"]).required()
+    })
+    await schema.validateAsync(req.params);
+    next();
+  } catch (error) {
+    returnAppropriateError(res, error);
+  }
+}
+
 export {
   createPostValidator,
   getUsersPostsValidator,
   createMetaLabelValidator,
   searchMetaLabelValidator,
-  validateCategoryTag,
+  validateCategoryFilter,
   addReactionValidator,
   addCommentValidator,
   getPostCommentsValidator,
@@ -344,4 +363,5 @@ export {
   addRequestValidator,
   getRequestValidator,
   bulkRequestUpdateValidator,
+  followUnfollowPostValidator
 };

@@ -163,11 +163,16 @@ const adminAuthValidation = async (req, res, next) => {
 const createAccountSettingsValidator = async (req, res, next) => {
   try {
     const schema = Joi.object({
-      userId: validateField.objectId.required(),
-      notification: Joi.object({
-        allowedTypes: Joi.array().valid(...Object.values(NOTIFICATION_TYPES)),
-      }),
+      allowedTypes: Joi.array()
+        .items(
+          Joi.string()
+            .required()
+            .valid(...Object.values(NOTIFICATION_TYPES.All))
+        )
+        .required(),
     });
+    await schema.validateAsync(req.body);
+    next();
   } catch (error) {
     returnAppropriateError(res, error);
   }
@@ -182,4 +187,5 @@ export {
   getConnectionsValidator,
   searchUsersValidator,
   adminAuthValidation,
+  createAccountSettingsValidator,
 };

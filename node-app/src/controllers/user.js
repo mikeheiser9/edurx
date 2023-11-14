@@ -1,3 +1,4 @@
+import { insertNotification } from "../repository/notification.js";
 import {
   addRemoveConnections,
   getBasicProfile,
@@ -7,11 +8,14 @@ import {
   getUsersDocs,
   searchUsersByName,
   getUserConnections,
+  addUpdateAccountSettings,
+  getAccountSettingById,
 } from "../repository/user.js";
 import {
   generalResponse,
   getKeyValueFromFiles,
 } from "../util/commonFunctions.js";
+import { responseCodes, responseTypes } from "../util/constant.js";
 
 const getUserProfile = async (req, res) => {
   try {
@@ -151,6 +155,19 @@ const postConnections = async (req, res) => {
       action: req.params.action,
     });
     let message = typeof response === "string" ? response : null;
+    if (req.params.action == "add") {
+      const isExist = await getBasicProfile(req.body?.targetUserId);
+      if (!isExist) {
+        throw new Error("target user not exists...!");
+      }
+      const eventTime = new Date();
+      await insertNotification({
+        type: "user_followed_you",
+        sourceId: req.user._id,
+        destinationId: req.body?.targetUserId,
+        eventTime,
+      });
+    }
     return generalResponse(
       res,
       200,
@@ -212,6 +229,54 @@ const searchUsers = async (req, res) => {
   }
 };
 
+const createAccountSettings = async (req, res) => {
+  try {
+    const payload = {
+      userId: req.user._id,
+      ...req.body,
+    };
+    const response = await addUpdateAccountSettings(payload);
+    return generalResponse(
+      res,
+      responseCodes.SUCCESS,
+      responseTypes.OK,
+      "account settings created / updated successfully",
+      response,
+      true
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      responseCodes.ERROR,
+      responseTypes.ERROR,
+      "Something went wrong",
+      error,
+      true
+    );
+  }
+};
+
+const getAccountSettings = async (req, res) => {
+  try {
+    const response = await getAccountSettingById(req.user._id);
+    return generalResponse(
+      res,
+      responseCodes.SUCCESS,
+      responseTypes.OK,
+      "account settings fetched",
+      response
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      responseCodes.ERROR,
+      responseTypes.ERROR,
+      "Something went wrong",
+      error
+    );
+  }
+};
+
 export {
   getUserProfile,
   updateUserByID,
@@ -220,4 +285,6 @@ export {
   postConnections,
   searchUsers,
   getConnections,
+  createAccountSettings,
+  getAccountSettings,
 };
