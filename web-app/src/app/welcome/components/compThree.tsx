@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { VerticalTimeline, VerticalTimelineElement }  from 'react-vertical-timeline-component';
 import 'react-vertical-timeline-component/style.min.css';
 import Arrow from '@/assets/svg-components/arrow';
@@ -7,24 +7,96 @@ import ForumElement from '@/assets/imgs/forumElement.png';
 import CeElement from '@/assets/imgs/ceElement.png';
 import libraryElement from '@/assets/imgs/libraryElement.png';
 import libraryElementMobile from '@/assets/imgs/libraryElementMobile.png';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 interface Props {
   signUpModal: UseModalType
 }
 
 export default function CompThree({signUpModal}:Props) {
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const tlTrigCs = useRef(null);
+  const introTitleCs = useRef(null);
+  const introSubTitleCs = useRef(null);
+  const introTextCs = useRef(null);
+  const introBtnCs = useRef(null);
+  const ilTrigOneCs = useRef(null);
+  const ilTrigTwoCs = useRef(null);
+  const imgOneCs = useRef(null);
+  const imgTwoCs = useRef(null);
+
+  useEffect(() => {
+    const jtcs = gsap.timeline({
+      scrollTrigger: {
+        trigger: tlTrigCs.current,
+        start: 'top +=100px',
+        end: '+=400px',
+        scrub: true,
+        // markers: true
+      }
+    });
+    jtcs.to(introTitleCs.current, {y: '-=50px', duration: 0.5, ease: 'power1.inOut'}, 0)
+      .to(introTitleCs.current, {opacity: 0, duration: 0.5, ease: 'power1.inOut'}, 0)
+      .to(introSubTitleCs.current, {y: '-=50px', duration: 0.5, ease: 'power1.inOut'}, 0)
+      .to(introSubTitleCs.current, {opacity: 0, duration: 0.5, ease: 'power1.inOut'}, 0)
+      .to(introTextCs.current, {y: '-=50px', duration: 0.5, ease: 'power1.inOut'}, 0)
+      .to(introTextCs.current, {opacity: 0, duration: 0.5, ease: 'power1.inOut'}, 0)
+      .to(introBtnCs.current, {y: '-=50px', duration: 0.5, ease: 'power1.inOut'}, 0)
+      .to(introBtnCs.current, {opacity: 0, duration: 0.5, ease: 'power1.inOut'}, 0)
+  }, [])
+
+  useEffect(() => {
+    const ilcs = gsap.timeline({
+      scrollTrigger: {
+        trigger: ilTrigOneCs.current,
+        start: 'center center',
+        end: '+=300px',
+        scrub: true,
+        // markers: true
+      }
+    });
+    console.log(ilTrigOneCs)
+    ilcs.to(imgOneCs.current, {y: '-=50px', duration: 0.5, ease: 'power1.inOut'}, 0)
+      .to(imgOneCs.current, {opacity: 0, duration: 0.5, ease: 'power1.inOut'}, 0)
+  }, [])
+
+  useEffect(() => {
+    const mlcs = gsap.timeline({
+      scrollTrigger: {
+        trigger: ilTrigTwoCs.current,
+        start: 'center center',
+        end: '+=250px',
+        scrub: true,
+        markers: true
+      }
+    });
+    mlcs.to(imgTwoCs.current, {y: '-=50px', duration: 0.5, ease: 'power1.inOut'}, 0)
+      .to(imgTwoCs.current, {opacity: 0, duration: 2, ease: 'power1.inOut'}, 0)
+  }, [])
+
   return (
-    <div className='relative w-screen h-full flex flex-col justify-center items-center'>
+    <div className='relative w-screen h-full flex flex-col justify-center items-center' ref={tlTrigCs}>
     <div className='w-full text-center flex flex-col justify-center items-center'>
-      <h2 className='text-[50px] font-headers small:text-[40px] xx-small:text-[34px]'>Coming Soon</h2>
-      <h4 className='font-body font-semibold mt-[10px] text-[24px] small:text-[20px]'>Q1 2024</h4>
-      <p className='font-body font-light text-eduBlack/60 w-[60%] mt-[20px] max-w-[1000px] small:max-w-[95%] small:w-[90%]'>EduRx is relentlessly innovating to further streamline your experience as a medical professional. Explore below as we unveil our upcoming features designed for your continued growth and convenience.</p>
+      <div ref={introTitleCs}>
+        <h2 className='text-[50px] font-headers small:text-[40px] xx-small:text-[34px]'>Coming Soon</h2>
+      </div>
+      <div ref={introSubTitleCs}>
+        <h4 className='font-body font-semibold mt-[10px] text-[24px] small:text-[20px]'>Q1 2024</h4>
+      </div>
+      <div className='relative w-[60%] mt-[20px] max-w-[1000px] small:max-w-[95%] small:w-[90%] after:content-[" "] after:absolute after:w-full after:h-full after:left-0 after:top-0 after:z-10 after: after:rounded-[15px] after:bg-eduLightGray after:blur-sm after:inner-shadow after:backdrop-blur-xl after:opacity-95'>
+        <div className='relative z-30' ref={introTextCs}>
+          <p className='relative z-30 font-body font-light text-eduBlack/60 p-[10px]'>EduRx is relentlessly innovating to further streamline your experience as a medical professional. Explore below as we unveil our upcoming features designed for your continued growth and convenience.</p>
+        </div>
+      </div>
     </div>
     <div className='w-full px-[50px] py-[80px] flex flex-col tl:px-0'>
       
     <VerticalTimeline
         lineColor={'#13222a'}
-        animate={true}
+        animate={false}
         className={'before:!w-[0px] before:!border-dashed before:!border-2 before:!bg-eduLightGray before:!border-eduBlack'}>
 
       <VerticalTimelineElement
@@ -67,15 +139,17 @@ export default function CompThree({signUpModal}:Props) {
               </div>
 
             </div>
-            <div className='absolute w-[700px] h-auto left-[120%] top-[15%] tl:top-[-120%] tl:left-[27%] tl:w-[800px] tl:h-[610px] tablet-lg:left-[20%] ipad:w-[700px] ipad:h-[550px] ipad:left-[5%] ipad:top-[-100%] ipad-under:top-[-85%] ipad-under:w-[600px] ipad-under:h-[450px] ipad-under:left-[13%] small:w-[400px] small:h-[300px] small:top-[-52%] small:left-[16%] iphone:w-[340px] iphone:h-[260px] iphone:top-[-44%] iphone:left-[3%] iphone-sm:top-[-43%] over-small:top-[-75%]'>
-              <Image
-                src={CeElement}
-                alt={'ce-screen'}
-                width={1000}
-                height={1000}
-              />
+            <div className='absolute z-30 w-[700px] h-auto left-[120%] top-[15%] tl:top-[-120%] tl:left-[27%] tl:w-[800px] tl:h-[610px] tablet-lg:left-[20%] ipad:w-[700px] ipad:h-[550px] ipad:left-[5%] ipad:top-[-100%] ipad-under:top-[-85%] ipad-under:w-[600px] ipad-under:h-[450px] ipad-under:left-[13%] small:w-[400px] small:h-[300px] small:top-[-52%] small:left-[16%] iphone:w-[340px] iphone:h-[260px] iphone:top-[-44%] iphone:left-[3%] iphone-sm:top-[-43%] over-small:top-[-75%]' ref={ilTrigOneCs}>
+              <div ref={imgOneCs}>
+                <Image
+                  src={CeElement}
+                  alt={'ce-screen'}
+                  width={1000}
+                  height={1000}
+                  className='z-30 opacity-95'
+                />
+              </div>
             </div>
-           
           </div>
 
         </VerticalTimelineElement>
@@ -85,6 +159,7 @@ export default function CompThree({signUpModal}:Props) {
           className='!padding-0 '
           iconStyle={{display: 'none'}}
         >
+          <div id='endTrigger' className='absolute w-full'></div>
           <div className='relative w-full flex flex-col justify-start items-start tl:mt-[700px] ipad:mt-[550px] ipad-under:mt-[450px] small:mt-[350px] iphone:mt-[250px]'>
             <div className='relative w-full flex flex-row flex-nowrap justify-end items-center tl:text-center tl:justify-center'>
               <div className='border-dashed border-eduBlack border-2 w-[100px] absolute left-[-13%] tl:right-0 tl:left-[-4%] tl:w-[300px] ipad-under:w-[50px] ipad-under:left-[-6%] iphone:left-[-11%] tablet-lg:w-[130px] small:w-[30px] small:left-[-8%] x-large:w-[60px]'></div>
@@ -120,21 +195,23 @@ export default function CompThree({signUpModal}:Props) {
                 </div>
               </div>
             </div>
-            <div className='absolute w-[700px] h-auto top-[15%] right-[120%] tl:top-[-120%] tl:left-[27%] tl:w-[800px] tl:h-[610px] tablet-lg:left-[20%] ipad:w-[700px] ipad:h-[550px] ipad:left-[5%] ipad:top-[-90%] ipad-under:top-[-73%] ipad-under:w-[600px] ipad-under:h-[450px] ipad-under:left-[13%] small:w-[400px] small:h-[300px] small:top-[-53%] small:left-[16%] iphone:w-[340px] iphone:h-[260px] iphone:top-[-38%] iphone:left-[3%] iphone-sm:top-[-34%] xx-small:top-[-36%] over-small:top-[-68%]'>
-              <Image 
-                src={libraryElement}
-                alt={'library-screen'} 
-                width={700}
-                height={700}
-                className='block tl:hidden'
-              />
-              <Image 
-                src={libraryElementMobile}
-                alt={'reaearch-screen'} 
-                width={1000}
-                height={1000}
-                className='hidden tl:block'
-              />
+            <div className='absolute w-[700px] h-auto top-[15%] right-[120%] tl:top-[-120%] tl:left-[27%] tl:w-[800px] tl:h-[610px] tablet-lg:left-[20%] ipad:w-[700px] ipad:h-[550px] ipad:left-[5%] ipad:top-[-90%] ipad-under:top-[-73%] ipad-under:w-[600px] ipad-under:h-[450px] ipad-under:left-[13%] small:w-[400px] small:h-[300px] small:top-[-53%] small:left-[16%] iphone:w-[340px] iphone:h-[260px] iphone:top-[-38%] iphone:left-[3%] iphone-sm:top-[-34%] xx-small:top-[-36%] over-small:top-[-68%]' ref={ilTrigTwoCs}>
+              <div ref={imgTwoCs}>
+                <Image 
+                  src={libraryElement}
+                  alt={'library-screen'} 
+                  width={700}
+                  height={700}
+                  className='block tl:hidden z-30 opacity-95'
+                />
+                <Image 
+                  src={libraryElementMobile}
+                  alt={'reaearch-screen'} 
+                  width={1000}
+                  height={1000}
+                  className='hidden tl:block'
+                />
+              </div>
             </div>
            
           </div>
