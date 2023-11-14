@@ -114,7 +114,7 @@ const addNewComment = async (req, res) => {
         if (!isExist) {
           throw new Error("one or more tagged user not exists");
         }
-      }
+      } 
     }
     const newComment = await addComment({
       userId,
