@@ -104,7 +104,7 @@ const getPostComments = async (req, res) => {
   } catch (error) {
     return generalResponse(res, 400, "error", error.message, error);
   }
-};
+}; 
 
 const getPost = async (req, res) => {
   try {
