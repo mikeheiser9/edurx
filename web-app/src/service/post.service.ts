@@ -51,8 +51,8 @@ const updatePostRequestsByAPI = async (
   return await axiosPut(`/post/private/${postId}/requests-update`, payload);
 };
 
-const followPost=async(postId:string)=>{
-  return await axiosPost(`/post/follow/${postId}/add`,{})
+const followPost=async(postId:string,action:"add"|"remove")=>{
+  return await axiosPost(`/post/follow/${postId}/${action}`,{})
 }
 
 const getFilters=()=>{

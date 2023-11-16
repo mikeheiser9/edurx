@@ -24,6 +24,7 @@ const allPostValidations = {
   sortBy: Joi.string().valid("newest", "popular", "trending"),
   forumType: Joi.string().valid(...forumTypes),
   categories: Joi.array().max(50).items(validateField.objectId),
+  filters:Joi.array().max(50).items(validateField.objectId)
 };
 
 const createPostValidator = async (req, res, next) => {
@@ -70,6 +71,7 @@ const getUsersPostsValidator = async (req, res, next) => {
       ...req.query,
       userId: req.user._id?.toString(),
       categories: req.query?.categories?.split(","),
+      filters:req.query?.filters?.split(",")
     });
     next();
   } catch (error) {
@@ -223,6 +225,7 @@ const getAllPostValidator = async (req, res, next) => {
     await schema.validateAsync({
       ...req.query,
       categories: req.query?.categories?.split(","),
+      filters:req.query?.filters?.split(",")
     });
     next();
   } catch (error) {

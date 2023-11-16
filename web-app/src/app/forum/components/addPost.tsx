@@ -279,13 +279,10 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
       postType: values.postType || "post",
       ...selectedList,
     };
-    console.log({ values });
-
     await addNewPost(payload)
       .then((response) => {
         let message = response?.data?.message;
         if (response?.status === responseCodes.SUCCESS) {
-          showToast.success(message || "Post added successfully");
           setTimeout(() => {
             addPostModal?.closeModal();
           }, 1000);
@@ -293,7 +290,6 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
       })
       .catch((err) => {
         console.log("error", err);
-        showToast.error(err?.message || "Unable to add post");
       });
   };
 

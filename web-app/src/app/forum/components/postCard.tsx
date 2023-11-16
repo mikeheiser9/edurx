@@ -8,6 +8,7 @@ import { faComments } from "@fortawesome/free-regular-svg-icons";
 import {
   faChartColumn,
   faEllipsisVertical,
+  faX,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import moment from "moment";
@@ -18,7 +19,8 @@ import { Button } from "@/components/button";
 import { useModal } from "@/hooks";
 import { RequestListModal } from "./requestListModal";
 import { addPrivatePostRequest, followPost } from "@/service/post.service";
-// import { useOutsideClick } from "@/hooks";
+import { Modal } from "@/components/modal";
+import UnFollowPostConfirmation from "./unFollowPostConfirmation";
 
 interface Props {
   post: PostInterface;
@@ -44,6 +46,7 @@ export const PostCard = (props: Props) => {
   const [isToggle, setIsToggle] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState<number>(0);
   const requestModal = useModal();
+  const unfollowPostConfirmationModel = useModal();
   const returnButtonWithAppropriateLabel = () => {
     if (isPostOwner) {
       if (post.isPrivate) {
@@ -66,8 +69,6 @@ export const PostCard = (props: Props) => {
   );
   const isFlagged: boolean =
     post?.flag && postFlags?.includes(post?.flag) ? true : false;
-  // const toggleMenuRef = useOutsideClick(() => setIsToggle(false));
-
   const handleAdminActions = (event: React.MouseEvent<SVGSVGElement>) => {
     event.stopPropagation();
     event.preventDefault();
@@ -101,10 +102,16 @@ export const PostCard = (props: Props) => {
   const handleForumAction = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
-    if (["Review Requests", "Follow", "following"].includes(forumButtonLabel)) {
+    if (
+      ["Review Requests", "Follow", "Following", "Unfollow"].includes(
+        forumButtonLabel
+      )
+    ) {
       e.stopPropagation();
     }
-    if (forumButtonLabel == "Review Requests") {
+    if (forumButtonLabel == "Unfollow") {
+      unfollowPostConfirmationModel.openModal();
+    } else if (forumButtonLabel == "Review Requests") {
       requestModal.openModal();
     } else if (forumButtonLabel == "Follow") {
       if (post.isPrivate) {
@@ -118,13 +125,34 @@ export const PostCard = (props: Props) => {
           setForumButtonLabel("Requested");
         }
       } else {
-        const res = await followPost(post._id);
+        const res = await followPost(post._id, "add");
         if (res.status == responseCodes.SUCCESS) {
-          setForumButtonLabel("Following")
+          setForumButtonLabel("Following");
         }
       }
     }
   };
+
+  const unFollowPost = async () => {
+    const res = await followPost(post._id, "remove");
+    if (res) {
+      if (res.status == responseCodes.SUCCESS) {
+        setForumButtonLabel("Follow");
+        unfollowPostConfirmationModel.closeModal();
+      }
+    }
+  };
+  const Header = () => (
+    <div className="flex p-2 gap-2 bg-eduDarkGray">
+      <span className="text-base text-center flex-1">Confirmation</span>
+      <FontAwesomeIcon
+        icon={faX}
+        size="sm"
+        onClick={unfollowPostConfirmationModel.closeModal}
+        className="ml-auto self-center cursor-pointer text-gray-500"
+      />
+    </div>
+  );
   return (
     <>
       {post?._id && (
@@ -166,6 +194,16 @@ export const PostCard = (props: Props) => {
             className="w-[150px] rounded-md font-medium !m-0 text-sm"
             label={forumButtonLabel}
             onClick={handleForumAction}
+            onMouseEnter={() => {
+              if (forumButtonLabel == "Following") {
+                setForumButtonLabel("Unfollow");
+              }
+            }}
+            onMouseLeave={() => {
+              if (forumButtonLabel == "Unfollow") {
+                setForumButtonLabel(returnButtonWithAppropriateLabel());
+              }
+            }}
           />
           <div className="flex flex-col items-center justify-center text-[12px] text-eduBlack gap-4">
             <div className="flex flex-col text-[12px]">
@@ -205,6 +243,23 @@ export const PostCard = (props: Props) => {
             )}
           </div>
         )}
+
+        <Modal
+          onClose={unfollowPostConfirmationModel.closeModal}
+          visible={unfollowPostConfirmationModel.isOpen}
+          customHeader={<Header />}
+          showCloseIcon
+          modalClassName="!w-auto min-w-[30rem] !rounded-lg"
+          modalBodyClassName="bg-white"
+          showFooter={false}
+          closeOnEscape
+          closeOnOutsideClick
+        >
+          <UnFollowPostConfirmation
+            unFollowPost={unFollowPost}
+            modelClosingFunction={unfollowPostConfirmationModel.closeModal}
+          />
+        </Modal>
       </div>
     </>
   );

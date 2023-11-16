@@ -450,6 +450,7 @@ const getPosts = async ({
   categories,
   userId,
   loggedInUser,
+  filters
 }) => {
   try {
     const skippedPages = (page - 1) * limit;
@@ -462,6 +463,7 @@ const getPosts = async ({
       ...(forumType ? { forumType } : {}),
       ...(categories ? { categories: { $in: categories } } : {}),
       ...(userId ? { userId } : {}),
+      ...(filters ? {filters:{$in:filters}}:{}),
       isDeleted: { $ne: true },
     };
     const pipeline = [
@@ -755,6 +757,10 @@ const fetchFilters=async()=>{
   })
 }
 
+const deleteOnePostRequest=async(condition)=>{
+  return await postRequestModal.deleteOne(condition)
+}
+
 export {
   createNewPost,
   findPostsByUserId,
@@ -773,5 +779,6 @@ export {
   updatePostRequests,
   findPostById,
   deletePostRequest,
-  fetchFilters
+  fetchFilters,
+  deleteOnePostRequest
 };

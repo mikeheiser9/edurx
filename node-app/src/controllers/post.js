@@ -6,6 +6,7 @@ import {
   addReaction,
   addViews,
   createNewPost,
+  deleteOnePostRequest,
   deletePostRequest,
   fetchFilters,
   findPostById,
@@ -56,7 +57,12 @@ const createPost = async (req, res) => {
 const searchPostMetaLabel = async (req, res) => {
   try {
     const { name, type, page, limit } = req.query;
-    const searchResult = await searchCategoryFilterByName(name, type, page, limit);
+    const searchResult = await searchCategoryFilterByName(
+      name,
+      type,
+      page,
+      limit
+    );
     let message = searchResult.records.length
       ? "records found"
       : "No records found";
@@ -210,6 +216,7 @@ const getAllPosts = async (req, res) => {
   try {
     const userId = req.route.path === "/forum/user" ? req?.user?._id : null;
     const categoryList = req.query.categories?.split(",");
+    const filterList = req.query.filters?.split(",");
     const posts = await getPosts({
       ...req.query,
       page: Number(req.query.page || 1),
@@ -219,6 +226,9 @@ const getAllPosts = async (req, res) => {
         categoryList.map((category) => new Types.ObjectId(category)),
       userId,
       loggedInUser: req.user._id,
+      filters:
+        filterList?.length > 0 &&
+        filterList.map((filter) => new Types.ObjectId(filter)),
     });
     return generalResponse(res, 200, "OK", "posts fetched successfully", posts);
   } catch (error) {
@@ -299,7 +309,6 @@ const getUserRequests = async (req, res) => {
   try {
     const { postId } = req.params;
     const { page, limit } = req.query;
-    console.log({ postId, page, limit });
     const response = await getRequestsByPostId(postId, page, limit);
     return generalResponse(
       res,
@@ -432,7 +441,7 @@ const bulkUpdateRequests = async (req, res) => {
 
 const followPost = async (req, res) => {
   try {
-    // check loggedin user should not be the owner of this post
+    // check loggedIn user should not be the owner of this post
     const { postId, action } = req.params;
     const postDetail = await findPostById(postId);
     if (!postDetail || postDetail.userId == req.user._id) {
@@ -440,24 +449,41 @@ const followPost = async (req, res) => {
         "either forum doesn't exists with id or you are owner of this forum"
       );
     }
+    const connectionDetails = await findUserFollowPostDetails(
+      req.user._id,
+      postId
+    );
     if (action == "add") {
-      const connectionDetails = await findUserFollowPostDetails(
-        req.user._id,
-        postId
-      );
       if (connectionDetails) {
         throw new Error("you are already following this forum");
       }
+      if (postDetail.isPrivate) {
+        throw new Error("private post cannot be followed directly");
+      }
       await insertFollowPost(req.user._id.toString(), postId);
-    } else if (req.params.action == "remove") {
+    } else if (action == "remove") {
+      if (!connectionDetails) {
+        throw new Error("to delete this post user must follow this post");
+      }
+      if (postDetail.isPrivate) {
+        await deleteOnePostRequest({
+          $and: [
+            {
+              userId: req.user._id,
+            },
+            { postId: new Types.ObjectId(postId) },
+          ],
+        });
+      }
       await removeFollowPost(req.user._id, postId);
     }
     return generalResponse(
       res,
       200,
       "success",
-      "requests updated successfully",
-      ""
+      `${action=="add" ? "Follow" :"Unfollow"} successfully`,
+      "",
+      true
     );
   } catch (error) {
     return generalResponse(
@@ -471,10 +497,9 @@ const followPost = async (req, res) => {
   }
 };
 
-const getFilters=async(req,res)=>{
+const getFilters = async (req, res) => {
   try {
-    console.log("reached the controllerd");
-    const filters=await fetchFilters()
+    const filters = await fetchFilters();
     return generalResponse(
       res,
       responseCodes.SUCCESS,
@@ -492,7 +517,7 @@ const getFilters=async(req,res)=>{
       true
     );
   }
-}
+};
 
 export {
   createPost,
@@ -509,5 +534,5 @@ export {
   getUserRequests,
   bulkUpdateRequests,
   followPost,
-  getFilters
+  getFilters,
 };
