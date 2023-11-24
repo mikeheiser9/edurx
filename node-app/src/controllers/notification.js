@@ -39,6 +39,7 @@ export const getAllNotificationsOfUser = async (req, res) => {
                 ],
               },
             },
+            // notificationType must not be time sensitive notification
             {
               isRead: false,
             },
@@ -162,6 +163,97 @@ export const getAllNotificationsOfUser = async (req, res) => {
     ];
     const notificationInfo = await notifications.aggregate(pipeline);
     return generalResponse(res, 200, "success", "", notificationInfo, false);
+  } catch (error) {
+    return generalResponse(res, 400, "error", error.message, error, true);
+  }
+};
+
+export const userTimeSensitiveNotification = async (req, res) => {
+  try {
+    const limit = req.query.limit ? Number(req.query.limit) : 10;
+    const page = req.query.page ? Number(req.query.page) : 1;
+    const skip = (page - 1) * limit;
+    const timeSensitiveNotification = await notifications.aggregate([
+      {
+        $match: {
+          $and: [
+            {
+              notificationType: "time_sensitive_notifications",
+            },
+            {
+              receiver: req.user._id,
+            },
+            {
+              dismiss: false,
+            },
+            {
+              $or: [
+                {
+                  remindMeTomorrow: {
+                    $lte: new Date(),
+                  },
+                },
+                {
+                  remindMeTomorrow: null,
+                },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          receiver: 1,
+          notificationType: 1,
+          notificationTypeId: 1,
+          isRead: 1,
+          remindMeTomorrow: 1,
+          dismiss: 1,
+        },
+      },
+      {
+        $lookup: {
+          from: "userdocs",
+          let: { notificationId: "$notificationTypeId" },
+          pipeline: [
+            {
+              $match: { $expr: { $eq: ["$_id", "$$notificationId"] } },
+            },
+            {
+              $project: {
+                _id: 1,
+                doc_name: 1,
+                doc_type: 1,
+                doc_url: 1,
+                expiration_date: 1,
+              },
+            },
+          ],
+          as: "documentInfo",
+        },
+      },
+      {
+        $unwind: "$documentInfo",
+      },
+      {
+        $sort: { 'documentInfo.expiration_date': 1 },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limit,
+      },
+    ]);
+    return generalResponse(
+      res,
+      200,
+      "success",
+      "",
+      timeSensitiveNotification,
+      false
+    );
   } catch (error) {
     return generalResponse(res, 400, "error", error.message, error, true);
   }

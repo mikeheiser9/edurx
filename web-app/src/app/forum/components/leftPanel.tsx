@@ -54,21 +54,7 @@ export const LeftPanel = () => {
   const [selectedLocalFilters, setSelectedLocalFilters] =
     useState<FilterOptionsState | null>(null);
   const [showMoreCatagories, setShowMoreCatagories] = useState<boolean>(true);
-  const isCategoriesSame: boolean = areArraysEqual(
-    selectedFilters?.categories?.map((i) => i._id) ?? [],
-    selectedLocalFilters?.categories?.map((i) => i?._id) ?? []
-  );
-  const filterSetting = useModal();
-  
-  const isUpdated: boolean =
-    !isCategoriesSame || selectedLocalFilters?.sortBy != null;
-
-  console.log({
-    isCategoriesSame,
-    selectedFilters,
-    selectedLocalFilters,
-  });
-
+  const filterSetting = useModal();  
   const handleFilters = (
     type: keyof FilterOptionsState,
     value: string | any[]
@@ -158,7 +144,7 @@ export const LeftPanel = () => {
               //   selectedFilters?.sortBy !== item.value &&
               //   handleFilters("sortBy", item.value)
               // }
-              className="font-body flex-auto items-center flex gap-2 text-[16px] text-eduBlack"
+              className="font-body flex-auto items-center flex gap-2 text-[16px] text-eduBlack "
             >
               <Checkbox
                 id={item?.value}
@@ -184,7 +170,6 @@ export const LeftPanel = () => {
         <span className="text-eduBlack text-[22px] font-bold font-headers">
           Category
         </span>
-        {/* {console.log(categoryList.length)} */}
         <InfiniteScroll
           hasMoreData={categoryPagination?.totalRecords > categoryList?.length}
           callBack={onLoadMore}
@@ -241,8 +226,6 @@ export const LeftPanel = () => {
             label="Sort by Filter"
             type="button"
             onClick={() => {
-
-              console.log("function called",);
               filterSetting.openModal()
             }}
             // disabled={!isUpdated}

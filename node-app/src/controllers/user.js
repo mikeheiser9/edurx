@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+import { userModel } from "../model/user/user.js";
 import { insertNotification } from "../repository/notification.js";
 import {
   addRemoveConnections,
@@ -20,9 +22,9 @@ import { responseCodes, responseTypes } from "../util/constant.js";
 const getUserProfile = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { isAuthCheck, usePopulate } = req.query;
+    const { isAuthCheck, usePopulate, editProfile } = req.query;
     if (isAuthCheck === "true" || isAuthCheck === true) {
-      // fething basic information for auth check only
+      // fetching basic information for auth check only
       const basicDetails = await getBasicProfile(userId);
       if (!basicDetails)
         return generalResponse(res, 400, "error", "user not found", null, true);
@@ -34,9 +36,118 @@ const getUserProfile = async (req, res) => {
         { user: basicDetails },
         false
       );
+    } else if (editProfile) {
+      const userDetail = await userModel.aggregate([
+        {
+          $match: {
+            _id: new Types.ObjectId(userId),
+          },
+        },
+        {
+          $project: {
+            first_name: 1,
+            last_name: 1,
+            username: 1,
+            email: 1,
+            role: 1,
+            npi_number: 1,
+            npi_designation: 1,
+            socials: 1,
+            personal_bio: 1,
+            profile_img: 1,
+            banner_img: 1,
+            verified_account: 1,
+            addresses: 1,
+            city: 1,
+            state: 1,
+            zip_code: 1,
+            contact_email: 1,
+            educations: 1,
+          },
+        },
+        {
+          $lookup: {
+            from: "userdocs",
+            let: { uid: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  $and: [
+                    {
+                      $expr: { $eq: ["$userId", "$$uid"] },
+                    },
+                    {
+                      doc_type: "certificate",
+                    },
+                  ],
+                },
+              },
+              {
+                $project: {
+                  _id: 1,
+                  doc_id: 1,
+                  doc_image: 1,
+                  doc_name: 1,
+                  doc_type: 1,
+                  doc_url: 1,
+                  expiration_date: 1,
+                  has_no_expiry: 1,
+                  issue_date: 1,
+                  issuer_organization: 1,
+                  userId: 1,
+                },
+              },
+            ],
+            as: "certificates",
+          },
+        },
+        {
+          $lookup: {
+            from: "userdocs",
+            let: { uid: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  $and: [
+                    {
+                      $expr: { $eq: ["$userId", "$$uid"] },
+                    },
+                    {
+                      doc_type: "license",
+                    },
+                  ],
+                },
+              },
+              {
+                $project: {
+                  _id: 1,
+                  doc_id: 1,
+                  doc_image: 1,
+                  doc_name: 1,
+                  doc_type: 1,
+                  doc_url: 1,
+                  expiration_date: 1,
+                  has_no_expiry: 1,
+                  issue_date: 1,
+                  issuer_organization: 1,
+                  userId: 1,
+                },
+              },
+            ],
+            as: "licenses",
+          },
+        },
+      ]);
+      return generalResponse(
+        res,
+        200,
+        "OK",
+        "authenticated",
+        { user: userDetail },
+        false
+      );
     }
     const loggedInUserId = req.user._id?.toString();
-    console.log({ loggedInUserId });
     const user = await getUserProfileById(
       userId,
       {
@@ -70,7 +181,6 @@ const getUserProfile = async (req, res) => {
 
 const updateUserByID = async (req, res) => {
   try {
-    console.log(req.body);
     if (!req.body) throw new Error("Request body is required");
     const { userId } = req.body;
     const user = await updateProfileById(userId, {
@@ -78,7 +188,14 @@ const updateUserByID = async (req, res) => {
       ...getKeyValueFromFiles(req.files),
     });
     if (!user) throw new Error("Could not update profile with id");
-    return generalResponse(res, 200, "success", null, { user }, false);
+    return generalResponse(
+      res,
+      200,
+      "success",
+      "update successful",
+      { user },
+      true
+    );
   } catch (error) {
     console.log(error);
     return generalResponse(
@@ -103,7 +220,7 @@ const addUpdateDocument = async (req, res, next) => {
       res,
       200,
       "OK",
-      "Document added successfully",
+      "Document added/updated successfully",
       doc,
       true
     );
@@ -213,7 +330,6 @@ const getConnections = async (req, res) => {
 
 const searchUsers = async (req, res) => {
   try {
-    console.log(req.query);
     const { searchKeyword, page, limit } = req.query;
     const response = await searchUsersByName(searchKeyword, page, limit);
     return generalResponse(

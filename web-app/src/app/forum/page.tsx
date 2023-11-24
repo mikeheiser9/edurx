@@ -152,7 +152,6 @@ const Page = () => {
           flag ? `Post flagged as ${flag}` : "Post flag removed successfully"
         );
         setPosts((pre) => [...pre]);
-        // fetchPosts(1, false); // fetching posts again after deleting
       } else
         throw new Error(response?.data?.message || "Unable to update post");
     } catch (error) {
@@ -160,25 +159,6 @@ const Page = () => {
     }
   };
 
-  const fetchUsersPost = async () => {
-    try {
-      const response = await axiosGet("/post/forum/user");
-      console.log(response);
-    } catch (error) {
-      showToast?.error(
-        (error as Error)?.message || "Unable to fetch users post"
-      );
-      console.log("Failed to fetch user post", error);
-    }
-  };
-
-  // const onForumTabChange = async (tab: string) => {
-  //   if (select === tab) return;
-  //   if (tab === forumTabs[1]) {
-  //     await fetchPosts(1, "/post/forum/user", false);
-  //   }
-  //   setSelectedForumTab(tab);
-  // };
 
   useEffect(() => {
     if (selectedForumTab === forumTabs[2]) return;
@@ -187,7 +167,7 @@ const Page = () => {
   
   return (
     <React.Fragment>
-      {addPostModal.isOpen && <AddPost addPostModal={addPostModal} />}
+      {addPostModal.isOpen && <AddPost addPostModal={addPostModal} fetchPosts={()=>fetchPosts(1, apiEndpoint, false)} />}
       <PostModal viewPostModal={viewPostModal} postId={selectedPostId} />
 
       <div className="flex justify-between items-center w-full h-[55px]">
@@ -213,7 +193,7 @@ const Page = () => {
           {forumTabs.map((item) => (
             <li
               onClick={() => setSelectedForumTab(item)}
-              className={`text-eduBlack font-body font-medium ease-in-out duration-500 border-b-2 py-2 text-[14px] ${
+              className={`text-eduBlack font-body font-medium ease-in-out duration-500 border-b-2 py-2 text-[14px] cursor-pointer ${
                 item === selectedForumTab
                   ? "border-primary"
                   : "border-transparent"
@@ -272,7 +252,7 @@ const Page = () => {
       >
         
         {posts?.map((post) => (
-          <div>
+          <div key={post._id}>
           <PostCard
             post={post}
             key={post._id}

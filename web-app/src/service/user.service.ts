@@ -29,7 +29,11 @@ const getAccountSettingsByAPI = async () => {
 };
 
 const getNotificationOfUser=(page:number,limit:number,notificationType?:string)=>{
-  return axiosGet(`/notification/user/all?page:${page}&limit=${limit}&notificationType=${notificationType}`)
+  return axiosGet(`/notification/user/all?page=${page}&limit=${limit}&notificationType=${notificationType}`)
+}
+
+const getTimeSensitiveNotification=(page:number,limit:number)=>{
+  return axiosGet(`/notification/user/time-sensitive-notification?page=${page}&limit=${limit}`)
 }
 
 export {
@@ -37,5 +41,6 @@ export {
   addRemoveUserConnectionByAPI,
   getAccountSettingsByAPI,
   updateAccountSettingsByAPI,
-  getNotificationOfUser
+  getNotificationOfUser,
+  getTimeSensitiveNotification
 };

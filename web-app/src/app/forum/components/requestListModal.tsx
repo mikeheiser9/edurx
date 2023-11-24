@@ -54,8 +54,6 @@ export const RequestListModal = ({ requestModal, postId }: Props) => {
       (r) => r?._id === request?._id
     );
 
-    console.log({ updatedRequestIndex, type, request });
-
     if (updatedRequestIndex === -1) return;
     requests[updatedRequestIndex].status =
       type === "accept" ? "accepted" : type === "reject" ? "denied" : "pending";
@@ -80,7 +78,6 @@ export const RequestListModal = ({ requestModal, postId }: Props) => {
           };
         });
       const response = await updatePostRequestsByAPI(postId, requestToUpdate);
-      console.log({ requestToUpdate, response });
       if (response?.status === responseCodes.SUCCESS) {
         await getRequestListByAPI();
         showToast?.success(response?.data?.message);
@@ -180,8 +177,6 @@ export const RequestListModal = ({ requestModal, postId }: Props) => {
       setRequests([]);
     };
   }, [requestModal.isOpen]);
-
-  console.log(requests);
 
   return (
     <Modal

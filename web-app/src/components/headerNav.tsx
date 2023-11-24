@@ -17,9 +17,10 @@ import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { useOutsideClick } from "@/hooks";
+import { useModal, useOutsideClick } from "@/hooks";
 import { faBell } from "@fortawesome/free-regular-svg-icons";
 import { DropDownPopover } from "@/app/forum/components/sections";
+import { ProfileDialog } from "@/app/hub/components/profileDialog";
 
 const tabMenuOptions = [
   { label: "Hub", img: EduRxIcon, path: "hub" },
@@ -34,12 +35,10 @@ const HeaderNav = () => {
   const router = useRouter();
   const pathName = usePathname();
   const dispatch = useDispatch();
-  // const isSamePath: boolean = tabMenuOptions?.some(
-  //   (i) => i?.path && location.pathname.includes(i?.path)
-  // );
   const loggedInUser = useSelector(selectUserDetail);
   const [showDropdown, setshowDropdown] = useState<boolean>(false);
   const dropDownRef = useOutsideClick(() => setshowDropdown(false));
+  const profileModal=useModal()
   const logOutUser = () => {
     dispatch(removeUserDetail());
     dispatch(removeToken());
@@ -53,15 +52,21 @@ const HeaderNav = () => {
 
   return (
     <nav className="flex relative gap-8 p-4 justify-center rounded-md">
+     {loggedInUser && (
+        <ProfileDialog
+          loggedInUser={loggedInUser}
+          profileModal={profileModal}
+        />
+      )}
       {tabMenuOptions.map((item, index: number) => (
         <button
           key={index}
           onClick={() => onNavigate(item)}
-          className={`text-eduBlack duration-300 py-2 ease-in-out transition-colors text-[16px] rounded-[5px] font-semibold px-4 w-[145px] text-center cursor-pointer disabled:opacity-60 ${
+          className={`text-eduBlack duration-300 py-2 ease-in-out transition-colors text-[16px] rounded-[5px] font-semibold px-4 w-[145px] text-center cursor-pointer ${item?.isDisabled && "!cursor-not-allowed"} disabled:opacity-60 ${
             pathName === `/${item?.path}`
               ? "bg-eduBlack text-white"
               : "bg-eduDarkGray"
-          }`}
+          } `}
           type="button"
           disabled={item?.isDisabled}
         >
@@ -113,7 +118,7 @@ const HeaderNav = () => {
             {
               label: "Profile",
               icon: faUserAlt,
-              onClick: () => router.push("profile"),
+              onClick: () => profileModal.openModal(),
             },
             {
               label: "Notifications",

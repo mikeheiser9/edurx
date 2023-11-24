@@ -22,13 +22,17 @@ import { generalResponse } from "../util/commonFunctions.js";
 import { responseCodes, responseTypes } from "../util/constant.js";
 import {
   findFollowerById,
+  findFollowersOfPostById,
   findUserFollowPostDetails,
   getBasicProfile,
   insertFollowPost,
   insertFollowPostMultiple,
   removeFollowPost,
 } from "../repository/user.js";
-import { insertNotification } from "../repository/notification.js";
+import {
+  findNotificationByCondition,
+  insertNotification,
+} from "../repository/notification.js";
 import { findCommentById } from "../repository/comment.js";
 import { postRequestModal } from "../model/post/postAccessRequest.js";
 
@@ -46,6 +50,8 @@ const createPost = async (req, res) => {
         destinationId: notificationReceiverUserIds,
         eventTime: new Date(),
         sourceId: req.user._id,
+        multipleInsert: true,
+        whatIsMultiple: "destinationId",
       });
     }
     generalResponse(res, 200, "OK", "Post created", post, null);
@@ -150,6 +156,26 @@ const addNewComment = async (req, res) => {
           destinationId: notificationReceiverUserIds,
           contentId: newComment._id,
           eventTime: eventTime,
+          multipleInsert: true,
+          whatIsMultiple: "destinationId",
+        });
+      }
+
+      const postFollowers = await findFollowersOfPostById(postDetails._id);
+      if (postFollowers && postFollowers.length > 0) {
+        const notificationReceiverUserIds = postFollowers.map(
+          (postFollower) => {
+            return postFollower.userId;
+          }
+        );
+        await insertNotification({
+          type: "user_commented_on_a_post_you_follow",
+          sourceId: req.user._id,
+          destinationId: notificationReceiverUserIds,
+          contentId: newComment._id,
+          eventTime: eventTime,
+          multipleInsert: true,
+          whatIsMultiple: "destinationId",
         });
       }
     } else {
@@ -249,7 +275,6 @@ const addNewView = async (req, res) => {
 const updatePost = async (req, res) => {
   try {
     const response = await updatePostById(req.body);
-    console.log(response);
     return generalResponse(
       res,
       responseCodes.SUCCESS,
@@ -279,13 +304,21 @@ const addPrivatePostRequest = async (req, res) => {
       throw new Error("post doesn't exists");
     }
     const response = await addPostAccessRequest(req.body);
-    await insertNotification({
-      type: "user_requested_to_follow_your_private_post",
-      sourceId: userId,
-      destinationId: postDetail.userId,
-      contentId: postDetail._id,
-      eventTime: new Date(),
+    const notificationDetails = await findNotificationByCondition({
+      createdBy: userId,
+      receiver: postDetail.userId,
+      notificationTypeId: postDetail._id,
+      notificationType: "user_requested_to_follow_your_private_post",
     });
+    if (!notificationDetails) {
+      await insertNotification({
+        type: "user_requested_to_follow_your_private_post",
+        sourceId: userId,
+        destinationId: postDetail.userId,
+        contentId: postDetail._id,
+        eventTime: new Date(),
+      });
+    }
     return generalResponse(
       res,
       responseCodes.SUCCESS,
@@ -418,6 +451,19 @@ const bulkUpdateRequests = async (req, res) => {
       eventTime: eventTime,
       sourceId: req.user._id,
       destinationId: notificationReceiverUserIds,
+      multipleInsert: true,
+      whatIsMultiple: "destinationId",
+    });
+
+    // list of user following you post notification
+    await insertNotification({
+      type: "user_followed_your_post",
+      contentId: allDetail[0].postId,
+      eventTime: eventTime,
+      destinationId: req.user._id,
+      sourceId: notificationReceiverUserIds,
+      multipleInsert: true,
+      whatIsMultiple: "sourceId",
     });
 
     return generalResponse(
@@ -461,6 +507,13 @@ const followPost = async (req, res) => {
         throw new Error("private post cannot be followed directly");
       }
       await insertFollowPost(req.user._id.toString(), postId);
+      await insertNotification({
+        type: "user_followed_your_post",
+        sourceId: req.user._id,
+        destinationId: postDetail.userId,
+        contentId: postDetail._id,
+        eventTime: new Date(),
+      });
     } else if (action == "remove") {
       if (!connectionDetails) {
         throw new Error("to delete this post user must follow this post");
@@ -481,7 +534,7 @@ const followPost = async (req, res) => {
       res,
       200,
       "success",
-      `${action=="add" ? "Follow" :"Unfollow"} successfully`,
+      `${action == "add" ? "Follow" : "Unfollow"} successfully`,
       "",
       true
     );

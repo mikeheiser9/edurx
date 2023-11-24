@@ -142,7 +142,7 @@ const NavList = ({ options }: { options: Option[] }) => {
               item?.label === selectedTab
                 ? "decoration-primary"
                 : "decoration-transparent"
-            } underline duration-300 decoration-2 ease-in-out animate-fade-in-down touch-pinch-zoom text-sm transition-colors text-eduBlack underline-offset-4`}
+            } underline duration-300 decoration-2 ease-in-out animate-fade-in-down touch-pinch-zoom text-sm transition-colors text-eduBlack underline-offset-4 cursor-pointer`}
           >
             {item?.label}
             {item?.icon &&

@@ -89,7 +89,6 @@ export const SignUpModal = ({ signUpModal }: Props) => {
         payload
       )
       .then((response) => {
-        console.log(response);
         if (response?.status === responseCodes.SUCCESS) {
           showErrorMessage(
             "Thank you, We will respond to you soon",

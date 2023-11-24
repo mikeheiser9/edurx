@@ -26,10 +26,7 @@ const updateUserValidator = async (req, res, next) => {
         ],
       });
     }
-    req.body =
-      req.files?.length && req.body?.data
-        ? JSON.parse(req?.body?.data)
-        : req.body;
+    req.body = req.body?.data ? JSON.parse(req?.body?.data) : req.body;
     const schema = Joi.object({
       ...Object.keys(req.body).reduce((acc, key) => {
         if (userValidations[key]) {

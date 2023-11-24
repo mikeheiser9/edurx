@@ -13,7 +13,7 @@ const userDocValidation = {
   issuer_organization: validateField.stringPrefixJoiValidation.required(
     "This field is required"
   ),
-  issue_date: Yup.date(),
+  issue_date: Yup.date().required(),
   expiration_date: Yup.date(),
   has_no_expiry: Yup.boolean(),
   doc_id: validateField.stringPrefixJoiValidation.nullable(),
@@ -23,7 +23,7 @@ const userDocValidation = {
 
 const validationSchema: Yup.AnyObject = {
   about: Yup.object({
-    contact_email: email,
+    contact_email: Yup.string().email("Please enter a valid email"),
     personal_bio: Yup.string().max(1000, "Can't exceed 2000 characters"),
     socials: Yup.object({
       instagram: Yup.string().max(100, "Can't exceed 100 characters"),
@@ -40,9 +40,7 @@ const validationSchema: Yup.AnyObject = {
       "Field of study is required"
     ),
     start_date: stringPrefixJoiValidation.required("Start date is required"),
-    end_date: stringPrefixJoiValidation.required(
-      "End date (or expecrted) is required"
-    ),
+    end_date: Yup.date(),
     is_in_progress: Yup.boolean().default(false),
     activities: Yup.string().nullable(),
   }),

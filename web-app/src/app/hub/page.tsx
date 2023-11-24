@@ -1,13 +1,19 @@
 "use client";
 import InfiniteScroll from "@/components/infiniteScroll";
 import { requireAuthentication } from "@/components/requireAuthentication";
-import { getNotificationOfUser } from "@/service/user.service";
+import {
+  getNotificationOfUser,
+  getTimeSensitiveNotification,
+} from "@/service/user.service";
 import React, { useEffect, useState } from "react";
 import moment from "moment";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-const hubTab = ["All Notifications", "Following", "My Posts"];
+import { useSelector } from "react-redux";
+import { selectUserDetail } from "@/redux/ducks/user.duck";
+import { PostModal } from "../forum/components/postModal";
+import { useModal } from "@/hooks";
 const Page = () => {
+  const hubTab = ["All Notifications", "Following", "My Posts"];
   const [activeSubTab, setActiveSubTab] = useState(hubTab[0]);
   const [notifications, setNotifications] = useState<any>([]);
   const [showLoading, setShowLoading] = useState(false);
@@ -17,8 +23,29 @@ const Page = () => {
     page: 1,
     limit: 10,
   });
+  const [
+    timeSensitiveNotificationPaginationParm,
+    setTimeSensitiveNotificationPaginationParm,
+  ] = useState({
+    page: 1,
+    limit: 10,
+  });
+  const loggedInUser = useSelector(selectUserDetail);
+  const [selectedPostId, setSelectedPostId] = useState("");
+  const [timeSensitiveNotifications, setTimeSensitiveNotifications] = useState(
+    []
+  );
+  const [
+    timeSensitiveNotificationsLoading,
+    setTimeSensitiveNotificationsLoading,
+  ] = useState(false);
+  const [
+    shouldFetchMoreTimeSensitiveNotification,
+    setShouldFetchMoreTimeSensitiveNotification,
+  ] = useState(false);
+  const viewPostModal = useModal();
 
-  const fetchNotification = async () => {
+  const fetchNotification = async (pageNo?: number) => {
     setShowLoading(true);
     const notificationType =
       activeSubTab == "Following"
@@ -26,16 +53,16 @@ const Page = () => {
         : activeSubTab == "My Posts"
         ? "my_post"
         : "all";
+
     const getNotificationResponse = await getNotificationOfUser(
-      notificationPaginationParm.page,
+      pageNo ? pageNo : notificationPaginationParm.page,
       notificationPaginationParm.limit,
       notificationType
     );
-    if (
-      getNotificationResponse.data.response_type == "success" &&
-      getNotificationResponse.data.data.length > 0
-    ) {
-      setNotifications(getNotificationResponse.data.data);
+    if (getNotificationResponse.data.response_type == "success") {
+      setNotifications((currentNotifications: any) =>
+        currentNotifications.concat(getNotificationResponse.data.data)
+      );
       setNotificationPaginationParm((notificationApiDetail) => {
         return {
           ...notificationApiDetail,
@@ -47,17 +74,63 @@ const Page = () => {
         notificationPaginationParm.limit
       ) {
         setShouldFetchMoreNotification(false);
-      } else {
-        setShouldFetchMoreNotification(true);
       }
     }
     setShowLoading(false);
   };
 
+  const fetchTimeSensitiveNotification = async (pageNo?: number) => {
+    setTimeSensitiveNotificationsLoading(true);
+    const getNotificationResponse = await getTimeSensitiveNotification(
+      pageNo ? pageNo : timeSensitiveNotificationPaginationParm.page,
+      timeSensitiveNotificationPaginationParm.limit
+    );
+    if (
+      getNotificationResponse &&
+      getNotificationResponse.data.response_type == "success"
+    ) {
+      setTimeSensitiveNotifications((currentTimeSensitiveNotifications) =>
+        currentTimeSensitiveNotifications.concat(
+          getNotificationResponse.data.data
+        )
+      );
+      setTimeSensitiveNotificationPaginationParm((parameter) => {
+        return {
+          ...parameter,
+          page: parameter.page + 1,
+        };
+      });
+      if (
+        getNotificationResponse.data.data.length <
+        timeSensitiveNotificationPaginationParm.limit
+      ) {
+        setShouldFetchMoreTimeSensitiveNotification(false);
+      }
+    }
+    setTimeSensitiveNotificationsLoading(false);
+  };
+
   useEffect(() => {
     setShouldFetchMoreNotification(true);
     setNotifications([]);
-    fetchNotification();
+    setTimeSensitiveNotifications([]);
+    fetchNotification(1);
+    setNotificationPaginationParm((previousParam) => {
+      return {
+        ...previousParam,
+        page: 1,
+      };
+    });
+    if (activeSubTab == "All Notifications") {
+      setTimeSensitiveNotificationPaginationParm((previousParam) => {
+        return {
+          ...previousParam,
+          page: 1,
+        };
+      });
+      setShouldFetchMoreTimeSensitiveNotification(true);
+      fetchTimeSensitiveNotification(1);
+    }
   }, [activeSubTab]);
 
   const getSemanticDescriptionFromEventType = (notificationType: string) => {
@@ -65,7 +138,7 @@ const Page = () => {
       case "user_replied_to_your_comment":
         return "reply to your_comment";
       case "user_comments_on_your_post":
-        return "commented on you post";
+        return "commented on your post";
       case "user_you_follow_published_a_new_post":
         return ", who you follow, made a new post";
       case "user_who_you_follow_commented_on_a_post":
@@ -85,22 +158,32 @@ const Page = () => {
 
   const getPostTitle = (notification: any) => {
     if (notification.postInfo?.[0]?.title) {
-      return notification.postInfo?.[0]?.title;
+      return {
+        postTitle: notification.postInfo?.[0]?.title,
+        postId: notification.postInfo?.[0]?._id,
+      };
     } else if (notification.commentsInfo?.[0].postInfo?.[0]?.title) {
-      return notification.commentsInfo?.[0].postInfo?.[0]?.title;
+      return {
+        postTitle: notification.commentsInfo?.[0].postInfo?.[0]?.title,
+        postId: notification.commentsInfo?.[0].postInfo?.[0]?._id,
+      };
     }
   };
+
   return (
     <>
       <div>
+        {viewPostModal.isOpen && (
+          <PostModal viewPostModal={viewPostModal} postId={selectedPostId} />
+        )}
         <ul className="flex justify-center gap-6">
-          {hubTab.map((item) => (
+          {hubTab.map((item,index) => (
             <li
               onClick={() => setActiveSubTab(item)}
-              className={`text-eduBlack font-body font-medium ease-in-out duration-500 border-b-2 py-2 text-[14px] ${
+              className={`text-eduBlack font-body font-medium ease-in-out duration-500 border-b-2 py-2 text-[14px] cursor-pointer ${
                 item === activeSubTab ? "border-primary" : "border-transparent"
               }`}
-              key={item}
+              key={index}
             >
               {item}
             </li>
@@ -108,47 +191,81 @@ const Page = () => {
         </ul>
       </div>
 
-      <div className="ml-[15px] w-full h-full overflow-auto">
+      <div className="ml-[15px] w-full h-full ">
         <div className="text-[20px] font-[Hahmlet]">
           {activeSubTab == "All Notifications"
             ? activeSubTab
             : `${activeSubTab} Notifications`}
         </div>
-        {/*  time sensitive notification */}
-        <div className="text-center text-eduBlack">
-          <p className="font-[600] opacity-50 p-[10px] text-eduBlack">
-            Time Sensitive Notifications
-          </p>
-          <div className="flex w-full p-4  bg-eduYellow rounded-[10px] bg-eduLightGray border-[2px] border-[#13222A] gap-2 !cursor-pointer justify-between ">
-            <div className="flex gap-3">
-              <img src="#" className="w-[17px]"></img>
-              <div className="flex flex-col text-left">
-                <div>
-                  Certificate Expiring Soon .{" "}
-                  <span className="opacity-[60%]">in 10 days</span>
+        {!timeSensitiveNotificationsLoading &&
+          timeSensitiveNotifications &&
+          timeSensitiveNotifications?.length > 0 && (
+            <>
+              <p className="text-center font-[600] opacity-50 p-[10px]">
+                Time Sensitive Notifications
+              </p>
+              <InfiniteScroll
+                className="flex flex-col w-full h-1/3 rounded-md gap-4"
+                callBack={fetchTimeSensitiveNotification}
+                hasMoreData={shouldFetchMoreTimeSensitiveNotification}
+                showLoading={showLoading}
+              >
+                <div className=" text-center  text-eduBlack">
+                  <div className="flex flex-col w-full h-full rounded-md gap-4">
+                    {timeSensitiveNotifications.map((notification: any,index:number) => {
+                      return (
+                          <div key={index} className="flex w-full p-4  bg-eduYellow rounded-[10px] bg-eduLightGray border-[2px] border-[#13222A] gap-2  justify-between ">
+                            <div className="flex gap-3">
+                              <img src="#" className="w-[17px]"></img>
+                              <div className="flex flex-col text-left">
+                                <div>
+                                  Certificate Expiring Soon .{" "}
+                                  <span className="opacity-[60%]">
+                                    {moment(
+                                      notification.documentInfo.expiration_date,
+                                      "YYYYMMDD"
+                                    ).fromNow()}
+                                  </span>
+                                </div>
+                                <span className="font-[600] ">
+                                  {notification.documentInfo.doc_name}{" "}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="flex flex-col  mr-[18px] underline text-end font-[600] ">
+                              <a className="text-[#0F366D] cursor-pointer">
+                                Remind me tomorrow
+                              </a>
+                              <a className="text-[#0F366D] cursor-pointer">
+                                Dismiss
+                              </a>
+                            </div>
+                          </div>
+                      );
+                    })}
+                  </div>
                 </div>
-                <span className="font-[600] ">Certificate Information </span>
-              </div>
-            </div>
-            <div className="flex flex-col  mr-[18px] underline text-end font-[600] ">
-              <a className="text-[#0F366D]">Remind me tomorrow</a>
-              <a className="text-[#0F366D]">Dismiss</a>
-            </div>
-          </div>
-        </div>
+              </InfiniteScroll>
+            </>
+          )}
+        {/* new notification */}
+        <p className="mt-[25px] text-center font-[600] opacity-50 p-[10px]">
+          New Notifications
+        </p>
         <InfiniteScroll
-          className="flex flex-col w-full h-full rounded-md gap-4"
+          className="flex flex-col w-full h-1/3 rounded-md gap-4"
           callBack={fetchNotification}
           hasMoreData={shouldFetchMoreNotification}
-          showLoading
+          showLoading={showLoading}
         >
-          <div className="mt-[25px] text-center  text-eduBlack">
-            <p className="font-[600] opacity-50 p-[10px]">New Notifications</p>
+          <div className=" text-center  text-eduBlack">
             <div className="flex flex-col w-full h-full rounded-md gap-4">
-              {notifications.map((notification: any, index: number) => {
-                index < 4;
+              {notifications?.map((notification: any, index: number) => {
                 return (
-                  <div className="flex w-full p-4 rounded-[10px] bg-eduLightGray border-[1px] border-[#13222A] gap-2 !cursor-pointer ">
+                  <div
+                    className="flex w-full p-4 rounded-[10px] bg-eduLightGray border-[1px] border-[#13222A] gap-2"
+                    key={index}
+                  >
                     <div className="w-[28px] mt-1 mr-3 ">
                       <img
                         src={
@@ -161,8 +278,9 @@ const Page = () => {
                     </div>
                     <div className="flex flex-col text-start gap-3">
                       <span className="text-[20px] text-eduBlack font-headers">
-                        {notification.notificationFrom[0].username +
-                          " " +
+                        {(notification.createdBy == loggedInUser._id
+                          ? "You "
+                          : notification.notificationFrom[0].username + " ") +
                           getSemanticDescriptionFromEventType(
                             notification.notificationType
                           )}
@@ -187,7 +305,7 @@ const Page = () => {
                       )}
                       <div className="flex gap-6">
                         <Link
-                          className="text-[#0F366D] font-[600] underline"
+                          className="text-eduLightBlue font-[600] underline"
                           href={`/profile/${notification.notificationFrom[0]._id}`}
                         >
                           View Profile
@@ -197,8 +315,14 @@ const Page = () => {
                           <Link
                             href="#"
                             className="text-eduBlack opacity-[60%] font-[600] underline"
+                            onClick={() => {
+                              setSelectedPostId(
+                                getPostTitle(notification)?.postId
+                              );
+                              viewPostModal.openModal();
+                            }}
                           >
-                            {getPostTitle(notification)}
+                            {getPostTitle(notification)?.postTitle}
                           </Link>
                         ) : (
                           ""
@@ -211,33 +335,6 @@ const Page = () => {
             </div>
           </div>
         </InfiniteScroll>
-
-        {/* older notification  */}
-        {/* <div className="mt-[25px] text-center text-eduBlack">
-          <p className="font-[600] opacity-50 p-[10px]">Older Notifications</p>
-          <div className="flex flex-col w-full h-full rounded-md gap-4">
-            <div className="flex w-full p-4 rounded-[10px] bg-eduLightGray gap-2 !cursor-pointer">
-              <img src="#" className="w-[17px]"></img>
-              <div className="flex flex-col text-start">
-                <p>
-                  Certificate Expiring Soon .{" "}
-                  <span className="opacity-[60%]">in 10 days</span>
-                </p>
-                <p>Certificate Information </p>
-              </div>
-            </div>
-            <div className="flex w-full p-4 rounded-[10px] bg-eduLightGray gap-2 !cursor-pointer">
-              <img src="#" className="w-[17px]"></img>
-              <div className="flex flex-col text-start">
-                <p>
-                  Certificate Expiring Soon .{" "}
-                  <span className="opacity-[60%]">in 10 days</span>
-                </p>
-                <p>Certificate Information </p>
-              </div>
-            </div>
-          </div>
-        </div> */}
       </div>
     </>
   );

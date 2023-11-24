@@ -11,7 +11,7 @@ import { fileUpload,fileTypeCheckAndRename} from "./middleware/multer.js";
 import sheetRoute from "./routes/googleSheet.js";
 import logger from 'morgan'
 import notificationRoute from "./routes/notification.js";
-
+import "./crons/timeSensitiveNotification.js"
 const app=express();
 const PORT=process.env.PORT;
 app.use(cors({

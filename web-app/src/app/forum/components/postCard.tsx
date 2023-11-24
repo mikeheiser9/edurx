@@ -191,7 +191,7 @@ export const PostCard = (props: Props) => {
         </div>
         <div className="flex-1 flex gap-8 justify-end items-center">
           <Button
-            className="w-[150px] rounded-md font-medium !m-0 text-sm"
+            className={`w-[150px] rounded-md font-medium !m-0 text-sm ${["Following","Requested"].includes(forumButtonLabel) && '!bg-eduLightBlue text-white'}`}
             label={forumButtonLabel}
             onClick={handleForumAction}
             onMouseEnter={() => {
@@ -201,9 +201,10 @@ export const PostCard = (props: Props) => {
             }}
             onMouseLeave={() => {
               if (forumButtonLabel == "Unfollow") {
-                setForumButtonLabel(returnButtonWithAppropriateLabel());
+                setForumButtonLabel("Following");
               }
             }}
+            disabled={forumButtonLabel=="Requested"}
           />
           <div className="flex flex-col items-center justify-center text-[12px] text-eduBlack gap-4">
             <div className="flex flex-col text-[12px]">

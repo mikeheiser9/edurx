@@ -31,6 +31,7 @@ export const EditProfileDialog = ({
     license: 1,
     certificate: 1,
   });
+  const [saveAndExitButtonPressed,setSaveAndExitButtonPressed]=useState(false);
 
   const loadMoreDocuments = async (doc_type: "license" | "certificate") => {
     try {
@@ -60,14 +61,12 @@ export const EditProfileDialog = ({
       } else throw new Error("Something went wrong");
     } catch (err) {
       showToast.error("Unable to more documents");
-      console.log("Error loading more documents", err);
     } finally {
       setIsDocsLoading(false);
     }
   };
 
   if (!userData) return <></>;
-
   return (
     <Modal
       visible={editProfileModal.isOpen}
@@ -80,6 +79,7 @@ export const EditProfileDialog = ({
           closeModal={editProfileModal.closeModal}
           currentSection={currentSection}
           setCurrentSection={setCurrentSection}
+          setIsListView={setIsListView}
         />
       }
       customFooter={
@@ -89,6 +89,9 @@ export const EditProfileDialog = ({
           onLoadMore={loadMoreDocuments}
           userData={userData}
           isListView={isListView}
+          setSaveAndExitButtonPressed={setSaveAndExitButtonPressed}
+          setCurrentSection={setCurrentSection}
+          closeModal={editProfileModal.closeModal}
         />
       }
     >
@@ -101,6 +104,8 @@ export const EditProfileDialog = ({
         editModal={editProfileModal}
         setIsListView={setIsListView}
         isListView={isListView}
+        saveAndExitButtonPressed={saveAndExitButtonPressed}
+        setSaveAndExitButtonPressed={setSaveAndExitButtonPressed}
       />
     </Modal>
   );

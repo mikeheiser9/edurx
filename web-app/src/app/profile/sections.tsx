@@ -24,6 +24,7 @@ import { TabMenu } from "@/components/tabMenu";
 import { Button } from "@/components/button";
 import { LoadMore } from "@/components/loadMore";
 import replaceTaggedUsers from "../../components/replaceTags";
+import { useRef } from "react";
 
 const socialMediaIcons: socials = {
   instagram,
@@ -509,10 +510,12 @@ const ModalHeader = ({
   currentSection,
   closeModal,
   setCurrentSection,
+  setIsListView,
 }: {
   currentSection: keyof profileSections;
   closeModal: () => void;
   setCurrentSection(section: keyof profileSections): void;
+  setIsListView: React.Dispatch<React.SetStateAction<boolean>>;
 }) => (
   <>
     <div className="flex p-3 items-center bg-eduDarkGray">
@@ -534,11 +537,14 @@ const ModalHeader = ({
               : "text-eduBlack cursor-pointer"
           }`}
           key={section}
-          onClick={() => setCurrentSection(section as keyof profileSections)}
+          onClick={() => {
+            setCurrentSection(section as keyof profileSections);
+            setIsListView(true);
+          }}
         >
           {profileSections[section as keyof profileSections]}
           {index !== Object.keys(profileSections).length - 1 && (
-            <span className="w-2 h-2 rounded-full ml-4 bg-eduBlack/60 inline-block" />
+            <span className="w-2 h-2 rounded-full ml-4 bg-eduBlack inline-block" />
           )}
         </li>
       ))}
@@ -552,43 +558,104 @@ const ModalFooter = ({
   isLoading,
   onLoadMore,
   isListView,
+  setSaveAndExitButtonPressed,
+  setCurrentSection,
+  closeModal
 }: {
   userData: UserData;
   currentSection: keyof profileSections;
   isLoading: boolean;
   isListView: boolean;
   onLoadMore(doc_type: "license" | "certificate"): void;
-}) => (
-  <>
-    {currentSection === "licenses" &&
-      isListView &&
-      userData?.licenses?.length < userData?.licensesCount && (
-        <LoadMore isLoading={isLoading} onClick={() => onLoadMore("license")} />
-      )}
-    {currentSection === "certifications" &&
-      isListView &&
-      userData?.certificates?.length < userData?.certificatesCount && (
-        <LoadMore
-          isLoading={isLoading}
-          onClick={() => onLoadMore("certificate")}
+  setSaveAndExitButtonPressed: React.Dispatch<React.SetStateAction<boolean>>;
+  setCurrentSection: React.Dispatch<
+    React.SetStateAction<keyof profileSections>
+  >;
+  closeModal?: () => void
+}) => {
+  const saveAndNextButtonRef: any = useRef(null);
+  const nextButtonRef: any = useRef(null);
+
+  const changeProfileSubTab = (type?: string) => {
+    if (
+      ["education", "certifications", "licenses"].includes(currentSection) &&
+      isListView
+    ) {
+      if (type == "save_exit") {
+        closeModal?.()
+      } else {
+        setCurrentSection((currentSection) => {
+          if (currentSection == "about") {
+            return "education";
+          } else if (currentSection == "education") {
+            return "certifications";
+          } else if (currentSection == "certifications") {
+            return "licenses";
+          } else if (currentSection == "licenses") {
+            return "profileImages";
+          } else {
+            return "about";
+          }
+        });
+      }
+    }
+  };
+  return (
+    <>
+      {currentSection === "licenses" &&
+        isListView &&
+        userData?.licenses?.length < userData?.licensesCount && (
+          <LoadMore
+            isLoading={isLoading}
+            onClick={() => onLoadMore("license")}
+          />
+        )}
+      {currentSection === "certifications" &&
+        isListView &&
+        userData?.certificates?.length < userData?.certificatesCount && (
+          <LoadMore
+            isLoading={isLoading}
+            onClick={() => onLoadMore("certificate")}
+          />
+        )}
+      <div className="m-3 text-center">
+        <button
+          type="submit"
+          id="save_exit"
+          form={userData?._id}
+          className="hidden"
+          ref={saveAndNextButtonRef}
         />
-      )}
-    <div className="m-3 flex justify-center">
-      <Button
-        // disabled={
-        // (currentSection as keyof profileSections) === "profileImages"
-        // &&
-        // !values?.banner_img &&
-        // !values?.profile_img
-        // }
-        type="submit"
-        label="Save"
-        className="w-1/5"
-        form={userData?._id}
-      />
-    </div>
-  </>
-);
+        <button
+          type="submit"
+          className="hidden"
+          form={userData?._id}
+          ref={nextButtonRef}
+        ></button>
+        <Button
+          type="button"
+          label="Save & Exit"
+          className="!bg-eduDarkBlue text-white"
+          onClick={() => {
+            setSaveAndExitButtonPressed(true);
+            saveAndNextButtonRef?.current.click();
+            changeProfileSubTab("save_exit");
+          }}
+        />
+        <Button
+          type="button"
+          label="Next"
+          className="ml-[10px]"
+          onClick={() => {
+            setSaveAndExitButtonPressed(false);
+            nextButtonRef?.current.click();
+            changeProfileSubTab();
+          }}
+        />
+      </div>
+    </>
+  );
+};
 
 export {
   BasicInfo,

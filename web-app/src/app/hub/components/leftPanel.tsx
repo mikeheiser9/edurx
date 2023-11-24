@@ -61,6 +61,27 @@ export const HubLeftPenal = () => {
     getUserByApi();
   }, []);
 
+  const handleClick = () => {
+    axiosGet(`/user/${loggedInUser?._id}/profile?editProfile=true`, {
+    })
+      .then((response) => {
+        setIsLoading(false);
+        if (response?.status === responseCodes.SUCCESS) {
+          setUserData((userData: any) => {
+            return {
+              ...userData,
+              certificates: response?.data?.data?.user[0].certificates,
+              licenses: response?.data?.data?.user[0].licenses,
+            };
+          });
+        }
+        editProfileModal.openModal();
+      })
+      .catch((error) => {
+        console.log("could not retrieve user profile", error);
+        setIsLoading(false);
+      });
+  };
   return (
     <React.Fragment>
       {loggedInUser && (
@@ -103,7 +124,7 @@ export const HubLeftPenal = () => {
                 Hi, {userData?.first_name}
               </span>
               <FontAwesomeIcon
-                onClick={editProfileModal.openModal}
+                onClick={handleClick}
                 className="text-eduBlack/60"
                 icon={faEdit}
               />

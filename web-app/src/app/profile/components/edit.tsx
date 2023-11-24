@@ -1,12 +1,11 @@
 import { axiosPut } from "@/axios/config";
 import { selectUserDetail, setUserDetail } from "@/redux/ducks/user.duck";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { sections } from "./sections";
 import { Form, Formik, FormikHelpers } from "formik";
 import { validationSchema } from "@/util/validations/userProfile";
 import { responseCodes } from "@/util/constant";
-import { showToast } from "@/components/toast";
 
 interface Props {
   setCurrentSection: React.Dispatch<
@@ -19,6 +18,8 @@ interface Props {
   setIsListView: React.Dispatch<React.SetStateAction<boolean>>;
   isListView: boolean;
   editModal: UseModalType;
+  saveAndExitButtonPressed: boolean;
+  setSaveAndExitButtonPressed: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const EditProfile = ({
@@ -30,9 +31,13 @@ const EditProfile = ({
   setIsListView,
   isListView,
   editModal,
+  saveAndExitButtonPressed,
+  setSaveAndExitButtonPressed,
 }: Props) => {
   const dispatch = useDispatch();
   const loggedInUser = useSelector(selectUserDetail);
+  const [saveAndAddAnotherButtonPressed,setSaveAndAddAnotherButtonPressed]=useState(false);
+  const saveAndAddAnotherButtonPressedRef=useRef<React.LegacyRef<HTMLButtonElement>|null>(null)
   const userId: string | undefined = loggedInUser?._id;
   let message = `Failed to save user profile [${currentSection}]`;
 
@@ -99,10 +104,8 @@ const EditProfile = ({
       });
       if (response.status !== responseCodes.SUCCESS)
         throw new Error("Unable to update profile");
-      setCurrentSection("education");
     } catch (err) {
-      showToast.error(message);
-      console.log(message, err);
+      throw "";
     }
   };
 
@@ -116,6 +119,9 @@ const EditProfile = ({
         ) as education[];
       }
       delete values?._id;
+      if (values.is_in_progress) {
+        values.end_date = "";
+      }
       const res = await axiosPut("/user/profile", {
         userId,
         educations: [...payload, values],
@@ -127,18 +133,18 @@ const EditProfile = ({
             ...res?.data?.data?.user,
           };
         });
-        setIsListView(true);
-        setCurrentSection("certifications");
       } else {
         throw new Error("Something went wrong");
       }
     } catch (err) {
-      showToast.error(message);
-      console.log(message, err);
+      throw new Error("error");
     }
   };
 
   const handleDocsSection = async (values: userDocs, doc_type: string) => {
+    if (values.has_no_expiry) {
+      values.expiration_date = "";
+    }
     const payload = {
       ...values,
       doc_type,
@@ -157,16 +163,11 @@ const EditProfile = ({
             [key]: [...data, response.data.data],
           };
         });
-        setIsListView(true);
-        setCurrentSection(
-          doc_type === "license" ? "profileImages" : "licenses"
-        );
       } else {
         throw new Error("Something went wrong");
       }
     } catch (err) {
-      showToast.error(message);
-      console.log(message, err);
+      throw new Error("error");
     }
   };
 
@@ -186,12 +187,9 @@ const EditProfile = ({
             profile_img: response?.data?.data?.user?.profile_img,
           })
         );
-        showToast?.success("Profile updated successfully");
-        editModal?.closeModal();
       } else throw new Error("Something went wrong");
     } catch (err) {
-      showToast.error(message);
-      console.log(message, err);
+      throw new Error("error");
     }
   };
 
@@ -199,6 +197,7 @@ const EditProfile = ({
     values: education & about & userDocs & profileImages,
     actions: FormikHelpers<about & education & userDocs & profileImages>
   ) => {
+
     try {
       const updateCalls = {
         about: handleAboutSection,
@@ -210,10 +209,55 @@ const EditProfile = ({
       const update = updateCalls[currentSection as keyof typeof updateCalls];
       let doc_type = currentSection === "licenses" ? "license" : "certificate";
       actions.setSubmitting(true);
+      if (currentSection == "education") {
+        if (!values.is_in_progress && values.end_date <= values.start_date) {
+          actions.setFieldError(
+            "end_date",
+            "End date must be after start date"
+          );
+          return;
+        }
+      } else if (["certifications", "licenses"].includes(currentSection)) {
+        if (
+          !values.has_no_expiry &&
+          values?.issue_date &&
+          values.expiration_date <= values?.issue_date
+        ) {
+          actions.setFieldError(
+            "expiration_date",
+            "Expiration date must be after Issue date"
+          );
+          return;
+        }
+      }
       await update(values, doc_type);
+      if (saveAndExitButtonPressed) {
+        setSaveAndExitButtonPressed(false);
+        editModal.closeModal();
+      }
+      else if(saveAndAddAnotherButtonPressed)
+      {
+        setSaveAndAddAnotherButtonPressed(false)
+        actions.resetForm()
+      }
+      else
+      {
+        setCurrentSection((currentSection) => {
+          if (currentSection == "about") {
+            return "education";
+          } else if (currentSection == "education") {
+            return "certifications";
+          } else if (currentSection == "certifications") {
+            return "licenses";
+          } else if (currentSection == "licenses") {
+            return "profileImages";
+          } else {
+            return "about";
+          }
+        });
+      }
       actions.setSubmitting(false);
     } catch (err) {
-      showToast.error("Something went wrong");
       console.log(message, err);
     }
   };
@@ -232,23 +276,11 @@ const EditProfile = ({
         userData={userData}
         actions={actions as any}
         currentSection={currentSection as keyof profileSections}
+        setSaveAndAddAnotherButtonPressed={setSaveAndAddAnotherButtonPressed}
+        saveAndAddAnotherButtonPressedRef={saveAndAddAnotherButtonPressedRef}
       />
     );
   };
-
-  // fetch docs if user gose to tab by query string
-  // useEffect(() => {
-  //   if (
-  //     !currentSection ||
-  //     (currentSection !== "certifications" && currentSection !== "licenses")
-  //   )
-  //     return;
-  //   let doc_type = currentSection === "licenses" ? "license" : "certificate";
-  //   const fetchData = async () => {
-  //     await fetchUserDocuments(doc_type);
-  //   };
-  //   fetchData();
-  // }, [currentSection]);
 
   useEffect(() => {
     return () => {
@@ -266,9 +298,6 @@ const EditProfile = ({
         enableReinitialize
         initialValues={
           (intialFormikValues as any)[currentSection]
-          // intialFormikValues[
-          //   currentSection as keyof userProfileInterface
-          // ] as any
         }
         onSubmit={onSubmit}
         validationSchema={validationSchema[currentSection]}

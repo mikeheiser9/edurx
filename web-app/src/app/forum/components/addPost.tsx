@@ -48,7 +48,7 @@ interface filterCategoryList {
   filters: [];
 }
 
-export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
+export const AddPost = ({ addPostModal,fetchPosts }: { addPostModal: UseModalType,fetchPosts: () => Promise<void>}) => {
   const loggedInUser = useSelector(selectUserDetail);
   const [pollOptionsCount, setPollOptionsCount] = useState<number>(2);
   const [isLoading, setIsLoading] = useState<filterCategoryInput>({
@@ -285,6 +285,7 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
         if (response?.status === responseCodes.SUCCESS) {
           setTimeout(() => {
             addPostModal?.closeModal();
+            fetchPosts()
           }, 1000);
         } else throw new Error(message || "Something went wrong");
       })

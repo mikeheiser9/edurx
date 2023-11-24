@@ -1,6 +1,6 @@
 import * as Yup from "yup";
 const validateField = {
-  email: Yup.string().trim().required().email().max(150),
+  email: Yup.string().trim().required().email("Please enter a valid email").max(150),
   password: Yup.string()
     .min(8, "Password must be at least 8 characters")
     .max(25, "Password must be at most 25 characters")

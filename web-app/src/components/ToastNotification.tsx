@@ -17,11 +17,11 @@ const ToastNotification=()=>{
             {
                 toast.error(toastContent?.msg);
             }
-            setTimeout(()=>dispatch(removeToast()),5000)
+            setTimeout(()=>dispatch(removeToast()),500)
         }
     },[toastContent])
     return (
-        <ToastContainer ></ToastContainer>
+        <ToastContainer autoClose={2500} ></ToastContainer>
     )
 }
 export default ToastNotification;

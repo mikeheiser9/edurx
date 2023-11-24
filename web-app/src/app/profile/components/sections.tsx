@@ -7,13 +7,12 @@ import instagram from "../../../assets/icons/instagram.svg";
 import linkedin from "../../../assets/icons/linkedin.svg";
 import twitter from "../../../assets/icons/twitter.svg";
 import facebook from "../../../assets/icons/facebook.svg";
-import eduIcon from "../../../assets/icons/eduIcon.svg";
 import {
   faCircleXmark,
   faPenToSquare,
 } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileCircleCheck, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 import { getStaticImageUrl } from "@/util/helpers";
 import { allowedFileTypes } from "@/util/constant";
@@ -33,26 +32,23 @@ const About = (): React.JSX.Element => {
     <React.Fragment>
       <TextArea
         label="Personal Bio"
-        placeholder="Write about your self"
+        placeholder="Tell us about yourself"
         name="personal_bio"
         className="w-full resize-y"
         isFormikField
       />
       <InputField
         name="contact_email"
-        placeholder="admin@example.com"
+        placeholder="example@gmail.com"
         type="text"
         label="Preferred Contact Email"
         maxLength={50}
       />
       <div className="mt-6">
-        <span className="text-eduBlack text-[16px] font-body">
-          Link Socials
-        </span>
         <div className="flex flex-wrap text-sm flex-auto justify-between gap-4 mt-2">
           {Object.keys(socialMediaIcons).map((socialMedia: string) => (
             <div className="flex gap-2 items-center" key={socialMedia}>
-              <span className="bg-eduDarkBlue flex justify-center rounded-full h-9 w-9">
+              <span className="!bg-eduYellow flex justify-center rounded-full h-9 w-9">
                 <Image
                   src={
                     socialMediaIcons[
@@ -60,13 +56,13 @@ const About = (): React.JSX.Element => {
                     ] as keyof StaticImageData
                   }
                   alt={socialMedia}
-                  className="w-5 invert"
+                  className="w-5"
                 />
               </span>
               <InputField
                 className="flex-1"
                 name={`socials.${socialMedia}`}
-                placeholder={`${socialMedia}@123`}
+                placeholder={`username`}
                 maxLength={30}
                 onKeyDown={(event) => {
                   if (event.code === "Space") event.preventDefault();
@@ -86,22 +82,41 @@ const Education = ({
   setIsListView,
   userData,
   actions,
+  setSaveAndAddAnotherButtonPressed,
+  saveAndAddAnotherButtonPressedRef,
 }: {
   values: education;
   isListView: boolean;
   setIsListView?: React.Dispatch<React.SetStateAction<boolean>>;
   userData: UserData;
   actions: FormikHelpers<education>;
+  setSaveAndAddAnotherButtonPressed: React.Dispatch<
+    React.SetStateAction<boolean>
+  >;
+  saveAndAddAnotherButtonPressedRef:
+    | React.MutableRefObject<React.LegacyRef<HTMLButtonElement>>
+    | React.LegacyRef<HTMLButtonElement>
+    | null;
 }): React.JSX.Element => {
   const onEdit = (value: education) => {
     setIsListView?.(false);
     actions.setValues({
       ...value,
-      start_date: moment(value?.start_date).format("YYYY-MM-DD"),
-      end_date: moment(value?.end_date).format("YYYY-MM-DD"),
+      start_date: value?.start_date
+        ? moment(value?.start_date)?.format("YYYY-MM")
+        : "",
+      end_date: value?.end_date
+        ? moment(value?.end_date).format("YYYY-MM")
+        : "",
     });
   };
-
+  useEffect(() => {
+    if (userData?.educations && userData?.educations.length > 0) {
+      setIsListView?.(true);
+    } else {
+      setIsListView?.(false);
+    }
+  }, []);
   const addMore = () => {
     setIsListView?.(false);
     actions.resetForm();
@@ -110,29 +125,31 @@ const Education = ({
     <>
       {userData?.educations?.map((value: education) => (
         <div className="flex gap-x-6" key={value?._id || Date.now()}>
-          <div className="flex">
-            <Image src={eduIcon} alt={`${value?._id as string}alt`} />
-          </div>
-          <div className="flex flex-1 flex-col text-eduBlack gap-1">
-            <span className="text-[16px] font-headers">
+          <div className="flex flex-1 flex-col text-eduBlack text-[16px] font-headers gap-1">
+            <span className="text-lg capitalize">
               {value.school_name}
             </span>
-            <span className="text-eduBlack text-[14px] font-body">
+            <span className="text-eduBlack text-[14px] font-body ">
               {value.field_of_study}
             </span>
+            {value?.activities?.length>0 && <span className="text-eduBlack/60 text-[14px] font-body font-[400]">
+              {`${value?.activities?.substring(0, 50)} ${
+                value?.activities?.length > 50 ? "..." : ""
+              }  `}
+            </span>}
             <div>
-              <span className="text-eduBlack/60 text-[14px] font-body">
+              <span className="text-eduBlack/60 text-[14px] font-body font-[400]">
                 {moment(value?.start_date).format("YYYY")}
               </span>
               {" - "}
-              <span className="text-eduBlack/60 text-[14px] font-body">
+              <span className="text-eduBlack/60 text-[14px] font-body font-[400]">
                 {value?.is_in_progress
                   ? "Present"
                   : moment(value?.start_date).format("YYYY")}
               </span>
             </div>
           </div>
-          <div className="flex p-4 py-2 justify-end">
+          <div className="flex p-6 py-2 justify-end">
             <FontAwesomeIcon
               icon={faPenToSquare}
               className="text-eduBlack cursor-pointer"
@@ -143,13 +160,13 @@ const Education = ({
       ))}
       <div className="flex gap-x-2 my-4">
         <span
-          className="bg-eduLightBlue rounded-xl cursor-pointer w-10 h-10 flex justify-center"
+          className="bg-eduYellow rounded-xl cursor-pointer w-10 h-10 flex justify-center"
           onClick={addMore}
         >
-          <FontAwesomeIcon icon={faPlus} className="text-white self-center" />
+          <FontAwesomeIcon icon={faPlus} className="text-black self-center" />
         </span>
         <span
-          className=" cursor-pointer text-[16px] text-eduBlack/60 font-body p-2"
+          className="cursor-pointer text-[16px] text-eduBlack/60 font-body p-2 bg-eduLightGray w-[250px] rounded-[10px]"
           onClick={addMore}
         >
           Add another
@@ -157,6 +174,15 @@ const Education = ({
       </div>
     </>
   );
+
+  const executedSaveAndAddAnother = () => {
+    setSaveAndAddAnotherButtonPressed(true);
+    (
+      saveAndAddAnotherButtonPressedRef as React.MutableRefObject<
+        React.LegacyRef<HTMLButtonElement>
+      > as any
+    )?.current?.click();
+  };
   return (
     <React.Fragment>
       <div className="flex gap-2 flex-col ">
@@ -165,18 +191,19 @@ const Education = ({
         ) : (
           <>
             <div className="w-full flex justify-end">
-              {userData?.educations?.length && (
-                <FontAwesomeIcon
-                  icon={faCircleXmark}
-                  className="text-eduBlack text-[24px] cursor-pointer animate-fade-in-down"
-                  onClick={() => setIsListView?.(true)}
-                />
-              )}
+              {!isListView &&
+                userData?.educations &&
+                userData?.educations?.length > 0 && (
+                  <FontAwesomeIcon
+                    icon={faCircleXmark}
+                    className="text-eduBlack text-[24px] cursor-pointer animate-fade-in-down"
+                    onClick={() => setIsListView?.(true)}
+                  />
+                )}
             </div>
             <InputField
               type="text"
               name="school_name"
-              placeholder="Enter school name"
               label="School"
               maxLength={20}
               labelProps={labelProps}
@@ -185,7 +212,6 @@ const Education = ({
             <InputField
               type="text"
               name="degree"
-              placeholder="Enter name of degree"
               maxLength={20}
               label="Degree"
               labelProps={labelProps}
@@ -193,7 +219,6 @@ const Education = ({
             <InputField
               type="text"
               name="field_of_study"
-              placeholder="Enter field of study"
               label="Field of Study"
               maxLength={20}
               labelProps={labelProps}
@@ -204,49 +229,90 @@ const Education = ({
                 <InputField
                   label="Start Date"
                   name="start_date"
-                  type="date"
+                  type="month"
                   // className="dark:[color-scheme:dark]"
                   labelProps={labelProps}
                   mandatory
                 />
-                <div className="flex items-center gap-2 text-eduBlack font-body mt-[5px]">
+                <div className="flex items-center text-eduBlack font-body mt-[5px]">
+                  <li className="animate-fade-in-down text-sm font-normal text-eduBlack flex ">
+                    <input
+                      id="is_in_progress"
+                      name="is_in_progress"
+                      type="checkbox"
+                      checked={values.is_in_progress}
+                      className="w-4 h-4 transition-colors duration-100 ease-in-out peer shrink-0 focus:outline-eduYellow appearance-none rounded-md bg-eduYellow checked:bg-eduYellow cursor-pointer"
+                      onChange={() => {
+                        actions.setFieldValue(
+                          "is_in_progress",
+                          !values.is_in_progress
+                        );
+                      }}
+                    />
+                    <svg
+                      className="relative peer-checked:!fill-eduBlack fill-transparent transition-colors duration-100 ease-in-out inline w-4 h-4 p-0.5 pointer-events-none left-[-16px]"
+                      role="img"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 448 512"
+                      clip="10"
+                    >
+                      <path
+                        // fill="currentColor"
+                        d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"
+                      />
+                    </svg>
+                  </li>
                   <label
                     className="cursor-pointer !font-body"
                     htmlFor="is_in_progress"
                   >
                     In Progress
                   </label>
-                  <InputField
-                    id="is_in_progress"
-                    name="is_in_progress"
-                    type="checkbox"
-                    className="cursor-pointer"
-                  />
                 </div>
               </div>
               <div className="flex flex-col flex-1">
                 <InputField
                   label="End Date (or expected)"
                   name="end_date"
-                  placeholder="Last name"
-                  // className="dark:[color-scheme:dark]"
-                  type="date"
-                  min={
-                    values?.is_in_progress
-                      ? moment().format("YYYY-MM-DD")
-                      : undefined
-                  }
+                  className="disabled:opacity-60"
+                  type="month"
                   labelProps={labelProps}
+                  disabled={values.is_in_progress}
                   mandatory
                 />
               </div>
             </div>
             <TextArea
               label="Activities and Societies"
-              // placeholder="Write about your self"
               name="activities"
               className="w-full resize-y"
+              isFormikField={true}
             />
+            <div className="flex gap-x-2 my-4">
+              <span
+                className="bg-eduYellow rounded-xl cursor-pointer w-10 h-10 flex justify-center"
+                onClick={executedSaveAndAddAnother}
+              >
+                <FontAwesomeIcon
+                  icon={faPlus}
+                  className="text-black self-center"
+                />
+              </span>
+              <button
+                type="submit"
+                className="hidden"
+                form={userData?._id}
+                ref={
+                  saveAndAddAnotherButtonPressedRef as React.LegacyRef<HTMLButtonElement>
+                }
+              ></button>
+              <span
+                className=" cursor-pointer text-[16px] text-eduBlack/60 font-body p-2 bg-eduLightGray w-[250px] rounded-[10px]"
+                onClick={executedSaveAndAddAnother}
+              >
+                Save and Add Another
+              </span>
+            </div>
           </>
         )}
       </div>
@@ -261,6 +327,8 @@ const UserDocs = ({
   currentSection,
   actions,
   values,
+  setSaveAndAddAnotherButtonPressed,
+  saveAndAddAnotherButtonPressedRef,
 }: {
   userData: any;
   isListView: boolean;
@@ -268,6 +336,13 @@ const UserDocs = ({
   currentSection: keyof profileSections;
   actions: FormikHelpers<userDocs>;
   values: userDocs;
+  setSaveAndAddAnotherButtonPressed: React.Dispatch<
+    React.SetStateAction<boolean>
+  >;
+  saveAndAddAnotherButtonPressedRef:
+    | React.MutableRefObject<React.LegacyRef<HTMLButtonElement>>
+    | React.LegacyRef<HTMLButtonElement>
+    | null;
 }): React.JSX.Element => {
   let dataKey: keyof UserData =
     currentSection === "certifications" ? "certificates" : "licenses";
@@ -328,13 +403,13 @@ const UserDocs = ({
       ))}
       <div className="flex gap-x-4 my-4">
         <span
-          className="bg-eduLightBlue rounded-xl cursor-pointer w-10 h-10 flex justify-center"
+          className="bg-eduYellow rounded-xl cursor-pointer w-10 h-10 flex justify-center"
           onClick={addMore}
         >
-          <FontAwesomeIcon icon={faPlus} className="self-center text-white" />
+          <FontAwesomeIcon icon={faPlus} className="self-center text-black" />
         </span>
         <span
-          className="cursor-pointer bg-eduLightBlue text-white rounded-lg p-2 px-6"
+          className="cursor-pointer text-eduBlack/60 rounded-lg p-2 px-6 bg-eduLightGray w-[250px] rounded-[10px]"
           onClick={addMore}
         >
           Add another
@@ -343,9 +418,22 @@ const UserDocs = ({
     </>
   );
 
-  // useEffect(() => {
-  //   setIsListView?.(userData?.[dataKey]?.length > 0 ? true : false);
-  // }, [currentSection, userData]);
+  useEffect(() => {
+    if (userData?.[dataKey] && userData?.[dataKey]?.length > 0) {
+      setIsListView?.(true);
+    } else {
+      setIsListView?.(false);
+    }
+  }, [dataKey]);
+
+  const executedSaveAndAddAnother = () => {
+    setSaveAndAddAnotherButtonPressed(true);
+    (
+      saveAndAddAnotherButtonPressedRef as React.MutableRefObject<
+        React.LegacyRef<HTMLButtonElement>
+      > as any
+    )?.current?.click();
+  };
 
   return (
     <div className="flex gap-4 flex-col">
@@ -388,6 +476,7 @@ const UserDocs = ({
                 type="month"
                 // className="dark:[color-scheme:dark]"
                 labelProps={labelProps}
+                mandatory
               />
             </div>
             <div className="flex flex-col">
@@ -400,19 +489,40 @@ const UserDocs = ({
                 disabled={values.has_no_expiry}
               />
             </div>
-            <div className="flex items-center gap-2 text-eduBlack/60">
+            <div className="flex items-center text-eduBlack/60">
+              <li className="animate-fade-in-down text-sm font-normal text-eduBlack flex ">
+                <input
+                  id="has_no_expiry"
+                  name="has_no_expiry"
+                  type="checkbox"
+                  checked={values.has_no_expiry}
+                  className="w-4 h-4 transition-colors duration-100 ease-in-out peer shrink-0 focus:outline-eduYellow appearance-none rounded-md bg-eduYellow checked:bg-eduYellow cursor-pointer"
+                  onChange={() => {
+                    actions.setFieldValue(
+                      "has_no_expiry",
+                      !values.has_no_expiry
+                    );
+                  }}
+                />
+                <svg
+                  className="relative peer-checked:!fill-eduBlack fill-transparent transition-colors duration-100 ease-in-out inline w-4 h-4 p-0.5 pointer-events-none left-[-16px]"
+                  role="img"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 448 512"
+                  clip="10"
+                >
+                  <path
+                    // fill="currentColor"
+                    d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"
+                  />
+                </svg>
+              </li>
               <label
                 className="cursor-pointer !font-body"
                 htmlFor="has_no_expiry"
               >
                 No Expiry
               </label>
-              <InputField
-                id="has_no_expiry"
-                name="has_no_expiry"
-                type="checkbox"
-                className="cursor-pointer"
-              />
             </div>
           </div>
           <InputField
@@ -431,6 +541,31 @@ const UserDocs = ({
             placeholder="Enter credential URL"
             labelProps={labelProps}
           />
+          <div className="flex gap-x-2 my-4">
+            <span
+              className="bg-eduYellow rounded-xl cursor-pointer w-10 h-10 flex justify-center"
+              onClick={executedSaveAndAddAnother}
+            >
+              <FontAwesomeIcon
+                icon={faPlus}
+                className="text-black self-center"
+              />
+            </span>
+            <button
+              type="submit"
+              className="hidden"
+              form={userData?._id}
+              ref={
+                saveAndAddAnotherButtonPressedRef as React.LegacyRef<HTMLButtonElement>
+              }
+            ></button>
+            <span
+              className=" cursor-pointer text-[16px] text-eduBlack/60 font-body p-2 bg-eduLightGray w-[250px] rounded-[10px]"
+              onClick={executedSaveAndAddAnother}
+            >
+              Save and Add Another
+            </span>
+          </div>
         </>
       )}
     </div>
@@ -465,10 +600,6 @@ const DropZone = ({
     }
     const isSizeValidated = validateImageSize(file);
     const isPixelsValidated = await validatePixels(URL.createObjectURL(file));
-    console.log({
-      isPixelsValidated,
-      isSizeValidated,
-    });
     if (isSizeValidated && isPixelsValidated) {
       actions.setFieldValue(img_type, file);
     }

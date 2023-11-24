@@ -5,7 +5,6 @@ const notification = new Schema({
   createdBy: {
     type: Schema.Types.ObjectId,
     ref: "users",
-    required: true,
   },
   receiver: {
     type: Schema.Types.ObjectId,
@@ -21,5 +20,9 @@ const notification = new Schema({
   eventTime: {
     type: Schema.Types.Date,
   },
+  remindMeTomorrow: {
+    type: Schema.Types.Date,
+  },
+  dismiss: Schema.Types.Boolean,
 });
 export const notifications = model("notifications", notification);

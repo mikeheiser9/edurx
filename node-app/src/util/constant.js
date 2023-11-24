@@ -53,8 +53,8 @@ export const userDocValidation = {
   doc_name: validateField.stringPrefixJoiValidation.required(),
   issuer_organization: validateField.stringPrefixJoiValidation.required(),
   issue_date: validateField.stringPrefixJoiValidation.allow(""),
-  expiration_date: validateField.stringPrefixJoiValidation.allow(""),
   has_no_expiry: joi.boolean(),
+  expiration_date: validateField.stringPrefixJoiValidation.allow(""),
   doc_id: validateField.stringPrefixJoiValidation.allow(""),
   doc_image: validateField.stringPrefixJoiValidation.allow(""),
   doc_url: validateField.stringPrefixJoiValidation.allow(""),
@@ -87,7 +87,7 @@ export const userValidations = {
     instagram: validateField.stringPrefixJoiValidation.allow(""),
     facebook: validateField.stringPrefixJoiValidation.allow(""),
   }),
-  contact_email: validateField.stringPrefixJoiValidation.email().allow(""),
+  contact_email: validateField.email.allow(""),
   educations: joi
     .array()
     .required()
@@ -99,8 +99,8 @@ export const userValidations = {
         degree: validateField.stringPrefixJoiValidation.allow(""),
         field_of_study: validateField.stringPrefixJoiValidation.required(),
         start_date: joi.date().required(),
-        end_date: joi.date().required(),
         is_in_progress: joi.boolean().default(true),
+        end_date: joi.date().allow("").allow(null),
         activities: validateField.stringPrefixJoiValidation.allow(""),
         _id: validateField.stringPrefixJoiValidation,
         id: joi.string(),
@@ -147,6 +147,7 @@ export const NOTIFICATION_TYPES = {
       "user_requested_to_follow_your_private_post",
     USER_FOLLOWED_YOUR_POST: "user_followed_your_post",
     USER_FOLLOWED_YOU: "user_followed_you",
+    TIME_SENSITIVE_NOTIFICATION: "time_sensitive_notifications",
   },
   FOLLOWING: {
     USER_YOU_FOLLOW_PUBLISHED_NEW_POST: "user_you_follow_published_a_new_post",
@@ -163,6 +164,7 @@ export const NOTIFICATION_TYPES = {
       "user_requested_to_follow_your_private_post",
     USER_FOLLOWED_YOUR_POST: "user_followed_your_post",
   },
+  TIME_SENSITIVE_NOTIFICATION: "time_sensitive_notifications",
 };
 
 export const paginationValidation = {

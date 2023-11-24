@@ -458,7 +458,7 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
                         <button
                           id="buttonLabel"
                           onClick={requestAccess}
-                          className="p-2 px-4 text-sm text-black bg-white rounded-md w-auto font-medium bg-transparent border-eduBlack border-[1.5px] py-1 m-auto font-body transition-colors duration-500 hover:bg-eduBlack hover:text-white disabled:opacity-70"
+                          className={`p-2 px-4 text-sm text-black bg-white rounded-md w-auto font-medium bg-transparent border-eduBlack border-[1.5px] py-1 m-auto font-body transition-colors duration-500 hover:bg-eduBlack hover:text-white disabled:opacity-70 ${buttonLabel=="Requested" && '!bg-eduLightBlue text-white'}`}
                           onMouseEnter={() => {
                             if (buttonLabel == "Following") {
                               setButtonLabel("Unfollow");
@@ -466,9 +466,10 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
                           }}
                           onMouseLeave={() => {
                             if (buttonLabel == "Unfollow") {
-                              returnButtonWithAppropriateLabel;
+                              setButtonLabel("Following");
                             }
                           }}
+                          disabled={buttonLabel=="Requested"}
                         >
                           {buttonLabel}
                         </button>

@@ -354,6 +354,10 @@ const removeFollowPost=(userId,postId)=>{
 const insertFollowPostMultiple=async(data)=>{
   return await userConnections.insertMany(data);
 }
+
+const findFollowersOfPostById=async(postId)=>{
+  return await userConnections.find({postId})
+}
 export {
   getUserProfileById,
   findUserByEmail,
@@ -376,5 +380,6 @@ export {
   findUserFollowPostDetails,
   insertFollowPost,
   removeFollowPost,
-  insertFollowPostMultiple
+  insertFollowPostMultiple,
+  findFollowersOfPostById
 };

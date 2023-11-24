@@ -62,7 +62,8 @@ export const UserProfile = ({ userId }: { userId: string }) => {
   );
   const [buttonText, setButtonText] = useState("Following");
   const editModal = useModal();
-
+  const [saveAndExitButtonPressed, setSaveAndExitButtonPressed] =
+    useState(false);
   const loadMoreDocuments = async (doc_type: "license" | "certificate") => {
     try {
       setIsDocsLoading(true);
@@ -178,6 +179,7 @@ export const UserProfile = ({ userId }: { userId: string }) => {
                     closeModal={editModal.closeModal}
                     currentSection={currentSection}
                     setCurrentSection={setCurrentSection}
+                    setIsListView={setIsListView}
                   />
                 }
                 customFooter={
@@ -187,6 +189,9 @@ export const UserProfile = ({ userId }: { userId: string }) => {
                     onLoadMore={loadMoreDocuments}
                     userData={userData}
                     isListView={isListView}
+                    setSaveAndExitButtonPressed={setSaveAndExitButtonPressed}
+                    setCurrentSection={setCurrentSection}
+                    closeModal={editModal.closeModal}
                   />
                 }
               >
@@ -199,6 +204,8 @@ export const UserProfile = ({ userId }: { userId: string }) => {
                   setIsListView={setIsListView}
                   isListView={isListView}
                   editModal={editModal}
+                  saveAndExitButtonPressed={saveAndExitButtonPressed}
+                  setSaveAndExitButtonPressed={setSaveAndExitButtonPressed}
                 />
               </Modal>
               <div className="flex justify-center w-full items-center flex-col">
