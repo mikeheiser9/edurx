@@ -86,6 +86,7 @@ export const userValidations = {
     linkedin: validateField.stringPrefixJoiValidation.allow(""),
     instagram: validateField.stringPrefixJoiValidation.allow(""),
     facebook: validateField.stringPrefixJoiValidation.allow(""),
+    website:validateField.stringPrefixJoiValidation.allow("")
   }),
   contact_email: validateField.email.allow(""),
   educations: joi

@@ -5,7 +5,7 @@ export const Checkbox = (props: InputHTMLAttributes<HTMLInputElement>) => {
     <div className="relative flex justify-center items-center">
       <input
         type="checkbox"
-        className="w-4 h-4 transition-colors duration-100 ease-in-out peer shrink-0 focus:outline-eduYellow appearance-none rounded-md bg-eduDarkGray checked:bg-eduYellow"
+        className="w-4 h-4 transition-colors duration-100 ease-in-out peer shrink-0 focus:outline-eduYellow appearance-none rounded-md bg-eduDarkGray checked:bg-eduYellow cursor-pointer"
         {...props}
       />
       <svg

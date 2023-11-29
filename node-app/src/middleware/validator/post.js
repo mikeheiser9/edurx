@@ -316,7 +316,6 @@ const getRequestValidator = async (req, res, next) => {
 
 const bulkRequestUpdateValidator = async (req, res, next) => {
   try {
-    console.log(req.body);
     const { objectId } = validateField;
     const schema = Joi.array()
       .required()

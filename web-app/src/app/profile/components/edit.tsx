@@ -36,8 +36,10 @@ const EditProfile = ({
 }: Props) => {
   const dispatch = useDispatch();
   const loggedInUser = useSelector(selectUserDetail);
-  const [saveAndAddAnotherButtonPressed,setSaveAndAddAnotherButtonPressed]=useState(false);
-  const saveAndAddAnotherButtonPressedRef=useRef<React.LegacyRef<HTMLButtonElement>|null>(null)
+  const [saveAndAddAnotherButtonPressed, setSaveAndAddAnotherButtonPressed] =
+    useState(false);
+  const saveAndAddAnotherButtonPressedRef =
+    useRef<React.LegacyRef<HTMLButtonElement> | null>(null);
   const userId: string | undefined = loggedInUser?._id;
   let message = `Failed to save user profile [${currentSection}]`;
 
@@ -50,6 +52,7 @@ const EditProfile = ({
         twitter: userData?.socials?.twitter || "",
         facebook: userData?.socials?.facebook || "",
         linkedin: userData?.socials?.linkedin || "",
+        website: userData?.socials?.website || "",
       },
     },
     education: {
@@ -187,6 +190,13 @@ const EditProfile = ({
             profile_img: response?.data?.data?.user?.profile_img,
           })
         );
+        setUserData((preData: any) => {
+          return {
+            ...preData,
+            profile_img: response?.data?.data?.user?.profile_img,
+            banner_img: response?.data?.data?.user?.banner_img,
+          };
+        });
       } else throw new Error("Something went wrong");
     } catch (err) {
       throw new Error("error");
@@ -197,7 +207,6 @@ const EditProfile = ({
     values: education & about & userDocs & profileImages,
     actions: FormikHelpers<about & education & userDocs & profileImages>
   ) => {
-
     try {
       const updateCalls = {
         about: handleAboutSection,
@@ -234,14 +243,10 @@ const EditProfile = ({
       if (saveAndExitButtonPressed) {
         setSaveAndExitButtonPressed(false);
         editModal.closeModal();
-      }
-      else if(saveAndAddAnotherButtonPressed)
-      {
-        setSaveAndAddAnotherButtonPressed(false)
-        actions.resetForm()
-      }
-      else
-      {
+      } else if (saveAndAddAnotherButtonPressed) {
+        setSaveAndAddAnotherButtonPressed(false);
+        actions.resetForm();
+      } else {
         setCurrentSection((currentSection) => {
           if (currentSection == "about") {
             return "education";
@@ -296,9 +301,7 @@ const EditProfile = ({
     <div className="flex-auto flex flex-col p-4 pt-2">
       <Formik
         enableReinitialize
-        initialValues={
-          (intialFormikValues as any)[currentSection]
-        }
+        initialValues={(intialFormikValues as any)[currentSection]}
         onSubmit={onSubmit}
         validationSchema={validationSchema[currentSection]}
       >

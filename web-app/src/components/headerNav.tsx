@@ -38,7 +38,7 @@ const HeaderNav = () => {
   const loggedInUser = useSelector(selectUserDetail);
   const [showDropdown, setshowDropdown] = useState<boolean>(false);
   const dropDownRef = useOutsideClick(() => setshowDropdown(false));
-  const profileModal=useModal()
+  const profileModal = useModal();
   const logOutUser = () => {
     dispatch(removeUserDetail());
     dispatch(removeToken());
@@ -50,9 +50,13 @@ const HeaderNav = () => {
     router.push(item.path);
   };
 
+  const returnAppropriateClass = (path: string | undefined) => {
+    return pathName === "/" + path ? "!bg-white" : "!bg-black";
+  };
+
   return (
     <nav className="flex relative gap-8 p-4 justify-center rounded-md">
-     {loggedInUser && (
+      {loggedInUser && (
         <ProfileDialog
           loggedInUser={loggedInUser}
           profileModal={profileModal}
@@ -62,7 +66,9 @@ const HeaderNav = () => {
         <button
           key={index}
           onClick={() => onNavigate(item)}
-          className={`text-eduBlack duration-300 py-2 ease-in-out transition-colors text-[16px] rounded-[5px] font-semibold px-4 w-[145px] text-center cursor-pointer ${item?.isDisabled && "!cursor-not-allowed"} disabled:opacity-60 ${
+          className={`text-eduBlack duration-300 py-2 ease-in-out transition-colors text-[16px] rounded-[5px] font-semibold px-4 w-[145px] text-center cursor-pointer ${
+            item?.isDisabled && "!cursor-not-allowed"
+          } disabled:opacity-60 ${
             pathName === `/${item?.path}`
               ? "bg-eduBlack text-white"
               : "bg-eduDarkGray"
@@ -70,20 +76,76 @@ const HeaderNav = () => {
           type="button"
           disabled={item?.isDisabled}
         >
-          <span className="flex items-center justify-center font-semibold gap-1">
-            {item?.img && (
-              <Image
-                src={item?.img}
-                alt={item?.label}
-                className={`w-6 h-6 transition-all duration-300 ${
-                  pathName === `/${item?.path}` && "invert"
+          {item.label != "Hub" ? (
+            <span className="flex items-center justify-center font-semibold gap-1">
+              {item?.img && (
+                <Image
+                  src={item?.img}
+                  alt={item?.label}
+                  className={`w-6 h-6 transition-all duration-300 ${
+                    pathName === `/${item?.path}` && "invert"
+                  }`}
+                  height={200}
+                  width={200}
+                />
+              )}
+              {item?.label}
+            </span>
+          ) : (
+            <div className="flex justify-center text-center">
+              <span
+                className={`w-1/3  ${
+                  pathName === "/" + item?.path
+                    ? "border-r-white"
+                    : "border-r-black"
+                } grid grid-cols-2 gap-1`}
+              >
+                <span
+                  className={`w-[7px] h-[7px] rounded ${returnAppropriateClass(
+                    item?.path
+                  )}`}
+                ></span>
+                <span
+                  className={`w-[7px] h-[7px] rounded ${returnAppropriateClass(
+                    item?.path
+                  )}`}
+                ></span>
+                <span
+                  className={`w-[7px] h-[7px] rounded ${returnAppropriateClass(
+                    item?.path
+                  )}  ml-[10px]`}
+                ></span>
+                <span
+                  className={`w-[7px] h-[7px] rounded ${returnAppropriateClass(
+                    item?.path
+                  )} relative top-[11px]`}
+                ></span>
+                <span
+                  className={`w-[7px] h-[7px] rounded ${returnAppropriateClass(
+                    item?.path
+                  )}`}
+                ></span>
+              </span>
+
+              <span
+                className={`absolute h-[45px] top-[16px] mr-[27px] border-r-2 ${
+                  pathName === "/" + item?.path
+                    ? "border-r-white"
+                    : "border-r-black"
                 }`}
-                height={200}
-                width={200}
-              />
-            )}
-            {item?.label}
-          </span>
+              ></span>
+              <span
+                className={`ml-2 rotate-[-90deg] text-[0.7em] ${
+                  pathName === "/" + item?.path
+                    ? "border-white"
+                    : "border-black"
+                } border-solid border-[1px] h-[100%] w-[20px] mt-[4px] text-center`}
+              >
+                RX
+              </span>
+              <span className="ml-1">{item.label}</span>
+            </div>
+          )}
         </button>
       ))}
       <div

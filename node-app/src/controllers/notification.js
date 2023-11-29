@@ -1,15 +1,17 @@
 import { notifications } from "../model/notification/sendNotificationTo.js";
+import { findAndUpdateNotificationByCondition } from "../repository/notification.js";
 import { getAccountSettingById } from "../repository/user.js";
 import { generalResponse } from "../util/commonFunctions.js";
 import { NOTIFICATION_TYPES } from "../util/constant.js";
 
 export const getAllNotificationsOfUser = async (req, res) => {
-  const pageNumber = req.query.page ? req.query.page : 1;
-  const limit = req.query.limit ? Number(req.query.limit) : 10;
+  let { notificationType, isNew, eventTime, page, limit } = req.query;
+  const pageNumber = page ? page : 1;
+  limit = limit ? Number(limit) : 10;
   const skip = (pageNumber - 1) * limit;
   try {
     const userAllowedNotification = await getAccountSettingById(req.user._id);
-    if (req.query.notificationType == "following") {
+    if (notificationType == "following") {
       const followingNotificationType = Object.values(
         NOTIFICATION_TYPES.FOLLOWING
       );
@@ -17,13 +19,23 @@ export const getAllNotificationsOfUser = async (req, res) => {
         userAllowedNotification.allowedTypes.filter((notificationType) => {
           return followingNotificationType.includes(notificationType);
         });
-    } else if (req.query.notificationType == "my_post") {
+    } else if (notificationType == "my_post") {
       const myPostNotificationType = Object.values(NOTIFICATION_TYPES.MY_POST);
       userAllowedNotification.allowedTypes =
         userAllowedNotification.allowedTypes.filter((notificationType) => {
           return myPostNotificationType.includes(notificationType);
         });
     }
+    const commentRelatedNotification =
+      userAllowedNotification?.allowedTypes?.filter(
+        (notificationType) => notificationType.search("comment") != -1
+      );
+    const postRelatedNotification =
+      userAllowedNotification?.allowedTypes?.filter(
+        (notificationType) =>
+          notificationType.search("post") != -1 &&
+          !commentRelatedNotification.includes(notificationType)
+      );
     const pipeline = [
       {
         $match: {
@@ -39,7 +51,9 @@ export const getAllNotificationsOfUser = async (req, res) => {
                 ],
               },
             },
-            // notificationType must not be time sensitive notification
+            JSON.parse(isNew)
+              ? { eventTime: { $gt: new Date(Number(eventTime)) } }
+              : { eventTime: { $lte: new Date(Number(eventTime)) } },
             {
               isRead: false,
             },
@@ -84,11 +98,19 @@ export const getAllNotificationsOfUser = async (req, res) => {
       {
         $lookup: {
           from: "comments",
-          let: { notificationId: "$notificationTypeId" },
+          let: {
+            notificationId: "$notificationTypeId",
+            notificationType: "$notificationType",
+          },
           pipeline: [
             {
               $match: {
                 $and: [
+                  {
+                    $expr: {
+                      $in: ["$$notificationType", commentRelatedNotification],
+                    },
+                  },
                   { $expr: { $eq: ["$_id", "$$notificationId"] } },
                   { isDeleted: false },
                 ],
@@ -129,11 +151,19 @@ export const getAllNotificationsOfUser = async (req, res) => {
       {
         $lookup: {
           from: "posts",
-          let: { notificationId: "$notificationTypeId" },
+          let: {
+            notificationId: "$notificationTypeId",
+            notificationType: "$notificationType",
+          },
           pipeline: [
             {
               $match: {
                 $and: [
+                  {
+                    $expr: {
+                      $in: ["$$notificationType", postRelatedNotification],
+                    },
+                  },
                   { $expr: { $eq: ["$_id", "$$notificationId"] } },
                   { isDeleted: false },
                 ],
@@ -237,7 +267,7 @@ export const userTimeSensitiveNotification = async (req, res) => {
         $unwind: "$documentInfo",
       },
       {
-        $sort: { 'documentInfo.expiration_date': 1 },
+        $sort: { "documentInfo.expiration_date": 1 },
       },
       {
         $skip: skip,
@@ -253,6 +283,44 @@ export const userTimeSensitiveNotification = async (req, res) => {
       "",
       timeSensitiveNotification,
       false
+    );
+  } catch (error) {
+    return generalResponse(res, 400, "error", error.message, error, true);
+  }
+};
+
+export const notificationAction = async (req, res) => {
+  try {
+    let updateObject={};
+    if (req.url.split("/")[2] == "dismiss") {
+      updateObject = {
+        dismiss: true,
+      };
+    } else {
+      let nextDay = new Date();
+      nextDay.setUTCHours(24, 0, 0, 0);
+      updateObject = {
+        remindMeTomorrow: nextDay,
+      };
+    }
+    const rowAffected = await findAndUpdateNotificationByCondition(
+      {
+        notificationType: "time_sensitive_notifications",
+        _id: req.params.notificationId,
+        receiver: req.user._id,
+      },
+      updateObject
+    );
+    if (!rowAffected) {
+      throw new Error("unAuthorized action detected...");
+    }
+    return generalResponse(
+      res,
+      200,
+      "success",
+      "notification dismiss successfully",
+      "",
+      true
     );
   } catch (error) {
     return generalResponse(res, 400, "error", error.message, error, true);

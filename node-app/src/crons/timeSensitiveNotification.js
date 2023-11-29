@@ -3,7 +3,7 @@ import { userDocumentModal } from "../model/user/document.js";
 import { notifications } from "../model/notification/sendNotificationTo.js";
 import { NOTIFICATION_TYPES } from "../util/constant.js";
 // 0 0 0 * * * run at 12:00 AM on everyday
-cron.schedule("* * * * *", async () => {
+cron.schedule("0 0 0 * * *", async () => {
   console.log(`running the cron job at : ${new Date()} `);
   try {
     let notificationIds = await notifications

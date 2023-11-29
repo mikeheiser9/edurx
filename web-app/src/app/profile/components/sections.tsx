@@ -7,6 +7,7 @@ import instagram from "../../../assets/icons/instagram.svg";
 import linkedin from "../../../assets/icons/linkedin.svg";
 import twitter from "../../../assets/icons/twitter.svg";
 import facebook from "../../../assets/icons/facebook.svg";
+import website from "../../../assets/icons/earthIcon.svg";
 import {
   faCircleXmark,
   faPenToSquare,
@@ -18,10 +19,11 @@ import { getStaticImageUrl } from "@/util/helpers";
 import { allowedFileTypes } from "@/util/constant";
 
 const socialMediaIcons: socials = {
-  instagram,
-  facebook,
-  twitter,
   linkedin,
+  instagram,
+  twitter,
+  facebook,
+  website,
 };
 const labelProps = {
   className: "text-eduBlack font-body text-[16px] mb-[5px]",
@@ -45,9 +47,9 @@ const About = (): React.JSX.Element => {
         maxLength={50}
       />
       <div className="mt-6">
-        <div className="flex flex-wrap text-sm flex-auto justify-between gap-4 mt-2">
+        <div className="text-sm mt-2 grid grid-cols-2 gap-x-5 gap-y-5">
           {Object.keys(socialMediaIcons).map((socialMedia: string) => (
-            <div className="flex gap-2 items-center" key={socialMedia}>
+            <div className="flex gap-1 items-center" key={socialMedia}>
               <span className="!bg-eduYellow flex justify-center rounded-full h-9 w-9">
                 <Image
                   src={
@@ -62,7 +64,9 @@ const About = (): React.JSX.Element => {
               <InputField
                 className="flex-1"
                 name={`socials.${socialMedia}`}
-                placeholder={`username`}
+                placeholder={`${
+                  socialMedia == "website" ? "URL" : "username"
+                } `}
                 maxLength={30}
                 onKeyDown={(event) => {
                   if (event.code === "Space") event.preventDefault();
@@ -126,17 +130,17 @@ const Education = ({
       {userData?.educations?.map((value: education) => (
         <div className="flex gap-x-6" key={value?._id || Date.now()}>
           <div className="flex flex-1 flex-col text-eduBlack text-[16px] font-headers gap-1">
-            <span className="text-lg capitalize">
-              {value.school_name}
-            </span>
+            <span className="text-lg capitalize">{value.school_name}</span>
             <span className="text-eduBlack text-[14px] font-body ">
               {value.field_of_study}
             </span>
-            {value?.activities?.length>0 && <span className="text-eduBlack/60 text-[14px] font-body font-[400]">
-              {`${value?.activities?.substring(0, 50)} ${
-                value?.activities?.length > 50 ? "..." : ""
-              }  `}
-            </span>}
+            {value?.activities?.length > 0 && (
+              <span className="text-eduBlack/60 text-[14px] font-body font-[400]">
+                {`${value?.activities?.substring(0, 50)} ${
+                  value?.activities?.length > 50 ? "..." : ""
+                }  `}
+              </span>
+            )}
             <div>
               <span className="text-eduBlack/60 text-[14px] font-body font-[400]">
                 {moment(value?.start_date).format("YYYY")}

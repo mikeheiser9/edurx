@@ -125,7 +125,7 @@ export const HubLeftPenal = () => {
               </span>
               <FontAwesomeIcon
                 onClick={handleClick}
-                className="text-eduBlack/60"
+                className="text-eduBlack/60 cursor-pointer"
                 icon={faEdit}
               />
             </div>

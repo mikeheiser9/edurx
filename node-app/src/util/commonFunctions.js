@@ -104,7 +104,6 @@ export const findAndPaginate = async (
   limit = 10,
   options
 ) => {
-  console.log({ page, limit });
   if (!modal || typeof modal !== "function") {
     throw new Error("Invalid mongoose modal provided.");
   }
@@ -119,8 +118,6 @@ export const findAndPaginate = async (
     const count = await modal.countDocuments(query);
     const totalPages = Math.ceil(count / limit);
     const skippedPages = (page - 1) * limit;
-
-    console.log("at findAndPaginate", { count, skippedPages, totalPages });
 
     let findQuery = modal.find(query);
     if (options) {

@@ -1,4 +1,4 @@
-import { axiosGet, axiosPost } from "@/axios/config";
+import { axiosGet, axiosPost, axiosPut } from "@/axios/config";
 import { AxiosResponse } from "axios";
 
 const searchUserByAPI = async (
@@ -28,13 +28,31 @@ const getAccountSettingsByAPI = async () => {
   return await axiosGet("/user/account-settings");
 };
 
-const getNotificationOfUser=(page:number,limit:number,notificationType?:string)=>{
-  return axiosGet(`/notification/user/all?page=${page}&limit=${limit}&notificationType=${notificationType}`)
-}
+const getNotificationOfUser = (
+  page: number,
+  limit: number,
+  notificationType?: string,
+  isNew?: boolean,
+  eventTime?: string
+) => {
+  return axiosGet(
+    `/notification/user/all?page=${page}&limit=${limit}&notificationType=${notificationType}&isNew=${isNew}&eventTime=${eventTime}`
+  );
+};
 
-const getTimeSensitiveNotification=(page:number,limit:number)=>{
-  return axiosGet(`/notification/user/time-sensitive-notification?page=${page}&limit=${limit}`)
-}
+const getTimeSensitiveNotification = (page: number, limit: number) => {
+  return axiosGet(`/notification/time-sensitive?page=${page}&limit=${limit}`);
+};
+
+const dismissTimeSensitiveNotificationById = (notificationId: string) => {
+  return axiosPut(`/notification/time-sensitive/dismiss/${notificationId}`, {});
+};
+
+const remindMeTomorrowTimeSensitiveNotificationById = (
+  notificationId: string
+) => {
+  return axiosPut(`/notification/time-sensitive/remindMeTomorrow/${notificationId}`, {});
+};
 
 export {
   searchUserByAPI,
@@ -42,5 +60,7 @@ export {
   getAccountSettingsByAPI,
   updateAccountSettingsByAPI,
   getNotificationOfUser,
-  getTimeSensitiveNotification
+  getTimeSensitiveNotification,
+  dismissTimeSensitiveNotificationById,
+  remindMeTomorrowTimeSensitiveNotificationById,
 };

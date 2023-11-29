@@ -17,6 +17,7 @@ const userSchema = new Schema(
       instagram: String,
       facebook: String,
       email: String,
+      website:String
     },
     personal_bio: String,
     profile_img: String,

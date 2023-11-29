@@ -1,6 +1,9 @@
 import { Types } from "mongoose";
 import { userModel } from "../model/user/user.js";
-import { insertNotification } from "../repository/notification.js";
+import {
+  deleteNotificationByCondition,
+  insertNotification,
+} from "../repository/notification.js";
 import {
   addRemoveConnections,
   getBasicProfile,
@@ -212,6 +215,13 @@ const updateUserByID = async (req, res) => {
 const addUpdateDocument = async (req, res, next) => {
   try {
     if (!req.body) throw new Error("Request body is required");
+    if (req.body._id) {
+      // remove the respective notification
+      await deleteNotificationByCondition({
+        notificationTypeId: req.body._id,
+        notificationType: "time_sensitive_notifications",
+      });
+    }
     const doc = await addNewDocument({
       ...req.body,
       ...getKeyValueFromFiles(req.files),

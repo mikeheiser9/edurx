@@ -54,3 +54,7 @@ export const findNotificationByCondition = async (condition) => {
 export const deleteNotificationByCondition=async(condition)=>{
   return notifications.deleteOne(condition)
 }
+
+export const findAndUpdateNotificationByCondition=async(condition,dateToUpdate)=>{
+  return notifications.findOneAndUpdate(condition,dateToUpdate)
+}
