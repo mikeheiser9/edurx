@@ -301,11 +301,11 @@ const postConnections = async (req, res) => {
       "OK",
       message
         ? message
-        : `Connection ${
-            req.params.action === "add" ? "added" : "removed"
+        : ` ${
+            req.params.action === "add" ? "Follow" : "Unfollow"
           } successfully`,
       !message ? response : null,
-      false
+      true
     );
   } catch (err) {
     console.log(err);

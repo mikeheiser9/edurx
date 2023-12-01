@@ -104,6 +104,9 @@ userSchema.virtual("followingCount", {
   localField: "_id",
   foreignField: "userId",
   count: true,
+  match:{
+    postId:undefined
+  }
 });
 
 userSchema.virtual("followersCount", {
@@ -111,6 +114,9 @@ userSchema.virtual("followersCount", {
   localField: "_id",
   foreignField: "targetUserId",
   count: true,
+  match:{
+    postId:undefined
+  }
 });
 
 userSchema.virtual("licensesCount", {

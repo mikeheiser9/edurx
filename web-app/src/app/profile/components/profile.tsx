@@ -20,7 +20,9 @@ import { Loader } from "@/app/signup/commonBlocks";
 import { addRemoveUserConnectionByAPI } from "@/service/user.service";
 import { profileSections, responseCodes } from "@/util/constant";
 import { showToast } from "@/components/toast";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faX } from "@fortawesome/free-solid-svg-icons";
+import UnFollowConfirmation from "@/app/forum/components/unFollowConfirmation";
 interface LastDocRefType {
   licenses: React.RefObject<HTMLDivElement> | null;
   certificates: React.RefObject<HTMLDivElement> | null;
@@ -64,6 +66,8 @@ export const UserProfile = ({ userId }: { userId: string }) => {
   const editModal = useModal();
   const [saveAndExitButtonPressed, setSaveAndExitButtonPressed] =
     useState(false);
+  const unFollowPostConfirmationModel = useModal();
+
   const loadMoreDocuments = async (doc_type: "license" | "certificate") => {
     try {
       setIsDocsLoading(true);
@@ -126,12 +130,13 @@ export const UserProfile = ({ userId }: { userId: string }) => {
             followersCount,
           };
         });
-        showToast?.[type == "add" ? "success" : "error"]?.(message);
+        // showToast?.[type == "add" ? "success" : "error"]?.(message);
+        type=="remove" && unFollowPostConfirmationModel.closeModal()
       } else {
         throw Error(`Unable to ${type} connection`);
       }
     } catch (error) {
-      showToast.error((error as Error)?.message || "Something went wrong");
+      // showToast.error((error as Error)?.message || "Something went wrong");
       console.log(`Unable to ${type} connection`, error);
     }
   };
@@ -155,7 +160,17 @@ export const UserProfile = ({ userId }: { userId: string }) => {
         setIsLoading(false);
       });
   }, [userId]);
-
+  const Header = () => (
+    <div className="flex p-2 gap-2 bg-eduDarkGray">
+      <span className="text-base text-center flex-1">Confirmation</span>
+      <FontAwesomeIcon
+        icon={faX}
+        size="sm"
+        onClick={unFollowPostConfirmationModel.closeModal}
+        className="ml-auto self-center cursor-pointer text-gray-500"
+      />
+    </div>
+  );
   return (
     <React.Fragment>
       {isLoading ? (
@@ -208,6 +223,26 @@ export const UserProfile = ({ userId }: { userId: string }) => {
                   setSaveAndExitButtonPressed={setSaveAndExitButtonPressed}
                 />
               </Modal>
+
+              <Modal
+                onClose={unFollowPostConfirmationModel.closeModal}
+                visible={unFollowPostConfirmationModel.isOpen}
+                customHeader={<Header />}
+                showCloseIcon
+                modalClassName="!w-auto min-w-[30rem] !rounded-lg"
+                modalBodyClassName="bg-white"
+                showFooter={false}
+                closeOnEscape
+                closeOnOutsideClick
+              >
+                <UnFollowConfirmation
+                  unFollowPost={()=>addRemoveConnection("remove")}
+                  modelClosingFunction={
+                    unFollowPostConfirmationModel.closeModal
+                  }
+                  confirmationLabel={`are you sure you want to unfollow ${userData.first_name+"_"+userData.last_name}`}
+                />
+              </Modal>
               <div className="flex justify-center w-full items-center flex-col">
                 <div className="m-auto flex-auto flex gap-4 h-auto w-full flex-col">
                   <BasicInfo
@@ -215,22 +250,21 @@ export const UserProfile = ({ userId }: { userId: string }) => {
                     openModal={isSelfProfile ? editModal.openModal : undefined}
                     buttonJsx={
                       !isSelfProfile ? (
-                        <div className="justify-self-end self-end">
+                        <div className="justify-self-end self-start">
                           <button
                             type="button"
-                            className="border rounded-md py-2 px-6 font-body text-sm min-w-[8rem] text-eduBlack border-eduBlack hover:text-white hover:bg-eduBlack transition-colors ease-in-out duration-300 capitalize"
+                            className={`border rounded-md py-2 px-6 font-body text-sm min-w-[8rem] border-eduBlack  transition-colors ease-in-out duration-300 capitalize ${
+                              isFollowing
+                                ? "bg-eduLightBlue text-white hover:bg-eduLightGray hover:text-black"
+                                : "hover:text-white hover:bg-eduBlack"
+                            }`}
                             onMouseEnter={() => setButtonText("Unfollow")}
                             onMouseLeave={() => setButtonText("Following")}
-                            // onClick={} // TODO: follow / un-follow user interaction
                             onClick={() =>
-                              addRemoveConnection(
-                                isFollowing ? "remove" : "add"
-                              )
+                              isFollowing ? unFollowPostConfirmationModel.openModal() : addRemoveConnection("add")
                             }
                           >
-                            {isFollowing
-                              ? buttonText
-                              : `Follow ${userData?.first_name}`}
+                            {isFollowing ? buttonText : `Follow `}
                           </button>
                         </div>
                       ) : undefined

@@ -20,7 +20,7 @@ import { useModal } from "@/hooks";
 import { RequestListModal } from "./requestListModal";
 import { addPrivatePostRequest, followPost } from "@/service/post.service";
 import { Modal } from "@/components/modal";
-import UnFollowPostConfirmation from "./unFollowPostConfirmation";
+import UnFollowConfirmation from "./unFollowConfirmation";
 
 interface Props {
   post: PostInterface;
@@ -256,9 +256,10 @@ export const PostCard = (props: Props) => {
           closeOnEscape
           closeOnOutsideClick
         >
-          <UnFollowPostConfirmation
+          <UnFollowConfirmation
             unFollowPost={unFollowPost}
             modelClosingFunction={unfollowPostConfirmationModel.closeModal}
+            confirmationLabel="Are you sure you want to unfollow this post...?"
           />
         </Modal>
       </div>

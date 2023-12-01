@@ -38,7 +38,7 @@ import { ReviewRequestButton } from "./sections";
 import { useModal } from "@/hooks";
 import { RequestListModal } from "./requestListModal";
 import "react-quill/dist/quill.snow.css";
-import UnFollowPostConfirmation from "./unFollowPostConfirmation";
+import UnFollowConfirmation from "./unFollowConfirmation";
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 interface Props {
@@ -531,9 +531,10 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
             closeOnEscape
             closeOnOutsideClick
           >
-            <UnFollowPostConfirmation
+            <UnFollowConfirmation
               unFollowPost={unFollowPost}
               modelClosingFunction={unfollowPostConfirmationModel.closeModal}
+              confirmationLabel="Are you sure you want to unfollow this post...?"
             />
           </Modal>
         </React.Fragment>

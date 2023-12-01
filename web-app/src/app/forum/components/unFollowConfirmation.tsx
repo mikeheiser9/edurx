@@ -3,15 +3,16 @@ import React from "react";
 interface UnFollowPostConfirmationPropsType {
   unFollowPost: () => Promise<void>;
   modelClosingFunction: () => void;
+  confirmationLabel:string
 }
-export default function UnFollowPostConfirmation(
+export default function UnFollowConfirmation(
   props: UnFollowPostConfirmationPropsType
 ) {
-  const { unFollowPost, modelClosingFunction } = props;
+  const { unFollowPost, modelClosingFunction,confirmationLabel } = props;
   return (
     <div className="mt-5 flex flex-col text-center">
       <label className="p-2">
-        Are you sure you want to unfollow this post...?
+          {confirmationLabel}
       </label>
       <div className="flex justify-center gap-3 p-2 mt-6">
         <button

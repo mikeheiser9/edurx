@@ -169,7 +169,7 @@ export default function SignUp() {
           actions.setFieldValue(
             `${npiReturnVariables[3].fieldName}`,
             res.data?.addresses?.map(
-              (address: any, index: number) => address?.[`address_${index + 1}`]
+              (address: any) => address?.[`address_1`]
             )
           );
           actions.setFieldValue(

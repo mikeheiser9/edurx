@@ -24,7 +24,7 @@ import { TabMenu } from "@/components/tabMenu";
 import { Button } from "@/components/button";
 import { LoadMore } from "@/components/loadMore";
 import replaceTaggedUsers from "../../components/replaceTags";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 const socialMediaIcons: socials = {
   instagram,
@@ -116,10 +116,7 @@ const BasicInfo = ({
               ) : (
                 <>
                   <FontAwesomeIcon icon={faLocationDot} className="me-2" />
-                  {userData?.city},{" "}
-                  {userData?.state &&
-                    statesNames[userData?.state as keyof typeof statesNames]}
-                  •{" "}
+                  {userData?.city}, {userData?.state && userData?.state}•{" "}
                   {userData?.npi_designation
                     ?.map((item: string) => {
                       if (item)
@@ -130,13 +127,12 @@ const BasicInfo = ({
                     ?.toString()}{" "}
                 </>
               )}
-              • Member Since{" "}
-              {userData?.joined ? moment(userData?.joined).year() : "-"}
+              {/* • Member Since{" "}
+              {userData?.joined ? moment(userData?.joined).year() : "-"} */}
             </span>
             <span className="text-eduBlack/60 text-[16px] font-body">
               <FontAwesomeIcon icon={faStethoscope} className="me-2" />
-              Licensed in:{" "}
-              {statesNames[userData?.state as keyof typeof statesNames]}
+              Licensed in: {userData?.state}
             </span>
             <div className="flex text-eduBlack text-xs gap-x-4 font-body">
               <span className="font-body">
@@ -183,7 +179,7 @@ const BasicInfo = ({
         {buttonJsx
           ? buttonJsx
           : openModal && (
-              <div className="justify-self-end self-end">
+              <div className="justify-self-end self-start">
                 <button
                   type="button"
                   className="border rounded-[10px] py-2 px-4 font-body text-[16px] w-[125px] text-eduBlack border-eduBlack hover:text-white hover:bg-eduBlack transition-colors ease-in-out duration-300"
@@ -206,19 +202,23 @@ const About = ({
   personal_bio: string | undefined;
   openModal?: () => void;
   emptyBioMessage?: string;
-}) => (
-  <div className="bg-eduLightGray overflow-hidden flex-auto relative rounded-lg">
-    {personal_bio && openModal && <EditIcon onClick={openModal} />}
-    <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-col gap-2">
-      <span className="text-eduBlack text-[24px] font-semibold font-headers tracking-wide">
-        About
-      </span>
-      <p className="text-eduBlack/60 text-[16px] font-body">
-        {personal_bio || (emptyBioMessage ?? "No personal bio available")}
-      </p>
+}) => {
+  const [showMore,setShowMore]=useState(false);
+  return (
+    <div className={`bg-eduLightGray overflow-hidden flex-auto relative rounded-lg ${!showMore ? 'h-[220px]' : 'h-[260px] overflow-y-auto'}`}>
+      {personal_bio && openModal && <EditIcon onClick={openModal} />}
+      <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-col gap-2">
+        <span className="text-eduBlack text-[24px] font-semibold font-headers tracking-wide">
+          About
+        </span>
+        <p className="text-eduBlack/60 text-[16px] font-body">
+          {showMore ? personal_bio : personal_bio?.trim().substring(0,470) || (emptyBioMessage ?? "No personal bio available")}
+        </p>
+        {personal_bio && personal_bio.length>470 && !showMore && <span className="text-center font-[700] opacity-[50%] text-[0.8em] cursor-pointer" onClick={()=>setShowMore(true)}>Read More</span>}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const PostList = ({
   posts,
@@ -560,7 +560,7 @@ const ModalFooter = ({
   isListView,
   setSaveAndExitButtonPressed,
   setCurrentSection,
-  closeModal
+  closeModal,
 }: {
   userData: UserData;
   currentSection: keyof profileSections;
@@ -571,7 +571,7 @@ const ModalFooter = ({
   setCurrentSection: React.Dispatch<
     React.SetStateAction<keyof profileSections>
   >;
-  closeModal?: () => void
+  closeModal?: () => void;
 }) => {
   const saveAndNextButtonRef: any = useRef(null);
   const nextButtonRef: any = useRef(null);
@@ -582,7 +582,7 @@ const ModalFooter = ({
       isListView
     ) {
       if (type == "save_exit") {
-        closeModal?.()
+        closeModal?.();
       } else {
         setCurrentSection((currentSection) => {
           if (currentSection == "about") {
@@ -600,6 +600,7 @@ const ModalFooter = ({
       }
     }
   };
+
   return (
     <>
       {currentSection === "licenses" &&

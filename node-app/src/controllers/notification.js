@@ -297,10 +297,10 @@ export const notificationAction = async (req, res) => {
         dismiss: true,
       };
     } else {
-      let nextDay = new Date();
-      nextDay.setUTCHours(24, 0, 0, 0);
+      let after24Hours = new Date();
+      after24Hours=new Date(after24Hours.setUTCHours(after24Hours.getUTCHours()+24))
       updateObject = {
-        remindMeTomorrow: nextDay,
+        remindMeTomorrow: after24Hours,
       };
     }
     const rowAffected = await findAndUpdateNotificationByCondition(

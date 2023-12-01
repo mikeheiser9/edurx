@@ -24,7 +24,7 @@ const userDocValidation = {
 const validationSchema: Yup.AnyObject = {
   about: Yup.object({
     contact_email: Yup.string().email("Please enter a valid email"),
-    personal_bio: Yup.string().max(1000, "Can't exceed 2000 characters"),
+    personal_bio: Yup.string().max(1000, "Can't exceed 1000 characters"),
     socials: Yup.object({
       instagram: Yup.string().max(100, "Can't exceed 100 characters"),
       linkedin: Yup.string().max(100, "Can't exceed 100 characters"),

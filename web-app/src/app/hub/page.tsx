@@ -15,11 +15,13 @@ import { selectUserDetail } from "@/redux/ducks/user.duck";
 import { PostModal } from "../forum/components/postModal";
 import { useModal } from "@/hooks";
 import { Loader } from "../signup/commonBlocks";
+import { ProfileDialog } from "./components/profileDialog";
 const Page = () => {
   const hubTab = ["All Notifications", "Following", "My Posts"];
   const [activeSubTab, setActiveSubTab] = useState(hubTab[0]);
   const loggedInUser = useSelector(selectUserDetail);
   const [selectedPostId, setSelectedPostId] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState("");
 
   // states for new notification
   const [newNotificationLoader, setNewNotificationLoader] = useState(false);
@@ -71,6 +73,7 @@ const Page = () => {
   const [refreshAndCloseTabDetected, setRefreshAndCloseTabDetected] =
     useState(false);
   const viewPostModal = useModal();
+  const profileModal = useModal();
 
   const fetchNewNotification = async (pageNo?: number) => {
     setNewNotificationLoader(true);
@@ -333,6 +336,12 @@ const Page = () => {
   return (
     <>
       <div>
+        {selectedUserId && (
+          <ProfileDialog
+            loggedInUser={{ _id: selectedUserId } as UserData}
+            profileModal={profileModal}
+          />
+        )}
         {viewPostModal.isOpen && (
           <PostModal viewPostModal={viewPostModal} postId={selectedPostId} />
         )}
@@ -631,7 +640,13 @@ const Page = () => {
                         <div className="flex gap-6">
                           <Link
                             className="text-eduLightBlue font-[600] underline"
-                            href={`/profile/${notification.notificationFrom[0]._id}`}
+                            href={`#`}
+                            onClick={() => {
+                              setSelectedUserId(
+                                notification.notificationFrom[0]._id
+                              );
+                              profileModal.openModal();
+                            }}
                           >
                             View Profile
                           </Link>
