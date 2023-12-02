@@ -157,7 +157,7 @@ export const SignUpModal = ({ signUpModal }: Props) => {
                       type="text"
                       name="first_name"
                       className="block w-full text-[16px] bg-white"
-                      maxLength={20}
+                      maxLength={120}
                       labelProps={labelProps}
                       mandatory
                     />
@@ -166,7 +166,7 @@ export const SignUpModal = ({ signUpModal }: Props) => {
                     <InputField
                       name="last_name"
                       type="text"
-                      maxLength={20}
+                      maxLength={120}
                       className="block w-full text-[16px]  bg-white"
                       label="Last name"
                       labelProps={labelProps}
@@ -178,7 +178,7 @@ export const SignUpModal = ({ signUpModal }: Props) => {
                   <InputField
                     name="email"
                     type="email"
-                    maxLength={50}
+                    maxLength={150}
                     className="block w-full text-[16px] bg-white"
                     label="Email Address"
                     labelProps={labelProps}

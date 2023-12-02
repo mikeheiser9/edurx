@@ -370,14 +370,14 @@ export default function SignUp() {
   const AskNpiNumber = (): React.JSX.Element => {
     return (
       <React.Fragment>
-        <p className="text-sm opacity-50 text-white text-center px-16 pb-6">
+        <p className="text-sm opacity-50 text-eduBlack/60 text-center px-16 pb-6">
           EduRx is a curated community of medical professionals in order to
           ensure quality discussion and information please validate your NPI
           License below.
         </p>
         <div className="px-8">
           <InputField
-            maxLength={20}
+            maxLength={10}
             name="npi_number"
             placeholder="License Number"
             type="text"
@@ -450,26 +450,26 @@ export default function SignUp() {
           name="addresses.0"
           placeholder="Address Line 1"
           type="text"
-          maxLength={60}
+          maxLength={160}
         />
         <InputField
           name="addresses.1"
           placeholder="Address Line 2"
           type="text"
-          maxLength={60}
+          maxLength={160}
         />
         <div className="grid grid-cols-2 gap-4">
           <InputField
             name="city"
             placeholder="City"
             type="text"
-            maxLength={20}
+            maxLength={120}
           />
           <InputField
             name="state"
             placeholder="State"
             type="text"
-            maxLength={20}
+            maxLength={120}
           />
         </div>
         <InputField

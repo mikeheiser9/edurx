@@ -2,7 +2,7 @@ type USER_ROLES = "super_admin" | "moderator" | "professional" | "student";
 interface userLoginField {
   email: string;
   password: string;
-}
+} 
 
 interface commonRegistrationField extends userLoginField {
   first_name: string;

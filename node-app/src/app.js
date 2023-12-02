@@ -6,6 +6,7 @@ import sgMail from "@sendgrid/mail"
 import userRoute from "./routes/user.js";
 import "../src/middleware/passport/userAuthStrategy.js"
 import postRoute from "./routes/post.js";
+import resRoute from "./routes/resource.js";
 import cors from "cors"
 import { fileUpload,fileTypeCheckAndRename} from "./middleware/multer.js";
 import sheetRoute from "./routes/googleSheet.js";
@@ -38,7 +39,8 @@ app.use("/auth", authRoute);
 app.use("/user", userRoute);
 app.use("/post", postRoute);
 app.use("/google-sheets", sheetRoute);
-app.use("/notification",notificationRoute)
+app.use("/notification",notificationRoute);
+app.use("/resource", resRoute);
 app.listen(PORT, () => {
   console.log(`app is up on PORT : ${PORT}`);
 });

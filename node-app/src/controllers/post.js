@@ -218,7 +218,7 @@ const getAllPosts = async (req, res) => {
         categoryList?.length > 0 &&
         categoryList.map((category) => new Types.ObjectId(category)),
       userId,
-      loggedInUser: req.user._id,
+      loggedInUser: req.user._id, 
     });
     return generalResponse(res, 200, "OK", "posts fetched successfully", posts);
   } catch (error) {

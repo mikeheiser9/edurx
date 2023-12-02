@@ -25,26 +25,26 @@ const BasicDetails = ({
           name="first_name"
           placeholder="First name"
           type="text"
-          maxLength={20}
+          maxLength={120}
         />
         <InputField
           name="last_name"
           placeholder="Last name"
           type="text"
-          maxLength={20}
+          maxLength={120}
         />
       </div>
       <InputField
         name="email"
         placeholder="Email Address"
         type="email"
-        maxLength={50}
+        maxLength={150}
       />
       <InputField
         name="password"
         placeholder="Password"
         type={showPassword?.password ? "text" : "password"}
-        maxLength={20}
+        maxLength={50}
         icon={
           <FontAwesomeIcon
             onClick={() => onShowPassword?.("password")}
@@ -56,7 +56,7 @@ const BasicDetails = ({
       <InputField
         name="confirm_password"
         placeholder="Confirm Password"
-        maxLength={20}
+        maxLength={50}
         type={showPassword?.confirmPassword ? "text" : "password"}
         icon={
           <FontAwesomeIcon

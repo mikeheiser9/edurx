@@ -24,7 +24,7 @@ import { DropDownPopover } from "@/app/forum/components/sections";
 const tabMenuOptions = [
   { label: "Hub", img: EduRxIcon, path: "hub" },
   { label: "Forum", path: "forum" },
-  { label: "Resources", path: "resorces" },
+  { label: "Resources", path: "resources" },
   { label: "Events", isDisabled: true },
   { label: "EduRx Library", isDisabled: true },
   { label: "Health Check", isDisabled: true },

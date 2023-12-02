@@ -40,6 +40,12 @@ const userSchema = new Schema(
         activities: String,
       },
     ],
+    reading_list: [ 
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'resource'
+      }
+    ]
   },
   {
     timestamps: { createdAt: "joined" },

@@ -119,7 +119,7 @@ const Page = () => {
           <p className="font-[600] opacity-50 p-[10px] text-eduBlack">
             Time Sensitive Notifications
           </p>
-          <div className="flex w-full p-4  bg-eduYellow rounded-[10px] bg-eduLightGray border-[2px] border-[#13222A] gap-2 !cursor-pointer justify-between ">
+          <div className="flex w-full p-4 rounded-[10px] bg-eduLightGray border-[2px] border-[#13222A] gap-2 !cursor-pointer justify-between ">
             <div className="flex gap-3">
               <img src="#" className="w-[17px]"></img>
               <div className="flex flex-col text-left">

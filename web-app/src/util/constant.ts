@@ -10,7 +10,7 @@ const validateField = {
     ),
   stringPrefixJoiValidation: Yup.string().trim(),
 };
-const taxonomyCodeToProfessionalMapping = {
+const taxonomyCodeToProfessionalMapping = { 
   "133V00000X": "RDN",
   "136A00000X": "NDTR",
 };
@@ -20,7 +20,7 @@ const npiToDefinition = {
   NDTR: "Dietetic Technician, Registered",
 };
 
-const publicRoutes = [
+const publicRoutes = [ 
   "/",
   "/signup",
   "/signin",
@@ -170,6 +170,10 @@ const postLabelType={
   "Review Requests":"Review Requests"
 }
 
+const resourceLabelType={
+  "Read Now":"Read now"
+}
+
 export {
   validateField,
   taxonomyCodeToProfessionalMapping,
@@ -190,5 +194,6 @@ export {
   statesNames,
   NOTIFICATION_TYPES,
   profileSections,
-  postLabelType
+  postLabelType,
+  resourceLabelType
 };

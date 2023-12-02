@@ -43,7 +43,7 @@ const About = (): React.JSX.Element => {
         placeholder="admin@example.com"
         type="text"
         label="Preferred Contact Email"
-        maxLength={50}
+        maxLength={80}
       />
       <div className="mt-6">
         <span className="text-eduBlack text-[16px] font-body">
@@ -67,7 +67,7 @@ const About = (): React.JSX.Element => {
                 className="flex-1"
                 name={`socials.${socialMedia}`}
                 placeholder={`${socialMedia}@123`}
-                maxLength={30}
+                maxLength={130}
                 onKeyDown={(event) => {
                   if (event.code === "Space") event.preventDefault();
                 }}
@@ -178,7 +178,7 @@ const Education = ({
               name="school_name"
               placeholder="Enter school name"
               label="School"
-              maxLength={20}
+              maxLength={120}
               labelProps={labelProps}
               mandatory
             />
@@ -186,7 +186,7 @@ const Education = ({
               type="text"
               name="degree"
               placeholder="Enter name of degree"
-              maxLength={20}
+              maxLength={120}
               label="Degree"
               labelProps={labelProps}
             />
@@ -195,7 +195,7 @@ const Education = ({
               name="field_of_study"
               placeholder="Enter field of study"
               label="Field of Study"
-              maxLength={20}
+              maxLength={120}
               labelProps={labelProps}
               mandatory
             />
@@ -365,7 +365,7 @@ const UserDocs = ({
           <InputField
             type="text"
             name="doc_name"
-            maxLength={20}
+            maxLength={120}
             placeholder="Enter name"
             label="Name"
             labelProps={labelProps}
@@ -373,7 +373,7 @@ const UserDocs = ({
           />
           <InputField
             type="text"
-            maxLength={20}
+            maxLength={120}
             name="issuer_organization"
             placeholder="Enter issuer"
             label="Issuing Organization"
@@ -418,7 +418,7 @@ const UserDocs = ({
           <InputField
             type="text"
             name="doc_id"
-            maxLength={40}
+            maxLength={80}
             label="Credential ID"
             placeholder="Enter credential ID"
             labelProps={labelProps}
@@ -426,7 +426,7 @@ const UserDocs = ({
           <InputField
             type="text"
             name="doc_url"
-            maxLength={60}
+            // maxLength={160}
             label="Credential URL"
             placeholder="Enter credential URL"
             labelProps={labelProps}

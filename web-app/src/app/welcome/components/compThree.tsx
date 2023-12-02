@@ -70,7 +70,7 @@ export default function CompThree({signUpModal}:Props) {
         start: 'center center',
         end: '+=250px',
         scrub: true,
-        markers: true
+        // markers: true
       }
     });
     mlcs.to(imgTwoCs.current, {y: '-=50px', duration: 0.5, ease: 'power1.inOut'}, 0)

@@ -147,7 +147,7 @@ export const LeftPanel = () => {
       <FilterSetting accountSettingModal={filterSetting} />
 
       <div className="flex flex-col h-full flex-auto">
-        <span className="text-eduBlack text-2xl font-medium font-headers">
+        <span className="text-eduBlack text-[22px] font-medium font-headers mb-[20px]">
           Sort By
         </span>
         <ul className="flex flex-col gap-3">
@@ -181,7 +181,7 @@ export const LeftPanel = () => {
           ))}
         </ul>
         <hr className="my-4 h-[3px] bg-eduBlack border-0" />
-        <span className="text-eduBlack text-[22px] font-bold font-headers">
+        <span className="text-eduBlack text-[22px] font-headers mb-[20px]">
           Category
         </span>
         {/* {console.log(categoryList.length)} */}
