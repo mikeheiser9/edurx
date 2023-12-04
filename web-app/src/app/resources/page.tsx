@@ -26,6 +26,7 @@ export default function Resources(props: any) {
   const loggedInUser = useSelector(selectUserDetail);
   const [resources, setResources] = useState<ResourceInfo[]>([]);
   const [savedResources, setSavedResources] = useState(new Set());
+  const [ isSaved, setIsSaved ] = useState(false);
 
 
   // console.log(loggedInUser);
@@ -57,9 +58,9 @@ export default function Resources(props: any) {
 
     const fetchReadingList = async () => {
       try {
-      const response = await axiosGet(`/user/${loggedInUser.id}/reading_list`);
+      const response = await axiosGet(`/user/${loggedInUser._id}/reading_list`);
       console.log('response data in fetch reading list ', response.data);
-      setSavedResources(new Set(response.data.reading_list.map((item:ReadingListItem) => item._id)));
+      setSavedResources(new Set(response.data.map((item:ReadingListItem) => item._id)));
       } catch (error) {
         console.log('Error fetching reading list data ', error);
       }
@@ -97,7 +98,7 @@ export default function Resources(props: any) {
                     key={resource._id}
                     title={resource.title}
                     publisher={resource.publisher}
-                    // isSaved={savedResources.has(resource._id)}
+                    isSaved={savedResources.has(resource._id)}
                   />
                 ))
                 }

@@ -11,15 +11,17 @@ import axios from 'axios';
 interface Props {
     resource: ResourceInfo;
     userId: UserId;
+    isSaved: boolean;
 }
 
 export const ResourceCard = (props: Props) => {
     const {
         resource,
         userId,
+        isSaved
     } = props;
 
-const [isSaved, setIsSaved] = useState(false);
+const [saved, setSaved] = useState(isSaved);
 
 
     const handleResourceClick = () => {
@@ -31,9 +33,7 @@ const [isSaved, setIsSaved] = useState(false);
         try {
             await axios.put(`http://localhost:8001/user/${userId}/saveResource`, { resourceId: resource._id });
             console.log('UserID:', userId, 'ResourceID:',resource);
-            console.log(resource._id);
-            console.log(userId);
-            setIsSaved(true);
+            setSaved(true);
         } catch (error) {
             console.error('Error saving resource:', error);
         }
@@ -44,7 +44,7 @@ const [isSaved, setIsSaved] = useState(false);
     const handleUnsaveResource = async () => {
         try {
             await axios.delete(`http://localhost:8001/user/${userId}/unsaveResource`, { data: { resourceId: resource._id } });
-            setIsSaved(false);
+            setSaved(false);
         } catch (error) {
             console.error('Error unsaving resource:', error);
         }
@@ -79,10 +79,10 @@ const [isSaved, setIsSaved] = useState(false);
                     onClick={handleResourceClick}
                     />
                 </div>
-                <div className="cursor-pointer" onClick={isSaved ? handleUnsaveResource : handleSaveResource}>
+                <div className="cursor-pointer" onClick={saved ? handleUnsaveResource : handleSaveResource}>
                      <FontAwesomeIcon 
                         icon={faBookmark}
-                        className={`text-[20px] ${isSaved ? 'text-eduYellow' : 'text-black'}`}
+                        className={`text-[20px] ${saved ? 'text-eduYellow' : 'text-black'}`}
                      />
                 </div>
             </div>
