@@ -286,5 +286,5 @@ export {
   searchUsers,
   getConnections,
   createAccountSettings,
-  getAccountSettings,
+  getAccountSettings
 };

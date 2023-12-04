@@ -16,7 +16,7 @@ interface Props {
 export const ResourceCard = (props: Props) => {
     const {
         resource,
-        userId
+        userId,
     } = props;
 
 const [isSaved, setIsSaved] = useState(false);
@@ -30,7 +30,9 @@ const [isSaved, setIsSaved] = useState(false);
     const handleSaveResource = async () => {
         try {
             await axios.put(`http://localhost:8001/user/${userId}/saveResource`, { resourceId: resource._id });
-            console.log('UserID:', userId, 'ResourceID:', resourceId);
+            console.log('UserID:', userId, 'ResourceID:',resource);
+            console.log(resource._id);
+            console.log(userId);
             setIsSaved(true);
         } catch (error) {
             console.error('Error saving resource:', error);

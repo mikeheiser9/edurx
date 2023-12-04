@@ -2,18 +2,18 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { axiosGet } from "@/axios/config";
-import { responseCodes, roleAccess, roleBasedForum } from "@/util/constant";
-import { Chip } from "@/components/chip";
-import InfiniteScroll from "@/components/infiniteScroll";
-import { requireAuthentication } from "@/components/requireAuthentication";
+// import { responseCodes, roleAccess, roleBasedForum } from "@/util/constant";
+// import { Chip } from "@/components/chip";
+// import InfiniteScroll from "@/components/infiniteScroll";
+// import { requireAuthentication } from "@/components/requireAuthentication";
 import { useDispatch, useSelector } from "react-redux";
 import { selectUserDetail } from "@/redux/ducks/user.duck";
-import { showToast } from "@/components/toast";
-import DashboardLayout from "@/components/dashboardLayout";
-import {
-  getSelectedForumFilters,
-  setSelectedFilter,
-} from "@/redux/ducks/forum.duck";
+// import { showToast } from "@/components/toast";
+// import DashboardLayout from "@/components/dashboardLayout";
+// import {
+//   getSelectedForumFilters,
+//   setSelectedFilter,
+// } from "@/redux/ducks/forum.duck";
 import { HubLeftPenal } from "../hub/components/leftPanel";
 import { ResourceCard } from "./components/ResourceCard";
 import HeaderNav from "@/components/headerNav";
@@ -25,8 +25,10 @@ export default function Resources(props: any) {
   const router = useRouter();
   const loggedInUser = useSelector(selectUserDetail);
   const [resources, setResources] = useState<ResourceInfo[]>([]);
+  const [savedResources, setSavedResources] = useState(new Set());
 
-  console.log(loggedInUser);
+
+  // console.log(loggedInUser);
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -35,13 +37,42 @@ export default function Resources(props: any) {
         setResources(response.data);
         console.log('data fetched ', response.data);
       } catch (error) {
-        console.log('Error fetching data ', error);
+        console.log('Error fetching resource data ', error);
       }
     }
     fetchResources();
+
+
   },[])
 
-  console.log('resource state ', resources);
+  useEffect(() => {
+
+    interface ReadingListItem {
+      _id: string;
+      title: string;
+      link: string;
+      publisher: string;
+      tags: Array<string>
+    }
+
+    const fetchReadingList = async () => {
+      try {
+      const response = await axiosGet(`/user/${loggedInUser.id}/reading_list`);
+      console.log('response data in fetch reading list ', response.data);
+      setSavedResources(new Set(response.data.reading_list.map((item:ReadingListItem) => item._id)));
+      } catch (error) {
+        console.log('Error fetching reading list data ', error);
+      }
+    };
+  
+    fetchReadingList();
+
+  },[])
+
+
+  console.log('saved resources ', savedResources);
+  console.log(loggedInUser._id);
+  // console.log('resource state ', resources);
 
   return (
     <>
@@ -66,6 +97,7 @@ export default function Resources(props: any) {
                     key={resource._id}
                     title={resource.title}
                     publisher={resource.publisher}
+                    // isSaved={savedResources.has(resource._id)}
                   />
                 ))
                 }

@@ -21,6 +21,8 @@ import {
   searchUsersValidator,
   createAccountSettingsValidator,
 } from "../middleware/validator/user.js";
+import ResourceController from '../controllers/resource.js';
+import { addResourceValidator, validateIds } from '../middleware/validator/resource.js';
 
 const userRoute = Router();
 userRoute.get(
@@ -65,5 +67,9 @@ userRoute.post(
   createAccountSettings
 );
 userRoute.get("/account-settings", userAuth, getAccountSettings);
+
+userRoute.put('/:userId/saveResource', ResourceController.saveResource);
+userRoute.delete('/:userId/unsaveResource', ResourceController.unsaveResource);
+userRoute.get('/:userId/reading_list', ResourceController.getReadingList);
 
 export default userRoute;
