@@ -43,18 +43,6 @@ const allowedFileTypes = ["image/jpeg", "image/jpg", "image/gif", "image/png"];
 
 const roles = ["super_admin", "moderator", "professional", "student"];
 
-const roleBasedForum = {
-  super_admin: forumTypes, // all forum acces
-  moderator: forumTypes, // all forum acces
-  professional: [
-    "Dietetics & Nutrition",
-    "Medical professionals",
-    "RDN",
-    "NDTR",
-  ],
-  student: ["Student"],
-};
-
 const postTypes = ["post", "poll"];
 const postStatus = ["draft", "published"];
 const postFlags = ["Misinformation", "Unrelated", "Irrelevant"];
@@ -180,7 +168,6 @@ export {
   postTypes,
   postStatus,
   roles,
-  roleBasedForum,
   responseCodes,
   responseTypes,
   postFlags,

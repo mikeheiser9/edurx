@@ -1,3 +1,5 @@
+import { forumTypes } from "./constant";
+
 const getInputDateFormat = (date: Date): string => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -66,6 +68,30 @@ const removeSubstring = (
   return resultString;
 };
 
+const getAllowedForumAccessBasedOnRoleAndNpiDesignation = (
+  role: RolesTypes,
+  npiDesignation: string[]
+): string[] => {
+  if (role == "student") {
+    return ["Student"];
+  } else if (role == "moderator" || role == "super_admin") {
+    return forumTypes;
+  } else {
+    let forumAccess: string[] = npiDesignation.map((designation: string) => {
+      if (designation == "RDN") {
+        return designation;
+      }
+      return designation;
+    });
+    forumAccess = [
+      ...forumAccess,
+      "Dietetics & Nutrition",
+      "Medical professionals",
+    ];
+    return forumAccess;
+  }
+};
+
 export {
   getInputDateFormat,
   getStaticImageUrl,
@@ -73,4 +99,5 @@ export {
   boldOnSearch,
   areArraysEqual,
   removeSubstring,
+  getAllowedForumAccessBasedOnRoleAndNpiDesignation,
 };

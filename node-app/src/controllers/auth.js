@@ -64,6 +64,7 @@ export const signUp = async (req, res) => {
     }
     await storeUserRegistrationInfoInDb({
       ...req.body,
+      email: req.body.email.toLowerCase(),
       verification_code_expiry_time: codeExpireTime,
       verification_code: randomCode,
     }).then(async (userRes) => {
@@ -104,7 +105,7 @@ export const signUp = async (req, res) => {
         res,
         200,
         "success",
-        "during development mail is not sends, so go to the user collection and copy past verification_code field value in the verify account api to verify you account",
+        "during development mail is not sends, so go to the user collection and copy past verification_code field value to verify you account",
         null,
         true
       );
@@ -249,7 +250,7 @@ export const sendVerificationCode = async (req, res) => {
               "success",
               "during development mail is not sends, so go to the user collection and copy past verification_code field value in the verify account api to verify you account",
               null,
-              false
+              true
             );
           }
           return generalResponse(
@@ -289,7 +290,22 @@ export const sendVerificationCode = async (req, res) => {
 export const verifyCode = async (req, res) => {
   try {
     req.body = trimFields(req.body);
-    const user = await findUserByEmail(req.body.email);
+    const user = await findUserByEmail(req.body.email, {
+      type: "include",
+      attribute: [
+        "first_name",
+        "last_name",
+        "email",
+        "role",
+        "npi_designation",
+        "joined",
+        "verified_account",
+        "password",
+        "profile_img",
+        "verification_code_expiry_time",
+        "verification_code",
+      ],
+    });
     const currentTime = new Date().getTime();
     if (user) {
       if (!user.verified_account) {
@@ -300,65 +316,39 @@ export const verifyCode = async (req, res) => {
           user.verified_account = true;
           const update = await updateUser(user.email, user);
           if (update) {
+            // send token and details
+            user.password = "";
+            const jwtPayload = { email: user.email, role: user.role };
+            const secret = process.env.JWT_SECRET || "my_jwt_secret";
+            const token = jwt.sign(jwtPayload, secret, { expiresIn: "2d" });
             return generalResponse(
               res,
               200,
               "success",
-              "account verified successfully...!",
               null,
-              false
-            );
-          }
-          return generalResponse(
-            res,
-            400,
-            "error",
-            "something went wrong....",
-            error,
-            true
-          );
-        } else {
-          if (currentTime > user.verification_code_expiry_time) {
-            return generalResponse(
-              res,
-              400,
-              "error",
-              "your code is expired...!",
-              null,
+              { token, details: user },
               true
             );
           }
-          return generalResponse(
-            res,
-            406,
-            "error",
-            "wrong code entered...!",
-            null,
-            true
-          );
+          throw { myError: "something went wrong...!" };
+        } else {
+          if (currentTime > user.verification_code_expiry_time) {
+            throw { myError: "your code is expired...!" };
+          }
+          throw { myError: "wrong code entered...!" };
         }
       } else {
-        generalResponse(
-          res,
-          400,
-          "error",
-          "you are already registered with us :)",
-          null,
-          true
-        );
+        throw { myError: "you are already registered with us :)" };
       }
     } else {
-      generalResponse(
-        res,
-        400,
-        "error",
-        "first register yourself....",
-        null,
-        true
-      );
+      throw { myError: "first register yourself...." };
     }
   } catch (error) {
-    generalResponse(res, 400, "error", "something went wrong....", error, true);
+    let myError = "something went wrong";
+    if (error?.myError) {
+      myError = error?.myError;
+    }
+    generalResponse(res, 400, "error", myError, error, true);
   }
 };
 

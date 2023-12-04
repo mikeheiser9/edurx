@@ -240,7 +240,7 @@ export const UserProfile = ({ userId }: { userId: string }) => {
                   modelClosingFunction={
                     unFollowPostConfirmationModel.closeModal
                   }
-                  confirmationLabel={`are you sure you want to unfollow ${userData.first_name+"_"+userData.last_name}`}
+                  confirmationLabel={`Are you sure you want to unfollow ${userData.first_name+"_"+userData.last_name}`}
                 />
               </Modal>
               <div className="flex justify-center w-full items-center flex-col">

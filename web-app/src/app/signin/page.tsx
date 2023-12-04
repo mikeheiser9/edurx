@@ -8,20 +8,29 @@ import {
   verifyConfirmationCode,
 } from "@/service/auth.service";
 import { validateField } from "@/util/constant";
-import { Form, Formik, FormikHelpers, ErrorMessage } from "formik";
+import { Form, Formik, FormikHelpers, ErrorMessage, FormikErrors } from "formik";
 import { useDispatch } from "react-redux";
 import * as Yup from "yup";
 import { useState } from "react";
-import Link from "next/link";
-import { ResendCodeTemplate, VerifyEmail } from "../signup/commonBlocks";
+import {
+  AccountCreationSucceed,
+  ResendCodeTemplate,
+  VerifyEmail,
+} from "../signup/commonBlocks";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useRouter } from "next/navigation";
 
 export default function SignIn() {
   const dispatch = useDispatch();
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isVerificationPending, setIsVerificationPending] =
     useState<boolean>(false);
+  const [
+    accountCreationSucceedScreenOpen,
+    setAccountCreationSucceedScreenOpen,
+  ] = useState(false);
   const [commonMessage, setCommonMessage] = useState<string | null>(null);
   const { stringPrefixJoiValidation, email } = validateField;
 
@@ -29,7 +38,7 @@ export default function SignIn() {
     otp: string;
   }
 
-  const intialFormikValues: loginInterface = {
+  const initialFormikValues: loginInterface = {
     email: "",
     password: "",
     otp: "",
@@ -61,11 +70,12 @@ export default function SignIn() {
           code: values.otp,
         });
         if (res?.status === 200 && res?.data?.response_type === "success") {
-          setCommonMessage("Your account has been verified");
           setIsVerificationPending(false);
+          setAccountCreationSucceedScreenOpen(true);
           setTimeout(() => {
-            setCommonMessage(null);
-          }, 2000);
+            dispatch(setToken(res.data.data.token));
+            dispatch(setUserDetail(res.data.data.details));
+          }, 1000 * 3);
         } else {
           actions.setFieldError("otp", res?.data?.message);
         }
@@ -133,12 +143,21 @@ export default function SignIn() {
       .finally(() => actions.setSubmitting(false));
   };
 
+  const shouldDisable = (isSubmitting:boolean, errors: FormikErrors<loginInterface>) => {
+    return (
+      (isSubmitting ||
+      typeof errors.email != "undefined" ||
+      typeof errors.password != "undefined" ||
+      (isVerificationPending && typeof errors.otp != "undefined"))
+    );
+  };
+
   return (
     <div className="flex justify-center gap-4 flex-auto items-center h-full min-h-screen bg-eduDarkBlue/60">
       <CommonUI
         fields={
           <Formik
-            initialValues={intialFormikValues}
+            initialValues={initialFormikValues}
             validationSchema={
               isVerificationPending ? otpValidation : validateSchema
             }
@@ -146,52 +165,70 @@ export default function SignIn() {
           >
             {({ isSubmitting, values, ...actions }) => (
               <Form autoComplete="off">
-                <div className="flex flex-col justify-center gap-4 m-4 mx-10">
-                  {isVerificationPending ? (
+                <div className="flex flex-col justify-center gap-4 m-2 mx-10">
+                  {isVerificationPending && (
                     <>
                       <VerifyEmail />
-                      <ResendCodeTemplate
-                        onClick={() => onResendCode(values, actions)}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <InputField
-                        name="email"
-                        placeholder="Email address"
-                        type="text"
-                        autoComplete="on"
-                      />
-                      <InputField
-                        name="password"
-                        placeholder="Password"
-                        autoComplete="on"
-                        type={showPassword ? "text" : "password"}
-                        icon={
-                          <FontAwesomeIcon
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="eduBlack mt-[8px] cursor-pointer"
-                            icon={showPassword ? faEye : faEyeSlash}
-                          />
-                        }
-                      />
                     </>
                   )}
-                  <button
-                    className="bg-eduBlack text-white font-light text-[16px] rounded p-2 mt-8 m-auto w-1/2 hover:bg-yellow-500"
-                    type="submit"
-                    disabled={isSubmitting}
-                  >
-                    Sign in
-                  </button>
-                  {!isVerificationPending && (
-                    <span className="text-eduBlack/60 text-xs flex justify-center">
-                      Don't have account? &nbsp;
-                      <Link className="text-eduBlack" href="signup">
-                        Sign up
-                      </Link>
-                    </span>
+                  {accountCreationSucceedScreenOpen && (
+                    <AccountCreationSucceed />
                   )}
+                  {!isVerificationPending &&
+                    !accountCreationSucceedScreenOpen && (
+                      <>
+                        <InputField
+                          name="email"
+                          placeholder="Email address"
+                          type="text"
+                          autoComplete="on"
+                        />
+                        <InputField
+                          name="password"
+                          placeholder="Password"
+                          autoComplete="on"
+                          type={showPassword ? "text" : "password"}
+                          icon={
+                            <FontAwesomeIcon
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="eduBlack mt-[8px] cursor-pointer"
+                              icon={showPassword ? faEye : faEyeSlash}
+                            />
+                          }
+                        />
+                      </>
+                    )}
+                  {!accountCreationSucceedScreenOpen && (
+                    <button
+                      className={`bg-eduLightGray border-eduBlack text-eduBlack font-[600] border-[2px] text-[16px] rounded-lg p-2 m-auto w-1/2 hover:bg-yellow-500  ease-in duration-300 cursor-pointer ${
+                        shouldDisable(isSubmitting,actions.errors) &&
+                        "opacity-[40%] !cursor-not-allowed hover:!bg-white"
+                      }`}
+                      type="submit"
+                      disabled={shouldDisable(isSubmitting, actions.errors)}
+                    >
+                      {!isVerificationPending ? "Sign in" : "Next"}
+                    </button>
+                  )}
+                  {isVerificationPending && (
+                    <ResendCodeTemplate
+                      onClick={() => onResendCode(values, actions)}
+                    />
+                  )}
+                  {!isVerificationPending &&
+                    !accountCreationSucceedScreenOpen && (
+                      <div className="text-center text-sm font-[500] opacity-40 p-3">
+                        Don't have account? &nbsp;
+                        <span
+                          className="underline font-[700] cursor-pointer"
+                          onClick={() => {
+                            router.push("/signup");
+                          }}
+                        >
+                          Create one
+                        </span>
+                      </div>
+                    )}
                   {commonMessage && (
                     <span className="capitalize font-medium text-eduBlack text-sm text-center animate-fade-in-down">
                       {commonMessage}
@@ -207,8 +244,17 @@ export default function SignIn() {
             )}
           </Formik>
         }
-        title="Sign in"
+        title={
+          isVerificationPending
+            ? "Enter Verification Code"
+            : !accountCreationSucceedScreenOpen
+            ? "Sign in"
+            : "Creating Account"
+        }
         type="Edu-Rx"
+        accountCreationSucceedScreenOpen={accountCreationSucceedScreenOpen}
+        isVerificationPending={isVerificationPending}
+        setIsVerificationPending={setIsVerificationPending}
       />
     </div>
   );

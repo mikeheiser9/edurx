@@ -117,8 +117,8 @@ const RegistrationConfirmationMessage = (): React.JSX.Element => {
 const AccountCreationSucceed = (): React.JSX.Element => {
   return (
     <React.Fragment>
-      <div className="flex flex-col gap-4 text-center text-white opacity-50 text-sm">
-        <span>Welcome to EduRx</span>
+      <div className="flex flex-col gap-4 text-center text-eduBlack opacity-50 text-sm">
+        <span className="font-[600]">Welcome to EduRx</span>
         <span>Please wait while we set up your account</span>
         <span>When your account is ready you will be redirected</span>
       </div>
@@ -129,7 +129,7 @@ const AccountCreationSucceed = (): React.JSX.Element => {
 
 const Loader = (): React.JSX.Element => (
   <div
-    className="inline-block self-center h-12 w-12 animate-spin rounded-full border-[.5rem] border-solid border-eduLightBlue border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+    className="inline-block self-center h-12 w-12 animate-spin rounded-full border-[.5rem] border-solid border-eduYellow border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
     role="status"
   >
     <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
@@ -161,7 +161,7 @@ const ResendCodeTemplate = ({
   onClick: () => void;
 }): React.JSX.Element => {
   return (
-    <div className="mt-4 text-white opacity-50 text-center text-xs grid gap-2">
+    <div className="mt-4 text-eduBlack opacity-50 text-center text-xs grid gap-2">
       <span>Didn’t receive a code?</span>
       <span onClick={onClick} className="underline cursor-pointer">
         Resend Code

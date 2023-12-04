@@ -6,7 +6,7 @@ import { AddPost } from "./components/addPost";
 import { axiosGet } from "@/axios/config";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlusCircle, faSearch } from "@fortawesome/free-solid-svg-icons";
-import { responseCodes, roleAccess, roleBasedForum } from "@/util/constant";
+import { responseCodes, roleAccess } from "@/util/constant";
 import { Chip } from "@/components/chip";
 import { PostCard } from "./components/postCard";
 import InfiniteScroll from "@/components/infiniteScroll";
@@ -22,6 +22,7 @@ import {
   getSelectedForumFilters,
   setSelectedFilter,
 } from "@/redux/ducks/forum.duck";
+import { getAllowedForumAccessBasedOnRoleAndNpiDesignation } from "@/util/helpers";
 
 const forumTabs = ["Forum Feed", "Your Posts", "Following"];
 
@@ -48,7 +49,7 @@ const Page = () => {
   let apiEndpoint: string = `/post/forum/${
     selectedForumTab === forumTabs[1] ? "user" : "all"
   }`;
-  
+
   const handleFilters = (
     type: keyof FilterOptionsState,
     value: string | any[]
@@ -78,11 +79,10 @@ const Page = () => {
             .toString(),
         });
       }
-      if(selectedFilters?.filters?.length)
-      {
-        Object.assign(payload,{
-          filters:selectedFilters.filters.map((item)=>item?._id).toString()
-        })
+      if (selectedFilters?.filters?.length) {
+        Object.assign(payload, {
+          filters: selectedFilters.filters.map((item) => item?._id).toString(),
+        });
       }
       if (selectedFilters?.forumType) {
         Object.assign(payload, { forumType: selectedFilters.forumType });
@@ -93,7 +93,7 @@ const Page = () => {
       const response = await axiosGet(endPoint, {
         params: payload,
       });
-      
+
       if (response?.status === responseCodes.SUCCESS) {
         setPosts(
           useConcat
@@ -159,15 +159,19 @@ const Page = () => {
     }
   };
 
-
   useEffect(() => {
     if (selectedForumTab === forumTabs[2]) return;
     fetchPosts(1, apiEndpoint, false);
   }, [selectedFilters, selectedForumTab]);
-  
+
   return (
     <React.Fragment>
-      {addPostModal.isOpen && <AddPost addPostModal={addPostModal} fetchPosts={()=>fetchPosts(1, apiEndpoint, false)} />}
+      {addPostModal.isOpen && (
+        <AddPost
+          addPostModal={addPostModal}
+          fetchPosts={() => fetchPosts(1, apiEndpoint, false)}
+        />
+      )}
       <PostModal viewPostModal={viewPostModal} postId={selectedPostId} />
 
       <div className="flex justify-between items-center w-full h-[55px]">
@@ -212,9 +216,10 @@ const Page = () => {
             Viewing :
           </label>
           <Select
-            options={roleBasedForum[
-              loggedInUser?.role as keyof typeof roleBasedForum
-            ]?.map((item) => {
+            options={getAllowedForumAccessBasedOnRoleAndNpiDesignation(
+              loggedInUser?.role,
+              loggedInUser?.npi_designation
+            ).map((item) => {
               return {
                 label: item,
                 value: item,
@@ -250,19 +255,18 @@ const Page = () => {
         hasMoreData={posts?.length < postPagination.totalRecords}
         showLoading
       >
-        
         {posts?.map((post) => (
           <div key={post._id}>
-          <PostCard
-            post={post}
-            key={post._id}
-            onPostClick={() => onPostClick(post?._id)}
-            userRole={loggedInUser?.role}
-            onDeletePost={isAdmin ? () => onDeletePost(post?._id) : undefined}
-            onFlagPost={isAdmin ? onFlagPost : undefined}
-            isPostOwner={post.userId==loggedInUser._id}
-            loggedUserId={loggedInUser._id}
-          />
+            <PostCard
+              post={post}
+              key={post._id}
+              onPostClick={() => onPostClick(post?._id)}
+              userRole={loggedInUser?.role}
+              onDeletePost={isAdmin ? () => onDeletePost(post?._id) : undefined}
+              onFlagPost={isAdmin ? onFlagPost : undefined}
+              isPostOwner={post.userId == loggedInUser._id}
+              loggedUserId={loggedInUser._id}
+            />
           </div>
         ))}
       </InfiniteScroll>

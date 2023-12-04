@@ -15,7 +15,7 @@ interface commonRegistrationField extends userLoginField {
 
 interface professionalUserRegistrationField extends commonRegistrationField {
   addresses: string[];
-  city: string;
+  city?: string;
   state: string;
   zip_code: string;
   npi_number: string;

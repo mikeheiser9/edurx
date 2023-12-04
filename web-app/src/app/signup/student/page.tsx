@@ -18,7 +18,8 @@ import {
   ResendCodeTemplate,
   VerifyEmail,
 } from "../commonBlocks";
-import { Button } from "@/components/button";
+import { setToken, setUserDetail } from "@/redux/ducks/user.duck";
+import { useDispatch } from "react-redux";
 
 export default function () {
   const router = useRouter();
@@ -31,6 +32,7 @@ export default function () {
     password: false,
     confirmPassword: false,
   });
+  const dispatch = useDispatch();
   interface studentSignUpSchema extends commonRegistrationField {
     otp: string;
     isEduVerified: boolean;
@@ -168,8 +170,9 @@ export default function () {
         if (res.status === responseCodes.SUCCESS) {
           setCurrentStep((prevStep: number) => prevStep + 1);
           setTimeout(() => {
-            router.push("/");
-          }, 1000);
+            dispatch(setToken(res.data.data.token));
+            dispatch(setUserDetail(res.data.data.details));
+          }, 1000 * 3);
         } else if (res.status === responseCodes.NOT_ACCEPTABLE) {
           actions.setFieldError("otp", "Incorrect code, please try again");
         } else {
@@ -254,7 +257,7 @@ export default function () {
       // check if user already registered
       await handleUserExists(values, actions);
     } else if (currentStep === 1) {
-      if (!values.isEduVerified) return router.push("/");
+      if (!values.isEduVerified) return setCurrentStep(0);
       await handleSignUpProcess(values, actions);
     } else if (currentStep === 2) {
       // generate new verification code
@@ -381,25 +384,30 @@ export default function () {
       ? "Creating Account"
       : "Create Student Account";
   };
-
   return (
     <React.Fragment>
       <div className="flex justify-center p-4 bg-eduDarkGray">
-        <button
-          onClick={() =>
-            currentStep > 0
-              ? setCurrentStep((prevStep: number) => prevStep - 1)
-              : router.back()
-          }
-          className={`text-2xl px-2 self-center ${
-            currentStep !== 0 && currentStep % 2 === 0
-              ? "opacity-50"
-              : "opacity-100"
-          }`}
-          disabled={currentStep !== 0 && currentStep % 2 === 0}
-        >
-          <BackArrowIcon />
-        </button>
+        {![3, 4].includes(currentStep) && (
+          <button
+            onClick={() =>
+              currentStep > 0
+                ? currentStep == 2
+                  ? setCurrentStep(0)
+                  : setCurrentStep((prevStep: number) => prevStep - 1)
+                : router.back()
+            }
+            className={`text-2xl px-2 self-center ${
+              currentStep !== 0 && currentStep != 2 && currentStep % 2 === 0
+                ? "opacity-50"
+                : "opacity-100"
+            }`}
+            disabled={
+              currentStep !== 0 && currentStep != 2 && currentStep % 2 === 0
+            }
+          >
+            <BackArrowIcon />
+          </button>
+        )}
         <label className="text-[16px] text-eduBlack flex-1 text-center font-body self-center">
           Register for Edu-Rx | Student Account
         </label>
@@ -411,16 +419,19 @@ export default function () {
       >
         {({ isSubmitting, values, ...actions }) => (
           <div className="flex flex-col items-center p-4 bg-white">
-            <h1 className="text-eduBlack tracking-wider text-4xl my-4 font-headers font-semibold text-center">
+            <h1 className="text-3xl font-headers font-semibold">
               {getHeadTitle(values)}
             </h1>
             <Form>
-              <div className="flex flex-col gap-4 m-[5%]">
+              <div className="flex flex-col gap-4 text-eduBlack m-8">
                 {stepWiseRenderer(values)}
               </div>
               <div className="m-2 flex justify-center">
                 <button
-                  className="bg-eduBlack text-white font-light text-[16px] rounded p-2 m-auto w-1/2 hover:bg-yellow-500 ease-in duration-300"
+                  className={`bg-eduLightGray border-eduBlack text-eduBlack font-[600] border-[2px] text-[16px] rounded-lg p-2 m-auto w-1/2 hover:bg-yellow-500  ease-in duration-300 !cursor-pointer ${
+                    (isSubmitting || !actions.isValid) &&
+                    "!opacity-[40%] hover:!bg-white hover:!cursor-not-allowed"
+                  }`}
                   type="submit"
                   hidden={currentStep === 4}
                   disabled={isSubmitting || !actions.isValid}
@@ -428,6 +439,19 @@ export default function () {
                   {getLabel(values)}
                 </button>
               </div>
+              {currentStep == 0 && (
+                <div className="text-center text-sm font-[500] opacity-40 pt-3">
+                  Already have an account?{" "}
+                  <span
+                    className="underline font-[700] cursor-pointer"
+                    onClick={() => {
+                      router.push("/signin");
+                    }}
+                  >
+                    Log In
+                  </span>
+                </div>
+              )}
               {currentStep === 3 && (
                 <ResendCodeTemplate
                   onClick={() => onResendCode(values, actions)}

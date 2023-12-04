@@ -7,16 +7,15 @@ import {
   getSkippedAttributes,
 } from "../util/commonFunctions.js";
 import { accountSettingModal } from "../model/user/accountSetting.js";
-import { request } from "express";
 
 const userExistWithEmail = async (email, excludeAttributeList = null) => {
-  const user = await userModel.findByEmail(email, excludeAttributeList);
+  const user = await userModel.findByEmail(email.toLowerCase(), excludeAttributeList);
   return user ? { user, isExist: true } : { user, isExist: false };
 };
 const updateUser = async (email, user) => {
   return await userModel.findOneAndUpdate(
     {
-      email,
+      email:email.toLowerCase(),
     },
     {
       ...user,
@@ -27,7 +26,7 @@ const storeUserRegistrationInfoInDb = async (info) => {
   return await new userModel(info).save();
 };
 const findUserByEmail = async (email, excludeAttributeList = null) => {
-  return await userModel.findByEmail(email, excludeAttributeList);
+  return await userModel.findByEmail(email.toLowerCase(), excludeAttributeList);
 };
 
 const getUserProfileById = async (

@@ -18,10 +18,13 @@ import { Chip } from "@/components/chip";
 import { axiosGet } from "@/axios/config";
 import { LoadMore } from "@/components/loadMore";
 import { Loader } from "../../signup/commonBlocks";
-import { boldOnSearch } from "@/util/helpers";
+import {
+  boldOnSearch,
+  getAllowedForumAccessBasedOnRoleAndNpiDesignation,
+} from "@/util/helpers";
 import { ToggleSwitch } from "@/components/toggleSwitch";
 import { postCreationValidation } from "@/util/validations/post";
-import { responseCodes, roleBasedForum } from "@/util/constant";
+import { responseCodes } from "@/util/constant";
 import { addNewPost } from "@/service/post.service";
 import { useSelector } from "react-redux";
 import { selectUserDetail } from "@/redux/ducks/user.duck";
@@ -48,7 +51,13 @@ interface filterCategoryList {
   filters: [];
 }
 
-export const AddPost = ({ addPostModal,fetchPosts }: { addPostModal: UseModalType,fetchPosts: () => Promise<void>}) => {
+export const AddPost = ({
+  addPostModal,
+  fetchPosts,
+}: {
+  addPostModal: UseModalType;
+  fetchPosts: () => Promise<void>;
+}) => {
   const loggedInUser = useSelector(selectUserDetail);
   const [pollOptionsCount, setPollOptionsCount] = useState<number>(2);
   const [isLoading, setIsLoading] = useState<filterCategoryInput>({
@@ -81,9 +90,10 @@ export const AddPost = ({ addPostModal,fetchPosts }: { addPostModal: UseModalTyp
     filters: [],
   });
 
-  const dropdownOptions = roleBasedForum[
-    loggedInUser?.role as keyof typeof roleBasedForum
-  ].map((item) => {
+  const dropdownOptions = getAllowedForumAccessBasedOnRoleAndNpiDesignation(
+    loggedInUser?.role,
+    loggedInUser?.npi_designation
+  ).map((item) => {
     return {
       value: item,
       label: item,
@@ -285,7 +295,7 @@ export const AddPost = ({ addPostModal,fetchPosts }: { addPostModal: UseModalTyp
         if (response?.status === responseCodes.SUCCESS) {
           setTimeout(() => {
             addPostModal?.closeModal();
-            fetchPosts()
+            fetchPosts();
           }, 1000);
         } else throw new Error(message || "Something went wrong");
       })
@@ -449,7 +459,6 @@ export const AddPost = ({ addPostModal,fetchPosts }: { addPostModal: UseModalTyp
                     icon: faPoll,
                   },
                 ]}
-
                 iconClass="text-eduLightBlue"
                 tabItemClass="bg-eduDarkGray p-1 text-eduLightBlue font-normal px-3 ease-in-out duration-300 text-[10px] rounded-[5px] capitalize"
                 activeTabClass="ring-1 ring-eduLightBlue outline-eduLightBlue"
