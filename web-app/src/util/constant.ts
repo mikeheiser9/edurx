@@ -1,6 +1,10 @@
 import * as Yup from "yup";
 const validateField = {
-  email: Yup.string().trim().required().email("Please enter a valid email").max(150),
+  email: Yup.string()
+    .trim()
+    .required()
+    .email("Please enter a valid email")
+    .max(150),
   password: Yup.string()
     .min(8, "Password must be at least 8 characters")
     .max(25, "Password must be at most 25 characters")
@@ -84,7 +88,7 @@ const statesNames = {
   IL: "Illinois",
   IN: "Indiana",
   IA: "Iowa",
-  KS: "Kansas",
+  K: "Kansas",
   KY: "Kentucky",
   LA: "Louisiana",
   ME: "Maine",
@@ -150,13 +154,15 @@ const profileSections: profileSections = {
   profileImages: "Profile Images",
 };
 
-const postLabelType={
-  "Follow":"Follow",
-  "Following":"Following",
-  "Requested":"Requested",
-  "View":"View",
-  "Review Requests":"Review Requests"
-}
+const postLabelType = {
+  Follow: "Follow",
+  Following: "Following",
+  Requested: "Requested",
+  View: "View",
+  "Review Requests": "Review Requests",
+};
+
+const availableFor = ["Mentorship", "Research", "Collaboration"];
 
 export {
   validateField,
@@ -177,5 +183,6 @@ export {
   statesNames,
   NOTIFICATION_TYPES,
   profileSections,
-  postLabelType
+  postLabelType,
+  availableFor,
 };

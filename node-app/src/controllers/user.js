@@ -66,6 +66,9 @@ const getUserProfile = async (req, res) => {
             zip_code: 1,
             contact_email: 1,
             educations: 1,
+            Mentorship: 1,
+            Research: 1,
+            Collaboration: 1,
           },
         },
         {
@@ -188,6 +191,7 @@ const updateUserByID = async (req, res) => {
     const { userId } = req.body;
     const user = await updateProfileById(userId, {
       ...req.body,
+      ...req.body.availableFor,
       ...getKeyValueFromFiles(req.files),
     });
     if (!user) throw new Error("Could not update profile with id");

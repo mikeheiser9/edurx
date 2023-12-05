@@ -1,6 +1,7 @@
 import { validateObjectIds } from "../../repository/post.js";
 import {
   generalResponse,
+  getAllowedForumAccessBasedOnRoleAndNpiDesignation,
   returnAppropriateError,
 } from "../../util/commonFunctions.js";
 import {
@@ -31,9 +32,12 @@ const createPostValidator = async (req, res, next) => {
   try {
     const { stringPrefixJoiValidation, objectId } = validateField;
     const filterCategoryValidation = Joi.array().max(50).items(objectId);
+    const role=req.user.role
+    const npi_designation=req.user.npi_designation;
+    const forum=getAllowedForumAccessBasedOnRoleAndNpiDesignation(role,npi_designation)
     const schema = Joi.object({
       userId: validateField.objectId.required(),
-      forumType: stringPrefixJoiValidation.valid(...forumTypes).required(),
+      forumType:Joi.string().valid(...forum),
       postType: stringPrefixJoiValidation.valid(...postType).required(),
       postStatus: stringPrefixJoiValidation.valid(...postStatus).required(),
       title: stringPrefixJoiValidation.required().max(26),
@@ -61,10 +65,14 @@ const createPostValidator = async (req, res, next) => {
 
 const getUsersPostsValidator = async (req, res, next) => {
   try {
+    const role=req.user.role
+    const npi_designation=req.user.npi_designation;
+    const forum=getAllowedForumAccessBasedOnRoleAndNpiDesignation(role,npi_designation)
     const schema = Joi.object({
       userId: validateField.objectId.required(),
       ...paginationValidation,
       ...allPostValidations,
+      forumType:Joi.string().valid(...forum)
     });
 
     await schema.validateAsync({
@@ -218,9 +226,13 @@ const getAllPostValidator = async (req, res, next) => {
   try {
     // filter options forumType, category, userId
     // sort options newest, most popular, trending
+    const role=req.user.role
+    const npi_designation=req.user.npi_designation;
+    const forum=getAllowedForumAccessBasedOnRoleAndNpiDesignation(role,npi_designation)
     const schema = Joi.object({
       ...paginationValidation,
       ...allPostValidations,
+      forumType:Joi.string().valid(...forum)
     });
     await schema.validateAsync({
       ...req.query,

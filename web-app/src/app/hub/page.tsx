@@ -614,7 +614,7 @@ const Page = () => {
                         <span className="text-[20px] text-eduBlack font-headers">
                           {(notification.createdBy == loggedInUser._id
                             ? "You "
-                            : notification.notificationFrom[0].username + " ") +
+                            : notification.notificationFrom?.[0]?.username + " ") +
                             getSemanticDescriptionFromEventType(
                               notification.notificationType
                             )}

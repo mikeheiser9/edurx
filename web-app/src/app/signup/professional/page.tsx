@@ -250,6 +250,10 @@ export default function SignUp() {
               setCommonErrorMessage(null);
             }, 2000);
           }
+          else if (userRes?.isExist && !userRes?.user?.verified_account) {
+            // user verification pending
+            setCurrentStep(5);
+          }
         } else {
           if (response.data.message.indexOf("email") != -1) {
             actions.setFieldError("email", "invalid email entered");
@@ -660,7 +664,7 @@ export default function SignUp() {
                 )}
                 <span
                   hidden={!commonErrorMessage}
-                  className="text-eduBlack/60 flex place-content-center text-[14px] font-body m-2 animate-fade-in-down"
+                  className="text-red-500 flex place-content-center text-[14px] font-body m-2 animate-fade-in-down"
                 >
                   {commonErrorMessage}
                 </span>

@@ -4,8 +4,9 @@ import { postModal } from "../model/post/post.js";
 import { postRequestModal } from "../model/post/postAccessRequest.js";
 import { reactionModal } from "../model/post/reaction.js";
 import { viewModal } from "../model/post/views.js";
-import { findAndPaginate } from "../util/commonFunctions.js";
+import { findAndPaginate, getAllowedForumAccessBasedOnRoleAndNpiDesignation } from "../util/commonFunctions.js";
 import mongoose from "mongoose";
+import { forumTypes } from "../util/constant.js";
 
 const createNewPost = async (payload) => {
   const isExist = await postModal.findOne({
@@ -375,7 +376,6 @@ const getPostById = async (postId, userId) => {
       "likeCount",
       "dislikeCount",
       "views",
-
       "userAccessRequestCount",
       userPopulator,
       {
@@ -450,20 +450,27 @@ const getPosts = async ({
   categories,
   userId,
   loggedInUser,
-  filters
+  filters,
+  role,
+  npi_designation,
 }) => {
   try {
+    let forum = [];
+    if (!forumType) {
+      forum=getAllowedForumAccessBasedOnRoleAndNpiDesignation(role,npi_designation)
+    }
     const skippedPages = (page - 1) * limit;
     const sortByQuery = {
       newest: { createdAt: -1 },
       trending: { views: -1 }, // Sort by the number of views in descending order
       popular: { likes: -1 }, // Sort by the number of likes in descending order
     };
+
     const query = {
-      ...(forumType ? { forumType } : {}),
+      ...(forumType ? { forumType } : { forumType: { $in: forum } }),
       ...(categories ? { categories: { $in: categories } } : {}),
       ...(userId ? { userId } : {}),
-      ...(filters ? {filters:{$in:filters}}:{}),
+      ...(filters ? { filters: { $in: filters } } : {}),
       isDeleted: { $ne: true },
     };
     const pipeline = [
@@ -604,7 +611,7 @@ const getPosts = async ({
 
     const posts = await postModal.aggregate(pipeline);
     const totalCount = posts?.[0]?.metadata[0]?.totalCount || 0;
-    
+
     return {
       posts: {
         metadata: {
@@ -745,21 +752,24 @@ const findPostById = async (postId) => {
   return await postModal.findById(postId);
 };
 
-const deletePostRequest=async(condition)=>{
-  return await postRequestModal.deleteMany(condition)
-}
+const deletePostRequest = async (condition) => {
+  return await postRequestModal.deleteMany(condition);
+};
 
-const fetchFilters=async()=>{
-  return await categoryFilterModal.find({type:"filter"},{
-    name:1,
-    type:1,
-    _id:1
-  })
-}
+const fetchFilters = async () => {
+  return await categoryFilterModal.find(
+    { type: "filter" },
+    {
+      name: 1,
+      type: 1,
+      _id: 1,
+    }
+  );
+};
 
-const deleteOnePostRequest=async(condition)=>{
-  return await postRequestModal.deleteOne(condition)
-}
+const deleteOnePostRequest = async (condition) => {
+  return await postRequestModal.deleteOne(condition);
+};
 
 export {
   createNewPost,
@@ -780,5 +790,5 @@ export {
   findPostById,
   deletePostRequest,
   fetchFilters,
-  deleteOnePostRequest
+  deleteOnePostRequest,
 };

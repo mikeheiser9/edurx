@@ -459,7 +459,7 @@ export default function () {
               )}
               <span
                 hidden={!commonErrorMessage}
-                className="text-eduBlack flex place-content-center text-sm opacity-50 m-2 animate-fade-in-down"
+                className="text-red-500 flex place-content-center text-sm opacity-50 m-2 animate-fade-in-down"
               >
                 {commonErrorMessage}
               </span>

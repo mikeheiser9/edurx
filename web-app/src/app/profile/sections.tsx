@@ -116,7 +116,8 @@ const BasicInfo = ({
               ) : (
                 <>
                   <FontAwesomeIcon icon={faLocationDot} className="me-2" />
-                  {userData?.city}, {userData?.state && userData?.state}•{" "}
+                  {/* {userData?.city}, {userData?.state && userData?.state}•{" "} */}
+                  {userData?.state && userData?.state}•{" "}
                   {userData?.npi_designation
                     ?.map((item: string) => {
                       if (item)

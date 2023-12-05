@@ -255,6 +255,8 @@ const getAllPosts = async (req, res) => {
       filters:
         filterList?.length > 0 &&
         filterList.map((filter) => new Types.ObjectId(filter)),
+      role:req.user.role,
+      npi_designation:req.user.npi_designation
     });
     return generalResponse(res, 200, "OK", "posts fetched successfully", posts);
   } catch (error) {

@@ -230,14 +230,14 @@ export default function SignIn() {
                       </div>
                     )}
                   {commonMessage && (
-                    <span className="capitalize font-medium text-eduBlack text-sm text-center animate-fade-in-down">
+                    <span className="capitalize font-medium text-red-500 text-sm text-center animate-fade-in-down">
                       {commonMessage}
                     </span>
                   )}
                 </div>
                 <ErrorMessage
                   name="isUnauthorized"
-                  className="text-eduBlack text-sm opacity-50 text-center m-2 animate-fade-in-down"
+                  className="text-red-500 text-sm opacity-50 text-center m-2 animate-fade-in-down"
                   component="div"
                 />
               </Form>

@@ -42,6 +42,7 @@ export const CommentManager = ({
       page: 1,
       totalRecords: 0,
     });
+  const [closeReplies, setCloseReplies] = useState(false);
 
   const onLoadMoreComment = async (page: number) => {
     try {
@@ -67,7 +68,10 @@ export const CommentManager = ({
     }
   };
 
-  const onCommentSubmit = async (commentData?: any) => {
+  const onCommentSubmit = async (
+    commentData?: any,
+    type?: "comment" | "reply"
+  ) => {
     try {
       if (!loggedInUser?._id) return;
       const payload = {
@@ -81,6 +85,9 @@ export const CommentManager = ({
       if (response?.status === responseCodes.SUCCESS) {
         setcommentText("");
         getPostById?.(); // It'll update UI after adding comment
+        if (type == "comment") {
+          setCloseReplies(true);
+        }
       } else throw new Error("Comment submission failed");
     } catch (error) {
       (error as Error)?.message && showToast.error((error as Error)?.message);
@@ -178,7 +185,8 @@ export const CommentManager = ({
           style: {
             minBlockSize: "8rem",
           },
-          className: "text-[16px] w-full rounded-t-md rounded-none p-4 bg-eduDarkGray text-eduBlack",
+          className:
+            "text-[16px] w-full rounded-t-md rounded-none p-4 bg-eduDarkGray text-eduBlack",
           placeholder: "What are your thoughts? (Type @ to mention a user)",
         }}
       />
@@ -186,7 +194,7 @@ export const CommentManager = ({
         <Button
           label="Comment"
           className="!text-[12px] !m-0 w-[150px] !rounded-[10px] text-white self-end border-white hover:!bg-eduBlack hover:text-white ease-in-out duration-300"
-          onClick={() => onCommentSubmit()}
+          onClick={() => onCommentSubmit(null, "comment")}
         />
       </span>
       <hr className="my-6 border-eduBlack/60 border rounded-md" />
@@ -208,6 +216,8 @@ export const CommentManager = ({
             key={comment?._id}
             onSubmitReply={onCommentSubmit}
             onCommentReaction={addReaction}
+            closeReplies={closeReplies}
+            setCloseReplies={setCloseReplies}
           />
         ))}
       </InfiniteScroll>

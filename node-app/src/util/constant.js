@@ -109,6 +109,11 @@ export const userValidations = {
     ),
   licenses: joi.array().items(userDocValidation),
   certificates: joi.array().items(userDocValidation),
+  availableFor:joi.object({
+    Collaboration: joi.boolean(),
+    Mentorship: joi.boolean(),
+    Research: joi.boolean(),
+  })
 };
 
 const paginationAllowedLimits = [5, 10, 20, 50, 100, 200, 500, 1000];

@@ -40,6 +40,11 @@ const EditProfile = ({
     useState(false);
   const saveAndAddAnotherButtonPressedRef =
     useRef<React.LegacyRef<HTMLButtonElement> | null>(null);
+  const [availableFor, setAvailableFor] = useState({
+    Mentorship: userData.Mentorship ? userData.Mentorship : false,
+    Research: userData.Research ? userData.Research : false,
+    Collaboration: userData.Collaboration ? userData.Collaboration : false,
+  });
   const userId: string | undefined = loggedInUser?._id;
   let message = `Failed to save user profile [${currentSection}]`;
 
@@ -178,10 +183,15 @@ const EditProfile = ({
     try {
       if (!values.profile_img && !values.banner_img) return;
       const formData = new FormData();
-      Object.keys(values).forEach((key) =>
-        formData.set(key, values[key as keyof profileImages])
-      );
-      formData.append("data", JSON.stringify({ userId }));
+      Object.keys(values).forEach((key) => {
+        if (key != "availableFor") {
+          formData.set(
+            key,
+            values[key as keyof profileImages] as string | Blob
+          );
+        }
+      });
+      formData.append("data", JSON.stringify({ userId, availableFor }));
       const response = await axiosPut("/user/profile", formData);
       if (response?.status === responseCodes.SUCCESS) {
         dispatch(
@@ -195,6 +205,9 @@ const EditProfile = ({
             ...preData,
             profile_img: response?.data?.data?.user?.profile_img,
             banner_img: response?.data?.data?.user?.banner_img,
+            Collaboration: response?.data?.data?.user?.Collaboration,
+            Mentorship: response?.data?.data?.user?.Mentorship,
+            Research: response?.data?.data?.user?.Research,
           };
         });
       } else throw new Error("Something went wrong");
@@ -283,6 +296,8 @@ const EditProfile = ({
         currentSection={currentSection as keyof profileSections}
         setSaveAndAddAnotherButtonPressed={setSaveAndAddAnotherButtonPressed}
         saveAndAddAnotherButtonPressedRef={saveAndAddAnotherButtonPressedRef}
+        availableFor={availableFor}
+        setAvailableFor={setAvailableFor}
       />
     );
   };

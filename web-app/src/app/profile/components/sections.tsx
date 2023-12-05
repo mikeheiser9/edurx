@@ -1,6 +1,6 @@
 import InputField from "@/components/input";
 import { TextArea } from "@/components/textArea";
-import { FormikHelpers } from "formik";
+import { FormikHelpers, useField } from "formik";
 import Image, { StaticImageData } from "next/image";
 import React, { useEffect, useState } from "react";
 import instagram from "../../../assets/icons/instagram.svg";
@@ -16,7 +16,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 import { getStaticImageUrl } from "@/util/helpers";
-import { allowedFileTypes } from "@/util/constant";
+import { allowedFileTypes, availableFor } from "@/util/constant";
+import { Switch } from "@/components/switch";
 
 const socialMediaIcons: socials = {
   linkedin,
@@ -721,7 +722,7 @@ const DropZone = ({
         </label>
       </div>
       <span
-        className={`text-eduBlack capitalize text-sm animate-fade-in-down ${
+        className={`text-red-500 capitalize text-sm animate-fade-in-down ${
           errorMessage ? "visible" : "hidden"
         }`}
       >
@@ -734,9 +735,23 @@ const DropZone = ({
 const ProfileImages = ({
   values,
   actions,
+  availableFor,
+  setAvailableFor,
 }: {
   values: profileImages;
   actions: FormikHelpers<profileImages>;
+  availableFor: {
+    Mentorship: boolean;
+    Research: boolean;
+    Collaboration: boolean;
+  };
+  setAvailableFor: React.Dispatch<
+    React.SetStateAction<{
+      Mentorship: boolean;
+      Research: boolean;
+      Collaboration: boolean;
+    }>
+  >;
 }): React.JSX.Element => {
   return (
     <div className="flex flex-col gap-4 mb-3">
@@ -758,6 +773,52 @@ const ProfileImages = ({
         <span className="text-eduBlack/60 text-[12px] font-body">
           (Image file should not exceed 1400x250 pixels or 18MB)
         </span>
+      </div>
+      <span className="w-full border border-eduBlack/60" />
+      <div className="flex flex-col gap-2">
+        <span className="text-eduBlack font-body text-[16px]">
+          Available for
+        </span>
+        {/* {notificationCategories[item].types?.map((type) => ( */}
+        <div className="flex flex-col gap-1" key={"df"}>
+          <span className="text-[10px]">Mentorship</span>
+          <Switch
+            checked={availableFor.Mentorship}
+            onChange={() =>
+              setAvailableFor((pre) => {
+                return {
+                  ...pre,
+                  Mentorship: !pre.Mentorship,
+                };
+              })
+            }
+          />
+          <span className="text-[10px]">Research</span>
+          <Switch
+            checked={availableFor.Research}
+            onChange={() =>
+              setAvailableFor((pre) => {
+                return {
+                  ...pre,
+                  Research: !pre.Research,
+                };
+              })
+            }
+          />
+          <span className="text-[10px]">Collaboration</span>
+          <Switch
+            checked={availableFor.Collaboration}
+            onChange={() =>
+              setAvailableFor((pre) => {
+                return {
+                  ...pre,
+                  Collaboration: !pre.Collaboration,
+                };
+              })
+            }
+          />
+        </div>
+        {/* ))} */}
       </div>
     </div>
   );

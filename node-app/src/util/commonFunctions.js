@@ -141,3 +141,33 @@ export const findAndPaginate = async (
     return error;
   }
 };
+
+export const getAllowedForumAccessBasedOnRoleAndNpiDesignation = (
+  role,
+  npiDesignation
+) => {
+  if (role == "student") {
+    return ["Student"];
+  } else if (role == "moderator" || role == "super_admin") {
+    return [
+      "Dietetics & Nutrition",
+      "Medical professionals",
+      "RDN",
+      "NDTR",
+      "Student",
+    ];
+  } else {
+    let forumAccess = npiDesignation.map((designation) => {
+      if (designation == "RDN") {
+        return designation;
+      }
+      return designation;
+    });
+    forumAccess = [
+      ...forumAccess,
+      "Dietetics & Nutrition",
+      "Medical professionals",
+    ];
+    return forumAccess;
+  }
+};

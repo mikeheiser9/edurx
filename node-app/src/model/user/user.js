@@ -17,7 +17,7 @@ const userSchema = new Schema(
       instagram: String,
       facebook: String,
       email: String,
-      website:String
+      website: String,
     },
     personal_bio: String,
     profile_img: String,
@@ -41,6 +41,9 @@ const userSchema = new Schema(
         activities: String,
       },
     ],
+    Mentorship: { type: Boolean, default: false },
+    Research: { type: Boolean, default: false },
+    Collaboration: { type: Boolean, default: false },
   },
   {
     timestamps: { createdAt: "joined" },
@@ -104,9 +107,9 @@ userSchema.virtual("followingCount", {
   localField: "_id",
   foreignField: "userId",
   count: true,
-  match:{
-    postId:undefined
-  }
+  match: {
+    postId: undefined,
+  },
 });
 
 userSchema.virtual("followersCount", {
@@ -114,9 +117,9 @@ userSchema.virtual("followersCount", {
   localField: "_id",
   foreignField: "targetUserId",
   count: true,
-  match:{
-    postId:undefined
-  }
+  match: {
+    postId: undefined,
+  },
 });
 
 userSchema.virtual("licensesCount", {

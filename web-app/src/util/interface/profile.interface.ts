@@ -11,7 +11,7 @@ interface socials {
   linkedin?: string;
   twitter?: string;
   facebook?: string;
-  website?:string,
+  website?: string;
   email?: string;
 }
 
@@ -49,6 +49,16 @@ interface userDocs {
 interface profileImages {
   banner_img: string | File;
   profile_img: string | File;
+  availableFor?: {
+    Mentorship: boolean;
+    Research: boolean;
+    Collaboration: boolean;
+  };
+  setAvailableFor?:React.Dispatch<React.SetStateAction<{
+    Mentorship: boolean;
+    Research: boolean;
+    Collaboration: boolean;
+}>>
 }
 
 interface userProfileInterface {
@@ -90,6 +100,9 @@ interface UserData {
   certificates: certifications[];
   userPosts?: [];
   recentComments?: [];
+  Collaboration?:boolean,
+  Mentorship?:boolean,
+  Research?:boolean
 }
 
 type certifications = userDocs;

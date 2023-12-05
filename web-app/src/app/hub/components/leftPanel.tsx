@@ -30,7 +30,6 @@ export const HubLeftPenal = () => {
   const profileModal = useModal();
   const editProfileModal = useModal();
   const accountSettingModal = useModal();
-
   const getUserByApi = async () => {
     const userId = loggedInUser?._id;
     if (!userId) return;
