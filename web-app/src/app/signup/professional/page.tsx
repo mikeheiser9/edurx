@@ -404,7 +404,7 @@ export default function SignUp() {
         </p>
         <div className="px-8">
           <InputField
-            maxLength={20}
+            maxLength={10}
             name="npi_number"
             placeholder="License Number"
             type="text"
@@ -479,13 +479,13 @@ export default function SignUp() {
           name="addresses.0"
           placeholder="Address Line 1"
           type="text"
-          maxLength={60}
+          maxLength={160}
         />
         <InputField
           name="addresses.1"
           placeholder="Address Line 2"
           type="text"
-          maxLength={60}
+          maxLength={160}
         />
         {/* <div className="grid grid-cols-2 gap-4">
           <InputField

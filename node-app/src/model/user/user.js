@@ -44,6 +44,12 @@ const userSchema = new Schema(
     Mentorship: { type: Boolean, default: false },
     Research: { type: Boolean, default: false },
     Collaboration: { type: Boolean, default: false },
+    reading_list: [ 
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'resource'
+      }
+    ]
   },
   {
     timestamps: { createdAt: "joined" },

@@ -360,7 +360,7 @@ export const AddPost = ({
                           <InputField
                             name="title"
                             placeholder="Title"
-                            maxLength={30}
+                            maxLength={130}
                           />
                           <TextEditor
                             value={values?.content}
@@ -379,7 +379,7 @@ export const AddPost = ({
                           <InputField
                             name="title"
                             placeholder="Title"
-                            maxLength={30}
+                            maxLength={130}
                           />
                           <TextEditor
                             value={values.content}
@@ -401,7 +401,7 @@ export const AddPost = ({
                                   placeholder={`Option ${index + 1}`}
                                   type="text"
                                   className="w-full"
-                                  maxLength={20}
+                                  maxLength={80}
                                 />
                               </div>
                             ))}
@@ -412,7 +412,7 @@ export const AddPost = ({
                                 onClick={() =>
                                   setPollOptionsCount((prev) => prev + 1)
                                 }
-                                className="text-eduBlack/60 animate-scale-in inline-block mt-2 bg-gray-600 p-2 py-1 rounded-md text-xs cursor-pointer"
+                                className="text-white animate-scale-in inline-block mt-2 bg-eduLightBlue p-2 py-1 rounded-md text-xs cursor-pointer"
                               >
                                 Add Option
                               </span>

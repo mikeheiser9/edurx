@@ -14,7 +14,7 @@ const validateField = {
     ),
   stringPrefixJoiValidation: Yup.string().trim(),
 };
-const taxonomyCodeToProfessionalMapping = {
+const taxonomyCodeToProfessionalMapping = { 
   "133V00000X": "RDN",
   "136A00000X": "NDTR",
 };
@@ -24,7 +24,7 @@ const npiToDefinition = {
   NDTR: "Dietetic Technician, Registered",
 };
 
-const publicRoutes = [
+const publicRoutes = [ 
   "/",
   "/signup",
   "/signin",
@@ -163,6 +163,10 @@ const postLabelType = {
 };
 
 const availableFor = ["Mentorship", "Research", "Collaboration"];
+
+const resourceLabelType={
+  "Read Now":"Read now"
+}
 
 export {
   validateField,

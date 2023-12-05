@@ -126,7 +126,7 @@ const addNewComment = async (req, res) => {
         if (!isExist) {
           throw new Error("one or more tagged user not exists");
         }
-      }
+      } 
     }
     const newComment = await addComment({
       userId,
@@ -227,7 +227,7 @@ const getPostComments = async (req, res) => {
   } catch (error) {
     return generalResponse(res, 400, "error", error.message, error);
   }
-};
+}; 
 
 const getPost = async (req, res) => {
   try {
@@ -251,7 +251,7 @@ const getAllPosts = async (req, res) => {
         categoryList?.length > 0 &&
         categoryList.map((category) => new Types.ObjectId(category)),
       userId,
-      loggedInUser: req.user._id,
+      loggedInUser: req.user._id, 
       filters:
         filterList?.length > 0 &&
         filterList.map((filter) => new Types.ObjectId(filter)),

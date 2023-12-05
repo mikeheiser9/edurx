@@ -27,6 +27,7 @@ const nextConfig = {
         pathname: "*",
       }
     ],
+    "types": ["three"]
   },
   // webpack(config) {
   //   config.module.rules.push({

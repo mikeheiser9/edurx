@@ -45,7 +45,7 @@ const About = (): React.JSX.Element => {
         placeholder="example@gmail.com"
         type="text"
         label="Preferred Contact Email"
-        maxLength={50}
+        maxLength={80}
       />
       <div className="mt-6">
         <div className="text-sm mt-2 grid grid-cols-2 gap-x-5 gap-y-5">
@@ -210,7 +210,7 @@ const Education = ({
               type="text"
               name="school_name"
               label="School"
-              maxLength={20}
+              maxLength={120}
               labelProps={labelProps}
               mandatory
             />
@@ -225,7 +225,7 @@ const Education = ({
               type="text"
               name="field_of_study"
               label="Field of Study"
-              maxLength={20}
+              maxLength={120}
               labelProps={labelProps}
               mandatory
             />
@@ -458,7 +458,7 @@ const UserDocs = ({
           <InputField
             type="text"
             name="doc_name"
-            maxLength={20}
+            maxLength={120}
             placeholder="Enter name"
             label="Name"
             labelProps={labelProps}
@@ -466,7 +466,7 @@ const UserDocs = ({
           />
           <InputField
             type="text"
-            maxLength={20}
+            maxLength={120}
             name="issuer_organization"
             placeholder="Enter issuer"
             label="Issuing Organization"
@@ -533,7 +533,7 @@ const UserDocs = ({
           <InputField
             type="text"
             name="doc_id"
-            maxLength={40}
+            maxLength={80}
             label="Credential ID"
             placeholder="Enter credential ID"
             labelProps={labelProps}
@@ -541,7 +541,7 @@ const UserDocs = ({
           <InputField
             type="text"
             name="doc_url"
-            maxLength={60}
+            // maxLength={160}
             label="Credential URL"
             placeholder="Enter credential URL"
             labelProps={labelProps}
