@@ -55,18 +55,19 @@ const HeaderNav = () => {
   };
 
   return (
-    <nav className="flex relative gap-8 p-4 justify-center rounded-md">
+    <nav className="relative px-2 flex flex-row flex-nowrap min-w-full">
       {loggedInUser && (
         <ProfileDialog
           loggedInUser={loggedInUser}
           profileModal={profileModal}
         />
       )}
+      <div className="relative w-[95%] flex flex-row flex-nowrap justify-between items-center">
       {tabMenuOptions.map((item, index: number) => (
         <button
           key={index}
           onClick={() => onNavigate(item)}
-          className={`text-eduBlack duration-300 py-2 ease-in-out transition-colors text-[16px] rounded-[5px] font-semibold px-4 w-[145px] text-center cursor-pointer ${
+          className={`text-eduBlack duration-300 py-[5px] ease-in-out transition-colors text-[16px] rounded-[5px] font-semibold px-2 w-[145px] text-center cursor-pointer h-[40px] flex flex-row flex-nowrap items-center justify-center ${
             item?.isDisabled && "!cursor-not-allowed"
           } disabled:opacity-60 ${
             pathName === `/${item?.path}`
@@ -92,111 +93,121 @@ const HeaderNav = () => {
               {item?.label}
             </span>
           ) : (
-            <div className="flex justify-center text-center">
-              <span
-                className={`w-1/3  ${
+            <div className="flex justify-start w-full">
+              <div
+                className={`relative w-1/3 flex flex-row flex-nowrap justify-start items-start pr-[5px] ${
                   pathName === "/" + item?.path
-                    ? "border-r-white"
+                    ? "border-r-eduYellow"
                     : "border-r-black"
-                } grid grid-cols-2 gap-1`}
+                }`}
               >
                 <span
-                  className={`w-[7px] h-[7px] rounded ${returnAppropriateClass(
-                    item?.path
-                  )}`}
-                ></span>
-                <span
-                  className={`w-[7px] h-[7px] rounded ${returnAppropriateClass(
-                    item?.path
-                  )}`}
-                ></span>
-                <span
-                  className={`w-[7px] h-[7px] rounded ${returnAppropriateClass(
-                    item?.path
-                  )}  ml-[10px]`}
-                ></span>
-                <span
-                  className={`w-[7px] h-[7px] rounded ${returnAppropriateClass(
-                    item?.path
-                  )} relative top-[11px]`}
-                ></span>
-                <span
-                  className={`w-[7px] h-[7px] rounded ${returnAppropriateClass(
-                    item?.path
-                  )}`}
-                ></span>
-              </span>
-
-              <span
-                className={`absolute h-[45px] top-[16px] mr-[27px] border-r-2 ${
+                className={`absolute h-[40px] top-[-8px] right-0 border-r-2 ${
                   pathName === "/" + item?.path
                     ? "border-r-white"
                     : "border-r-black"
                 }`}
-              ></span>
-              <span
-                className={`ml-2 rotate-[-90deg] text-[0.7em] ${
-                  pathName === "/" + item?.path
-                    ? "border-white"
-                    : "border-black"
-                } border-solid border-[1px] h-[100%] w-[20px] mt-[4px] text-center`}
-              >
-                RX
-              </span>
-              <span className="ml-1">{item.label}</span>
+                ></span>
+                <div className="flex flex-col w-1/3 h-full justify-between">
+                  <span
+                    className={`w-[8px] h-[8px] rounded-[50%] ${returnAppropriateClass(
+                      item?.path
+                    )}`}
+                  ></span>
+                  <span
+                    className={`w-[8px] h-[8px] rounded-[50%] ${returnAppropriateClass(
+                      item?.path
+                    )}`}
+                  ></span>
+                </div>
+                <div className="flex flex-col w-1/3 h-full justify-center">
+                  <span
+                    className={`w-[8px] h-[8px] rounded-[50%] ${returnAppropriateClass(
+                      item?.path
+                    )} `}
+                  ></span>
+                </div>
+                <div className="flex flex-col w-1/3 h-full justify-between">
+                  <span
+                    className={`w-[8px] h-[8px] rounded-[50%] ${returnAppropriateClass(
+                      item?.path
+                    )} `}
+                  ></span>
+                  <span
+                    className={`w-[8px] h-[8px] rounded-[50%] ${returnAppropriateClass(
+                      item?.path
+                    )}`}
+                  ></span>
+                </div>
+              </div>
+              <div className="relative flex flex-row flex-nowrap w-2/3 justify-center items-center">
+                <div
+                  className={`relative rotate-[-90deg] text-[0.7em] flex justify-center items-center ${
+                    pathName === "/" + item?.path
+                      ? "border-white"
+                      : "border-black"
+                  } border-solid border-[1px] w-[20px] h-[20px] text-center`}
+                >
+                  RX
+                </div>
+                <span className="ml-1">{item.label}</span>
+              </div>
             </div>
           )}
         </button>
       ))}
-      <div
-        className={`absolute transition-colors rounded-md ease-in-out duration-100 p-2 z-40 flex gap-2 flex-col right-4 ${
-          showDropdown ? "bg-primary-darker" : "bg-transparent"
-        }`}
-        ref={dropDownRef}
-      >
-        <div className="flex justify-end">
-          <span
-            onClick={() => setshowDropdown(!showDropdown)}
-            className={`flex ease-in-out duration-500 cursor-pointer ring-eduBlack overflow-hidden w-8 h-8 justify-center items-center rounded-full bg-eduDarkGray ${
-              showDropdown ? "shadow-[0px_0px_5px] shadow-black" : ""
-            }`}
-          >
-            {loggedInUser?.profile_img ? (
-              <Image
-                src={getStaticImageUrl(loggedInUser?.profile_img)}
-                alt="user_profile_img"
-                width={100}
-                height={100}
-              />
-            ) : (
-              <FontAwesomeIcon icon={faUserAlt} />
-            )}
-          </span>
+      </div>
+      <div className="relative w-[5%] flex flex-col justify-center items-end">
+        <div
+          className={`absolute transition-colors rounded-md ease-in-out duration-100 p-2 z-40 flex flex-col top-[-5px] ${
+            showDropdown ? "bg-primary-darker" : "bg-transparent"
+          }`}
+          ref={dropDownRef}
+        >
+          <div className="flex justify-end">
+            <span
+              onClick={() => setshowDropdown(!showDropdown)}
+              className={`flex ease-in-out duration-500 cursor-pointer ring-eduBlack overflow-hidden w-8 h-8 justify-center items-center rounded-full bg-eduDarkGray ${
+                showDropdown ? "shadow-[0px_0px_5px] shadow-black" : ""
+              }`}
+            >
+              {loggedInUser?.profile_img ? (
+                <Image
+                  src={getStaticImageUrl(loggedInUser?.profile_img)}
+                  alt="user_profile_img"
+                  width={100}
+                  height={100}
+                />
+              ) : (
+                <FontAwesomeIcon icon={faUserAlt} />
+              )}
+            </span>
+          </div>
+          <DropDownPopover
+            itemClassName="px-1 text-sm flex items-center gap-2 cursor-pointer"
+            isVisible={showDropdown}
+            options={[
+              {
+                label: "Profile",
+                icon: faUserAlt,
+                onClick: () => profileModal.openModal(),
+              },
+              {
+                label: "Notifications",
+                icon: faBell,
+              },
+              {
+                label: "Account",
+                icon: faGear,
+              },
+              {
+                label: "Logout",
+                icon: faSignOut,
+                onClick: logOutUser,
+              },
+            ]}
+          />
         </div>
-        <DropDownPopover
-          itemClassName="px-1 text-sm flex items-center gap-2 cursor-pointer"
-          isVisible={showDropdown}
-          options={[
-            {
-              label: "Profile",
-              icon: faUserAlt,
-              onClick: () => profileModal.openModal(),
-            },
-            {
-              label: "Notifications",
-              icon: faBell,
-            },
-            {
-              label: "Account",
-              icon: faGear,
-            },
-            {
-              label: "Logout",
-              icon: faSignOut,
-              onClick: logOutUser,
-            },
-          ]}
-        />
       </div>
     </nav>
   );
