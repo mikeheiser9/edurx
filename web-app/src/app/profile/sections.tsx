@@ -360,9 +360,9 @@ const Education = ({
       {educations?.length ? (
         educations?.map((value: education) => (
           <div className="flex gap-4" key={value?._id || Date.now()}>
-            <div className="flex">
+            {/* <div className="flex">
               <Image src={eduIcon} alt={`${value?._id as string}alt`} />
-            </div>
+            </div> */}
             <div className="flex flex-1 flex-col text-eduBlack gap-1">
               <span className="capitalize font-headers font-medium text-[14px]">
                 {value?.school_name || "-"}

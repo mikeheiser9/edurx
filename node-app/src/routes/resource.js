@@ -5,9 +5,6 @@ import { addResourceValidator, validateIds } from '../middleware/validator/resou
 const router = express.Router();
 
 router.get('/', ResourceController.getResources);
-router.post('/', addResourceValidator, ResourceController.createResource);
-// router.put('/user/:userId/saveResource', validateIds, ResourceController.saveResource);
-// router.delete('/user/:userId/unsaveResource', validateIds, ResourceController.unsaveResource);
-
+router.post('/create', addResourceValidator, ResourceController.createResource);
 
 export default router;

@@ -26,8 +26,8 @@ const tabMenuOptions = [
   { label: "Hub", img: EduRxIcon, path: "hub" },
   { label: "Forum", path: "forum" },
   { label: "Resources", path: "resources" },
-  { label: "Events", isDisabled: true },
   { label: "EduRx Library", isDisabled: true },
+  { label: "Events", isDisabled: true },
   { label: "Health Check", isDisabled: true },
 ];
 

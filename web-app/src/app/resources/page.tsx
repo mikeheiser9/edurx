@@ -10,10 +10,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectUserDetail } from "@/redux/ducks/user.duck";
 // import { showToast } from "@/components/toast";
 // import DashboardLayout from "@/components/dashboardLayout";
-// import {
-//   getSelectedForumFilters,
-//   setSelectedFilter,
-// } from "@/redux/ducks/forum.duck";
+import {
+  getSelectedResFilters,
+  setSelectedFilter,
+} from "@/redux/ducks/resource.duck";
 import { HubLeftPenal } from "../hub/components/leftPanel";
 import { ResourceCard } from "./components/ResourceCard";
 import HeaderNav from "@/components/headerNav";
@@ -22,14 +22,30 @@ const resourceTabs = ["Resources", "News", "Reading List"];
 
 
 export default function Resources(props: any) {
+
   const router = useRouter();
+  const dispatch = useDispatch();
   const loggedInUser = useSelector(selectUserDetail);
   const [resources, setResources] = useState<ResourceInfo[]>([]);
   const [savedResources, setSavedResources] = useState(new Set());
-  const [ isSaved, setIsSaved ] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const selectedFilters: FilterOptionsState = useSelector(
+    getSelectedResFilters
+  );
+  const [selectedResTab, setSelectedResTab] = useState<string>(resourceTabs[0])
 
 
-  // console.log(loggedInUser);
+  const handleFilters = (
+    type: keyof FilterOptionsState,
+    value: string | any[]
+  ) => {
+    dispatch(
+      setSelectedFilter({
+        ...selectedFilters,
+        [type]: selectedFilters?.[type] === value ? null : value,
+      })
+    );
+  };
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -53,6 +69,7 @@ export default function Resources(props: any) {
       title: string;
       link: string;
       publisher: string;
+      isResource: boolean;
       tags: Array<string>
     }
 
@@ -66,10 +83,15 @@ export default function Resources(props: any) {
       }
     };
   
-    fetchReadingList();
+      fetchReadingList();
 
-  },[])
+    },[])
 
+    // useEffect(() => {
+    //   if (selectedResTab === resourceTabs[1]) 
+
+
+    // },[])
 
   console.log('saved resources ', savedResources);
   console.log(loggedInUser._id);
@@ -86,26 +108,46 @@ export default function Resources(props: any) {
                 </div>
               </div>
 
-              <div className="w-full flex flex-col items-center justify-start p-4">
+              <div className="relative w-full flex flex-col items-center justify-start p-4">
                 <>
-                <div>
+                <div className="relative w-full">
                   <HeaderNav />
                 </div>
-                {resources?.map((resource) => (
+                <div className="relative w-full flex flex-row flex-nowrapf h-[100px] justify-center items-center">
+                <ul className="flex gap-6">
+                    {resourceTabs.map((item) => (
+                      <li
+                        onClick={() => setSelectedResTab(item)}
+                        className={`text-eduBlack font-body font-medium ease-in-out duration-500 border-b-2 py-2 text-[14px] cursor-pointer ${
+                          item === selectedResTab
+                            ? "border-primary"
+                            : "border-transparent"
+                        }`}
+                        key={item}
+                      >
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                {
+                
+                  resources?.map((resource) => (
                   <ResourceCard 
                     resource={resource}
                     userId={loggedInUser._id}
                     key={resource._id}
                     title={resource.title}
                     publisher={resource.publisher}
+                    isResource={resource.isResource}
                     isSaved={savedResources.has(resource._id)}
                   />
                 ))
+                
                 }
                 </>
-                
               </div>
-            </div>    
+            </div>
           </div>
         </div>
     </>

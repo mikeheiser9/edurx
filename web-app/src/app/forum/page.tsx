@@ -33,7 +33,7 @@ const Page = () => {
   const viewPostModal = useModal();
   const selectedFilters: FilterOptionsState = useSelector(
     getSelectedForumFilters
-  );
+  ); 
 
   const [selectedForumTab, setSelectedForumTab] = useState<string>(
     forumTabs[0]

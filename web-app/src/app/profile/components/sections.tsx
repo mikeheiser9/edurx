@@ -414,7 +414,7 @@ const UserDocs = ({
           <FontAwesomeIcon icon={faPlus} className="self-center text-black" />
         </span>
         <span
-          className="cursor-pointer text-eduBlack/60 rounded-lg p-2 px-6 bg-eduLightGray w-[250px] rounded-[10px]"
+          className="cursor-pointer text-eduBlack/60 p-2 px-6 bg-eduLightGray w-[250px] rounded-[10px]"
           onClick={addMore}
         >
           Add another

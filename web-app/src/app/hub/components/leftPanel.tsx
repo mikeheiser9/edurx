@@ -146,6 +146,7 @@ export const HubLeftPenal = () => {
               {
                 label: "Notifications",
                 isDefault: true,
+                onClick: () => router.push("hub"),
               },
               {
                 label: "My Profile",
@@ -157,7 +158,7 @@ export const HubLeftPenal = () => {
               },
               {
                 label: "Resources",
-                // onClick: () => router.push("resources"),
+                onClick: () => router.push("resources"),
               },
             ]}
           />

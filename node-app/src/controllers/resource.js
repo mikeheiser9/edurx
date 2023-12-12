@@ -10,7 +10,7 @@ class ResourceController {
     } catch (error) {
       res.status(400).send(error.message); 
     }
-  }
+  } 
 
   async getResources(req, res) {
     try {

@@ -55,6 +55,12 @@ const [saved, setSaved] = useState(isSaved);
             <div className="flex flex-col flex-1 w-[80%] justify-start items-start">
                 <div className="flex flex-row flex-nowrap">
                     <span className="text-eduDarkBlue text-[16px]">Published by {resource.publisher}</span>
+                    <span className="mx-[10px]"> | </span> 
+                    <span className="text-eduLightBlue text-[14px]">
+                        {
+                            resource.isResource ? 'Resource Article' : 'News'
+                        }
+                    </span>
                 </div>
                 <div className="mt-2">
                     <h2 className="text-[22px]">{resource.title}</h2>

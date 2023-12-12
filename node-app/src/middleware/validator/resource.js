@@ -6,6 +6,7 @@ const addResourceValidator = (req, res, next) => {
     title: Joi.string().required(),
     link: Joi.string().uri().required(),
     publisher: Joi.string().required(),
+    isResource: Joi.boolean().required(),
     tags: Joi.array().items(Joi.string())
   });
 
