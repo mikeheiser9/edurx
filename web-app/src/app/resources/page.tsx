@@ -20,6 +20,13 @@ import HeaderNav from "@/components/headerNav";
 
 const resourceTabs = ["Resources", "News", "Reading List"];
 
+interface ResourceInfo {
+  _id: string;
+  title: string;
+  publisher: string;
+  isResource: boolean;
+  tags: Array<{ _id: string; name: string }>;
+}
 
 export default function Resources(props: any) {
 
@@ -51,7 +58,24 @@ export default function Resources(props: any) {
     const fetchResources = async () => {
       try {
         const response = await axiosGet('/resource')
-        setResources(response.data);
+        // setResources(response.data);
+        let fetchedRes = response.data
+        switch (selectedResTab) {
+          case 'Resources':
+            fetchedRes = fetchedRes.filter((resource: ResourceInfo) => resource.isResource);
+          break;
+          case 'News':
+            fetchedRes = fetchedRes.filter((resource: ResourceInfo) => !resource.isResource);
+          break;
+          case 'Reading List':
+            const readingListIds = new Set(savedResources);
+            fetchedRes = fetchedRes.filter((resource: ResourceInfo) => readingListIds.has(resource._id));
+          break;
+          default:
+          // No additional filtering
+          break;
+        }
+        setResources(fetchedRes);
         console.log('data fetched ', response.data);
       } catch (error) {
         console.log('Error fetching resource data ', error);
@@ -59,11 +83,9 @@ export default function Resources(props: any) {
     }
     fetchResources();
 
+  },[selectedResTab, savedResources])
 
-  },[])
-
-  useEffect(() => {
-
+  useEffect(() => {  
     interface ReadingListItem {
       _id: string;
       title: string;
@@ -86,12 +108,6 @@ export default function Resources(props: any) {
       fetchReadingList();
 
     },[])
-
-    // useEffect(() => {
-    //   if (selectedResTab === resourceTabs[1]) 
-
-
-    // },[])
 
   console.log('saved resources ', savedResources);
   console.log(loggedInUser._id);
@@ -130,21 +146,17 @@ export default function Resources(props: any) {
                     ))}
                   </ul>
                 </div>
-                {
-                
-                  resources?.map((resource) => (
-                  <ResourceCard 
-                    resource={resource}
-                    userId={loggedInUser._id}
-                    key={resource._id}
-                    title={resource.title}
-                    publisher={resource.publisher}
-                    isResource={resource.isResource}
-                    isSaved={savedResources.has(resource._id)}
-                  />
-                ))
-                
-                }
+                  {
+                  
+                    resources?.map((resource) => (
+                    <ResourceCard 
+                      resource={resource}
+                      userId={loggedInUser._id}
+                      isSaved={savedResources.has(resource._id)}
+                    />
+                  ))
+                  
+                  }
                 </>
               </div>
             </div>
