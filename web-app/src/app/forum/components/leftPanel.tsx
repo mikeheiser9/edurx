@@ -1,14 +1,11 @@
-import { Loader } from "@/app/signup/commonBlocks";
 import { axiosGet } from "@/axios/config";
 import { Button } from "@/components/button";
-import { LoadMore } from "@/components/loadMore";
 import { showToast } from "@/components/toast";
 import {
   getSelectedForumFilters,
   setSelectedFilter,
 } from "@/redux/ducks/forum.duck";
 import { responseCodes } from "@/util/constant";
-import { areArraysEqual } from "@/util/helpers";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TrendingIcon from "../../../assets/icons/trending.svg";
@@ -21,6 +18,13 @@ import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import InfiniteScroll from "@/components/infiniteScroll";
 import { useModal } from "@/hooks";
 import { FilterSetting } from "./filterSelection";
+import { ProfileDialog } from "@/app/hub/components/profileDialog";
+import {
+  removeToken,
+  removeUserDetail,
+  selectUserDetail,
+} from "@/redux/ducks/user.duck";
+import { setModalState } from "@/redux/ducks/modal.duck";
 
 const sortingOptions: { value: string; label: string; icon: any }[] = [
   {
@@ -54,7 +58,9 @@ export const LeftPanel = () => {
   const [selectedLocalFilters, setSelectedLocalFilters] =
     useState<FilterOptionsState | null>(null);
   const [showMoreCatagories, setShowMoreCatagories] = useState<boolean>(true);
-  const filterSetting = useModal();  
+  const filterSetting = useModal();
+  const profileModal = useModal();
+  const loggedInUser = useSelector(selectUserDetail);
   const handleFilters = (
     type: keyof FilterOptionsState,
     value: string | any[]
@@ -72,7 +78,6 @@ export const LeftPanel = () => {
       })
     );
   };
-
   const fetchCategories = async (page: number = 1) => {
     try {
       setIsCategoriesLoading(true);
@@ -82,11 +87,15 @@ export const LeftPanel = () => {
           type: "category",
           limit: 10,
           page,
+          forumType: selectedFilters?.forumType,
         },
       });
       if (response.status === responseCodes.SUCCESS) {
         setIsCategoriesLoading(false);
-        setCategoryList(categoryList.concat(response?.data?.data?.records));
+        setCategoryList((prevStates) => [
+          ...prevStates,
+          ...response?.data?.data?.records,
+        ]);
         setCategoryPagination({
           page: response?.data?.data?.currentPage,
           totalRecords: response?.data?.data?.totalRecords,
@@ -104,7 +113,7 @@ export const LeftPanel = () => {
 
   const onCategorySelect = (item: TagCategoryType, isSelected: boolean) => {
     const values = isSelected
-      ? selectedLocalFilters?.categories?.filter((i) => i.name !== item.name) ??
+      ? selectedLocalFilters?.categories?.filter((i) => i._id !== item._id) ??
         []
       : [...(selectedLocalFilters?.categories ?? []), item];
     setSelectedLocalFilters((preState) => {
@@ -121,8 +130,14 @@ export const LeftPanel = () => {
   const onLoadMore = () => fetchCategories(categoryPagination.page + 1);
 
   useEffect(() => {
+    setCategoryPagination({
+      page: 1,
+      totalRecords: 0,
+    });
+    setCategoryList([]);
+    setShowMoreCatagories(true);
     fetchCategories();
-  }, []);
+  }, [selectedFilters?.forumType]);
 
   useEffect(() => {
     setSelectedLocalFilters(selectedFilters);
@@ -131,7 +146,7 @@ export const LeftPanel = () => {
   return (
     <>
       <FilterSetting accountSettingModal={filterSetting} />
-
+      <ProfileDialog loggedInUser={loggedInUser} profileModal={profileModal} />
       <div className="flex flex-col h-full flex-auto">
         <span className="text-eduBlack text-[22px] font-medium font-headers mb-[20px]">
           Sort By
@@ -176,11 +191,12 @@ export const LeftPanel = () => {
           className={`flex flex-col gap-3 h-full overflow-hidden ${
             showMoreCatagories ? "max-h-[20vh] !overflow-y-hidden" : "max-h-max"
           }`}
+          showLoading={isCategoriesLoading}
         >
           {categoryList?.map((item) => {
             let isSelected =
               selectedLocalFilters?.categories?.some(
-                (i) => i.name === item.name
+                (i) => i._id === item._id
               ) || false;
             return (
               <li
@@ -226,10 +242,38 @@ export const LeftPanel = () => {
             label="Sort by Filter"
             type="button"
             onClick={() => {
-              filterSetting.openModal()
+              filterSetting.openModal();
             }}
             // disabled={!isUpdated}
           />
+        </div>
+        <hr className="my-2 h-[3px] bg-eduBlack border-0" />
+        <div className="flex flex-col gap-3 text-eduBlack ">
+          <span
+            className="cursor-pointer"
+            onClick={() => {
+              profileModal.openModal();
+            }}
+          >
+            Profile
+          </span>
+          <span
+            className="cursor-pointer"
+            onClick={() => {
+              dispatch(setModalState({isOpen:true}));
+            }}
+          >
+            My Drafts
+          </span>
+          <span
+            className="cursor-pointer"
+            onClick={() => {
+              dispatch(removeToken());
+              dispatch(removeUserDetail());
+            }}
+          >
+            Sign Out
+          </span>
         </div>
       </div>
     </>

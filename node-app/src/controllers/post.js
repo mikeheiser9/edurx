@@ -9,6 +9,7 @@ import {
   deleteOnePostRequest,
   deletePostRequest,
   fetchFilters,
+  findCategoryOrPostByCondition,
   findPostById,
   getCommentsByPostId,
   getPostById,
@@ -18,7 +19,7 @@ import {
   updatePostById,
   updatePostRequests,
 } from "../repository/post.js";
-import { generalResponse } from "../util/commonFunctions.js";
+import { generalResponse, getAllowedForumAccessBasedOnRoleAndNpiDesignation } from "../util/commonFunctions.js";
 import { responseCodes, responseTypes } from "../util/constant.js";
 import {
   findFollowerById,
@@ -62,12 +63,22 @@ const createPost = async (req, res) => {
 
 const searchPostMetaLabel = async (req, res) => {
   try {
-    const { name, type, page, limit } = req.query;
+    const { name, type, page, limit, forumType } = req.query;
+    const forum = []
+    if (!forumType || forumType == "All Forums") {
+      const role = req.user.role
+      const npi_designation = req.user.npi_designation;
+      forum.push(...getAllowedForumAccessBasedOnRoleAndNpiDesignation(role, npi_designation))
+    }
+    else {
+      forum.push(forumType)
+    }
     const searchResult = await searchCategoryFilterByName(
       name,
       type,
       page,
-      limit
+      limit,
+      forum
     );
     let message = searchResult.records.length
       ? "records found"
@@ -81,7 +92,21 @@ const searchPostMetaLabel = async (req, res) => {
 const addPostMetaLabel = async (req, res) => {
   try {
     const { metaLabel } = req.params;
-    const response = await addCategoryFilter({ ...req.body, type: metaLabel });
+    const { forumType, name } = req.body;
+    const categegoryOrFilterToBeInserted = [];
+    for (let i = 0; i < forumType.length; i++) {
+      const data = {
+        forumType: forumType[i],
+        name: name,
+        type: metaLabel
+      }
+      categegoryOrFilterToBeInserted.push(data);
+      const res = await findCategoryOrPostByCondition(data)
+      if (res) {
+        throw `${name} already exists in ${metaLabel}`
+      }
+    }
+    const response = await addCategoryFilter(categegoryOrFilterToBeInserted);
     return generalResponse(
       res,
       200,
@@ -126,7 +151,7 @@ const addNewComment = async (req, res) => {
         if (!isExist) {
           throw new Error("one or more tagged user not exists");
         }
-      } 
+      }
     }
     const newComment = await addComment({
       userId,
@@ -227,7 +252,7 @@ const getPostComments = async (req, res) => {
   } catch (error) {
     return generalResponse(res, 400, "error", error.message, error);
   }
-}; 
+};
 
 const getPost = async (req, res) => {
   try {
@@ -251,12 +276,12 @@ const getAllPosts = async (req, res) => {
         categoryList?.length > 0 &&
         categoryList.map((category) => new Types.ObjectId(category)),
       userId,
-      loggedInUser: req.user._id, 
+      loggedInUser: req.user._id,
       filters:
         filterList?.length > 0 &&
         filterList.map((filter) => new Types.ObjectId(filter)),
-      role:req.user.role,
-      npi_designation:req.user.npi_designation
+      role: req.user.role,
+      npi_designation: req.user.npi_designation
     });
     return generalResponse(res, 200, "OK", "posts fetched successfully", posts);
   } catch (error) {
@@ -552,28 +577,6 @@ const followPost = async (req, res) => {
   }
 };
 
-const getFilters = async (req, res) => {
-  try {
-    const filters = await fetchFilters();
-    return generalResponse(
-      res,
-      responseCodes.SUCCESS,
-      responseTypes.OK,
-      "result successfully fetched",
-      filters
-    );
-  } catch (error) {
-    return generalResponse(
-      res,
-      responseCodes.ERROR,
-      responseTypes.INTERNAL_SERVER_ERROR,
-      error?.message || "Something went wrong",
-      error,
-      true
-    );
-  }
-};
-
 export {
   createPost,
   searchPostMetaLabel,
@@ -589,5 +592,4 @@ export {
   getUserRequests,
   bulkUpdateRequests,
   followPost,
-  getFilters,
 };

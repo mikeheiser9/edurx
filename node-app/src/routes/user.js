@@ -10,6 +10,9 @@ import {
   getConnections,
   createAccountSettings,
   getAccountSettings,
+  userDrafts,
+  userDraftsCount,
+  userDraft,
 } from "../controllers/user.js";
 import {
   addDocumentValidator,
@@ -21,8 +24,12 @@ import {
   searchUsersValidator,
   createAccountSettingsValidator,
 } from "../middleware/validator/user.js";
-import ResourceController from '../controllers/resource.js';
-import { addResourceValidator, validateIds } from '../middleware/validator/resource.js';
+import ResourceController from "../controllers/resource.js";
+import {
+  addResourceValidator,
+  validateIds,
+} from "../middleware/validator/resource.js";
+import { deletePostDraftValidator } from "../middleware/validator/post.js";
 
 const userRoute = Router();
 userRoute.get(
@@ -68,8 +75,10 @@ userRoute.post(
 );
 userRoute.get("/account-settings", userAuth, getAccountSettings);
 
-userRoute.put('/:userId/saveResource', ResourceController.saveResource);
-userRoute.delete('/:userId/unsaveResource', ResourceController.unsaveResource);
-userRoute.get('/:userId/reading_list', ResourceController.getReadingList);
-
+userRoute.put("/:userId/saveResource", ResourceController.saveResource);
+userRoute.delete("/:userId/unsaveResource", ResourceController.unsaveResource);
+userRoute.get("/:userId/reading_list", ResourceController.getReadingList);
+userRoute.get("/drafts", userAuth, userDrafts);
+userRoute.get("/drafts/count", userAuth, userDraftsCount);
+userRoute.delete("/draft/:id",userAuth,deletePostDraftValidator,userDraft)
 export default userRoute;

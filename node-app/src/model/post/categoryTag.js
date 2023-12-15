@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { postCategoryFilterTypes } from "../../util/constant.js";
+import { forumTypes, postCategoryFilterTypes } from "../../util/constant.js";
 
 const schema = new Schema(
   {
@@ -18,6 +18,11 @@ const schema = new Schema(
     //   ref: "user",
     // },
     isDeleted: Boolean,
+    forumType: {
+      type: Schema.Types.String,
+      enum: forumTypes,
+      required: true,
+    },
   },
   {
     timestamps: true,

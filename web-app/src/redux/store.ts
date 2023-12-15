@@ -5,7 +5,7 @@ import userReducer from "./ducks/user.duck";
 import forumReducer from "./ducks/forum.duck";
 import persistStore from "redux-persist/es/persistStore";
 import toastReducer from "./ducks/toast.duck"
-
+import modalReducer from "./ducks/modal.duck"
 const persistConfig = {
   key: "user",
   whitelist: ["user"],
@@ -21,7 +21,8 @@ export const store = configureStore({
     combineReducers({
       user: userReducer,
       forum: forumReducer,
-      toast:toastReducer
+      toast:toastReducer,
+      modal:modalReducer
     })
   ),
   devTools: devToolAllow,

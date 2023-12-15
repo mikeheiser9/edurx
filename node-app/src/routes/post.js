@@ -15,7 +15,6 @@ import {
   getUserRequests,
   bulkUpdateRequests,
   followPost,
-  getFilters,
 } from "../controllers/post.js";
 import {
   addCommentValidator,
@@ -104,7 +103,5 @@ postRoute.put(
   bulkRequestUpdateValidator,
   bulkUpdateRequests
 );
-
-postRoute.get("/filter/all", userAuth, getFilters);
 
 export default postRoute;

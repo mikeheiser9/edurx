@@ -1,6 +1,5 @@
 import { Modal } from "@/components/modal";
 import { showToast } from "@/components/toast";
-import { getFilters } from "@/service/post.service";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Checkbox } from "@/components/checkbox";
@@ -8,6 +7,9 @@ import {
   getSelectedForumFilters,
   setSelectedFilter,
 } from "@/redux/ducks/forum.duck";
+import InfiniteScroll from "@/components/infiniteScroll";
+import { axiosGet } from "@/axios/config";
+import { responseCodes } from "@/util/constant";
 interface Props {
   accountSettingModal: UseModalType;
 }
@@ -18,26 +20,56 @@ interface filterType {
   name: string;
 }
 export const FilterSetting = ({ accountSettingModal }: Props) => {
-  const dispatch=useDispatch()
+  const dispatch = useDispatch()
   const selectedFilters: FilterOptionsState = useSelector(
     getSelectedForumFilters
   );
   const [selectedLocalFilters, setSelectedLocalFilters] =
     useState<FilterOptionsState | null>(null);
   const [filters, setFilters] = useState<filterType[]>([]);
+  const [filtersLoading, setFilterLoading] = useState(false);
+  const [filterPagination, setFilterPagination] = useState<PageDataState>({
+    page: 1,
+    totalRecords: 0,
+  });
+
+  const getFilter = async (page: number = 1) => {
+    try {
+      setFilterLoading(true);
+      const response = await axiosGet("/post/category/search", {
+        params: {
+          name: "",
+          type: "filter",
+          limit: 10,
+          page,
+          forumType: selectedFilters?.forumType
+        },
+      });
+      if (response.status === responseCodes.SUCCESS) {
+        setFilterLoading(false);
+        setFilters((prevStates) => [...prevStates, ...response?.data?.data?.records]);
+        setFilterPagination({
+          page: response?.data?.data?.currentPage,
+          totalRecords: response?.data?.data?.totalRecords,
+        });
+      } else throw new Error("Unable to retrieve category list");
+    } catch (error) {
+      showToast.error(
+        (error as Error)?.message || "Unable to retrieve filter list"
+      );
+    }
+  }
+
   useEffect(() => {
     if (accountSettingModal.isOpen) {
-      getFilters()
-        .then((response) => {
-          setFilters(response.data?.data);
-        })
-        .catch((error) => {
-          showToast.error(
-            (error as Error).message || "Unable to retrieve filters"
-          );
-        });
+      setFilters([])
+      setFilterPagination({
+        page: 1,
+        totalRecords: 0
+      })
+      getFilter()
     }
-  }, [accountSettingModal.isOpen]);
+  }, [accountSettingModal.isOpen, selectedFilters?.forumType]);
 
   const handleClick = async () => {
     selectedLocalFilters && dispatch(setSelectedFilter(selectedLocalFilters))
@@ -46,8 +78,8 @@ export const FilterSetting = ({ accountSettingModal }: Props) => {
 
   const onFilterSelect = (item: TagCategoryType, isSelected: boolean) => {
     const values = isSelected
-      ? selectedLocalFilters?.filters?.filter((i) => i.name !== item.name) ??
-        []
+      ? selectedLocalFilters?.filters?.filter((i) => i._id !== item._id) ??
+      []
       : [...(selectedLocalFilters?.filters ?? []), item];
     setSelectedLocalFilters((preState) => {
       return {
@@ -56,6 +88,8 @@ export const FilterSetting = ({ accountSettingModal }: Props) => {
       };
     });
   };
+
+  const onLoadMore = () => getFilter(filterPagination.page + 1)
 
   useEffect(() => {
     setSelectedLocalFilters(selectedFilters);
@@ -73,32 +107,41 @@ export const FilterSetting = ({ accountSettingModal }: Props) => {
           <span className="font-headers font-medium text-xl text-eduBlack mb-4">
             Select Filters
           </span>
-
-          {filters?.map((filter) => {
-            let isSelected =
-              selectedLocalFilters?.filters?.some(
-                (i) => i.name === filter.name
-              ) || false;
-            return (
-              <li
-                key={filter._id}
-                className="animate-fade-in-down text-sm font-normal text-eduBlack flex gap-2"
-                onClick={() => {
-                  onFilterSelect(filter, isSelected);
-                }}
-              >
-                <Checkbox
-                  id={filter?._id}
-                  name={"filter"}
-                  checked={isSelected}
-                  onChange={() => {
-                    onFilterSelect(filter, isSelected);
-                  }}
-                />
-                <label id={filter?._id}>{filter.name}</label>
-              </li>
-            );
-          })}
+          <InfiniteScroll
+            hasMoreData={filterPagination?.totalRecords > filters?.length}
+            callBack={onLoadMore}
+            className={`flex flex-col gap-3 max-h-[300px] !overflow-y-auto}`}
+            showLoading={filtersLoading}
+          >
+            {filters?.length==0 && <span className="self-center">No Filter Available For {selectedFilters?.forumType} Forum</span>}
+            {filters?.map((filter) => {
+              let isSelected =
+                selectedLocalFilters?.filters?.some(
+                  (i) => i._id === filter._id
+                ) || false;
+              return (
+                <div>
+                  <li
+                    key={filter._id}
+                    className="animate-fade-in-down text-sm font-normal text-eduBlack flex gap-2"
+                    onClick={() => {
+                      onFilterSelect(filter, isSelected);
+                    }}
+                  >
+                    <Checkbox
+                      id={filter?._id}
+                      name={"filter"}
+                      checked={isSelected}
+                      onChange={() => {
+                        onFilterSelect(filter, isSelected);
+                      }}
+                    />
+                    <label id={filter?._id}>{filter.name}</label>
+                  </li>
+                </div>
+              );
+            })}
+          </InfiniteScroll>
           <div>
             <div className="flex justify-center ">
               <button

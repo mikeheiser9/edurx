@@ -539,7 +539,13 @@ const Page = () => {
                         <div className="flex gap-6">
                           <Link
                             className="text-eduLightBlue font-[600] underline"
-                            href={`/profile/${notification.notificationFrom[0]._id}`}
+                            href={`#`}
+                            onClick={()=>{
+                              setSelectedUserId(
+                                notification.notificationFrom[0]._id
+                              );
+                              profileModal.openModal();
+                            }}
                           >
                             View Profile
                           </Link>

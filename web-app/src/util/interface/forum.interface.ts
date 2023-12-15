@@ -27,6 +27,7 @@ interface TagCategoryType {
   _id: string;
   name: string;
   type: "category" | "filter";
+  forumType?:string;
   createdAt?: string;
   updatedAt?: string;
 }

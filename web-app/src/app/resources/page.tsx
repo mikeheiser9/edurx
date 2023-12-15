@@ -29,8 +29,6 @@ export default function Resources(props: any) {
   const [ isSaved, setIsSaved ] = useState(false);
 
 
-  // console.log(loggedInUser);
-
   useEffect(() => {
     const fetchResources = async () => {
       try {
@@ -96,8 +94,6 @@ export default function Resources(props: any) {
                     resource={resource}
                     userId={loggedInUser._id}
                     key={resource._id}
-                    title={resource.title}
-                    publisher={resource.publisher}
                     isSaved={savedResources.has(resource._id)}
                   />
                 ))
