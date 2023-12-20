@@ -54,25 +54,27 @@ const [saved, setSaved] = useState(isSaved);
         <div className="flex flex-row flex-nowrap w-full p-4 rounded-[10px] bg-eduLightGray mt-4">
             <div className="flex flex-col flex-1 w-[80%] justify-start items-start">
                 <div className="flex flex-row flex-nowrap">
-                    <span className="text-eduDarkBlue text-[16px]">Published by {resource.publisher}</span>
-                    <span className="mx-[10px]"> | </span> 
-                    <span className="text-eduLightBlue text-[14px]">
+                    <span className="text-eduDarkBlue text-[12px]">Published by {resource.publisher}</span>
+                    <span className="mx-[10px] text-eduDarkBlue text-[12px]"> | </span> 
+                    <span className="text-eduDarkBlue text-[12px]">
                         {
                             resource.isResource ? 'Resource Article' : 'News'
                         }
                     </span>
                 </div>
                 <div className="mt-2">
-                    <h2 className="text-[22px]">{resource.title}</h2>
+                    <h2 className="text-[22px] font-headers">{resource.title}</h2>
                 </div>
                 <div className="flex flex-row flex-nowrap gap-2 mt-2">
                     {resource?.tags?.map((tag) => (
-                        <span
-                         key={tag._id}
-                         className="text-[8px] py-2 px-4 bg-white text-eduDarkBlue rounded-[5px] border border-eduDarkBlue"
-                        >
-                            {tag.name}
-                        </span>
+                        <div className="py-[8px] px-[15px] bg-transparent border text-eduDarkBlue border-eduDarkBlue rounded-[5px] flex justify-center items-center">
+                            <span
+                            key={tag._id}
+                            className="text-[8px] leading-[8px]"
+                            >
+                                {tag.name}
+                            </span>
+                        </div>
                     ))
                     }
                 </div>

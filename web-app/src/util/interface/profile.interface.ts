@@ -19,6 +19,7 @@ interface about {
   socials?: socials;
   personal_bio: string;
   contact_email: string;
+  username: string;
 }
 
 interface education {
@@ -90,6 +91,7 @@ interface UserData {
   educations?: education[];
   contact_email?: string;
   personal_bio?: string;
+  username: string;;
   profile_img?: string;
   banner_img?: string;
   followersCount?: number;

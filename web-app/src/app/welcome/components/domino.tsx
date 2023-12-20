@@ -112,6 +112,9 @@ useEffect(() => {
   if (windowWidth <= 1600) {
     model.scale.set(0.65, 0.65, 0.65);
     model.position.set(0, 0.35, 0);
+  } else if (windowWidth >= 1601) {
+    model.scale.set(0.45, 0.45, 0.45);
+    model.position.set(0, 0.25, 0);
   }
 
   dominoRef.current = model;

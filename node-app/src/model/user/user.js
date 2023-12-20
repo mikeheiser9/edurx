@@ -14,7 +14,7 @@ const userSchema = new Schema(
     socials: {
       twitter: String,
       linkedin: String,
-      instagram: String,
+      instagram: String, 
       facebook: String,
       email: String,
       website: String,

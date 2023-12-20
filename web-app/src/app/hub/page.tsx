@@ -516,7 +516,7 @@ const Page = () => {
                         ></img>
                       </div>
                       <div className="flex flex-col text-start gap-3">
-                        <span className="text-[16px] text-eduBlack font-headers">
+                        <span className="text-[16px] text-eduBlack font-body">
                           {(notification.createdBy == loggedInUser._id
                             ? "You "
                             : notification.notificationFrom[0].username + " ") +
@@ -544,7 +544,7 @@ const Page = () => {
                         )}
                         <div className="flex gap-6">
                           <Link
-                            className="text-eduLightBlue font-[600] underline text-[14px]"
+                            className="text-eduLightBlue font-[600] underline text-[12px]"
                             href={`/profile/${notification.notificationFrom[0]._id}`}
                           >
                             View Profile
@@ -554,7 +554,7 @@ const Page = () => {
                             ?.title ? (
                             <Link
                               href="#"
-                              className="text-eduBlack opacity-[60%] font-[600] underline text-[14px]"
+                              className="text-eduBlack opacity-[60%] font-[600] underline text-[12px]"
                               onClick={() => {
                                 setSelectedPostId(
                                   getPostTitle(notification)?.postId
@@ -576,7 +576,7 @@ const Page = () => {
             </div>
           </div>
         </InfiniteScroll>
-        <div>
+        <div className="w-full text-center">
           <p className="mt-[25px] text-center font-[600] opacity-50 p-[10px]">
             Old Notifications
           </p>
@@ -619,7 +619,7 @@ const Page = () => {
                         ></img>
                       </div>
                       <div className="flex flex-col text-start gap-3">
-                        <span className="text-[16px] text-eduBlack font-headers">
+                        <span className="text-[16px] text-eduBlack font-body">
                           {(notification.createdBy == loggedInUser._id
                             ? "You "
                             : notification.notificationFrom?.[0]?.username + " ") +
@@ -647,7 +647,7 @@ const Page = () => {
                         )}
                         <div className="flex gap-6">
                           <Link
-                            className="text-eduLightBlue font-[600] underline text-[14px]"
+                            className="text-eduLightBlue font-[600] underline text-[12px]"
                             href={`#`}
                             onClick={() => {
                               setSelectedUserId(
@@ -663,7 +663,7 @@ const Page = () => {
                             ?.title ? (
                             <Link
                               href="#"
-                              className="text-eduBlack opacity-[60%] font-[600] underline text-[14px]"
+                              className="text-eduBlack opacity-[60%] font-[600] underline text-[12px]"
                               onClick={() => {
                                 setSelectedPostId(
                                   getPostTitle(notification)?.postId

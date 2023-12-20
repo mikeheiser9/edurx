@@ -176,12 +176,12 @@ const Page = () => {
 
       <div className="flex justify-between items-center w-full h-[55px]">
         <div className="flex justify-center items-center gap-2">
-          <span className="bg-primary-dark w-8 h-8 flex items-center justify-center rounded-md ">
+          {/* <span className="bg-primary-dark w-8 h-8 flex items-center justify-center rounded-md ">
             <FontAwesomeIcon
               icon={faSearch}
               className="text-eduBlack text-[18px] bg-eduDarkGray p-[8px] rounded-[10px]"
             />
-          </span>
+          </span> */}
           <Button
             onClick={addPostModal.openModal}
             className="!w-[125px] hover:!bg-eduBlack !bg-eduLightGray text-eduBlack flex gap-3 justify-center items-center px-2 py-2 !border-none"

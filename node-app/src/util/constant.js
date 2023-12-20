@@ -79,6 +79,7 @@ export const userValidations = {
   state: validateField.stringPrefixJoiValidation.required(),
   zip_code: validateField.stringPrefixJoiValidation.required(),
   personal_bio: validateField.stringPrefixJoiValidation.allow("").max(1000),
+  username: validateField.stringPrefixJoiValidation.required(),
   banner_img: validateField.stringPrefixJoiValidation.required(),
   profile_img: validateField.stringPrefixJoiValidation.required(),
   socials: joi.object({

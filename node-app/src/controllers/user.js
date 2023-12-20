@@ -45,7 +45,7 @@ const getUserProfile = async (req, res) => {
           $match: {
             _id: new Types.ObjectId(userId),
           },
-        },
+        }, 
         {
           $project: {
             first_name: 1,

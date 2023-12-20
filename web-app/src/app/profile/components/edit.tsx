@@ -52,6 +52,7 @@ const EditProfile = ({
     about: {
       personal_bio: userData?.personal_bio || "",
       contact_email: userData?.contact_email || "",
+      username: userData?.username || "",
       socials: {
         instagram: userData?.socials?.instagram || "",
         twitter: userData?.socials?.twitter || "",

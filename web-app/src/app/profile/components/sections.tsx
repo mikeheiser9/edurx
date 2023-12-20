@@ -47,6 +47,13 @@ const About = (): React.JSX.Element => {
         label="Preferred Contact Email"
         maxLength={80}
       />
+      <InputField
+        name="username"
+        placeholder="username"
+        type="text"
+        label="Username"
+        maxLength={80}
+      />
       <div className="mt-6">
         <div className="text-sm mt-2 grid grid-cols-2 gap-x-5 gap-y-5">
           {Object.keys(socialMediaIcons).map((socialMedia: string) => (

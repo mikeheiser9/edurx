@@ -55,7 +55,7 @@ const HeaderNav = () => {
   };
 
   return (
-    <nav className="relative px-2 flex flex-row flex-nowrap min-w-full">
+    <nav className="relative px-2 flex flex-row flex-nowrap min-w-full justify-between">
       {loggedInUser && (
         <ProfileDialog
           loggedInUser={loggedInUser}

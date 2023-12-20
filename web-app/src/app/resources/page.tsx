@@ -110,7 +110,7 @@ export default function Resources(props: any) {
     },[])
 
   console.log('saved resources ', savedResources);
-  console.log(loggedInUser._id);
+  // console.log(loggedInUser._id);
   // console.log('resource state ', resources);
 
   return (

@@ -172,20 +172,25 @@ export const PostCard = (props: Props) => {
           </span>
           <div className="flex flex-wrap gap-2">
             {post?.categories?.map((category) => (
-              <span
-                key={category._id}
-                className="text-[8px] py-2 px-4 bg-white text-eduDarkBlue rounded-[5px] border border-eduDarkBlue"
-              >
-                {category.name}
-              </span>
+              <div className="py-[8px] px-[15px] bg-transparent border text-eduDarkBlue border-eduDarkBlue rounded-[5px] flex justify-center items-center">
+                <span
+                  key={category._id}
+                  className="text-[8px] leading-[8px]"
+                >
+                  {category.name}
+                </span>
+              </div>
             ))}
             {post?.filters?.map((filter) => (
-              <span
+              <div className="py-[8px] px-[15px] bg-eduDarkGray text-eduDarkBlue rounded-[5px] flex justify-center items-center">
+                <span
                 key={filter._id}
-                className="text-[8px] py-2 px-4 bg-eduDarkGray text-eduDarkBlue rounded-[5px]"
-              >
+                className="text-[8px] leading-[8px]"
+                >
                 {filter?.name}
-              </span>
+                </span>
+              </div>
+              
             ))}
           </div>
         </div>

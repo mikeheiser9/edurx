@@ -3,7 +3,7 @@ import { useField } from "formik";
 import React, { LabelHTMLAttributes, InputHTMLAttributes } from "react";
 interface InputFieldType extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
-  name: string;
+  name: string; 
   className?: string;
   icon?: React.JSX.Element;
   labelProps?: LabelHTMLAttributes<HTMLLabelElement>;
