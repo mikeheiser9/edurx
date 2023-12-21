@@ -173,12 +173,11 @@ export const CommentManager = ({
             <span className="text-eduBlack text-[12px] font-body font-medium">
               Comment as
               <b className="font-body ml-[5px]">
-                {post?.userId?.username ||
-                  getFullName(
-                    post?.userId?.first_name,
-                    post?.userId?.last_name,
-                    "_"
-                  )}
+                {getFullName(
+                  loggedInUser?.first_name,
+                  loggedInUser?.last_name,
+                  "_"
+                )}
               </b>
             </span>
           ),

@@ -29,7 +29,7 @@ const InfiniteScroll = ({
 
     const scrollTop = container.scrollTop;
     const scrollHeight = container.scrollHeight;
-    const clientHeight = container.clientHeight;
+    const clientHeight = container.clientHeight+10;
 
     if (scrollTop + clientHeight >= scrollHeight) {
       setProcessAlreadyRunning(true);

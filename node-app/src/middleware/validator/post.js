@@ -35,7 +35,7 @@ const customeValidator = (values, helper) => {
   return values;
 };
 
-const createPostValidator = async (req, res, next) => {
+const createOrUpdatePostValidator = async (req, res, next) => {
   try {
     const { stringPrefixJoiValidation, objectId } = validateField;
     const filterCategoryValidation = Joi.array().max(50).items(objectId);
@@ -60,7 +60,11 @@ const createPostValidator = async (req, res, next) => {
       filters: filterCategoryValidation,
       options: Joi.array().when("postType", {
         is: "poll",
-        then: Joi.array().min(2).items(stringPrefixJoiValidation),
+        then: Joi.array()
+          .min(2)
+          .max(8)
+          .items(stringPrefixJoiValidation)
+          .unique(),
       }),
       votingLength: Joi.number().when("postType", {
         is: "poll",
@@ -409,8 +413,21 @@ const deletePostDraftValidator = async (req, res, next) => {
   }
 };
 
+const validatePollVote = async (req, res, next) => {
+  try {
+    const { objectId } = validateField;
+    await Joi.object({
+      postId: objectId.required(),
+      option: Joi.string().required(),
+    }).validateAsync({ ...req.body, ...req.params });
+    next();
+  } catch (error) {
+    returnAppropriateError(res, error);
+  }
+};
+
 export {
-  createPostValidator,
+  createOrUpdatePostValidator,
   getUsersPostsValidator,
   createMetaLabelValidator,
   searchMetaLabelValidator,
@@ -426,4 +443,5 @@ export {
   bulkRequestUpdateValidator,
   followUnfollowPostValidator,
   deletePostDraftValidator,
+  validatePollVote,
 };

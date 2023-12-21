@@ -1,5 +1,6 @@
 import { categoryFilterModal } from "../model/post/categoryTag.js";
 import { commentModal } from "../model/post/comment.js";
+import { pollPostVoteModal } from "../model/post/pollPostVote.js";
 import { postModal } from "../model/post/post.js";
 import { postRequestModal } from "../model/post/postAccessRequest.js";
 import { reactionModal } from "../model/post/reaction.js";
@@ -445,6 +446,10 @@ const getPostById = async (postId, userId) => {
           "dislikeCount",
         ],
       },
+      {
+        path: "votingInfo",
+        select: ["userId", "choosenOption"],
+      },
     ]);
 };
 
@@ -687,7 +692,6 @@ const addViews = async (payload) => {
 const updatePostById = async (payload) => {
   try {
     const postId = payload?._id;
-
     if (!postId) throw new Error("Post id is required");
     return await postModal.findByIdAndUpdate(postId, payload);
   } catch (error) {
@@ -788,18 +792,20 @@ const findCategoryOrPostByCondition = (payload) => {
 
 const findDraftsByUserId = (userId, skip, limit) => {
   return postModal
-    .find(
-      {
-        userId: userId,
-        isDeleted: false,
-        postStatus: "draft",
-      },
-      "-votingLength -updatedAt -createdAt -__v ",{
-         sort:{"publishedOn":-1}
-      }
-    )
+    .find({
+      userId: userId,
+      isDeleted: false,
+      postStatus: "draft",
+    })
+    .populate("categories", "name _id")
+    .populate("filters", "name _id")
+    .sort({ publishedOn: -1 })
     .skip(skip)
     .limit(limit);
+};
+
+const updatePostByCondition = (condition, setData) => {
+  return postModal.updateOne(condition, setData);
 };
 
 export {
@@ -824,4 +830,5 @@ export {
   deleteOnePostRequest,
   findCategoryOrPostByCondition,
   findDraftsByUserId,
+  updatePostByCondition,
 };

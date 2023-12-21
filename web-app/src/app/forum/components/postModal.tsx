@@ -27,6 +27,7 @@ import {
   addPostView,
   addPrivatePostRequest,
   followPost,
+  handleVoteOnPollPost,
 } from "@/service/post.service";
 import { useSelector } from "react-redux";
 import { selectUserDetail } from "@/redux/ducks/user.duck";
@@ -57,6 +58,7 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
     dislike: false,
   });
   const [buttonLabel, setButtonLabel] = useState("");
+  const [userChoosenOption,setUserChoosenOption]=useState("");
   const userReactionOnPost: ReactionTypes | null =
     post?.reactions?.[0]?.reactionType || null;
   const isSelfPost: boolean | undefined =
@@ -92,11 +94,27 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
     }
   }, [post]);
 
+
+
   const getPostById = async () => {
     await axiosGet(`/post/${postId}`)
       .then((response) => {
         if (response.status === responseCodes.SUCCESS) {
           setPost(response?.data?.data);
+          if(response.data?.data?.postType=="poll")
+          {
+            const user=response.data?.data?.votingInfo.filter((votedUserDetail:votingInfoType)=>{
+              return votedUserDetail?.userId==loggedInUser._id
+            })
+            if(user.length)            
+            {
+              setUserChoosenOption(user[0].choosenOption)
+            }
+            else
+            {
+              setUserChoosenOption("")
+            }
+          }
         }
       })
       .catch((error) => console.log("Failed to get post", error));
@@ -314,6 +332,14 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
     }
   };
 
+  const handleVote = async (postId: string, vote: string) => {
+    const voteResp = await handleVoteOnPollPost(postId, { option: vote });
+    if (voteResp.data.response_type == "Success") {
+      getPostById();
+    }
+  };
+  
+
   return (
     <>
       <Modal
@@ -458,7 +484,10 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
                         <button
                           id="buttonLabel"
                           onClick={requestAccess}
-                          className={`p-2 px-4 text-sm text-black bg-white rounded-md w-auto font-medium bg-transparent border-eduBlack border-[1.5px] py-1 m-auto font-body transition-colors duration-500 hover:bg-eduBlack hover:text-white disabled:opacity-70 ${buttonLabel=="Requested" && '!bg-eduLightBlue text-white'}`}
+                          className={`p-2 px-4 text-sm text-black bg-white rounded-md w-auto font-medium bg-transparent border-eduBlack border-[1.5px] py-1 m-auto font-body transition-colors duration-500 hover:bg-eduBlack hover:text-white disabled:opacity-70 ${
+                            buttonLabel == "Requested" &&
+                            "!bg-eduLightBlue text-white"
+                          }`}
                           onMouseEnter={() => {
                             if (buttonLabel == "Following") {
                               setButtonLabel("Unfollow");
@@ -469,7 +498,7 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
                               setButtonLabel("Following");
                             }
                           }}
-                          disabled={buttonLabel=="Requested"}
+                          disabled={buttonLabel == "Requested"}
                         >
                           {buttonLabel}
                         </button>
@@ -508,6 +537,29 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
                           {post?.views} Views
                         </span>
                       </div>
+                      {post.postType == "poll" && (
+                        <div className="flex flex-col w-full gap-2 text-eduLightBlue font-[400]">
+                          {post.options?.map((option: string) => {
+                            return (
+                              <span
+                                className={`border-[1px] p-2 rounded border-eduLightBlue text-center cursor-pointer ${userChoosenOption==option && '!bg-eduYellow '}`}
+                                onClick={() => handleVote(post._id, option)}
+                              >
+                                {option}
+                              </span>
+                            );
+                          })}
+                          <div>
+                            <span>{post?.votingInfo?.length} votes -</span>
+                            <span>
+                              {moment(post?.publishedOn)
+                                .add("days", Number(post?.votingLength))
+                                .fromNow(true)}{" "}
+                              left
+                            </span>
+                          </div>
+                        </div>
+                      )}
                       <CommentManager
                         addReaction={addReaction}
                         post={post}

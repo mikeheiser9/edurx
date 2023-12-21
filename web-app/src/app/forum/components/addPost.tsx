@@ -4,6 +4,7 @@ import {
   FormikHelpers,
   FormikErrors,
   FormikTouched,
+  FieldArray,
 } from "formik";
 import InputField from "@/components/input";
 import { Modal } from "@/components/modal";
@@ -31,12 +32,17 @@ import {
 import { ToggleSwitch } from "@/components/toggleSwitch";
 import { postCreationValidation } from "@/util/validations/post";
 import { responseCodes } from "@/util/constant";
-import { addNewPost } from "@/service/post.service";
+import { addNewPost, updatePostById } from "@/service/post.service";
 import { useDispatch, useSelector } from "react-redux";
-import { selectUserDetail, setDraftCount } from "@/redux/ducks/user.duck";
+import {
+  selectDraftCount,
+  selectUserDetail,
+  setDraftCount,
+} from "@/redux/ducks/user.duck";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { showToast } from "@/components/toast";
 import { getUserDraftCount } from "@/service/user.service";
+import { uniqBy } from "lodash";
 
 interface filterCategoryInput {
   category?: string | boolean;
@@ -58,15 +64,31 @@ interface filterCategoryList {
   filters: [];
 }
 
+export interface formikInitialValueType {
+  forumType: ForumTypes;
+  postType: string;
+  title: string;
+  categories: never[];
+  filters: never[];
+  isPrivate: boolean;
+  content: string;
+  options: string[];
+  votingLength: number;
+}
+
 export const AddPost = ({
   addPostModal,
   fetchPosts,
+  postDetails,
+  getDrafts,
 }: {
   addPostModal: UseModalType;
-  fetchPosts: () => Promise<void>;
+  fetchPosts?: () => Promise<void>;
+  postDetails?: CreatePostFormikInterface & { id: string };
+  getDrafts?: ((page?: number | undefined) => Promise<void>) | undefined;
 }) => {
   const loggedInUser = useSelector(selectUserDetail);
-  const [pollOptionsCount, setPollOptionsCount] = useState<number>(2);
+  const currentDraftCount = useSelector(selectDraftCount);
   const [isLoading, setIsLoading] = useState<filterCategoryInput>({
     filter: false,
     category: false,
@@ -92,6 +114,7 @@ export const AddPost = ({
       totalRecords: 0,
     },
   });
+
   const [selectedList, setSelectedList] = useState<filterCategoryList>({
     categories: [],
     filters: [],
@@ -116,7 +139,9 @@ export const AddPost = ({
     { label: "Choose forum", value: "Choose forum" },
     ...tempDropdownOptions,
   ];
-  const intialFormikValues: CreatePostFormikInterface = {
+  const [intialFormikValues, setIntialFormikValues] = useState<
+    formikInitialValueType | any
+  >({
     forumType: dropdownOptions[0].value as ForumTypes,
     postType: "post",
     title: "",
@@ -124,10 +149,9 @@ export const AddPost = ({
     filters: [],
     isPrivate: false,
     content: "",
-    options: [...Array(pollOptionsCount)].map((_) => ""),
-    votingLength: 3, //days
-  };
-
+    options: ["", ""],
+    votingLength: 3,
+  });
   const debouncedCategory = useDebounce(searchText.category, 1000);
   const debouncedFilter = useDebounce(searchText.filter, 1000);
   const onSearch = useCallback(
@@ -147,7 +171,8 @@ export const AddPost = ({
     async (
       type: keyof filterCategoryInput,
       value: string,
-      isIntial?: boolean
+      isIntial?: boolean,
+      forumType?: ForumTypes
     ) => {
       try {
         setIsLoading((preState) => {
@@ -162,7 +187,12 @@ export const AddPost = ({
             type: type,
             limit: 5,
             page: isIntial ? 1 : currentPage?.[type]?.page + 1,
-            forumType: forumSelected,
+            forumType:
+              forumSelected == "Choose forum"
+                ? forumType
+                  ? forumType
+                  : intialFormikValues.forumType
+                : forumSelected,
           },
         });
         if (response.status === responseCodes.SUCCESS) {
@@ -174,28 +204,14 @@ export const AddPost = ({
           });
           let key: keyof typeof filterCategoryList =
             type === "category" ? "categories" : "filters";
-          let prevList = isIntial
-            ? selectedList[key]?.length
-              ? filterCategoryList?.[key]?.filter((item: TagCategoryType) =>
-                  selectedList?.[key]?.some((_id) => _id === item._id)
-                )
-              : []
-            : filterCategoryList?.[key];
-          let newRecords = response?.data?.data?.records?.filter(
-            (item: TagCategoryType) => {
-              if (selectedList?.[key]?.length) {
-                return selectedList?.[key]?.includes(item?._id as never)
-                  ? false
-                  : true;
-              }
-              return true;
-            }
-          );
 
           setFilterCategoryList((preState) => {
             return {
               ...preState,
-              [key]: [...prevList, ...newRecords],
+              [key]: uniqBy(
+                [...preState[key], ...response?.data?.data?.records],
+                (obj) => obj._id
+              ),
             };
           });
           setCurrentPage((preState: CurrentPageRecords) => {
@@ -340,6 +356,13 @@ export const AddPost = ({
         isError = true;
       }
     }
+    if (
+      values.postType == "poll" &&
+      values.options.length > new Set(values.options).size
+    ) {
+      actions.setFieldError("options", "All options must be unique");
+      isError = true;
+    }
     if (isError) {
       return;
     }
@@ -349,34 +372,48 @@ export const AddPost = ({
       postType: values.postType || "post",
       ...selectedList,
     };
-    await addNewPost(payload)
-      .then(async (response) => {
-        let message = response?.data?.message;
-        if (response?.status === responseCodes.SUCCESS) {
-          if (
-            (values as CreatePostFormikInterface & { postStatus: string })
-              .postStatus == "draft"
-          ) {
-          }
-          const res = await getUserDraftCount();
-          setTimeout(() => {
-            addPostModal?.closeModal();
-            fetchPosts();
-            if (res?.data?.response_type == "Success") {
-              dispatch(setDraftCount(res?.data?.data));
+
+    // when editing the post from the draft flow
+    if (postDetails) {
+      const updateApiRes = await updatePostById(postDetails.id, payload);
+      if (updateApiRes?.status === responseCodes.SUCCESS) {
+        if (
+          (values as CreatePostFormikInterface & { postStatus: string })
+            .postStatus == "published"
+        ) {
+          dispatch(setDraftCount(currentDraftCount - 1));
+        }
+        getDrafts?.(1);
+        addPostModal?.closeModal();
+      }
+    } else {
+      await addNewPost(payload)
+        .then(async (response) => {
+          let message = response?.data?.message;
+          if (response?.status === responseCodes.SUCCESS) {
+            if (
+              (values as CreatePostFormikInterface & { postStatus: string })
+                .postStatus == "draft"
+            ) {
+              const res = await getUserDraftCount();
+              if (res?.data?.response_type == "Success") {
+                dispatch(setDraftCount(res?.data?.data));
+              }
             }
-          }, 1000);
-        } else throw new Error(message || "Something went wrong");
-      })
-      .catch((err) => {
-        console.log("error", err);
-      });
+            addPostModal?.closeModal();
+            fetchPosts?.();
+          } else throw new Error(message || "Something went wrong");
+        })
+        .catch((err) => {
+          console.log("error", err);
+        });
+    }
   };
 
   useEffect(() => {
-    if (!forumSelected || forumSelected != "Choose forum") {
+    if (forumSelected != "Choose forum") {
       searchAPI("category", debouncedCategory, true);
-    } else if (forumSelected == "Choose forum") {
+    } else {
       setFilterCategoryList((preState) => {
         return {
           ...preState,
@@ -396,9 +433,9 @@ export const AddPost = ({
   }, [debouncedCategory, forumSelected]);
 
   useEffect(() => {
-    if (!forumSelected || forumSelected != "Choose forum") {
+    if (forumSelected != "Choose forum") {
       searchAPI("filter", debouncedFilter, true);
-    } else if (forumSelected == "Choose forum") {
+    } else {
       setFilterCategoryList((preState) => {
         return {
           ...preState,
@@ -422,7 +459,62 @@ export const AddPost = ({
       categories: [],
       filters: [],
     });
+    setFilterCategoryList({
+      categories: [],
+      filters: [],
+    });
   }, [forumSelected]);
+
+  useEffect(() => {
+    // setup which run open in the Edit mode
+    if (postDetails) {
+      const {
+        forumType,
+        isPrivate,
+        votingLength,
+        title,
+        content,
+        postType,
+        categories,
+        filters,
+        options,
+      } = postDetails;
+
+      setIntialFormikValues({
+        categories: [],
+        content: content,
+        filters: [],
+        forumType: forumType,
+        options: options.length == 0 ? ["", ""] : options,
+        isPrivate: isPrivate,
+        postType: postType,
+        title: title,
+        votingLength: votingLength,
+      } as formikInitialValueType);
+      const categorySelected: string[] = categories?.map((category: any) => {
+        return category?._id;
+      });
+      const filterSelected: string[] = filters?.map((filter: any) => {
+        return filter?._id;
+      });
+      setSelectedList((preState: any) => {
+        return {
+          ...preState,
+          categories: categorySelected,
+          filters: filterSelected,
+        };
+      });
+      setFilterCategoryList((preState: any) => {
+        return {
+          ...preState,
+          categories: categories,
+          filters: filters,
+        };
+      });
+      searchAPI("category", debouncedCategory, true, forumType);
+      searchAPI("filter", debouncedFilter, true, forumType);
+    }
+  }, [postDetails?.id]);
 
   const shouldDisable = (params: {
     errors: FormikErrors<CreatePostFormikInterface>;
@@ -476,7 +568,12 @@ export const AddPost = ({
         <Modal
           visible={addPostModal.isOpen}
           onClose={addPostModal.closeModal}
-          customHeader={<ModalHeader onClose={addPostModal.closeModal} />}
+          customHeader={
+            <ModalHeader
+              onClose={addPostModal.closeModal}
+              mode={postDetails?.id ? "Edit" : "New"}
+            />
+          }
           showFooter={false}
           modalClassName="!rounded-xl"
           modalBodyClassName="relative p-4 overflow-y-auto font-body overflow-hidden bg-white"
@@ -548,73 +645,108 @@ export const AddPost = ({
                             error={actions.errors.content}
                             isTouched={actions.touched.content}
                           />
-                          <div className="gap-2 grid grid-cols-2">
-                            {[...Array(pollOptionsCount)].map((_, index) => (
-                              <div
-                                className="flex animate-scale-in gap-2"
-                                key={index}
-                              >
-                                <FontAwesomeIcon
-                                  size="lg"
-                                  icon={faGripVertical}
-                                  className="self-center text-eduBlack/60"
-                                />
-                                <InputField
-                                  name={`options.${index}`}
-                                  placeholder={`Option ${index + 1}`}
-                                  type="text"
-                                  className="w-full"
-                                  maxLength={80}
-                                />
+                          {actions?.touched.options &&
+                          actions.errors.options ? (
+                            <span className="ml-1 text-xs font-body mt-1 first-letter:capitalize flex-shrink-0 opacity-50 text-[#FF0000] font-[500]">
+                              {actions.errors.options}
+                            </span>
+                          ) : null}
+                          <FieldArray
+                            name="options"
+                            render={(arrayHelpers) => (
+                              <div>
+                                {values.options && values.options.length > 0 ? (
+                                  <>
+                                    <div className="gap-2 grid grid-cols-2">
+                                      {values.options.map((option, index) => (
+                                        <div
+                                          className="flex animate-scale-in gap-2"
+                                          key={index}
+                                        >
+                                          <FontAwesomeIcon
+                                            size="lg"
+                                            icon={faGripVertical}
+                                            className="self-center text-eduBlack/60"
+                                          />
+                                          <InputField
+                                            name={`options.${index}`}
+                                            placeholder={`Option ${index + 1}`}
+                                            type="text"
+                                            className="w-full"
+                                            maxLength={80}
+                                          />
+                                        </div>
+                                      ))}
+                                    </div>
+                                    <div className="flex flex-auto items-center py-2 justify-between gap-2">
+                                      <div className="gap-2 flex items-center">
+                                        {values.options.length < 8 && (
+                                          <span
+                                            onClick={() =>
+                                              arrayHelpers.insert(
+                                                values.options.length + 1,
+                                                ""
+                                              )
+                                            }
+                                            className="text-white animate-scale-in inline-block mt-2 bg-eduLightBlue p-2 py-1 rounded-md text-xs cursor-pointer"
+                                          >
+                                            Add Option
+                                          </span>
+                                        )}
+                                        {values.options.length > 2 && (
+                                          <span
+                                            onClick={() =>
+                                              arrayHelpers.remove(
+                                                values.options.length - 1
+                                              )
+                                            }
+                                            className="animate-scale-in inline-block mt-2 bg-eduBlack text-white p-2 py-1 rounded-md text-xs cursor-pointer"
+                                          >
+                                            Remove
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div className="text-white text-xs flex gap-1 items-center">
+                                        <label
+                                          htmlFor="votingLength "
+                                          className="text-black"
+                                        >
+                                          Voting Length
+                                        </label>
+                                        <Select
+                                          options={[
+                                            { label: "1 Day", value: 1 },
+                                            { label: "3 Days", value: 3 },
+                                            { label: "5 Days", value: 5 },
+                                          ]}
+                                          onClear={() =>
+                                            actions.setFieldValue(
+                                              "votingLength",
+                                              0
+                                            )
+                                          }
+                                          // className="bg-transparent outline-none font-bold"
+                                          // optionClassName="text-black text-xs"
+                                          value={values?.votingLength}
+                                          defaultValue="Select"
+                                          onSelect={(e) =>
+                                            actions.setFieldValue(
+                                              "votingLength",
+                                              e.value
+                                            )
+                                          }
+                                          wrapperClass="text-black !w-[5rem] !text-xs !font-semibold"
+                                          optionClass="!text-xs"
+                                        />
+                                      </div>
+                                    </div>
+                                  </>
+                                ) : (
+                                  ""
+                                )}
                               </div>
-                            ))}
-                          </div>
-                          <div className="flex flex-auto items-center py-2 justify-between gap-2">
-                            <div className="gap-2 flex items-center">
-                              <span
-                                onClick={() =>
-                                  setPollOptionsCount((prev) => prev + 1)
-                                }
-                                className="text-white animate-scale-in inline-block mt-2 bg-eduLightBlue p-2 py-1 rounded-md text-xs cursor-pointer"
-                              >
-                                Add Option
-                              </span>
-                              {pollOptionsCount > 2 && (
-                                <span
-                                  onClick={() =>
-                                    setPollOptionsCount((prev) => prev - 1)
-                                  }
-                                  className="animate-scale-in inline-block mt-2 bg-eduBlack text-white p-2 py-1 rounded-md text-xs cursor-pointer"
-                                >
-                                  Remove
-                                </span>
-                              )}
-                            </div>
-                            <div className="text-white text-xs flex gap-1 items-center">
-                              <label htmlFor="votingLength">
-                                Voting Length
-                              </label>
-                              <Select
-                                options={[
-                                  { label: "1 Day", value: 1 },
-                                  { label: "3 Days", value: 3 },
-                                  { label: "5 Days", value: 5 },
-                                ]}
-                                onClear={() =>
-                                  actions.setFieldValue("votingLength", 0)
-                                }
-                                // className="bg-transparent outline-none font-bold"
-                                // optionClassName="text-black text-xs"
-                                value={values?.votingLength}
-                                defaultValue="Select"
-                                onSelect={(e) =>
-                                  actions.setFieldValue("votingLength", e.value)
-                                }
-                                wrapperClass="text-black !w-[5rem] !text-xs !font-semibold"
-                                optionClass="!text-xs"
-                              />
-                            </div>
-                          </div>
+                            )}
+                          />
                         </div>
                       );
                     },
@@ -625,7 +757,6 @@ export const AddPost = ({
                 iconClass="text-eduLightBlue"
                 tabItemClass="bg-eduDarkGray p-1 text-eduLightBlue font-normal px-3 ease-in-out duration-300 text-[10px] rounded-[5px] capitalize"
                 activeTabClass="ring-1 ring-eduLightBlue outline-eduLightBlue"
-                // componentWrapperClass="flex-auto"
                 formikFieldName="postType"
               />
               <div

@@ -13,10 +13,7 @@ import InfiniteScroll from "@/components/infiniteScroll";
 import { PostModal } from "./components/postModal";
 import { requireAuthentication } from "@/components/requireAuthentication";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  selectUserDetail,
-  setDraftCount,
-} from "@/redux/ducks/user.duck";
+import { selectUserDetail, setDraftCount } from "@/redux/ducks/user.duck";
 
 import { showToast } from "@/components/toast";
 import { updatePostByAPI } from "@/service/post.service";
@@ -47,6 +44,7 @@ const Page = () => {
     page: 1,
     totalRecords: 0,
   });
+  const [showLoading, setShowLoading] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<string>("");
 
   const isAdmin = loggedInUser?.role === roleAccess.ADMIN;
@@ -72,6 +70,7 @@ const Page = () => {
     useConcat: boolean = true
   ) => {
     try {
+      setShowLoading(true);
       let payload = {
         limit: 10,
         page,
@@ -104,11 +103,14 @@ const Page = () => {
             ? posts.concat(response?.data?.data?.posts?.data)
             : response?.data?.data?.posts?.data
         );
-        setPostPagination({
-          page: response?.data?.data?.posts?.metadata?.currentPage,
-          totalRecords: response?.data?.data?.posts?.metadata?.totalRecords,
+        setPostPagination((prev) => {
+          return {
+            page: response?.data?.data?.posts?.metadata?.currentPage,
+            totalRecords: response?.data?.data?.posts?.metadata?.totalRecords,
+          };
         });
       }
+      setShowLoading(false);
     } catch (error) {
       console.log("Error fetching posts", error);
     }
@@ -165,7 +167,14 @@ const Page = () => {
 
   useEffect(() => {
     if (selectedForumTab === forumTabs[2]) return;
-    fetchPosts(1, apiEndpoint, false);
+    setPosts([]);
+    setPostPagination({
+      page: 1,
+      totalRecords: 0,
+    });
+    setTimeout(()=>{
+      fetchPosts(1, apiEndpoint, false);
+    },1000)
   }, [selectedFilters, selectedForumTab]);
 
   useEffect(() => {
@@ -281,7 +290,7 @@ const Page = () => {
         className="flex flex-col w-full h-full rounded-md gap-4"
         callBack={loadMorePosts}
         hasMoreData={posts?.length < postPagination.totalRecords}
-        showLoading
+        showLoading={showLoading}
       >
         {posts?.map((post) => (
           <div key={post._id}>

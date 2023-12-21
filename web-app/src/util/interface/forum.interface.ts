@@ -20,14 +20,14 @@ interface FilterOptionsState {
   sortBy?: string;
   forumType?: string;
   categories?: any[];
-  filters?:any[]
+  filters?: any[];
 }
 
 interface TagCategoryType {
   _id: string;
   name: string;
   type: "category" | "filter";
-  forumType?:string;
+  forumType?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -81,6 +81,13 @@ interface userPostFollowList {
   _id: string;
 }
 
+interface votingInfoType {
+  userId: string;
+  postId: string;
+  choosenOption: string;
+  _id: string;
+}
+
 interface PostInterface {
   _id: string;
   userId?: string & UserId;
@@ -111,6 +118,8 @@ interface PostInterface {
   userAccessRequestCount?: number;
   postRequests?: postRequestType[];
   userPostFollowList?: userPostFollowList[];
+  options?: string[];
+  votingInfo?: votingInfoType[];
 }
 
 interface CreatePostFormikInterface {

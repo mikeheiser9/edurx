@@ -154,6 +154,7 @@ export const PostCard = (props: Props) => {
       />
     </div>
   );
+
   return (
     <>
       {post?._id && (

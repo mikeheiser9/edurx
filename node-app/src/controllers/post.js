@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { Types, isValidObjectId } from "mongoose";
 import {
   addCategoryFilter,
   addComment,
@@ -8,7 +8,6 @@ import {
   createNewPost,
   deleteOnePostRequest,
   deletePostRequest,
-  fetchFilters,
   findCategoryOrPostByCondition,
   findPostById,
   getCommentsByPostId,
@@ -16,10 +15,14 @@ import {
   getPosts,
   getRequestsByPostId,
   searchCategoryFilterByName,
+  updatePostByCondition,
   updatePostById,
   updatePostRequests,
 } from "../repository/post.js";
-import { generalResponse, getAllowedForumAccessBasedOnRoleAndNpiDesignation } from "../util/commonFunctions.js";
+import {
+  generalResponse,
+  getAllowedForumAccessBasedOnRoleAndNpiDesignation,
+} from "../util/commonFunctions.js";
 import { responseCodes, responseTypes } from "../util/constant.js";
 import {
   findFollowerById,
@@ -36,6 +39,13 @@ import {
 } from "../repository/notification.js";
 import { findCommentById } from "../repository/comment.js";
 import { postRequestModal } from "../model/post/postAccessRequest.js";
+import { postModal } from "../model/post/post.js";
+import moment from "moment";
+import {
+  deleteVoteById,
+  insertPollVote,
+  updateVoteById,
+} from "../repository/poll.js";
 
 const createPost = async (req, res) => {
   try {
@@ -64,14 +74,18 @@ const createPost = async (req, res) => {
 const searchPostMetaLabel = async (req, res) => {
   try {
     const { name, type, page, limit, forumType } = req.query;
-    const forum = []
+    const forum = [];
     if (!forumType || forumType == "All Forums") {
-      const role = req.user.role
+      const role = req.user.role;
       const npi_designation = req.user.npi_designation;
-      forum.push(...getAllowedForumAccessBasedOnRoleAndNpiDesignation(role, npi_designation))
-    }
-    else {
-      forum.push(forumType)
+      forum.push(
+        ...getAllowedForumAccessBasedOnRoleAndNpiDesignation(
+          role,
+          npi_designation
+        )
+      );
+    } else {
+      forum.push(forumType);
     }
     const searchResult = await searchCategoryFilterByName(
       name,
@@ -98,12 +112,12 @@ const addPostMetaLabel = async (req, res) => {
       const data = {
         forumType: forumType[i],
         name: name,
-        type: metaLabel
-      }
+        type: metaLabel,
+      };
       categegoryOrFilterToBeInserted.push(data);
-      const res = await findCategoryOrPostByCondition(data)
+      const res = await findCategoryOrPostByCondition(data);
       if (res) {
-        throw `${name} already exists in ${metaLabel}`
+        throw `${name} already exists in ${metaLabel}`;
       }
     }
     const response = await addCategoryFilter(categegoryOrFilterToBeInserted);
@@ -281,7 +295,7 @@ const getAllPosts = async (req, res) => {
         filterList?.length > 0 &&
         filterList.map((filter) => new Types.ObjectId(filter)),
       role: req.user.role,
-      npi_designation: req.user.npi_designation
+      npi_designation: req.user.npi_designation,
     });
     return generalResponse(res, 200, "OK", "posts fetched successfully", posts);
   } catch (error) {
@@ -577,6 +591,160 @@ const followPost = async (req, res) => {
   }
 };
 
+const updatePostByUser = async (req, res) => {
+  try {
+    if (!isValidObjectId(req.params.postId)) {
+      throw { message: "invalid postId is passed" };
+    }
+    const {
+      userId,
+      forumType,
+      postType,
+      postStatus,
+      title,
+      content,
+      categories,
+      filters,
+      options,
+      votingLength,
+      isPrivate,
+    } = req.body;
+    const setData = {
+      userId,
+      postStatus,
+      forumType,
+      postType,
+      title,
+      categories,
+      filters,
+      isPrivate,
+      content,
+      votingLength,
+      options,
+    };
+
+    const condition = {
+      userId: userId,
+      _id: req.params.postId,
+      isDeleted: false,
+    };
+    await updatePostByCondition(condition, setData);
+    return generalResponse(
+      res,
+      responseCodes.SUCCESS,
+      responseTypes.SUCCESS,
+      "post update successfully",
+      "",
+      true
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      responseCodes.ERROR,
+      responseTypes.INTERNAL_SERVER_ERROR,
+      error?.message || "Something went wrong",
+      error,
+      true
+    );
+  }
+};
+
+const pollVote = async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { option } = req.body;
+    const postInfo = await postModal.aggregate([
+      {
+        $match: {
+          $and: [
+            { _id: new Types.ObjectId(postId) },
+            { postType: "poll" },
+            { isDeleted: false },
+            { options: option },
+          ],
+        },
+      },
+      {
+        $project: {
+          publishedOn: 1,
+          _id: 1,
+          votingLength: 1,
+          options: 1,
+        },
+      },
+      {
+        $lookup: {
+          from: "pollpostvotes",
+          localField: "_id",
+          foreignField: "postId",
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$userId", req.user._id],
+                },
+              },
+            },
+          ],
+          as: "userVotedDetail",
+        },
+      },
+    ]);
+    if (!postInfo.length) {
+      throw {
+        message:
+          "either of this parameter wrongly passed (postType,postId,option)",
+      };
+    }
+
+
+    if (
+      moment().utc().format("DD MM YYYY") >
+      moment(postInfo[0].publishedOn)
+        .utc()
+        .add(postInfo[0].votingLength, "days")
+        .format("DD MM YYYY")
+    ) {
+      throw { message: "voting period is closed" };
+    }
+    let customeError="Vote cast successful";
+    if (!postInfo[0].userVotedDetail?.length) {
+      await insertPollVote({
+        userId: req.user._id,
+        postId: postId,
+        choosenOption: option,
+      });
+    } else if (postInfo[0].userVotedDetail[0].choosenOption === option) {
+      customeError="Your vote was removed"
+      await deleteVoteById(postInfo[0].userVotedDetail[0]._id);
+    } else {
+      const setData = {
+        userId: req.user._id,
+        postId: postId,
+        choosenOption: option,
+      };
+      await updateVoteById(postInfo[0].userVotedDetail[0]._id, setData);
+    }
+    return generalResponse(
+      res,
+      responseCodes.SUCCESS,
+      responseTypes.SUCCESS,
+      customeError,
+      "",
+      true
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      responseCodes.ERROR,
+      responseTypes.INTERNAL_SERVER_ERROR,
+      error?.message || "Something went wrong",
+      error,
+      true
+    );
+  }
+};
+
 export {
   createPost,
   searchPostMetaLabel,
@@ -592,4 +760,6 @@ export {
   getUserRequests,
   bulkUpdateRequests,
   followPost,
+  updatePostByUser,
+  pollVote,
 };

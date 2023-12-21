@@ -11,6 +11,7 @@ import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import UnFollowConfirmation from "./unFollowConfirmation";
+import { AddPost } from "./addPost";
 
 interface draftsApiParamsType {
   page: number;
@@ -36,6 +37,7 @@ export default function DraftModal() {
   // states for delete forums
   const [deleteLoader, setDeleteLoader] = useState(false);
   const deleteDraftModal = useModal();
+  const editPostModal = useModal();
 
   useEffect(() => {
     if (modal) {
@@ -50,6 +52,10 @@ export default function DraftModal() {
     setDraftLoading(true);
     setDraftError(false);
     const drafts = await getUserDrafts(page, draftsApiParams.limit);
+    if(page==1)
+    {
+      setAllDrafts([])
+    }
     if (drafts?.data?.response_type == "Success" && drafts?.data?.data) {
       setAllDrafts((prevState) => {
         return [...prevState, ...drafts?.data?.data];
@@ -159,7 +165,10 @@ export default function DraftModal() {
                       <Button
                         className={`w-[100px] rounded-md font-medium !m-0 text-sm `}
                         label={"Edit"}
-                        onClick={() => {}}
+                        onClick={() => {
+                          setDraftPostToDelete(draft._id);
+                          editPostModal.openModal();
+                        }}
                       />
                       <Button
                         className={`w-[100px] rounded-md font-medium !m-0 text-sm `}
@@ -206,6 +215,19 @@ export default function DraftModal() {
           deleteLoader={deleteLoader}
         />
       </Modal>
+
+      {editPostModal.isOpen && (
+        <AddPost
+          addPostModal={editPostModal}
+          // fetchPosts={() => {"" as }}
+          postDetails={
+            allDrafts?.filter(
+              (draft) => draft.id == draftPostToDelete
+            )?.[0] as any
+          }
+          getDrafts={()=>getDrafts(1)}
+        />
+      )}
     </>
   );
 }

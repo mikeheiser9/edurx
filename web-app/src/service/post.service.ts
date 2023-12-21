@@ -52,9 +52,16 @@ const updatePostRequestsByAPI = async (
 };
 
 const followPost = async (postId: string, action: "add" | "remove") => {
-  return await axiosPost(`/post/follow/${postId}/${action}`, {})
-}
+  return await axiosPost(`/post/follow/${postId}/${action}`, {});
+};
 
+const updatePostById = async <T>(postId: string, payload: T) => {
+  return axiosPut(`/post/${postId}`, payload);
+};
+
+const handleVoteOnPollPost = async (postId: string, payload:{option:string}) => {
+  return axiosPut(`/post/${postId}/vote`, payload);
+};
 export {
   addNewPost,
   getComments,
@@ -66,4 +73,6 @@ export {
   getPostRequests,
   updatePostRequestsByAPI,
   followPost,
+  updatePostById,
+  handleVoteOnPollPost,
 };

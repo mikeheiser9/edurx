@@ -29,12 +29,13 @@ export default function Resources(props: any) {
   const [ isSaved, setIsSaved ] = useState(false);
 
 
+  // console.log(loggedInUser);
+
   useEffect(() => {
     const fetchResources = async () => {
       try {
         const response = await axiosGet('/resource')
         setResources(response.data);
-        console.log('data fetched ', response.data);
       } catch (error) {
         console.log('Error fetching resource data ', error);
       }

@@ -25,14 +25,16 @@ interface Option {
 
 const ModalHeader = ({
   onClose,
+  mode="New"
 }: {
   onClose: () => void;
+  mode?:"Edit"|"New"|undefined
 }): React.ReactElement => {
   const userPostDraftCount = useSelector(selectDraftCount);
   const dispatch = useDispatch();
   return (
     <div className="flex p-3 px-7  items-center  justify-start bg-eduDarkGray gap-3 ">
-      <span className="text-xl font-medium  ">New Post</span>
+      <span className="text-xl font-medium  ">{mode=="Edit"? 'Edit Draft' : 'New Post'} </span>
       <span></span>
       <span
         className="border-l-2 border-solid border-l-eduBlack text-xl pl-5 font-light underline cursor-pointer"
