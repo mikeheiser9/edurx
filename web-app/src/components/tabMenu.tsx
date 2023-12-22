@@ -1,7 +1,7 @@
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useFormikContext } from "formik";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 interface TabItem {
   label: string;
@@ -22,17 +22,21 @@ interface Props {
 }
 
 export const TabMenu = (props: Props): React.ReactElement => {
+  const initialValues = useFormikContext?.()?.values;
   const { setFieldValue } = props.formikFieldName
     ? useFormikContext()
     : {
         setFieldValue: (value: string) => null,
       };
-  const [activeTab, setActiveTab] = useState<number>(
-    props.defaultActiveTab && props.defaultActiveTab < props.options.length
-      ? props.defaultActiveTab
-      : 0
-  );
-
+  const [activeTab, setActiveTab] = useState<number>(0);
+  
+  useEffect(() => {
+    if ((initialValues as any)?.postType == "poll") {
+      setActiveTab(1);
+    } else {
+      setActiveTab(0);
+    }
+  }, [(initialValues as any)?.postType]);
   const handleTabClick = (index: number) => {
     if (!props.options[index].isDisabled) {
       setActiveTab(index);
@@ -51,10 +55,10 @@ export const TabMenu = (props: Props): React.ReactElement => {
             role="presentation"
             className={`${
               props.tabItemClass ||
-              "p-1 px-3 border border-eduBlack ease-in-out duration-200 text-[14px] font-body rounded capitalize cursor-pointer"
+              "p-1 px-3 border border-eduBlack ease-in-out duration-200 text-[14px] font-body rounded capitalize cursor-pointer text-eduLightBlue"
             } ${
               index === activeTab && !tabItem.isDisabled
-                ? props.activeTabClass || "bg-eduBlack text-white"
+                ? props.activeTabClass || "bg-eduLightBlue text-white"
                 : "opacity-100"
             } ${
               tabItem.isDisabled ? "cursor-not-allowed" : "hover:opacity-100"

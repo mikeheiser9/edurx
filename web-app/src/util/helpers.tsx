@@ -72,18 +72,18 @@ const getAllowedForumAccessBasedOnRoleAndNpiDesignation = (
   role: RolesTypes,
   npiDesignation: string[]
 ): string[] => {
+  const listOfForum=["All Forums"];
   if (role == "student") {
-    return ["Student"];
+    listOfForum.push("Student");
+    return listOfForum;
   } else if (role == "moderator" || role == "super_admin") {
-    return forumTypes;
+      return [...listOfForum,...forumTypes]
   } else {
     let forumAccess: string[] = npiDesignation.map((designation: string) => {
-      if (designation == "RDN") {
         return designation;
-      }
-      return designation;
     });
     forumAccess = [
+      ...listOfForum,
       ...forumAccess,
       "Dietetics & Nutrition",
       "Medical professionals",
@@ -91,6 +91,39 @@ const getAllowedForumAccessBasedOnRoleAndNpiDesignation = (
     return forumAccess;
   }
 };
+
+const calculateView=(dividend:number,divider:number,appendString:"m"|"k")=>{
+  const value=(dividend/divider).toString().split(".");
+  const withoutDecimalPlace=value[0]
+  const withDecimalPlace=value[1]
+  if(!withDecimalPlace){
+      return withoutDecimalPlace+appendString
+  }
+  else if(withDecimalPlace[0]=="0")
+  {
+      return withoutDecimalPlace+".1 "+appendString+"+";
+  }
+  else 
+  {
+      return withoutDecimalPlace+"."+withDecimalPlace.toString()[0]+" "+appendString+"+"
+  }
+}
+
+const getSemanticViewsCount=(views:number)=>{
+    const viewLength=views.toString().length
+    if(viewLength<4)
+    {
+        return views
+    }
+    else if(viewLength>=4 && viewLength<7)
+    {
+        return calculateView(views,1000,"k")
+    }
+    else if(viewLength>=7)
+    {
+       return calculateView(views,1000000,"m")
+    }
+}
 
 export {
   getInputDateFormat,
@@ -100,4 +133,5 @@ export {
   areArraysEqual,
   removeSubstring,
   getAllowedForumAccessBasedOnRoleAndNpiDesignation,
+  getSemanticViewsCount
 };

@@ -29,7 +29,7 @@ const InfiniteScroll = ({
 
     const scrollTop = container.scrollTop;
     const scrollHeight = container.scrollHeight;
-    const clientHeight = container.clientHeight;
+    const clientHeight = container.clientHeight+10;
 
     if (scrollTop + clientHeight >= scrollHeight) {
       setProcessAlreadyRunning(true);
@@ -58,15 +58,24 @@ const InfiniteScroll = ({
   return (
     <div ref={containerRef} className={className} style={{ overflow: "auto" }}>
       {children}
-      {!hasMoreData || infiniteLoader && (
-        <div className="flex justify-center items-center">
-          <span className=" text-eduBlack text-xs font-body">No data available</span>
-        </div>
-      )}
-      {infiniteLoader && showLoading && (
+      {!hasMoreData ||
+        (infiniteLoader && !showLoading  && (
+          <div className="flex justify-center items-center">
+            <span className=" text-eduBlack text-xs font-body">
+              No data available
+            </span>
+          </div>
+        ))}
+      {infiniteLoader ? (
         <div className="flex justify-center items-center">
           <Loader />
         </div>
+      ) : (
+        showLoading && hasMoreData && (
+          <div className="flex justify-center items-center">
+            <Loader />
+          </div>
+        )
       )}
     </div>
   );

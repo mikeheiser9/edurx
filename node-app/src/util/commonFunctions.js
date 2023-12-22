@@ -146,10 +146,13 @@ export const getAllowedForumAccessBasedOnRoleAndNpiDesignation = (
   role,
   npiDesignation
 ) => {
+  const listOfForum = ["All Forums"];
   if (role == "student") {
-    return ["Student"];
+    listOfForum.push("Student");
+    return listOfForum;
   } else if (role == "moderator" || role == "super_admin") {
     return [
+      ...listOfForum,
       "Dietetics & Nutrition",
       "Medical professionals",
       "RDN",
@@ -164,6 +167,7 @@ export const getAllowedForumAccessBasedOnRoleAndNpiDesignation = (
       return designation;
     });
     forumAccess = [
+      ...listOfForum,
       ...forumAccess,
       "Dietetics & Nutrition",
       "Medical professionals",

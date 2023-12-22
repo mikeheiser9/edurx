@@ -189,4 +189,5 @@ export {
   profileSections,
   postLabelType,
   availableFor,
+  resourceLabelType
 };

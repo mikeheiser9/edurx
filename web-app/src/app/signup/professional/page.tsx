@@ -249,8 +249,7 @@ export default function SignUp() {
             setTimeout(() => {
               setCommonErrorMessage(null);
             }, 2000);
-          }
-          else if (userRes?.isExist && !userRes?.user?.verified_account) {
+          } else if (userRes?.isExist && !userRes?.user?.verified_account) {
             // user verification pending
             setCurrentStep(5);
           }
@@ -296,12 +295,16 @@ export default function SignUp() {
         taxonomies: values?.taxonomy?.toString(),
         addresses: values?.addresses?.toString(),
       };
-      await postToGoogleSheet(payload);
-      actions.setTouched({});
-      actions.setSubmitting(false);
-      actions.resetForm();
-      setIsLoading(false);
-      setCurrentStep(0);
+      const res = await postToGoogleSheet(payload);
+      if (res.data.response_type == "success") {
+        actions.setTouched({});
+        actions.setSubmitting(false);
+        actions.resetForm();
+        setIsLoading(false);
+        setCurrentStep((currentStep) => currentStep - 1);
+      } else {
+        setIsLoading(false);
+      }
     } catch (err) {
       setIsLoading(false);
       console.error("failed to post to Google Sheet", err);
@@ -318,7 +321,7 @@ export default function SignUp() {
       await handleAskNpi(actions, values.npi_number);
     } else if (currentStep == 2) {
       // can store the data into the google sheet
-      await saveToGoogleSheets(values, actions);
+      saveToGoogleSheets(values, actions);
     } else if (currentStep == 3 || currentStep == 4) {
       const {
         addresses,
@@ -544,6 +547,8 @@ export default function SignUp() {
       return "Save";
     } else if (currentStep === 3) {
       return "Register";
+    } else if (currentStep == 2) {
+      return "Back";
     } else {
       return "Next";
     }
@@ -617,7 +622,7 @@ export default function SignUp() {
               </label>
             </div>
             <div className="flex flex-col items-center p-4 bg-white">
-              <h1 className="text-3xl font-headers font-semibold">
+              <h1 className="text-3xl font-headers font-semibold text-center">
                 {getStepBasedTitle()}
               </h1>
               <Form>

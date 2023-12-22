@@ -46,6 +46,9 @@ const postSchema = new Schema(
       ref: "postCategoryFilters",
     },
     votingLength: Number,
+    options: {
+      type: [Schema.Types.String],
+    },
     isPrivate: {
       type: Boolean,
       default: false,
@@ -139,5 +142,11 @@ postSchema.virtual("userAccessRequestCount", {
   foreignField: "postId",
   count: true,
 });
+
+postSchema.virtual("votingInfo",{
+  ref:"pollPostVote",
+  localField:"_id",
+  foreignField:"postId",
+})
 
 export const postModal = model("posts", postSchema);

@@ -51,14 +51,17 @@ const updatePostRequestsByAPI = async (
   return await axiosPut(`/post/private/${postId}/requests-update`, payload);
 };
 
-const followPost=async(postId:string,action:"add"|"remove")=>{
-  return await axiosPost(`/post/follow/${postId}/${action}`,{})
-}
+const followPost = async (postId: string, action: "add" | "remove") => {
+  return await axiosPost(`/post/follow/${postId}/${action}`, {});
+};
 
-const getFilters=()=>{
-  return axiosGet(`/post/filter/all`)
-}
+const updatePostById = async <T>(postId: string, payload: T) => {
+  return axiosPut(`/post/${postId}`, payload);
+};
 
+const handleVoteOnPollPost = async (postId: string, payload:{option:string}) => {
+  return axiosPut(`/post/${postId}/vote`, payload);
+};
 export {
   addNewPost,
   getComments,
@@ -70,5 +73,6 @@ export {
   getPostRequests,
   updatePostRequestsByAPI,
   followPost,
-  getFilters
+  updatePostById,
+  handleVoteOnPollPost,
 };

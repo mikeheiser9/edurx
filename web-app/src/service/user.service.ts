@@ -1,4 +1,4 @@
-import { axiosGet, axiosPost, axiosPut } from "@/axios/config";
+import { axiosDelete, axiosGet, axiosPost, axiosPut } from "@/axios/config";
 import { AxiosResponse } from "axios";
 
 const searchUserByAPI = async (
@@ -51,8 +51,23 @@ const dismissTimeSensitiveNotificationById = (notificationId: string) => {
 const remindMeTomorrowTimeSensitiveNotificationById = (
   notificationId: string
 ) => {
-  return axiosPut(`/notification/time-sensitive/remindMeTomorrow/${notificationId}`, {});
+  return axiosPut(
+    `/notification/time-sensitive/remindMeTomorrow/${notificationId}`,
+    {}
+  );
 };
+
+const getUserDraftCount = () => {
+  return axiosGet(`/user/drafts/count`);
+};
+
+const getUserDrafts = (page: number, limit: number) => {
+  return axiosGet(`/user/drafts?page=${page}&limit=${limit}`);
+};
+
+const deleteDraftById=(id:string)=>{
+  return axiosDelete(`/user/draft/${id}`)
+}
 
 export {
   searchUserByAPI,
@@ -63,4 +78,8 @@ export {
   getTimeSensitiveNotification,
   dismissTimeSensitiveNotificationById,
   remindMeTomorrowTimeSensitiveNotificationById,
+  getUserDraftCount,
+  getUserDrafts,
+  deleteDraftById
 };
+

@@ -15,7 +15,8 @@ import {
   getUserRequests,
   bulkUpdateRequests,
   followPost,
-  getFilters,
+  updatePostByUser,
+  pollVote,
 } from "../controllers/post.js";
 import {
   addCommentValidator,
@@ -24,7 +25,7 @@ import {
   addViewValidator,
   bulkRequestUpdateValidator,
   createMetaLabelValidator,
-  createPostValidator,
+  createOrUpdatePostValidator,
   followUnfollowPostValidator,
   getAllPostValidator,
   getPostCommentsValidator,
@@ -33,6 +34,7 @@ import {
   searchMetaLabelValidator,
   updatePostValidator,
   validateCategoryFilter,
+  validatePollVote,
 } from "../middleware/validator/post.js";
 import { adminAuthValidation } from "../middleware/validator/user.js";
 
@@ -40,7 +42,7 @@ const postRoute = Router();
 postRoute.post(
   "/create",
   userAuth,
-  createPostValidator,
+  createOrUpdatePostValidator,
   validateCategoryFilter,
   createPost
 );
@@ -105,6 +107,14 @@ postRoute.put(
   bulkUpdateRequests
 );
 
-postRoute.get("/filter/all", userAuth, getFilters);
+postRoute.put(
+  "/:postId",
+  userAuth,
+  createOrUpdatePostValidator,
+  validateCategoryFilter,
+  updatePostByUser
+);
+
+postRoute.put("/:postId/vote", userAuth, validatePollVote, pollVote);
 
 export default postRoute;

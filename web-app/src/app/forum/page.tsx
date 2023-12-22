@@ -13,7 +13,7 @@ import InfiniteScroll from "@/components/infiniteScroll";
 import { PostModal } from "./components/postModal";
 import { requireAuthentication } from "@/components/requireAuthentication";
 import { useDispatch, useSelector } from "react-redux";
-import { selectUserDetail } from "@/redux/ducks/user.duck";
+import { selectUserDetail, setDraftCount } from "@/redux/ducks/user.duck";
 
 import { showToast } from "@/components/toast";
 import { updatePostByAPI } from "@/service/post.service";
@@ -23,6 +23,8 @@ import {
   setSelectedFilter,
 } from "@/redux/ducks/forum.duck";
 import { getAllowedForumAccessBasedOnRoleAndNpiDesignation } from "@/util/helpers";
+import { getUserDraftCount } from "@/service/user.service";
+import DraftModal from "./components/draftModal";
 
 const forumTabs = ["Forum Feed", "Your Posts", "Following"];
 
@@ -33,8 +35,7 @@ const Page = () => {
   const viewPostModal = useModal();
   const selectedFilters: FilterOptionsState = useSelector(
     getSelectedForumFilters
-  ); 
-
+  );
   const [selectedForumTab, setSelectedForumTab] = useState<string>(
     forumTabs[0]
   );
@@ -43,6 +44,7 @@ const Page = () => {
     page: 1,
     totalRecords: 0,
   });
+  const [showLoading, setShowLoading] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<string>("");
 
   const isAdmin = loggedInUser?.role === roleAccess.ADMIN;
@@ -68,6 +70,7 @@ const Page = () => {
     useConcat: boolean = true
   ) => {
     try {
+      setShowLoading(true);
       let payload = {
         limit: 10,
         page,
@@ -100,11 +103,14 @@ const Page = () => {
             ? posts.concat(response?.data?.data?.posts?.data)
             : response?.data?.data?.posts?.data
         );
-        setPostPagination({
-          page: response?.data?.data?.posts?.metadata?.currentPage,
-          totalRecords: response?.data?.data?.posts?.metadata?.totalRecords,
+        setPostPagination((prev) => {
+          return {
+            page: response?.data?.data?.posts?.metadata?.currentPage,
+            totalRecords: response?.data?.data?.posts?.metadata?.totalRecords,
+          };
         });
       }
+      setShowLoading(false);
     } catch (error) {
       console.log("Error fetching posts", error);
     }
@@ -161,8 +167,24 @@ const Page = () => {
 
   useEffect(() => {
     if (selectedForumTab === forumTabs[2]) return;
-    fetchPosts(1, apiEndpoint, false);
+    setPosts([]);
+    setPostPagination({
+      page: 1,
+      totalRecords: 0,
+    });
+    setTimeout(()=>{
+      fetchPosts(1, apiEndpoint, false);
+    },1000)
   }, [selectedFilters, selectedForumTab]);
+
+  useEffect(() => {
+    (async () => {
+      const res = await getUserDraftCount();
+      if (res?.data?.response_type == "Success") {
+        dispatch(setDraftCount(res?.data?.data));
+      }
+    })();
+  }, []);
 
   return (
     <React.Fragment>
@@ -172,8 +194,8 @@ const Page = () => {
           fetchPosts={() => fetchPosts(1, apiEndpoint, false)}
         />
       )}
+      <DraftModal></DraftModal>
       <PostModal viewPostModal={viewPostModal} postId={selectedPostId} />
-
       <div className="flex justify-between items-center w-full h-[55px]">
         <div className="flex justify-center items-center gap-2">
           {/* <span className="bg-primary-dark w-8 h-8 flex items-center justify-center rounded-md ">
@@ -227,7 +249,7 @@ const Page = () => {
             })}
             onSelect={(e) => handleFilters("forumType", e?.value)}
             onClear={() => handleFilters("forumType", "")}
-            value={selectedFilters?.forumType || "Choose a forum type"}
+            value={selectedFilters?.forumType || "Change forum"}
             wrapperClass="!w-[12rem]"
           />
         </div>
@@ -240,11 +262,26 @@ const Page = () => {
             onClear={() => {
               const values =
                 selectedFilters?.categories?.filter(
-                  (i: TagCategoryType) => i.name !== item.name
+                  (i: TagCategoryType) => i._id !== item._id
                 ) ?? [];
               handleFilters("categories", values);
             }}
             className="bg-transparent border border-eduLightBlue  text-xs px-2 leading-6 rounded-md gap-2"
+            isSelected
+          />
+        ))}
+        {selectedFilters?.filters?.map((item: TagCategoryType) => (
+          <Chip
+            key={item._id}
+            label={item.name}
+            onClear={() => {
+              const values =
+                selectedFilters?.filters?.filter(
+                  (i: TagCategoryType) => i._id !== item._id
+                ) ?? [];
+              handleFilters("filters", values);
+            }}
+            className="!bg-eduDarkGray border text-eduDarkBlue text-xs px-2 leading-6 rounded-md gap-2"
             isSelected
           />
         ))}
@@ -253,7 +290,7 @@ const Page = () => {
         className="flex flex-col w-full h-full rounded-md gap-4"
         callBack={loadMorePosts}
         hasMoreData={posts?.length < postPagination.totalRecords}
-        showLoading
+        showLoading={showLoading}
       >
         {posts?.map((post) => (
           <div key={post._id}>

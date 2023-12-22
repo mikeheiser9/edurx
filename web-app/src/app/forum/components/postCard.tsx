@@ -3,11 +3,12 @@ import {
   postLabelType,
   responseCodes,
   roleAccess,
-} from "@/util/constant"; 
+} from "@/util/constant";
 import { faComments } from "@fortawesome/free-regular-svg-icons";
 import {
   faChartColumn,
   faEllipsisVertical,
+  faLock,
   faX,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -153,6 +154,7 @@ export const PostCard = (props: Props) => {
       />
     </div>
   );
+
   return (
     <>
       {post?._id && (
@@ -164,11 +166,20 @@ export const PostCard = (props: Props) => {
       >
         <div className="flex-1 gap-4 flex-col flex">
           <span className="text-eduDarkBlue text-[12px] font-body">
-            Published on {moment(post?.createdAt).format("DD/MM/YYYY")}
+            Published on {moment(post?.createdAt).format("DD/MM/YYYY")} |{" "}
+            {post?.postType}
           </span>
-          <span className="text-[22px] text-eduBlack font-headers">
-            {" "}
-            {post.title}
+          <span className="text-[22px] text-eduBlack font-headers flex gap-2 items-center">
+            <span>{post.title}</span>
+            {post?.isPrivate && (
+              <span className="w-[20px] h-[20px] rounded-lg bg-eduYellow flex justify-center items-center">
+                <FontAwesomeIcon
+                  icon={faLock}
+                  className="animate-fade-in-down w-[0.7em] "
+                  size="2xs"
+                />
+              </span>
+            )}
           </span>
           <div className="flex flex-wrap gap-2">
             {post?.categories?.map((category) => (
@@ -196,7 +207,10 @@ export const PostCard = (props: Props) => {
         </div>
         <div className="flex-1 flex gap-8 justify-end items-center">
           <Button
-            className={`w-[150px] rounded-md font-medium !m-0 text-sm ${["Following","Requested"].includes(forumButtonLabel) && '!bg-eduLightBlue text-white'}`}
+            className={`w-[150px] rounded-md font-medium !m-0 text-sm ${
+              ["Following", "Requested"].includes(forumButtonLabel) &&
+              "!bg-eduLightBlue text-white"
+            }`}
             label={forumButtonLabel}
             onClick={handleForumAction}
             onMouseEnter={() => {
@@ -209,7 +223,7 @@ export const PostCard = (props: Props) => {
                 setForumButtonLabel("Following");
               }
             }}
-            disabled={forumButtonLabel=="Requested"}
+            disabled={forumButtonLabel == "Requested"}
           />
           <div className="flex flex-col items-center justify-center text-[12px] text-eduBlack gap-4">
             <div className="flex flex-col text-[12px]">

@@ -21,6 +21,8 @@ import {
   getKeyValueFromFiles,
 } from "../util/commonFunctions.js";
 import { responseCodes, responseTypes } from "../util/constant.js";
+import { findDraftsByUserId } from "../repository/post.js";
+import { postModal } from "../model/post/post.js";
 
 const getUserProfile = async (req, res) => {
   try {
@@ -407,6 +409,83 @@ const getAccountSettings = async (req, res) => {
   }
 };
 
+const userDrafts = async (req, res) => {
+  try {
+    const page = req.query.page ? Number(req.query.page) : 1;
+    const limit = req.query.limit ? Number(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const UserDrafts = await findDraftsByUserId(req.user._id, skip, limit);
+    return generalResponse(
+      res,
+      responseCodes.SUCCESS,
+      responseTypes.SUCCESS,
+      "",
+      UserDrafts
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      responseCodes.ERROR,
+      responseTypes.ERROR,
+      error?.message,
+      null,
+      true
+    );
+  }
+};
+
+const userDraftsCount = async (req, res) => {
+  try {
+    const draftCount = await postModal.countDocuments({
+      userId: req.user._id,
+      isDeleted: false,
+      postStatus: "draft",
+    });
+    return generalResponse(
+      res,
+      responseCodes.SUCCESS,
+      responseTypes.SUCCESS,
+      "",
+      draftCount
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      responseCodes.ERROR,
+      responseTypes.ERROR,
+      error?.message,
+      null,
+      true
+    );
+  }
+};
+
+const userDraft = async (req, res) => {
+  try {
+    const deleteRes = await postModal.deleteOne({
+      userId: req.user._id,
+      postStatus: "draft",
+      _id: req.params.id,
+    });
+    return generalResponse(
+      res,
+      responseCodes.SUCCESS,
+      responseTypes.SUCCESS,
+      "",
+      { rowAffected: deleteRes.deletedCount }
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      responseCodes.ERROR,
+      responseTypes.ERROR,
+      error?.message,
+      null,
+      true
+    );
+  }
+};
+
 export {
   getUserProfile,
   updateUserByID,
@@ -416,5 +495,8 @@ export {
   searchUsers,
   getConnections,
   createAccountSettings,
-  getAccountSettings
+  getAccountSettings,
+  userDrafts,
+  userDraftsCount,
+  userDraft,
 };

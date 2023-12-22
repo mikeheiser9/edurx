@@ -182,7 +182,7 @@ const EditProfile = ({
 
   const handleProfileImages = async (values: profileImages) => {
     try {
-      if (!values.profile_img && !values.banner_img) return;
+      if (!values.profile_img && !values.banner_img && Object.keys(availableFor).every((key)=>!(availableFor as any)[key])) return;
       const formData = new FormData();
       Object.keys(values).forEach((key) => {
         if (key != "availableFor") {

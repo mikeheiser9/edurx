@@ -12,7 +12,9 @@ import { fileUpload,fileTypeCheckAndRename} from "./middleware/multer.js";
 import sheetRoute from "./routes/googleSheet.js";
 import logger from 'morgan'
 import notificationRoute from "./routes/notification.js";
-import "./crons/timeSensitiveNotification.js"
+import "./crons/timeSensitiveNotification.js";
+import adminRoutes from "./routes/adminRoutes.js"
+
 const app=express();
 const PORT=process.env.PORT;
 app.use(cors({
@@ -41,6 +43,7 @@ app.use("/post", postRoute);
 app.use("/google-sheets", sheetRoute);
 app.use("/notification",notificationRoute);
 app.use("/resource", resRoute);
+app.use("/admin", adminRoutes);
 app.listen(PORT, () => {
   console.log(`app is up on PORT : ${PORT}`);
 });

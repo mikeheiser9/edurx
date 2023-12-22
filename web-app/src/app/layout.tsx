@@ -32,7 +32,6 @@ export default function RootLayout({
         {/* <meta name="twitter:image:alt" content="Welcome to EduRx. Beta launching Q4 2023" /> */}
 
         {/* <!--  Non-Essential, But Required for Analytics --> */}
-        {/* <meta name="twitter:site" content="@gemsetnft" /> */}
         <link rel="shortcut icon" href="/edurxLogo.svg" />
     </Head>
       {/* <head>

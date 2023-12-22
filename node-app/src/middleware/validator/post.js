@@ -25,28 +25,46 @@ const allPostValidations = {
   sortBy: Joi.string().valid("newest", "popular", "trending"),
   forumType: Joi.string().valid(...forumTypes),
   categories: Joi.array().max(50).items(validateField.objectId),
-  filters:Joi.array().max(50).items(validateField.objectId)
+  filters: Joi.array().max(50).items(validateField.objectId),
 };
 
-const createPostValidator = async (req, res, next) => {
+const customeValidator = (values, helper) => {
+  if (values.replace(/<\/?[^>]+(>|$)/g, "").length > 5000) {
+    return helper.message("char limit exceed(allowed 5000 char)");
+  }
+  return values;
+};
+
+const createOrUpdatePostValidator = async (req, res, next) => {
   try {
     const { stringPrefixJoiValidation, objectId } = validateField;
     const filterCategoryValidation = Joi.array().max(50).items(objectId);
-    const role=req.user.role
-    const npi_designation=req.user.npi_designation;
-    const forum=getAllowedForumAccessBasedOnRoleAndNpiDesignation(role,npi_designation)
+    const role = req.user.role;
+    const npi_designation = req.user.npi_designation;
+    const forum = getAllowedForumAccessBasedOnRoleAndNpiDesignation(
+      role,
+      npi_designation
+    );
     const schema = Joi.object({
       userId: validateField.objectId.required(),
-      forumType:Joi.string().valid(...forum),
+      forumType: Joi.string().valid(...forum),
       postType: stringPrefixJoiValidation.valid(...postType).required(),
       postStatus: stringPrefixJoiValidation.valid(...postStatus).required(),
-      title: stringPrefixJoiValidation.required().max(26),
-      content: stringPrefixJoiValidation.allow("").max(100000),
+      title: stringPrefixJoiValidation.required().max(250),
+      content: Joi.string().when("postStatus", {
+        is: "published",
+        then: Joi.string().required().custom(customeValidator),
+        otherwise: Joi.string().allow("").custom(customeValidator),
+      }),
       categories: filterCategoryValidation,
       filters: filterCategoryValidation,
       options: Joi.array().when("postType", {
         is: "poll",
-        then: Joi.array().min(2).items(stringPrefixJoiValidation),
+        then: Joi.array()
+          .min(2)
+          .max(8)
+          .items(stringPrefixJoiValidation)
+          .unique(),
       }),
       votingLength: Joi.number().when("postType", {
         is: "poll",
@@ -65,21 +83,24 @@ const createPostValidator = async (req, res, next) => {
 
 const getUsersPostsValidator = async (req, res, next) => {
   try {
-    const role=req.user.role
-    const npi_designation=req.user.npi_designation;
-    const forum=getAllowedForumAccessBasedOnRoleAndNpiDesignation(role,npi_designation)
+    const role = req.user.role;
+    const npi_designation = req.user.npi_designation;
+    const forum = getAllowedForumAccessBasedOnRoleAndNpiDesignation(
+      role,
+      npi_designation
+    );
     const schema = Joi.object({
       userId: validateField.objectId.required(),
       ...paginationValidation,
       ...allPostValidations,
-      forumType:Joi.string().valid(...forum)
+      forumType: Joi.string().valid(...forum),
     });
 
     await schema.validateAsync({
       ...req.query,
       userId: req.user._id?.toString(),
       categories: req.query?.categories?.split(","),
-      filters:req.query?.filters?.split(",")
+      filters: req.query?.filters?.split(","),
     });
     next();
   } catch (error) {
@@ -104,6 +125,7 @@ const createMetaLabelValidator = async (req, res, next) => {
         .valid(...postCategoryFilterTypes)
         .required(),
       name: Joi.string().required().min(3),
+      forumType: Joi.array().items(Joi.string().valid(...forumTypes)),
     });
     await schema.validateAsync({
       ...req.body,
@@ -117,6 +139,12 @@ const createMetaLabelValidator = async (req, res, next) => {
 
 const searchMetaLabelValidator = async (req, res, next) => {
   try {
+    const role = req.user.role;
+    const npi_designation = req.user.npi_designation;
+    const forum = getAllowedForumAccessBasedOnRoleAndNpiDesignation(
+      role,
+      npi_designation
+    );
     const schema = Joi.object({
       type: Joi.string()
         .valid(...postCategoryFilterTypes)
@@ -125,6 +153,7 @@ const searchMetaLabelValidator = async (req, res, next) => {
         .required()
         .allow("")
         .max(100),
+      forumType: Joi.string().valid(...forum),
       ...paginationValidation,
     });
     await schema.validateAsync(req.query);
@@ -196,11 +225,16 @@ const addCommentValidator = async (req, res, next) => {
         Joi.ref("userId"),
         Joi.ref("postId")
       ),
-      ...(req.body.parentId && {replyOnDetails:Joi.object({
-        commentId:validateField.objectId.required().disallow(Joi.ref("postId"),Joi.ref("userId")),
-        commentOwner:validateField.objectId.required().disallow(Joi.ref("postId")),
-      }).required()})
-
+      ...(req.body.parentId && {
+        replyOnDetails: Joi.object({
+          commentId: validateField.objectId
+            .required()
+            .disallow(Joi.ref("postId"), Joi.ref("userId")),
+          commentOwner: validateField.objectId
+            .required()
+            .disallow(Joi.ref("postId")),
+        }).required(),
+      }),
     });
     await schema.validateAsync(req.body);
     next();
@@ -226,18 +260,21 @@ const getAllPostValidator = async (req, res, next) => {
   try {
     // filter options forumType, category, userId
     // sort options newest, most popular, trending
-    const role=req.user.role
-    const npi_designation=req.user.npi_designation;
-    const forum=getAllowedForumAccessBasedOnRoleAndNpiDesignation(role,npi_designation)
+    const role = req.user.role;
+    const npi_designation = req.user.npi_designation;
+    const forum = getAllowedForumAccessBasedOnRoleAndNpiDesignation(
+      role,
+      npi_designation
+    );
     const schema = Joi.object({
       ...paginationValidation,
       ...allPostValidations,
-      forumType:Joi.string().valid(...forum)
+      forumType: Joi.string().valid(...forum),
     });
     await schema.validateAsync({
       ...req.query,
       categories: req.query?.categories?.split(","),
-      filters:req.query?.filters?.split(",")
+      filters: req.query?.filters?.split(","),
     });
     next();
   } catch (error) {
@@ -348,22 +385,49 @@ const bulkRequestUpdateValidator = async (req, res, next) => {
   }
 };
 
-const followUnfollowPostValidator=async(req,res,next)=>{
+const followUnfollowPostValidator = async (req, res, next) => {
   try {
     const { objectId } = validateField;
-    const schema=Joi.object({
+    const schema = Joi.object({
       postId: objectId.required(),
-      action:Joi.string().valid(...["add","remove"]).required()
-    })
+      action: Joi.string()
+        .valid(...["add", "remove"])
+        .required(),
+    });
     await schema.validateAsync(req.params);
     next();
   } catch (error) {
     returnAppropriateError(res, error);
   }
-}
+};
+
+const deletePostDraftValidator = async (req, res, next) => {
+  try {
+    const { objectId } = validateField;
+    await Joi.object({
+      id: objectId.required(),
+    }).validateAsync(req.params);
+    next();
+  } catch (error) {
+    returnAppropriateError(res, error);
+  }
+};
+
+const validatePollVote = async (req, res, next) => {
+  try {
+    const { objectId } = validateField;
+    await Joi.object({
+      postId: objectId.required(),
+      option: Joi.string().required(),
+    }).validateAsync({ ...req.body, ...req.params });
+    next();
+  } catch (error) {
+    returnAppropriateError(res, error);
+  }
+};
 
 export {
-  createPostValidator,
+  createOrUpdatePostValidator,
   getUsersPostsValidator,
   createMetaLabelValidator,
   searchMetaLabelValidator,
@@ -377,5 +441,7 @@ export {
   addRequestValidator,
   getRequestValidator,
   bulkRequestUpdateValidator,
-  followUnfollowPostValidator
+  followUnfollowPostValidator,
+  deletePostDraftValidator,
+  validatePollVote,
 };

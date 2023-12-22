@@ -1,4 +1,8 @@
-import { getFullName, getStaticImageUrl } from "@/util/helpers";
+import {
+  getFullName,
+  getSemanticViewsCount,
+  getStaticImageUrl,
+} from "@/util/helpers";
 import {
   faComments,
   faEdit,
@@ -17,14 +21,13 @@ import linkedin from "../../assets/icons/linkedin.svg";
 import twitter from "../../assets/icons/twitter.svg";
 import email from "../../assets/icons/email.svg";
 import facebook from "../../assets/icons/facebook.svg";
-import eduIcon from "../../assets/icons/eduIcon.svg";
-import { npiToDefinition, profileSections, statesNames } from "@/util/constant";
+import { npiToDefinition, profileSections } from "@/util/constant";
 import moment from "moment";
 import { TabMenu } from "@/components/tabMenu";
 import { Button } from "@/components/button";
 import { LoadMore } from "@/components/loadMore";
 import replaceTaggedUsers from "../../components/replaceTags";
-import { useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
 const socialMediaIcons: socials = {
   instagram,
@@ -87,7 +90,7 @@ const BasicInfo = ({
         <FontAwesomeIcon icon={faImage} className="text-eduDarkBlue text-4xl" />
       )}
     </div>
-    <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 bg-eduLightGray">
+    <div className="p-6 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 bg-eduLightGray">
       <div className="rounded-lg overflow-hidden flex items-center justify-center hover:blur-sm ease-in-out duration-500 bg-white -mt-[4rem] relative w-24 h-24">
         {userData?.profile_img ? (
           <Image
@@ -135,61 +138,90 @@ const BasicInfo = ({
               <FontAwesomeIcon icon={faStethoscope} className="me-2" />
               Licensed in: {userData?.state}
             </span>
-            <div className="flex text-eduBlack text-xs gap-x-4 font-body">
-              <span className="font-body">
-                <b className="text-eduBlack text-[12px] font-body">
-                  {userData?.followingCount}
-                </b>{" "}
-                Following
-              </span>
-              <span className="font-body">
-                <b className="text-eduBlack text-[12px] font-body">
-                  {userData?.followersCount}
-                </b>{" "}
-                Followers
-              </span>
-            </div>
-            {userData?.socials && Object.keys(userData?.socials).length > 0 && (
-              <div className="flex gap-2">
-                {Object.keys(userData?.socials)?.map((item: string) => {
-                  if (
-                    userData?.socials?.[item as keyof socials]?.length &&
-                    socialMediaIcons?.[item as keyof socials]
-                  ) {
-                    return (
-                      <SocialIcon
-                        value={item as keyof socials}
-                        href={`https://${item}.com/${
-                          userData?.socials?.[item as keyof socials]
-                        }`}
-                        key={item}
-                      />
-                    );
-                  }
-                })}
-                {userData?.contact_email && (
-                  <SocialIcon
-                    value="email"
-                    href={`mailto:${userData?.contact_email}`}
-                  />
-                )}
+            <div className="flex text-eduBlack text-xs gap-x-4 font-body justify-between">
+              <div>
+                <span className="font-body">
+                  <b className="text-eduBlack text-[12px] font-body">
+                    {userData?.followingCount}
+                  </b>{" "}
+                  Following
+                </span>
+                <span className="font-body">
+                  <b className="text-eduBlack text-[12px] font-body">
+                    &nbsp;&nbsp; {userData?.followersCount}
+                  </b>{" "}
+                  Followers
+                </span>
               </div>
-            )}
+              {(userData.Collaboration ||
+                userData.Mentorship ||
+                userData.Research) && (
+                  <span className="relative right-[71px] text-eduBlack capitalize font-headers text-[18px] font-[600]">
+                    Available For :{" "}
+                  </span>
+                )}
+            </div>
+              <div className="flex gap-2">
+                <div>
+                  {userData?.socials && Object.keys(userData?.socials)?.map((item: string) => {
+                    if (
+                      userData?.socials?.[item as keyof socials]?.length &&
+                      socialMediaIcons?.[item as keyof socials]
+                    ) {
+                      return (
+                        <SocialIcon
+                          value={item as keyof socials}
+                          href={`https://${item}.com/${userData?.socials?.[item as keyof socials]
+                            }`}
+                          key={item}
+                        />
+                      );
+                    }
+                  })}
+                  {userData?.contact_email && (
+                    <SocialIcon
+                      value="email"
+                      href={`mailto:${userData?.contact_email}`}
+                    />
+                  )}
+                </div>
+                {(userData.Collaboration ||
+                  userData.Mentorship ||
+                  userData.Research) && (
+                    <div className="relative left-[68%] flex gap-x-3 top-3">
+                      {userData.Collaboration && (
+                        <span className="bg-eduDarkGray text-eduLightBlue px-2 py-1 text-sm">
+                          Collaboration
+                        </span>
+                      )}
+                      {userData.Mentorship && (
+                        <span className="bg-eduDarkGray text-eduLightBlue px-2 py-1 text-sm">
+                          Mentorship
+                        </span>
+                      )}
+                      {userData.Research && (
+                        <span className="bg-eduDarkGray text-eduLightBlue px-2 py-1 text-sm">
+                          Research
+                        </span>
+                      )}
+                    </div>
+                  )}
+              </div>
           </div>
         </div>
         {buttonJsx
           ? buttonJsx
           : openModal && (
-              <div className="justify-self-end self-start">
-                <button
-                  type="button"
-                  className="border rounded-[10px] py-2 px-4 font-body text-[16px] w-[125px] text-eduBlack border-eduBlack hover:text-white hover:bg-eduBlack transition-colors ease-in-out duration-300"
-                  onClick={openModal}
-                >
-                  Edit Profile
-                </button>
-              </div>
-            )}
+            <div className="justify-self-end self-start">
+              <button
+                type="button"
+                className="border rounded-[10px] py-2 px-4 font-body text-[16px] w-[125px] text-eduBlack border-eduBlack hover:text-white hover:bg-eduBlack transition-colors ease-in-out duration-300"
+                onClick={openModal}
+              >
+                Edit Profile
+              </button>
+            </div>
+          )}
       </div>
     </div>
   </div>
@@ -204,19 +236,39 @@ const About = ({
   openModal?: () => void;
   emptyBioMessage?: string;
 }) => {
-  const [showMore,setShowMore]=useState(false);
+  const [showMore, setShowMore] = useState(false);
   return (
-    <div className={`bg-eduLightGray overflow-hidden flex-auto relative rounded-lg ${!showMore ? 'h-[220px]' : 'h-[260px] overflow-y-auto'}`}>
-      {personal_bio && openModal && <EditIcon onClick={openModal} />}
-      <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-col gap-2">
+    <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 bg-eduLightGray">
+      <div className="flex justify-between items-center">
         <span className="text-eduBlack text-[24px] font-semibold font-headers tracking-wide">
           About
         </span>
-        <p className="text-eduBlack/60 text-[16px] font-body">
-          {showMore ? personal_bio : personal_bio?.trim().substring(0,470) || (emptyBioMessage ?? "No personal bio available")}
-        </p>
-        {personal_bio && personal_bio.length>470 && !showMore && <span className="text-center font-[700] opacity-[50%] text-[0.8em] cursor-pointer" onClick={()=>setShowMore(true)}>Read More</span>}
+        {openModal && <EditIcon onClick={openModal} />}
       </div>
+      <div
+        className={` overflow-hidden flex-auto relative rounded-lg flex items-center ${!showMore ? "h-[150px]" : "h-[300px] overflow-y-auto"
+          }`}
+      >
+        <div className="flex flex-col gap-2">
+          <p className="text-eduBlack/60 text-[16px] font-body">
+            {(personal_bio && personal_bio.length > 0) ? showMore
+              ? personal_bio
+              : personal_bio?.trim().substring(0, 470) + "..."
+              : ""}
+          </p>
+        </div>
+        {!personal_bio && <p className="text-eduBlack/60 pl-[34%]">{emptyBioMessage}</p>}
+
+      </div>
+      {personal_bio && personal_bio.length > 0 && (
+        <span
+          className="flex justify-center items-center font-[700] opacity-[50%] text-[0.8em] cursor-pointer"
+          onClick={() => setShowMore(!showMore)}
+        >
+          {showMore ? "Read Less" : "Read More"}
+        </span>
+      )}
+
     </div>
   );
 };
@@ -224,80 +276,129 @@ const About = ({
 const PostList = ({
   posts,
   noDataMessage,
+  profileModal,
+  setSelectedPostId,
+  showMore,
 }: {
   posts: PostInterface[] | undefined;
   noDataMessage: string;
-}): React.ReactElement => (
-  <>
-    {posts?.length ? (
-      <div className="grid grid-cols-2 gap-2 animate-fade-in-down">
-        {posts.map((post) => (
-          <div className="flex gap-2" key={post?._id}>
-            <div className="flex flex-col gap-1">
-              <span className="text-eduBlack text-[14px] font-headers capitalize">
-                {post?.title}
-              </span>
-              <span className="text-[12px] text-eduBlack/60 font-body">
-                {post?.forumType} • Published on{" "}
-                {moment(post?.createdAt).format("DD/MM/YYYY")}
-              </span>
-              <div className="flex text-[12px] text-eduBlack/60 font-body gap-2">
-                <FontAwesomeIcon icon={faComments} />
-                <span>{post?.commentCount} Comments</span>
-                <FontAwesomeIcon icon={faChartColumn} />
-                <span>{post?.views} views</span>
+  profileModal?: UseModalType;
+  setSelectedPostId: Dispatch<SetStateAction<string>>;
+  showMore: boolean;
+}): React.ReactElement => {
+  let postToBeRendered: PostInterface[] | undefined = [];
+  if (!showMore && posts && posts.length > 0) {
+    postToBeRendered = posts.slice(0, 2);
+  } else {
+    postToBeRendered = posts;
+  }
+  return (
+    <>
+      {postToBeRendered?.length ? (
+        <div className="grid grid-cols-[1fr,22%] gap-3 animate-fade-in-down cursor-pointer">
+          {postToBeRendered.map((post) => (
+            <>
+              <div
+                className="w-[100%] flex flex-col"
+                key={post?._id}
+                onClick={() => {
+                  profileModal?.closeModal();
+                  setSelectedPostId(post?._id);
+                }}
+              >
+                <div className="flex flex-col gap-1">
+                  <span className="text-eduBlack text-[16px] font-[500] font-headers capitalize">
+                    {post?.title && post?.title.length < 73
+                      ? post?.title
+                      : post?.title?.substring(0, 73) + "..."}
+                  </span>
+                </div>
+                <div className="text-[15px] text-eduBlack/60 font-body">
+                  {post?.forumType} • Published on{" "}
+                  {moment(post?.createdAt).format("DD/MM/YYYY")}
+                </div>
               </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    ) : (
-      <span className="text-eduBlack">{noDataMessage}</span>
-    )}
-  </>
-);
+              <div className="flex text-[15px] text-eduBlack/60  font-body  justify-between">
+                <div className="flex gap-4 text-eduLightBlue">
+                  <FontAwesomeIcon icon={faComments} />
+                  <span>
+                    {getSemanticViewsCount(Number(post?.commentCount))}
+                  </span>
+                </div>
+                <div className="flex gap-4 text-eduLightBlue">
+                  <FontAwesomeIcon icon={faChartColumn} />
+                  <span>{getSemanticViewsCount(Number(post?.views))}</span>
+                </div>
+              </div>
+            </>
+          ))}
+        </div>
+      ) : (
+        <span className="text-eduBlack text-eduBlack/60 text-[16px] font-body flex justify-center items-center">{noDataMessage}</span>
+      )}
+    </>
+  );
+};
 
 const CommentList = ({
   comments,
   profileImage,
   noDataMessage,
+  setSelectedPostId,
+  showMore,
+  profileModal
 }: {
   comments: Comment[] | undefined;
   profileImage?: string | undefined;
   noDataMessage: string;
-}): React.ReactElement => (
-  <>
-    {comments?.length ? (
-      <div className="flex flex-auto flex-col gap-2 animate-fade-in-down">
-        {comments.map((comment) => (
-          <div
-            className="flex flex-wrap flex-auto overflow-visible bg-eduDarkGray py-2 px-6 rounded-md gap-2 items-center"
-            key={comment?._id}
-          >
-            <div className="text-eduBlack relative text-[14px]">
-              {comment.content &&
-                replaceTaggedUsers({
-                  content: comment.content,
-                  taggedUsers: comment?.taggedUsers ?? [],
-                  showCard: false,
-                })}
-            </div>
-            <span className="text-eduBlack text-[14px]">•</span>
-            <span className="text-[12px] text-eduDarkBlue">
-              {moment(comment?.createdAt).fromNow()}
-            </span>
-            {/* <div className="flex text-xs text-eduBlack/50 gap-2">
+  setSelectedPostId: Dispatch<SetStateAction<string>>;
+  showMore: boolean;
+  profileModal: UseModalType | undefined
+}): React.ReactElement => {
+  let commentsToBeRendered: Comment[] | undefined = [];
+  if (!showMore && comments && comments.length > 0) {
+    commentsToBeRendered = comments.slice(0, 2);
+  } else {
+    commentsToBeRendered = comments;
+  }
+  return (
+    <>
+      {commentsToBeRendered?.length ? (
+        <div className="flex flex-auto flex-col gap-2 animate-fade-in-down cursor-pointer">
+          {commentsToBeRendered.map((comment) => (
+            <div
+              className="flex flex-wrap flex-auto overflow-visible bg-eduDarkGray py-2 px-6 rounded-md gap-2 items-center"
+              key={comment?._id}
+              onClick={() => {
+                profileModal?.closeModal();
+                setSelectedPostId(comment?.postId as string);
+              }}
+            >
+              <div className="text-eduBlack relative text-[14px]">
+                {comment.content &&
+                  replaceTaggedUsers({
+                    content: comment.content,
+                    taggedUsers: comment?.taggedUsers ?? [],
+                    showCard: false,
+                  })}
+              </div>
+              <span className="text-eduBlack text-[14px]">•</span>
+              <span className="text-[12px] text-eduDarkBlue">
+                {moment(comment?.createdAt).fromNow()}
+              </span>
+              {/* <div className="flex text-xs text-eduBlack/50 gap-2">
               <FontAwesomeIcon icon={faChartColumn} />
               <span>{comment?.views} views</span>
             </div> */}
-          </div>
-        ))}
-      </div>
-    ) : (
-      <span className="text-eduBlack">{noDataMessage}</span>
-    )}
-  </>
-);
+            </div>
+          ))}
+        </div>
+      ) : (
+        <span className="text-eduBlack text-eduBlack/60 text-[16px] font-body flex justify-center items-center">{noDataMessage}</span>
+      )}
+    </>
+  );
+};
 
 const Activity = ({
   posts,
@@ -305,42 +406,75 @@ const Activity = ({
   profileImage,
   noPostMessage,
   noCommentMessage,
+  profileModal,
+  setSelectedPostId,
 }: {
   posts: [] | undefined;
   comments: [] | undefined;
   profileImage?: string | undefined;
   noPostMessage: string;
   noCommentMessage: string;
-}): React.ReactElement => (
-  <div className="bg-eduLightGray overflow-visible flex-auto relative rounded-lg lg:min-h-[12rem]">
-    <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-col gap-2">
-      <span className="text-eduBlack text-[24px] font-semibold font-headers tracking-wide">
-        Activity
-      </span>
-      <TabMenu
-        options={[
-          {
-            label: "Posts",
-            component: () => (
-              <PostList posts={posts} noDataMessage={noPostMessage} />
-            ),
-          },
-          {
-            label: "Comments",
-            component: () => (
-              <CommentList
-                comments={comments}
-                profileImage={profileImage}
-                noDataMessage={noCommentMessage}
-              />
-            ),
-          },
-        ]}
-        componentWrapperClass="py-2"
-      />
-    </div>
-  </div>
-);
+  profileModal?: UseModalType;
+  setSelectedPostId: React.Dispatch<React.SetStateAction<string>>;
+}): React.ReactElement => {
+  const [showMore, setShowMore] = useState(false);
+  return (
+    <>
+      <div className="bg-eduLightGray py-2">
+        <div
+          className={`bg-eduLightGray flex-auto relative rounded-lg lg:min-h-[12rem] overflow-hidden ${!showMore ? "h-[150x]" : "h-[300px] overflow-y-auto"
+            }`}
+        >
+          <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-col gap-2">
+            <span className="text-eduBlack text-[24px] font-semibold font-headers tracking-wide">
+              Activity
+            </span>
+            <TabMenu
+              options={[
+                {
+                  label: "Posts",
+                  component: () => (
+                    <PostList
+                      posts={posts}
+                      noDataMessage={noPostMessage}
+                      profileModal={profileModal}
+                      setSelectedPostId={setSelectedPostId}
+                      showMore={showMore}
+                    />
+                  ),
+                },
+                {
+                  label: "Comments",
+                  component: () => (
+                    <CommentList
+                      comments={comments}
+                      profileImage={profileImage}
+                      noDataMessage={noCommentMessage}
+                      setSelectedPostId={setSelectedPostId}
+                      showMore={showMore}
+                      profileModal={profileModal}
+                    />
+                  ),
+                },
+              ]}
+              componentWrapperClass="py-2"
+            />
+          </div>
+        </div>
+
+        {((posts && posts?.length > 2) || (comments && comments?.length > 2)) && (
+          <span
+            className=" flex justify-center items-center text-center font-[700] opacity-[50%] text-[0.8em] cursor-pointer"
+            onClick={() => setShowMore(!showMore)}
+          >
+            {showMore ? "View Less" : "View More"}
+          </span>
+        )}
+      </div>
+
+    </>
+  );
+};
 
 const Education = ({
   educations,
@@ -350,44 +484,148 @@ const Education = ({
   educations: education[] | undefined;
   onEditClick?: () => void;
   noEducationMessage: string;
-}): React.ReactElement => (
-  <div className="overflow-hidden flex-auto relative rounded-lg lg:min-h-[12rem] text-eduBlack bg-eduLightGray">
-    {onEditClick && <EditIcon onClick={onEditClick} />}
-    <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-col gap-2">
-      <span className="text-eduBlack text-[24px] font-headers font-semibold tracking-wide">
-        Education
-      </span>
-      {educations?.length ? (
-        educations?.map((value: education) => (
-          <div className="flex gap-4" key={value?._id || Date.now()}>
-            {/* <div className="flex">
-              <Image src={eduIcon} alt={`${value?._id as string}alt`} />
-            </div> */}
-            <div className="flex flex-1 flex-col text-eduBlack gap-1">
-              <span className="capitalize font-headers font-medium text-[14px]">
-                {value?.school_name || "-"}
-              </span>
-              <span className="text-eduBlack/60 text-[12px] font-body">
-                {value?.field_of_study} - {value?.degree}
-              </span>
-              <div className="text-eduBlack/60 text-[12px] font-body">
-                {moment(value?.start_date).format("YYYY")}
-                {" - "}
-                <span>
-                  {value?.is_in_progress
-                    ? "Present"
-                    : moment(value?.start_date).format("YYYY")}
-                </span>
-              </div>
-            </div>
+}): React.ReactElement => {
+  const [showMore, setShowMore] = useState(false);
+  let educationsToBeRendered: education[] | undefined = [];
+  if (!showMore && educations && educations.length > 0) {
+    educationsToBeRendered = educations.slice(0, 2);
+  } else {
+    educationsToBeRendered = educations;
+  }
+  return (
+    <div className="bg-eduLightGray py-2">
+      <div className={`overflow-hidden flex-auto relative rounded-lg lg:min-h-[12rem] text-eduBlack `}>
+        <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <span className="text-eduBlack text-[24px] font-headers font-semibold tracking-wide">
+              Education
+            </span>
+            {onEditClick && <EditIcon onClick={onEditClick} />}
           </div>
-        ))
-      ) : (
-        <span className="text-eduBlack">{noEducationMessage}</span>
+          <div className={`flex-auto flex flex-col gap-2 pr-6 lg:min-h-[12rem] ${!showMore ? "h-auto justify-center" : "h-[300px] overflow-y-auto justify-start"}`}>
+            {educationsToBeRendered && educationsToBeRendered?.length > 0 && (
+              educationsToBeRendered?.map((value: education) => (
+                <div className="flex gap-4 " key={value?._id || Date.now()}>
+                  <div className="flex flex-1 flex-col text-eduBlack gap-1">
+                    <span className="capitalize text-eduBlack text-[16px] font-[500] font-headers">
+                      {value?.school_name || "-"}
+                    </span>
+                    <span className="text-eduBlack/60 text-[15px] font-body">
+                      {value?.field_of_study} - {value?.degree}
+                    </span>
+                    <div className="text-eduBlack/60 text-[15px] font-body">
+                      {moment(value?.start_date).format("YYYY")}
+                      {" - "}
+                      <span>
+                        {value?.is_in_progress
+                          ? "Present"
+                          : moment(value?.start_date).format("YYYY")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+            {educationsToBeRendered?.length == 0 && <span className="text-eduBlack/60 text-[16px] font-body flex items-center justify-center ">{noEducationMessage}</span>}
+          </div>
+        </div>
+      </div>
+      {educations && educations.length > 0 && (
+        <span
+          className="font-[700] opacity-[50%] text-[0.8em] cursor-pointer flex justify-center items-center"
+          onClick={() => setShowMore(!showMore)}
+        >
+          {showMore ? "View Less" : "View More"}
+        </span>
       )}
     </div>
-  </div>
-);
+  );
+};
+
+const CertificateAndLicense = ({
+  type,
+  userData,
+  lastDocRef,
+  noDataMessage,
+  onEditClick,
+  isLoading,
+  onLoadMore
+}: {
+  type: "licenses" | "certificates";
+  userData: UserData;
+  lastDocRef: LastDocRefType;
+  noDataMessage: string;
+  onEditClick: (() => void) | undefined
+  isLoading: boolean
+  onLoadMore: () => Promise<void>
+}) => {
+  const [showMore, setShowMore] = useState(false)
+  let documentToBeRendered: userDocs[] | undefined = [];
+  if (!showMore && userData?.[type] && userData?.[type].length > 0) {
+    documentToBeRendered = userData?.[type].slice(0, 2);
+  } else {
+    documentToBeRendered = userData?.[type];
+  }
+  const countCompare = type == "certificates" ? userData.certificatesCount : userData.licensesCount
+  return (
+    <div className="bg-eduLightGray py-2">
+      <div className={` overflow-hidden flex-auto relative rounded-lg text-eduBlack`}>
+        <div className="p-4 pl-6 xl:pl-16 lg:pl-12 md:pl-10 sm:pl-8 flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <span className="text-eduBlack text-[24px] font-headers font-semibold tracking-wide capitalize">
+              {type}
+            </span>
+            {onEditClick && <EditIcon onClick={onEditClick} />}
+          </div>
+          <div className={`flex-auto flex flex-col gap-2 pr-6 lg:min-h-[12rem] ${!showMore ? "h-auto justify-center" : "h-[300px] overflow-y-auto justify-start"}`}>
+            {documentToBeRendered?.length > 0 && (
+              documentToBeRendered?.map((value: userDocs) => (
+                <div className="flex gap-4 " key={value?._id || Date.now()}>
+                  <div className="flex flex-1 flex-col text-eduBlack gap-1">
+                    <span className="capitalize text-eduBlack text-[16px] font-[500] font-headers">
+                      {value?.doc_name || "-"}
+                    </span>
+                    <span className="text-eduBlack/60 text-[15px] font-body">
+                      {value?.issuer_organization || "-"}
+                    </span>
+                    {value?.issue_date && (
+                      <span className="text-eduBlack/60 text-[12px] capitalize font-body">
+                        Issued {value?.issue_date || "-"}
+                      </span>
+                    )}
+                    {(value?.doc_id?.length as number) > 0 && (
+                      <span className="text-eduBlack/60 text-[12px] capitalize font-body">
+                        Credential ID {value?.doc_id || "-"}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+            {documentToBeRendered?.length == 0 && <span className="text-eduBlack/60 text-[16px] font-body flex items-center justify-center ">{noDataMessage?.replaceAll("{type}", type)}</span>}
+          </div>
+        </div>
+      </div>
+      {showMore && userData?.[type]?.length < countCompare && (
+        <LoadMore
+          isLoading={isLoading}
+          onClick={onLoadMore}
+        />
+      )}
+      {documentToBeRendered?.length > 0 && (
+        <span
+          className="font-[700] opacity-[50%] text-[0.8em] cursor-pointer flex justify-center items-center"
+          onClick={() => {
+            setShowMore(!showMore)
+          }}
+        >
+          {showMore ? "View Less" : "View More"}
+        </span>
+      )}
+    </div>
+
+  )
+};
 
 const DocList = ({
   type,
@@ -532,11 +770,10 @@ const ModalHeader = ({
     <ul className="flex gap-2 justify-center px-8 py-4 font-body">
       {Object.keys(profileSections).map((section: string, index: number) => (
         <li
-          className={`flex items-center font-body font-normal text-[14px] ${
-            currentSection === section
-              ? "text-primary"
-              : "text-eduBlack cursor-pointer"
-          }`}
+          className={`flex items-center font-body font-normal text-[14px] ${currentSection === section
+            ? "text-primary"
+            : "text-eduBlack cursor-pointer"
+            }`}
           key={section}
           onClick={() => {
             setCurrentSection(section as keyof profileSections);
@@ -667,4 +904,5 @@ export {
   Education,
   ModalHeader,
   ModalFooter,
+  CertificateAndLicense
 };

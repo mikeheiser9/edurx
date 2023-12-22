@@ -1,12 +1,15 @@
 import { categoryFilterModal } from "../model/post/categoryTag.js";
 import { commentModal } from "../model/post/comment.js";
+import { pollPostVoteModal } from "../model/post/pollPostVote.js";
 import { postModal } from "../model/post/post.js";
 import { postRequestModal } from "../model/post/postAccessRequest.js";
 import { reactionModal } from "../model/post/reaction.js";
 import { viewModal } from "../model/post/views.js";
-import { findAndPaginate, getAllowedForumAccessBasedOnRoleAndNpiDesignation } from "../util/commonFunctions.js";
+import {
+  findAndPaginate,
+  getAllowedForumAccessBasedOnRoleAndNpiDesignation,
+} from "../util/commonFunctions.js";
 import mongoose from "mongoose";
-import { forumTypes } from "../util/constant.js";
 
 const createNewPost = async (payload) => {
   const isExist = await postModal.findOne({
@@ -40,12 +43,19 @@ const findPostsByUserId = async (userId, page, limit) => {
   );
 };
 
-const searchCategoryFilterByName = async (name, type, page, limit) => {
+const searchCategoryFilterByName = async (
+  name,
+  type,
+  page,
+  limit,
+  forumType
+) => {
   const query = {
     $and: [
       { name: { $regex: name, $options: "i" } },
       { isDeleted: { $ne: true } },
       { type },
+      { forumType: { $in: forumType } },
     ],
   };
 
@@ -58,9 +68,6 @@ const searchCategoryFilterByName = async (name, type, page, limit) => {
 };
 
 const addCategoryFilter = async (payload) => {
-  const isExist = await categoryFilterModal.findOne(payload);
-  if (isExist)
-    throw new Error(`${payload.name} already exists in ${payload.type}`);
   return await categoryFilterModal.create(payload);
 };
 
@@ -439,6 +446,10 @@ const getPostById = async (postId, userId) => {
           "dislikeCount",
         ],
       },
+      {
+        path: "votingInfo",
+        select: ["userId", "choosenOption"],
+      },
     ]);
 };
 
@@ -456,8 +467,11 @@ const getPosts = async ({
 }) => {
   try {
     let forum = [];
-    if (!forumType) {
-      forum=getAllowedForumAccessBasedOnRoleAndNpiDesignation(role,npi_designation)
+    if (!forumType || forumType === "All Forums") {
+      forum = getAllowedForumAccessBasedOnRoleAndNpiDesignation(
+        role,
+        npi_designation
+      );
     }
     const skippedPages = (page - 1) * limit;
     const sortByQuery = {
@@ -467,9 +481,11 @@ const getPosts = async ({
     };
 
     const query = {
-      ...(forumType ? { forumType } : { forumType: { $in: forum } }),
-      ...(categories ? { categories: { $in: categories } } : {}),
       ...(userId ? { userId } : {}),
+      ...(forumType && forumType !== "All Forums"
+        ? { forumType }
+        : { forumType: { $in: forum } }),
+      ...(categories ? { categories: { $in: categories } } : {}),
       ...(filters ? { filters: { $in: filters } } : {}),
       isDeleted: { $ne: true },
     };
@@ -676,7 +692,6 @@ const addViews = async (payload) => {
 const updatePostById = async (payload) => {
   try {
     const postId = payload?._id;
-
     if (!postId) throw new Error("Post id is required");
     return await postModal.findByIdAndUpdate(postId, payload);
   } catch (error) {
@@ -771,6 +786,28 @@ const deleteOnePostRequest = async (condition) => {
   return await postRequestModal.deleteOne(condition);
 };
 
+const findCategoryOrPostByCondition = (payload) => {
+  return categoryFilterModal.findOne(payload);
+};
+
+const findDraftsByUserId = (userId, skip, limit) => {
+  return postModal
+    .find({
+      userId: userId,
+      isDeleted: false,
+      postStatus: "draft",
+    })
+    .populate("categories", "name _id")
+    .populate("filters", "name _id")
+    .sort({ publishedOn: -1 })
+    .skip(skip)
+    .limit(limit);
+};
+
+const updatePostByCondition = (condition, setData) => {
+  return postModal.updateOne(condition, setData);
+};
+
 export {
   createNewPost,
   findPostsByUserId,
@@ -791,4 +828,7 @@ export {
   deletePostRequest,
   fetchFilters,
   deleteOnePostRequest,
+  findCategoryOrPostByCondition,
+  findDraftsByUserId,
+  updatePostByCondition,
 };

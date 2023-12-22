@@ -181,3 +181,7 @@ export const paginationValidation = {
     .integer()
     .valid(...paginationAllowedLimits),
 };
+
+export const USER_ROLES = {
+  super_admin: "super_admin", mod: "moderator", professional: "professional", student: "student"
+}

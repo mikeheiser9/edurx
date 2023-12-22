@@ -4,7 +4,7 @@ import {
   About,
   Activity,
   BasicInfo,
-  Documents,
+  CertificateAndLicense,
   Education,
   ModalFooter,
   ModalHeader,
@@ -38,7 +38,7 @@ const countContributors = (array: any[], primaryKey: string): number => {
   return uniqueValues.size;
 };
 
-export const UserProfile = ({ userId }: { userId: string }) => {
+export const UserProfile = ({ userId, profileModal, setSelectedPostId }: { userId: string, profileModal?: UseModalType, setSelectedPostId?: React.Dispatch<React.SetStateAction<string>> }) => {
   const [userData, setUserData] = useState<UserData>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isDocsLoading, setIsDocsLoading] = useState<boolean>(false);
@@ -117,10 +117,6 @@ export const UserProfile = ({ userId }: { userId: string }) => {
       };
       const response = await addRemoveUserConnectionByAPI(type, payload);
       if (response.status === responseCodes.SUCCESS) {
-        let message =
-          type === "add"
-            ? `Started following ${userData?.username}`
-            : "User removed from followings";
         setUserData((preState) => {
           let followersCount = preState?.followersCount || 0;
           type === "add" ? (followersCount += 1) : (followersCount -= 1);
@@ -131,7 +127,7 @@ export const UserProfile = ({ userId }: { userId: string }) => {
           };
         });
         // showToast?.[type == "add" ? "success" : "error"]?.(message);
-        type=="remove" && unFollowPostConfirmationModel.closeModal()
+        type == "remove" && unFollowPostConfirmationModel.closeModal()
       } else {
         throw Error(`Unable to ${type} connection`);
       }
@@ -236,11 +232,11 @@ export const UserProfile = ({ userId }: { userId: string }) => {
                 closeOnOutsideClick
               >
                 <UnFollowConfirmation
-                  unFollowPost={()=>addRemoveConnection("remove")}
+                  unFollowPost={() => addRemoveConnection("remove")}
                   modelClosingFunction={
                     unFollowPostConfirmationModel.closeModal
                   }
-                  confirmationLabel={`Are you sure you want to unfollow ${userData.first_name+"_"+userData.last_name}`}
+                  confirmationLabel={`Are you sure you want to unfollow ${userData.first_name + "_" + userData.last_name}`}
                 />
               </Modal>
               <div className="flex justify-center w-full items-center flex-col">
@@ -253,11 +249,10 @@ export const UserProfile = ({ userId }: { userId: string }) => {
                         <div className="justify-self-end self-start">
                           <button
                             type="button"
-                            className={`border rounded-md py-2 px-6 font-body text-sm min-w-[8rem] border-eduBlack  transition-colors ease-in-out duration-300 capitalize ${
-                              isFollowing
-                                ? "bg-eduLightBlue text-white hover:bg-eduLightGray hover:text-black"
-                                : "hover:text-white hover:bg-eduBlack"
-                            }`}
+                            className={`border rounded-md py-2 px-6 font-body text-sm min-w-[8rem] border-eduBlack  transition-colors ease-in-out duration-300 capitalize ${isFollowing
+                              ? "bg-eduLightBlue text-white hover:bg-eduLightGray hover:text-black"
+                              : "hover:text-white hover:bg-eduBlack"
+                              }`}
                             onMouseEnter={() => setButtonText("Unfollow")}
                             onMouseLeave={() => setButtonText("Following")}
                             onClick={() =>
@@ -274,9 +269,7 @@ export const UserProfile = ({ userId }: { userId: string }) => {
                     openModal={isSelfProfile ? editModal.openModal : undefined}
                     personal_bio={userData?.personal_bio}
                     emptyBioMessage={
-                      isSelfProfile
-                        ? "You don't have about / bio yet."
-                        : "This user has not shared their about / bio yet."
+                      isSelfProfile ? "You has no About yet." : `${userData.username} has no about yet`
                     }
                   />
                   <Activity
@@ -285,49 +278,68 @@ export const UserProfile = ({ userId }: { userId: string }) => {
                     profileImage={userData?.profile_img}
                     noPostMessage={
                       isSelfProfile
-                        ? "You have no forum posts yet."
-                        : "This user has no forum posts yet."
+                        ? "You has no forum posts yet."
+                        : `${userData.username} has no about yet`
                     }
                     noCommentMessage={
                       isSelfProfile
-                        ? "You have no forum comments yet."
-                        : "This user has no forum comments yet."
+                        ? "You has no forum comments yet."
+                        : `${userData.username} has no about yet`
                     }
+                    profileModal={profileModal}
+                    setSelectedPostId={setSelectedPostId as React.Dispatch<React.SetStateAction<string>>}
                   />
                   <Education
                     educations={userData.educations}
                     onEditClick={
                       isSelfProfile
                         ? () => {
-                            setCurrentSection?.("education");
-                            editModal.openModal();
-                          }
+                          setCurrentSection?.("education");
+                          editModal.openModal();
+                        }
                         : undefined
                     }
                     noEducationMessage={
                       isSelfProfile
-                        ? "You have not shared any education hisory yet."
-                        : "This user has not shared their education hisory yet."
+                        ? "You has not shared any education history yet."
+                        : `${userData.username}  has not shared their education history yet.`
                     }
                   />
-                  <Documents
+                  <CertificateAndLicense
                     userData={userData}
-                    isLoading={isDocsLoading}
                     lastDocRef={lastDocRef}
-                    onLoadMore={loadMoreDocuments}
-                    noDataMessage={
-                      isSelfProfile
-                        ? "You have not shared any {type} yet."
-                        : "This user has not shared their {type} yet."
-                    }
+                    type="certificates"
+                    noDataMessage={isSelfProfile
+                      ? "You has not shared any {type} yet."
+                      : `${userData.username}  has not shared their {type} yet.`}
                     onEditClick={
                       isSelfProfile
                         ? () => {
-                            setCurrentSection?.("certifications");
-                            editModal.openModal();
-                          }
+                          setCurrentSection?.("certifications");
+                          editModal.openModal();
+                        }
                         : undefined
                     }
+                    isLoading={isDocsLoading}
+                    onLoadMore={()=>loadMoreDocuments("certificate")}
+                  />
+                  <CertificateAndLicense
+                    userData={userData}
+                    lastDocRef={lastDocRef}
+                    type="licenses"
+                    noDataMessage={isSelfProfile
+                      ? "You has not shared any {type} yet."
+                      : `${userData.username}  has not shared their {type} yet.`}
+                    onEditClick={
+                      isSelfProfile
+                        ? () => {
+                          setCurrentSection?.("licenses");
+                          editModal.openModal();
+                        }
+                        : undefined
+                    }
+                    isLoading={isDocsLoading}
+                    onLoadMore={()=>loadMoreDocuments("license")}
                   />
                 </div>
               </div>

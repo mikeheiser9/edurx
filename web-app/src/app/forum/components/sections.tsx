@@ -1,9 +1,12 @@
 import { Button } from "@/components/button";
+import { setModalState } from "@/redux/ducks/modal.duck";
+import { selectDraftCount } from "@/redux/ducks/user.duck";
 import { postStatus } from "@/util/constant";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 interface NavOption {
   // link: string;
@@ -22,24 +25,34 @@ interface Option {
 
 const ModalHeader = ({
   onClose,
+  mode="New"
 }: {
   onClose: () => void;
+  mode?:"Edit"|"New"|undefined
 }): React.ReactElement => {
+  const userPostDraftCount = useSelector(selectDraftCount);
+  const dispatch = useDispatch();
   return (
-    <div className="flex p-3 items-center bg-eduDarkGray gap-2">
-      <span className="text-2xl flex-1 font-medium font-headers justify-self-start">
-        New Post
-      </span>
-      <span className="text-xs inline-flex gap-2 font-semibold">
-        Drafts
-        <span className="flex w-4 h-4 justify-center text-primary rounded-sm bg-black">
-          <b>0</b>
-        </span>
+    <div className="flex p-3 px-7  items-center  justify-start bg-eduDarkGray gap-3 ">
+      <span className="text-xl font-medium  ">{mode=="Edit"? 'Edit Draft' : 'New Post'} </span>
+      <span></span>
+      <span
+        className="border-l-2 border-solid border-l-eduBlack text-xl pl-5 font-light underline cursor-pointer"
+        onClick={() => {
+          onClose()
+          setTimeout(()=>{
+            dispatch(setModalState({isOpen:true}));
+          },200)
+        }}
+      >
+        Drafts&nbsp;
+        <b className="font-medium">{userPostDraftCount}</b>
       </span>
       <FontAwesomeIcon
         icon={faX}
+        size="sm"
         onClick={onClose}
-        className="cursor-pointer ml-auto"
+        className="ml-auto text-xl self-center cursor-pointer text-gray-500"
       />
     </div>
   );
@@ -47,8 +60,10 @@ const ModalHeader = ({
 
 const ModalFooter = ({
   setFieldValue,
+  disable,
 }: {
   setFieldValue: (field: string, value: string) => void;
+  disable: boolean | undefined;
 }): React.ReactElement => {
   return (
     <div className="flex flex-col gap-2 py-3 bg-primary-dark">
@@ -56,14 +71,18 @@ const ModalFooter = ({
         <Button
           label="Save Draft"
           type="submit"
-          className="!m-0"
+          className={`!m-0 !bg-eduBlack text-white ${
+            disable && "!cursor-not-allowed"
+          }`}
           onMouseEnter={() => setFieldValue("postStatus", postStatus[0])}
+          disabled={disable}
         />
         <Button
           label="Post"
           type="submit"
-          className="!m-0"
+          className={`!m-0 ${disable && "!cursor-not-allowed"}`}
           onMouseEnter={() => setFieldValue("postStatus", postStatus[1])}
+          disabled={disable}
         />
       </div>
     </div>
