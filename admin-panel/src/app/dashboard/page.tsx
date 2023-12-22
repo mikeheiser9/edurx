@@ -11,12 +11,15 @@ import { FiEdit } from "react-icons/fi";
 import { deleteUserById, getUsers } from "@/service/user.service";
 import { convertUTCtoGMT } from "@/util/functions";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
+import EditUserModal from "./component/EditUserModal";
 
 const page = () => {
   const [usersList, setUsersList] = useState<any>([]);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
   const [listLoader, setListLoader] = useState(false);
+  const [isFormDisable, setIsFormDisable] = useState(true);
 
   const columns = [
     {
@@ -42,10 +45,16 @@ const page = () => {
           <ImBin
             onClick={() => {
               setIsDeleteOpen(true);
-              setSelectedUserId(records._id);
+              setSelectedUser(records);
             }}
           />
-          <FiEdit />
+          <FiEdit
+            onClick={() => {
+              setIsEditOpen(true);
+              setSelectedUser(records);
+              setIsFormDisable(true);
+            }}
+          />
         </div>
       ),
     },
@@ -68,6 +77,13 @@ const page = () => {
       }
     }
   };
+
+  const handleSubmit = async (values:any) => {
+    console.log({values});
+    // await 
+    
+  }
+
   useEffect(() => {
     getUsersList();
   }, []);
@@ -90,15 +106,23 @@ const page = () => {
         isOpen={isDeleteOpen}
         confirmText="DELETE ACCOUNT"
         buttonsClassName="grid grid-rows-2 gap-4 w-[40%] "
-        title="Are You Sure You want to Delete JIMMY's Account?"
+        title={`Are You Sure You want to Delete ${selectedUser  ? (selectedUser.first_name + ' ' + selectedUser.last_name) : "USER"}'s Account?`}
         onClose={() => setIsDeleteOpen(false)}
         onConfirm={() => {
-          handleDelete(selectedUserId);
+          handleDelete(selectedUser ? selectedUser._id : null);
           setIsDeleteOpen(false);
         }}
       />
 
       {/* EDIT MODAL */}
+      <EditUserModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        userData={selectedUser}
+        disableForm={isFormDisable}
+        onEdit={()=> setIsFormDisable(false)}
+        handleSubmit={handleSubmit}
+      />
     </div>
   );
 };

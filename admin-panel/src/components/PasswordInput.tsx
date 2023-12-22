@@ -66,7 +66,7 @@ const PasswordInput = ({
 
 
   return (
-    <div className={`relative flex flex-col gap-2 w-full xs:mb-5 lg:mb-0 ${parentClassName} `}>
+    <div className={`relative flex flex-col gap-2 w-full xs:mb-5 lg:mb-2 ${parentClassName} `}>
       {label && (
         <label className="flex items-center !text-sm !text-Thirdgrey !font-semibold">
           {label}{" "}

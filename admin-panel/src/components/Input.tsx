@@ -82,7 +82,7 @@ const Input: React.FC<InputProps> = ({
   return (
     <>
       <div
-        className={`relative flex flex-col gap-2 w-full xs:mb-5 lg:mb-0 ${parentClassName} `}
+        className={`relative flex flex-col gap-2 w-full xs:mb-5 lg:mb-2 ${parentClassName} `}
       >
         {label && (
           <label
@@ -128,9 +128,10 @@ const Input: React.FC<InputProps> = ({
         </div>
         <ErrorMessage name={name}>
           {(msg) => (
-            <p className=" text-red-500 text-[12px] font-semibold">{msg}</p>
+            <p className=" text-red-600 text-[12px] font-semibold">{msg}</p>
           )}
         </ErrorMessage>
+           {/* <p className=" text-red-500 text-[12px] font-semibold">khasjkghasjkfhjkhsfjkhaskjhfh</p> */}
       </div>
     </>
   );

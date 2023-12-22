@@ -56,7 +56,6 @@ const ConfirmationDialog = ({
                   </div>
                   <div className="flex justify-center items-center">
                   <div className={` ${buttonsClassName} `}>
-                    
                     <Button
                       onClick={() => {
                         onConfirm();

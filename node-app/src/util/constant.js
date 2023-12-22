@@ -87,7 +87,7 @@ export const userValidations = {
     linkedin: validateField.stringPrefixJoiValidation.allow(""),
     instagram: validateField.stringPrefixJoiValidation.allow(""),
     facebook: validateField.stringPrefixJoiValidation.allow(""),
-    website:validateField.stringPrefixJoiValidation.allow("")
+    website: validateField.stringPrefixJoiValidation.allow(""),
   }),
   contact_email: validateField.email.allow(""),
   educations: joi
@@ -110,11 +110,11 @@ export const userValidations = {
     ),
   licenses: joi.array().items(userDocValidation),
   certificates: joi.array().items(userDocValidation),
-  availableFor:joi.object({
+  availableFor: joi.object({
     Collaboration: joi.boolean(),
     Mentorship: joi.boolean(),
     Research: joi.boolean(),
-  })
+  }),
 };
 
 const paginationAllowedLimits = [5, 10, 20, 50, 100, 200, 500, 1000];
@@ -183,5 +183,8 @@ export const paginationValidation = {
 };
 
 export const USER_ROLES = {
-  super_admin: "super_admin", mod: "moderator", professional: "professional", student: "student"
-}
+  super_admin: "super_admin",
+  mod: "moderator",
+  professional: "professional",
+  student: "student",
+};

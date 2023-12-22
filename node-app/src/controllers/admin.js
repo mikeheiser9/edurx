@@ -59,7 +59,6 @@ export const fetchUsersByAdmin = async (req, res) => {
   try {
     const list = await userModel
       .find()
-      .select("first_name last_name role verified_account joined");
     return generalResponse(res, 200, "success", "", list, true);
   } catch (error) {
     return generalResponse(
@@ -100,4 +99,15 @@ export const deleteUserByAdmin = async (req, res) => {
     true
   );
 }
+};
+
+export const updateUserByAdmin = async (id, user) => {
+  return await userModel.findOneAndUpdate(
+    {
+      _id:id.toLowerCase(),
+    },
+    {
+      ...user,
+    }
+  );
 };
