@@ -85,8 +85,17 @@ const addReaction = async ({
   commentId,
   targetType,
   reactionType,
+  _id,
 }) => {
   try {
+    // if payload has _id and reactionType is null then reaction already exists delete reaction
+    if (_id && reactionType == null) {
+      const deletedReaction = await reactionModal.findByIdAndDelete(_id);
+      return {
+        data: deletedReaction,
+        message: `${targetType} reaction successfully removed`,
+      };
+    }
     const updatedReaction = await reactionModal.findOneAndUpdate(
       {
         userId,

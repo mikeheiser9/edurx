@@ -16,7 +16,7 @@ interface CommentManagerProps {
   setPost: React.Dispatch<SetStateAction<PostInterface | undefined>>;
   getPostById?: () => void;
   addReaction: (
-    reactionType: "like" | "dislike",
+    reactionType: "like" | "dislike" | null,
     targetType: "post" | "comment",
     targetId: string,
     parentId?: string

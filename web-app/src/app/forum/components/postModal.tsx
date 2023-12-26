@@ -42,6 +42,8 @@ import { RequestListModal } from "./requestListModal";
 import "react-quill/dist/quill.snow.css";
 import UnFollowConfirmation from "./unFollowConfirmation";
 import { ProgressBar } from "@/components/progressBar";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 interface Props {
@@ -73,8 +75,7 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
   const userChoosenOption = post?.votingInfo?.find(
     (i) => i?.userId === loggedInUser?._id
   );
-  const userReactionOnPost: ReactionTypes | null =
-    post?.reactions?.[0]?.reactionType || null;
+  const userReactionOnPost: UserReaction | null = post?.reactions?.[0] || null;
   const isSelfPost: boolean | undefined =
     loggedInUser?._id === post?.userId?.id;
   const requestStatus: PostRequestStatus | null =
@@ -136,7 +137,8 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
     reactionType: ReactionTypes,
     targetType: TargetTypes,
     targetId: string,
-    parentId?: string
+    parentId?: string,
+    reactionId?: string
   ) => {
     try {
       const payload = {
@@ -144,83 +146,12 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
         targetType,
         userId: loggedInUser?._id,
         [targetType === "post" ? "postId" : "commentId"]: targetId,
+        ...(reactionId && { _id: reactionId }),
       };
       const reaction = await addUserReactionByAPI(payload);
 
       if (reaction.status === responseCodes.SUCCESS) {
-        setPost((prevState: any) => {
-          const updatedState = { ...prevState };
-          if (targetType === "post") {
-            const { likeCount, dislikeCount } = updatedState;
-            updatedState.reactions = [reaction.data.data];
-            updatedState.likeCount = userReactionOnPost
-              ? reactionType === "like"
-                ? likeCount + 1
-                : likeCount - 1
-              : reactionType === "like"
-              ? likeCount + 1
-              : likeCount;
-            updatedState.dislikeCount = userReactionOnPost
-              ? reactionType === "dislike"
-                ? dislikeCount + 1
-                : dislikeCount - 1
-              : reactionType === "dislike"
-              ? dislikeCount + 1
-              : dislikeCount;
-          } else if (targetType === "comment") {
-            const indexOfUpdatedComment = updatedState.comments.findIndex(
-              (item: any) =>
-                item?._id ===
-                (parentId ? parentId : reaction.data.data.commentId)
-            );
-            let indexOfReply =
-              parentId &&
-              updatedState?.comments?.[
-                indexOfUpdatedComment
-              ]?.replies?.findIndex(
-                (item: any) => item?._id === reaction?.data?.data.commentId
-              );
-            if (indexOfUpdatedComment === -1) return;
-            const updatedComment =
-              parentId && indexOfReply !== -1
-                ? {
-                    ...updatedState.comments[indexOfUpdatedComment]?.replies?.[
-                      indexOfReply
-                    ],
-                  }
-                : {
-                    ...updatedState.comments[indexOfUpdatedComment],
-                  };
-            const { likeCount, dislikeCount } = updatedComment;
-            const userReactionOnComment: "like" | "dislike" | null =
-              updatedComment?.reactions?.[0]?.reactionType || null;
-            updatedComment.reactions = [reaction.data.data];
-            updatedComment.likeCount = userReactionOnComment
-              ? reactionType === "like"
-                ? likeCount + 1
-                : likeCount - 1
-              : reactionType === "like"
-              ? likeCount + 1
-              : likeCount;
-            updatedComment.dislikeCount = userReactionOnComment
-              ? reactionType === "dislike"
-                ? dislikeCount + 1
-                : dislikeCount - 1
-              : reactionType === "dislike"
-              ? dislikeCount + 1
-              : dislikeCount;
-
-            if (parentId && indexOfReply !== -1) {
-              updatedState.comments[indexOfUpdatedComment].replies[
-                indexOfReply
-              ] = updatedComment;
-            } else {
-              updatedState.comments[indexOfUpdatedComment] = updatedComment;
-            }
-          }
-
-          return updatedState;
-        });
+        getPostById();
       } else throw new Error("Unable to add reaction");
     } catch (error) {
       (error as Error)?.message && showToast.error((error as Error)?.message);
@@ -228,7 +159,7 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
     }
   };
 
-  const updateAnimation = (type: ReactionTypes, value: boolean) => {
+  const updateAnimation = (type: any, value: boolean) => {
     setAnimate((preState) => {
       return {
         ...preState,
@@ -239,9 +170,13 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
 
   const reactOnPost = (type: ReactionTypes) => {
     updateAnimation(type, true);
-    if (userReactionOnPost !== type) {
-      addReaction(type, "post", postId);
-    }
+    addReaction(
+      userReactionOnPost?.reactionType === type ? null : type,
+      "post",
+      postId,
+      undefined,
+      userReactionOnPost?._id
+    );
   };
 
   const requestAccess = async () => {
@@ -379,7 +314,7 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
                   className={`w-7 h-7 ease-in-out duration-300  cursor-pointer rounded-md flex justify-center items-center border-2 ${
                     animate?.like && "animate-wiggle"
                   } ${
-                    userReactionOnPost === "like"
+                    userReactionOnPost?.reactionType === "like"
                       ? "border-eduYellow text-eduYellow"
                       : "border-eduDarkBlue text-eduDarkBlue"
                   } `}
@@ -395,7 +330,7 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
                   className={`w-7 h-7 rounded-md flex cursor-pointer justify-center items-center border-2 ${
                     animate?.dislike && "animate-wiggle"
                   } ${
-                    userReactionOnPost === "dislike"
+                    userReactionOnPost?.reactionType === "dislike"
                       ? "border-primary text-primary"
                       : "border-eduDarkBlue text-EduDarkBlue"
                   } `}
@@ -436,14 +371,17 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
                       <div>
                         <span className="text-eduDarkBlue text-[14px] font-body">
                           Posted by{" "}
-                          <span className="font-body font-semibold">
+                          <Link
+                            href={`/profile/${post?.userId?._id}`}
+                            className="font-body font-semibold"
+                          >
                             {post?.userId?.username ||
                               getFullName(
                                 post?.userId?.first_name,
                                 post?.userId?.last_name,
                                 "_"
                               )}
-                          </span>
+                          </Link>
                         </span>
                       </div>
                       <div>

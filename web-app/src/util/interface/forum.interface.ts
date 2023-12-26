@@ -1,7 +1,7 @@
 type PostTypes = "post" | "poll";
 type PostStatusTypes = "draft" | "published";
 type TargetTypes = "comment" | "post";
-type ReactionTypes = "like" | "dislike";
+type ReactionTypes = "like" | "dislike" | null;
 type RolesTypes = "super_admin" | "moderator" | "professional" | "student";
 type PostFlags = "Misinformation" | "Unrelated" | "Irrelevant";
 type PostRequestStatus = "pending" | "accepted" | "denied";

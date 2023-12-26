@@ -16,16 +16,21 @@ import { searchUserByAPI } from "@/service/user.service";
 import replaceTaggedUsers from "../../../components/replaceTags";
 import { responseCodes } from "@/util/constant";
 import { showToast } from "@/components/toast";
+import Link from "next/link";
 interface Props {
   comment: Comment;
   showBorder?: boolean;
   wrapperClass?: string;
-  onSubmitReply?: (commentData?: any, type?: "comment" | "reply") => Promise<void>;
+  onSubmitReply?: (
+    commentData?: any,
+    type?: "comment" | "reply"
+  ) => Promise<void>;
   onCommentReaction?: (
     reactionType: ReactionTypes,
     targetType: TargetTypes,
     targetId: string,
-    parentId?: string
+    parentId?: string,
+    _id?: string
   ) => void;
   isChildCard?: boolean;
   closeReplies?: boolean;
@@ -46,8 +51,8 @@ export const CommentCard = React.memo(
     const [isReplyBoxVisible, setisReplyBoxVisible] = useState<boolean>(false);
     const [showReplies, setShowReplies] = useState<boolean>(false);
     const [commentText, setcommentText] = useState<string>("");
-    const userReactionOnComment: ReactionTypes | null =
-      comment?.reactions?.[0]?.reactionType || null;
+    const userReactionOnComment: UserReaction | null =
+      comment?.reactions?.[0] || null;
     const [userSuggetions, setUserSuggetions] = useState<any[]>([]);
     const [mentions, setMentions] = useState<any[]>([]);
     const [userSuggetionsPagination, setUserSuggetionsPagination] =
@@ -87,7 +92,7 @@ export const CommentCard = React.memo(
           commentOwner: comment?.userId?._id,
         },
       };
-      onSubmitReply?.(payload,"reply");
+      onSubmitReply?.(payload, "reply");
       setcommentText("");
       setisReplyBoxVisible(false);
       setShowReplies(true);
@@ -142,9 +147,8 @@ export const CommentCard = React.memo(
     };
 
     const reactOnComment = (type: ReactionTypes) => {
-      if (userReactionOnComment === type) return;
       onCommentReaction?.(
-        type,
+        userReactionOnComment?.reactionType === type ? null : type,
         "comment",
         comment?._id,
         isChildCard ? comment?.parentId : undefined
@@ -172,7 +176,10 @@ export const CommentCard = React.memo(
             )}
           </div>
           <div className="flex-1 flex flex-col gap-2 pb-2">
-            <span className="text-[14px] font-semibold lowercase font-body">
+            <Link
+              href={`/profile/${comment?.userId?._id}`}
+              className="text-[14px] font-semibold lowercase font-body"
+            >
               {comment?.userId?.username ||
                 getFullName(
                   comment?.userId?.first_name,
@@ -184,9 +191,9 @@ export const CommentCard = React.memo(
                 comment?.createdAt
               ).fromNow()}`}
             </span> */}
-              <span className="text-eduBlack/60 font-body text-[12px]">
-                • {moment(comment?.createdAt).fromNow()}
-              </span>
+            </Link>
+            <span className="text-eduBlack/60 font-body text-[12px]">
+              • {moment(comment?.createdAt).fromNow()}
             </span>
             <div className="py-2 font-body text-[16px]">
               {comment.content &&
@@ -200,7 +207,7 @@ export const CommentCard = React.memo(
                 <FontAwesomeIcon
                   icon={faArrowUp}
                   className={`${
-                    userReactionOnComment === "like"
+                    userReactionOnComment?.reactionType === "like"
                       ? "text-eduYellow cursor-pointer"
                       : "text-eduBlack/60 cursor-pointer"
                   } ease-in-out duration-200`}
@@ -212,7 +219,7 @@ export const CommentCard = React.memo(
                 <FontAwesomeIcon
                   icon={faArrowDown}
                   className={`${
-                    userReactionOnComment === "dislike"
+                    userReactionOnComment?.reactionType === "dislike"
                       ? "text-eduYellow cursor-pointer"
                       : "text-eduBlack/60 cursor-pointer"
                   } ease-in-out duration-200`}

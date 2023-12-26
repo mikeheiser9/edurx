@@ -191,7 +191,9 @@ const validateCategoryFilter = async (req, res, next) => {
 const addReactionValidator = async (req, res, next) => {
   try {
     const schema = Joi.object({
-      reactionType: Joi.string().valid("like", "dislike").required(),
+      // if reactionType is nuill then user has removed the reaction
+      _id: validateField.objectId,
+      reactionType: Joi.string().valid("like", "dislike", null).required(),
       userId: validateField.objectId.required(),
       targetType: Joi.string().valid("post", "comment").required(),
       postId: Joi.string().disallow(Joi.ref("userId")).when("targetType", {
