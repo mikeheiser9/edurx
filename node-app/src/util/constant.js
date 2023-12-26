@@ -83,7 +83,7 @@ export const userValidations = {
   banner_img: validateField.stringPrefixJoiValidation.required(),
   profile_img: validateField.stringPrefixJoiValidation.required(),
   socials: joi.object({
-    twitter: validateField.stringPrefixJoiValidation.allow(""),
+    x: validateField.stringPrefixJoiValidation.allow(""),
     linkedin: validateField.stringPrefixJoiValidation.allow(""),
     instagram: validateField.stringPrefixJoiValidation.allow(""),
     facebook: validateField.stringPrefixJoiValidation.allow(""),

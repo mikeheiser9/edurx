@@ -61,8 +61,7 @@ export const HubLeftPenal = () => {
   }, []);
 
   const handleClick = () => {
-    axiosGet(`/user/${loggedInUser?._id}/profile?editProfile=true`, {
-    })
+    axiosGet(`/user/${loggedInUser?._id}/profile?editProfile=true`, {})
       .then((response) => {
         setIsLoading(false);
         if (response?.status === responseCodes.SUCCESS) {

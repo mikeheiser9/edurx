@@ -55,7 +55,7 @@ const EditProfile = ({
       username: userData?.username || "",
       socials: {
         instagram: userData?.socials?.instagram || "",
-        twitter: userData?.socials?.twitter || "",
+        x: userData?.socials?.x || "",
         facebook: userData?.socials?.facebook || "",
         linkedin: userData?.socials?.linkedin || "",
         website: userData?.socials?.website || "",

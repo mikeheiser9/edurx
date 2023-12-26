@@ -95,9 +95,8 @@ export const RequestListModal = ({ requestModal, postId }: Props) => {
       </span>
       <FontAwesomeIcon
         icon={faX}
-        size="sm"
         onClick={requestModal.closeModal}
-        className="ml-auto self-center cursor-pointer text-gray-500"
+        className="ml-auto font-bold self-center cursor-pointer text-eduBlack"
       />
     </div>
   );

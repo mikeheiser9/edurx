@@ -161,9 +161,8 @@ export const UserProfile = ({ userId, profileModal, setSelectedPostId }: { userI
       <span className="text-base text-center flex-1">Confirmation</span>
       <FontAwesomeIcon
         icon={faX}
-        size="sm"
         onClick={unFollowPostConfirmationModel.closeModal}
-        className="ml-auto self-center cursor-pointer text-gray-500"
+        className="ml-auto font-bold self-center cursor-pointer text-eduBlack"
       />
     </div>
   );

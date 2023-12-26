@@ -18,7 +18,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Image from "next/image";
 import instagram from "../../assets/icons/instagram.svg";
 import linkedin from "../../assets/icons/linkedin.svg";
-import twitter from "../../assets/icons/twitter.svg";
+import x from "../../assets/icons/twitter.svg";
 import email from "../../assets/icons/email.svg";
 import facebook from "../../assets/icons/facebook.svg";
 import { npiToDefinition, profileSections } from "@/util/constant";
@@ -32,7 +32,7 @@ import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 const socialMediaIcons: socials = {
   instagram,
   facebook,
-  twitter,
+  x,
   linkedin,
   email,
 };
@@ -590,7 +590,7 @@ const CertificateAndLicense = ({
                     </span>
                     {value?.issue_date && (
                       <span className="text-eduBlack/60 text-[12px] capitalize font-body">
-                        Issued {value?.issue_date || "-"}
+                        Issued {moment(value?.issue_date).format("DD/MM/YYYY") || "-"}
                       </span>
                     )}
                     {(value?.doc_id?.length as number) > 0 && (
@@ -657,7 +657,7 @@ const DocList = ({
             </span>
             {value?.issue_date && (
               <span className="text-eduBlack/60 text-[12px] capitalize font-body">
-                Issued {value?.issue_date || "-"}
+                Issued {moment(value?.issue_date).format("DD/MM/YYYY") || "-"}
               </span>
             )}
             {(value?.doc_id?.length as number) > 0 && (
@@ -764,7 +764,7 @@ const ModalHeader = ({
       <FontAwesomeIcon
         icon={faX}
         onClick={closeModal}
-        className="cursor-pointer ml-auto text-eduBlack"
+        className="ml-auto font-bold self-center cursor-pointer text-eduBlack"
       />
     </div>
     <ul className="flex gap-2 justify-center px-8 py-4 font-body">

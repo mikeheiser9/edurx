@@ -2,7 +2,7 @@ import { Button } from "@/components/button";
 import InfiniteScroll from "@/components/infiniteScroll";
 import { Modal } from "@/components/modal";
 import { useModal } from "@/hooks";
-import { selectModalState, setModalState } from "@/redux/ducks/modal.duck";
+import { resetModalState, selectModalState } from "@/redux/ducks/modal.duck";
 import { selectDraftCount, setDraftCount } from "@/redux/ducks/user.duck";
 import { deleteDraftById, getUserDrafts } from "@/service/user.service";
 import { faX } from "@fortawesome/free-solid-svg-icons";
@@ -40,11 +40,11 @@ export default function DraftModal() {
   const editPostModal = useModal();
 
   useEffect(() => {
-    if (modal) {
+    if (modal?.isOpen && modal?.type === "viewDraftModal") {
       viewDraftModal.openModal();
     }
     return () => {
-      dispatch(setModalState({ isOpen: false }));
+      dispatch(resetModalState());
     };
   }, [modal]);
 
@@ -52,9 +52,8 @@ export default function DraftModal() {
     setDraftLoading(true);
     setDraftError(false);
     const drafts = await getUserDrafts(page, draftsApiParams.limit);
-    if(page==1)
-    {
-      setAllDrafts([])
+    if (page == 1) {
+      setAllDrafts([]);
     }
     if (drafts?.data?.response_type == "Success" && drafts?.data?.data) {
       setAllDrafts((prevState) => {
@@ -101,9 +100,8 @@ export default function DraftModal() {
       <span className="text-base text-center flex-1">Confirmation</span>
       <FontAwesomeIcon
         icon={faX}
-        size="sm"
         onClick={deleteDraftModal.closeModal}
-        className="ml-auto self-center cursor-pointer text-gray-500"
+        className="ml-auto font-bold self-center cursor-pointer text-eduBlack"
       />
     </div>
   );
@@ -122,9 +120,8 @@ export default function DraftModal() {
             </span>
             <FontAwesomeIcon
               icon={faX}
-              size="sm"
               onClick={viewDraftModal.closeModal}
-              className="ml-auto text-xl self-center cursor-pointer text-gray-500"
+              className="ml-auto font-bold self-center cursor-pointer text-eduBlack"
             />
           </div>
         }
@@ -225,7 +222,7 @@ export default function DraftModal() {
               (draft) => draft.id == draftPostToDelete
             )?.[0] as any
           }
-          getDrafts={()=>getDrafts(1)}
+          getDrafts={() => getDrafts(1)}
         />
       )}
     </>

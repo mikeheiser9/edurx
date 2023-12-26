@@ -1,6 +1,7 @@
 import { Modal } from "@/components/modal";
 import { Switch } from "@/components/switch";
 import { showToast } from "@/components/toast";
+import { resetModalState, selectModalState } from "@/redux/ducks/modal.duck";
 import { selectToast } from "@/redux/ducks/toast.duck";
 import {
   getAccountSettingsByAPI,
@@ -9,7 +10,7 @@ import {
 import { NOTIFICATION_TYPES, responseCodes } from "@/util/constant";
 import { getFullName } from "@/util/helpers";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 interface Props {
   accountSettingModal: UseModalType;
@@ -77,6 +78,8 @@ const notificationCategories: {
 };
 
 export const AccountSetting = ({ accountSettingModal, userData }: Props) => {
+  const dispatch = useDispatch();
+  const modal = useSelector(selectModalState);
   const [settings, setSettings] = useState<any>();
   const [settingSubmitLoader, setSettingSubmitLoader] = useState(false);
   const allowedTypes = settings?.allowedTypes;
@@ -121,6 +124,15 @@ export const AccountSetting = ({ accountSettingModal, userData }: Props) => {
     }, 3000);
   };
 
+  useEffect(() => {
+    if (modal?.isOpen && modal?.type === "accountSettingModal") {
+      accountSettingModal.openModal();
+    }
+    return () => {
+      dispatch(resetModalState());
+    };
+  }, [modal]);
+
   return (
     <Modal
       headerTitle={`Account Settings | ${getFullName(
@@ -131,6 +143,7 @@ export const AccountSetting = ({ accountSettingModal, userData }: Props) => {
       onClose={accountSettingModal.closeModal}
       modalClassName="!w-2/6"
       showFooter={false}
+      resetReduxModalOnClose
     >
       <div className="flex gap-4 flex-col">
         <div className="text-eduBlack flex gap-2 flex-col">

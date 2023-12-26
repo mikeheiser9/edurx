@@ -25,24 +25,26 @@ interface Option {
 
 const ModalHeader = ({
   onClose,
-  mode="New"
+  mode = "New",
 }: {
   onClose: () => void;
-  mode?:"Edit"|"New"|undefined
+  mode?: "Edit" | "New" | undefined;
 }): React.ReactElement => {
   const userPostDraftCount = useSelector(selectDraftCount);
   const dispatch = useDispatch();
   return (
     <div className="flex p-3 px-7  items-center  justify-start bg-eduDarkGray gap-3 ">
-      <span className="text-xl font-medium  ">{mode=="Edit"? 'Edit Draft' : 'New Post'} </span>
+      <span className="text-xl font-medium  ">
+        {mode == "Edit" ? "Edit Draft" : "New Post"}{" "}
+      </span>
       <span></span>
       <span
         className="border-l-2 border-solid border-l-eduBlack text-xl pl-5 font-light underline cursor-pointer"
         onClick={() => {
-          onClose()
-          setTimeout(()=>{
-            dispatch(setModalState({isOpen:true}));
-          },200)
+          onClose?.();
+          setTimeout(() => {
+            dispatch(setModalState({ isOpen: true, type: "viewDraftModal" }));
+          }, 200);
         }}
       >
         Drafts&nbsp;
@@ -50,9 +52,8 @@ const ModalHeader = ({
       </span>
       <FontAwesomeIcon
         icon={faX}
-        size="sm"
         onClick={onClose}
-        className="ml-auto text-xl self-center cursor-pointer text-gray-500"
+        className="ml-auto font-bold self-center cursor-pointer text-eduBlack"
       />
     </div>
   );

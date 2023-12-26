@@ -12,7 +12,7 @@ const userSchema = new Schema(
     npi_number: String,
     npi_designation: [String],
     socials: {
-      twitter: String,
+      x: String,
       linkedin: String,
       instagram: String, 
       facebook: String,

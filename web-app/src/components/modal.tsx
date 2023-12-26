@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Button } from "./button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faX } from "@fortawesome/free-solid-svg-icons";
+import { useDispatch } from "react-redux";
+import { resetModalState } from "@/redux/ducks/modal.duck";
 
 interface ModalProps {
   visible: boolean;
@@ -18,6 +20,7 @@ interface ModalProps {
   closeOnOutsideClick?: boolean;
   showCloseIcon?: boolean;
   closeOnEscape?: boolean;
+  resetReduxModalOnClose?: boolean;
 }
 
 export const Modal = ({
@@ -26,12 +29,20 @@ export const Modal = ({
   showCloseIcon = true,
   ...props
 }: ModalProps) => {
+  const dispatch = useDispatch();
   const [animationClass, setAnimationClass] = useState("");
+
+  const closeModal = () => {
+    if (props.resetReduxModalOnClose) {
+      dispatch(resetModalState());
+    }
+    props.onClose();
+  };
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        props.onClose();
+        closeModal();
       }
     };
     if (props.visible) {
@@ -50,7 +61,7 @@ export const Modal = ({
 
   const handleMaskClick = () => {
     if (props.closeOnOutsideClick) {
-      props.onClose();
+      closeModal();
     }
   };
 
@@ -72,8 +83,8 @@ export const Modal = ({
         {showCloseIcon && (
           <FontAwesomeIcon
             icon={faX}
-            onClick={props.onClose}
-            className="cursor-pointer ml-auto"
+            onClick={closeModal}
+            className="ml-auto font-bold self-center cursor-pointer text-eduBlack"
           />
         )}
       </div>
@@ -86,7 +97,7 @@ export const Modal = ({
     }
     return (
       <div className="flex self-end justify-end p-3 bg-primary-dark">
-        <Button label="Close" onClick={props.onClose} />
+        <Button label="Close" onClick={closeModal} />
       </div>
     );
   };

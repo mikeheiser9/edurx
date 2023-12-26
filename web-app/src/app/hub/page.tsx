@@ -16,6 +16,9 @@ import { PostModal } from "../forum/components/postModal";
 import { useModal } from "@/hooks";
 import { Loader } from "../signup/commonBlocks";
 import { ProfileDialog } from "./components/profileDialog";
+import { getStaticImageUrl } from "@/util/helpers";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUserAlt } from "@fortawesome/free-solid-svg-icons";
 const Page = () => {
   const hubTab = ["All Notifications", "Following", "My Posts"];
   const [activeSubTab, setActiveSubTab] = useState(hubTab[0]);
@@ -499,16 +502,18 @@ const Page = () => {
                       className="flex w-full p-4 rounded-[10px] bg-eduLightGray border-[1px] border-[#13222A] gap-2"
                       key={index}
                     >
-                      <div className="w-[28px] mt-1 mr-3 ">
-                        <img
-                          src={
-                            process.env.NEXT_PUBLIC_SERVER_URL +
-                            "/uploads/" +
-                            notification?.notificationFrom[0]?.profile_img
-                          }
-                          className="rounded"
-                        ></img>
-                      </div>
+                      <span className="w-7 mt-1 overflow-hidden h-7 justify-center items-center flex bg-eduDarkGray rounded-full">
+                        {notification?.notificationFrom[0]?.profile_img ? (
+                          <img
+                            src={getStaticImageUrl(
+                              notification?.notificationFrom[0]?.profile_img
+                            )}
+                            className="rounded"
+                          />
+                        ) : (
+                          <FontAwesomeIcon icon={faUserAlt} size="xs" />
+                        )}
+                      </span>
                       <div className="flex flex-col text-start gap-3">
                         <span className="text-[20px] text-eduBlack font-headers">
                           {(notification.createdBy == loggedInUser._id
@@ -540,7 +545,7 @@ const Page = () => {
                           <Link
                             className="text-eduLightBlue font-[600] underline"
                             href={`#`}
-                            onClick={()=>{
+                            onClick={() => {
                               setSelectedUserId(
                                 notification.notificationFrom[0]._id
                               );
@@ -606,21 +611,24 @@ const Page = () => {
                       className="flex w-full p-4 rounded-[10px] bg-eduLightGray border-[1px] border-[#13222A] gap-2"
                       key={index}
                     >
-                      <div className="w-[28px] mt-1 mr-3 ">
-                        <img
-                          src={
-                            process.env.NEXT_PUBLIC_SERVER_URL +
-                            "/uploads/" +
-                            notification?.notificationFrom[0]?.profile_img
-                          }
-                          className="rounded"
-                        ></img>
-                      </div>
+                      <span className="w-7 mt-1 overflow-hidden h-7 justify-center items-center flex bg-eduDarkGray rounded-full">
+                        {notification?.notificationFrom[0]?.profile_img ? (
+                          <img
+                            src={getStaticImageUrl(
+                              notification?.notificationFrom[0]?.profile_img
+                            )}
+                            className="rounded"
+                          />
+                        ) : (
+                          <FontAwesomeIcon icon={faUserAlt} size="xs" />
+                        )}
+                      </span>
                       <div className="flex flex-col text-start gap-3">
                         <span className="text-[20px] text-eduBlack font-headers">
                           {(notification.createdBy == loggedInUser._id
                             ? "You "
-                            : notification.notificationFrom?.[0]?.username + " ") +
+                            : notification.notificationFrom?.[0]?.username +
+                              " ") +
                             getSemanticDescriptionFromEventType(
                               notification.notificationType
                             )}

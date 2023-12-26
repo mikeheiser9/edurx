@@ -5,7 +5,7 @@ import Image, { StaticImageData } from "next/image";
 import React, { useEffect, useState } from "react";
 import instagram from "../../../assets/icons/instagram.svg";
 import linkedin from "../../../assets/icons/linkedin.svg";
-import twitter from "../../../assets/icons/twitter.svg";
+import x from "../../../assets/icons/twitter.svg";
 import facebook from "../../../assets/icons/facebook.svg";
 import website from "../../../assets/icons/earthIcon.svg";
 import {
@@ -22,7 +22,7 @@ import { Switch } from "@/components/switch";
 const socialMediaIcons: socials = {
   linkedin,
   instagram,
-  twitter,
+  x,
   facebook,
   website,
 };
@@ -395,7 +395,7 @@ const UserDocs = ({
             </span>
             {value?.issue_date && (
               <span className="text-eduBlack/60 text-[14px] font-body capitalize">
-                Issued {value?.issue_date}
+                Issued {moment(value?.issue_date).format("DD/MM/YYYY")}
               </span>
             )}
             {(value?.doc_id?.length as number) > 0 && (

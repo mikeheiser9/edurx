@@ -11,6 +11,7 @@ import {
   faArrowDown,
   faArrowUp,
   faChartColumn,
+  faCheckCircle,
   faImage,
   faLock,
   faNewspaper,
@@ -40,12 +41,23 @@ import { useModal } from "@/hooks";
 import { RequestListModal } from "./requestListModal";
 import "react-quill/dist/quill.snow.css";
 import UnFollowConfirmation from "./unFollowConfirmation";
+import { ProgressBar } from "@/components/progressBar";
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 interface Props {
   viewPostModal: UseModalType;
   postId: string;
 }
+
+const getIsVotingClosed = (closingDate: any): boolean => {
+  const today = moment(); // Current date
+  const endDate = moment(closingDate, "YYYY-MM-DD");
+
+  // Check if the current date is after the closing date
+  const votingClosed = today.isAfter(endDate, "day");
+
+  return votingClosed;
+};
 
 export const PostModal = ({ postId, viewPostModal }: Props) => {
   const loggedInUser = useSelector(selectUserDetail);
@@ -58,7 +70,9 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
     dislike: false,
   });
   const [buttonLabel, setButtonLabel] = useState("");
-  const [userChoosenOption,setUserChoosenOption]=useState("");
+  const userChoosenOption = post?.votingInfo?.find(
+    (i) => i?.userId === loggedInUser?._id
+  );
   const userReactionOnPost: ReactionTypes | null =
     post?.reactions?.[0]?.reactionType || null;
   const isSelfPost: boolean | undefined =
@@ -67,6 +81,9 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
     post?.userAccessRequests?.find(
       (req: any) => req?.userId === loggedInUser?._id
     )?.status || null;
+  const isVotingClosed: boolean = getIsVotingClosed(
+    moment(post?.publishedOn).add("days", post?.votingLength ?? 0)
+  );
 
   const returnButtonWithAppropriateLabel = () => {
     if (post) {
@@ -88,33 +105,11 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
     }
   };
 
-  useEffect(() => {
-    if (post) {
-      returnButtonWithAppropriateLabel();
-    }
-  }, [post]);
-
-
-
   const getPostById = async () => {
     await axiosGet(`/post/${postId}`)
       .then((response) => {
         if (response.status === responseCodes.SUCCESS) {
           setPost(response?.data?.data);
-          if(response.data?.data?.postType=="poll")
-          {
-            const user=response.data?.data?.votingInfo.filter((votedUserDetail:votingInfoType)=>{
-              return votedUserDetail?.userId==loggedInUser._id
-            })
-            if(user.length)            
-            {
-              setUserChoosenOption(user[0].choosenOption)
-            }
-            else
-            {
-              setUserChoosenOption("")
-            }
-          }
         }
       })
       .catch((error) => console.log("Failed to get post", error));
@@ -297,32 +292,24 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
       <FontAwesomeIcon
         icon={faX}
         onClick={viewPostModal.closeModal}
-        className="ml-auto self-center cursor-pointer text-[24px] text-eduBlack"
+        className="ml-auto font-bold self-center cursor-pointer text-eduBlack"
       />
     </div>
   );
-
-  useEffect(() => {
-    if (!viewPostModal?.isOpen) return;
-    getPostById();
-    isPostViewed !== postId && addPostViewByAPI();
-  }, [postId, viewPostModal.isOpen]);
-
-  if (!postId || !post) return <></>;
 
   const Header = () => (
     <div className="flex p-2 gap-2 bg-eduDarkGray">
       <span className="text-base text-center flex-1">Confirmation</span>
       <FontAwesomeIcon
         icon={faX}
-        size="sm"
         onClick={unfollowPostConfirmationModel.closeModal}
-        className="ml-auto self-center cursor-pointer text-gray-500"
+        className="ml-auto font-bold self-center cursor-pointer text-eduBlack"
       />
     </div>
   );
 
   const unFollowPost = async () => {
+    if (!post?._id) return;
     const res = await followPost(post._id, "remove");
     if (res) {
       if (res.status == responseCodes.SUCCESS) {
@@ -333,12 +320,40 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
   };
 
   const handleVote = async (postId: string, vote: string) => {
+    if (isVotingClosed) return;
     const voteResp = await handleVoteOnPollPost(postId, { option: vote });
     if (voteResp.data.response_type == "Success") {
       getPostById();
     }
   };
-  
+
+  const getPercentageForOption = (choosenOption: string): number => {
+    const filteredVotes = post?.votingInfo?.filter(
+      (vote) => vote?.choosenOption === choosenOption
+    );
+    const totalVotes = post?.votingInfo?.length || 0;
+    const optionVotes = filteredVotes?.length || 0;
+
+    if (totalVotes === 0) {
+      return 0; // To avoid division by zero
+    }
+
+    return (optionVotes / totalVotes) * 100;
+  };
+
+  useEffect(() => {
+    if (!viewPostModal?.isOpen) return;
+    getPostById();
+    isPostViewed !== postId && addPostViewByAPI();
+  }, [postId, viewPostModal.isOpen]);
+
+  useEffect(() => {
+    if (post) {
+      returnButtonWithAppropriateLabel();
+    }
+  }, [post]);
+
+  if (!postId || !post) return <></>;
 
   return (
     <>
@@ -539,23 +554,50 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
                       </div>
                       {post.postType == "poll" && (
                         <div className="flex flex-col w-full gap-2 text-eduLightBlue font-[400]">
-                          {post.options?.map((option: string) => {
-                            return (
+                          {post.options?.map((option: string) =>
+                            isVotingClosed ? (
+                              <ProgressBar
+                                wrapperClass={
+                                  "h-10 rounded text-md cursor-pointer border border-eduDarkGray"
+                                }
+                                onClick={() => handleVote(post._id, option)}
+                                key={option}
+                                label={
+                                  <span className="p-4 font-medium flex justify-center items-center gap-3">
+                                    <b>{getPercentageForOption(option)}%</b>
+                                    {option}
+                                    {userChoosenOption?.choosenOption ===
+                                      option && (
+                                      <FontAwesomeIcon icon={faCheckCircle} />
+                                    )}
+                                  </span>
+                                }
+                                progress={getPercentageForOption(option)}
+                                filledClass={`!justify-start ${
+                                  userChoosenOption?.choosenOption === option
+                                    ? "bg-eduYellow"
+                                    : "!bg-eduDarkGray"
+                                }`}
+                              />
+                            ) : (
                               <span
-                                className={`border-[1px] p-2 rounded border-eduLightBlue text-center cursor-pointer ${userChoosenOption==option && '!bg-eduYellow '}`}
+                                className={`border-[1px] p-2 rounded border-eduLightBlue text-center cursor-pointer ${
+                                  userChoosenOption?.choosenOption === option &&
+                                  "!bg-eduYellow"
+                                }`}
                                 onClick={() => handleVote(post._id, option)}
                               >
                                 {option}
                               </span>
-                            );
-                          })}
+                            )
+                          )}
                           <div>
-                            <span>{post?.votingInfo?.length} votes -</span>
+                            <span>{post?.votingInfo?.length} votes - </span>
                             <span>
                               {moment(post?.publishedOn)
                                 .add("days", Number(post?.votingLength))
-                                .fromNow(true)}{" "}
-                              left
+                                .diff(moment(), "days")}{" "}
+                              days left
                             </span>
                           </div>
                         </div>

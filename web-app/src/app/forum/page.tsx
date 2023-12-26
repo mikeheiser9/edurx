@@ -194,7 +194,7 @@ const Page = () => {
           fetchPosts={() => fetchPosts(1, apiEndpoint, false)}
         />
       )}
-      <DraftModal></DraftModal>
+      <DraftModal />
       <PostModal viewPostModal={viewPostModal} postId={selectedPostId} />
       <div className="flex justify-between items-center w-full h-[55px]">
         <div className="flex justify-center items-center gap-2">

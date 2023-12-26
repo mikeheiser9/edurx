@@ -25,6 +25,7 @@ import {
   selectUserDetail,
 } from "@/redux/ducks/user.duck";
 import { setModalState } from "@/redux/ducks/modal.duck";
+import { AccountSetting } from "@/app/hub/components/accountSetting";
 
 const sortingOptions: { value: string; label: string; icon: any }[] = [
   {
@@ -49,6 +50,7 @@ export const LeftPanel = () => {
   const selectedFilters: FilterOptionsState = useSelector(
     getSelectedForumFilters
   );
+  const accountSettingModal = useModal();
   const [isCategoriesLoading, setIsCategoriesLoading] = useState<boolean>(true);
   const [categoryList, setCategoryList] = useState<TagCategoryType[]>([]);
   const [categoryPagination, setCategoryPagination] = useState<PageDataState>({
@@ -145,6 +147,10 @@ export const LeftPanel = () => {
 
   return (
     <>
+      <AccountSetting
+        userData={loggedInUser}
+        accountSettingModal={accountSettingModal}
+      />
       <FilterSetting accountSettingModal={filterSetting} />
       <ProfileDialog loggedInUser={loggedInUser} profileModal={profileModal} />
       <div className="flex flex-col h-full flex-auto">
@@ -260,7 +266,7 @@ export const LeftPanel = () => {
           <span
             className="cursor-pointer"
             onClick={() => {
-              dispatch(setModalState({isOpen:true}));
+              dispatch(setModalState({ isOpen: true, type: "viewDraftModal" }));
             }}
           >
             My Drafts

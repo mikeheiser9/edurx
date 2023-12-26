@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { HtmlHTMLAttributes, useEffect, useState } from "react";
 
-interface Props {
+interface Props extends HtmlHTMLAttributes<HTMLDivElement> {
   progress: number;
-  label: string;
+  label: string | React.JSX.Element;
   wrapperClass?: string;
   filledClass?: string;
   animateProgress?: boolean;
@@ -15,6 +15,7 @@ export const ProgressBar = ({
   wrapperClass,
   filledClass,
   animateProgress,
+  ...rest
 }: Props) => {
   const [currentProgress, setCurrentProgress] = useState(0);
 
@@ -40,6 +41,7 @@ export const ProgressBar = ({
         wrapperClass ||
         "w-full bg-eduLightBlue rounded-md h-5 flex items-center"
       }
+      {...rest}
     >
       <span
         className={`${filledClass} ${
@@ -49,9 +51,7 @@ export const ProgressBar = ({
           width: `${!animateProgress ? progress : currentProgress}%`,
         }}
       >
-        <span className="truncate text-white mx-2 font-medium text-[8px]">
-          {label}
-        </span>
+        {label}
       </span>
     </div>
   );

@@ -30,7 +30,7 @@ const validationSchema: Yup.AnyObject = {
       instagram: Yup.string().max(100, "Can't exceed 100 characters"),
       linkedin: Yup.string().max(100, "Can't exceed 100 characters"),
       facebook: Yup.string().max(100, "Can't exceed 100 characters"),
-      twitter: Yup.string().max(100, "Can't exceed 100 characters"),
+      x: Yup.string().max(100, "Can't exceed 100 characters"),
       website:Yup.string().matches(/^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,'URL is not valid' )
     }),
   }),
