@@ -184,7 +184,7 @@ export const paginationValidation = {
 
 export const USER_ROLES = {
   super_admin: "super_admin",
-  mod: "moderator",
+  moderator: "moderator",
   professional: "professional",
   student: "student",
 };

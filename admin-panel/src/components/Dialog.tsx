@@ -52,9 +52,9 @@ const Dialog = ({
                 ) : (
                   <>
                     {title || closeIcon ? (
-                      <div className="relative  flex items-center pr-6">
+                      <div className="relative  flex items-center pr-6 ">
                         {title && (
-                          <h3 className="font-semibold text-dark text-xl">
+                          <h3 className="font-semibold text-dark text-xl uppercase">
                             {title}
                           </h3>
                         )}

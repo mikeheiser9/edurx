@@ -9,7 +9,6 @@ const RadioBox = ({
   labelClassName,
   size = "md",
   border = "md",
-  register,
   error,
   value,
   labelFirst = false,
@@ -25,7 +24,6 @@ const RadioBox = ({
   labelClassName?: any;
   size?: "sm" | "md" | "lg";
   border?: "sm" | "md";
-  register?: any;
   value?: string;
   error?: any;
   required?: boolean;
@@ -51,13 +49,13 @@ const RadioBox = ({
 
   return (
     <div
-      className={`checkWrap relative flex flex-col gap-2 ${parentClassName}`}
+      className={`checkWrap relative flex flex-col gap-2 mb-2 ${parentClassName}`}
     >
       <label
         className={`flex items-center gap-2 ${isSwitch ? "isSwitch" : ""}`}
       >
         {labelFirst && label ? (
-          <p className={`${labelClassName} font-hauora font-bold`}>{label}</p>
+          <p className={`${labelClassName} font-hauora font-semibold`}>{label}</p>
         ) : (
           ""
         )}
@@ -72,7 +70,6 @@ const RadioBox = ({
             name={name}
             id=""
             onChange={onChange}
-            {...register}
             value={value}
             checked={isChecked}
             disabled={disabled}
@@ -83,7 +80,7 @@ const RadioBox = ({
           </span>
         </span>
         {!labelFirst && label ? (
-          <p className={`${labelClassName} font-hauora font-bold`}>{label} {required && <span className="text-red-500 font-medium">*</span>}</p>
+          <p className={`${labelClassName} font-hauora font-normal`}>{label} {required && <span className="text-red-500 font-medium">*</span>}</p>
         ) : (
           ""
         )}

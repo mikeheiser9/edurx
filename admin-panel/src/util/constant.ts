@@ -27,8 +27,34 @@ export const validateField = {
 };
 
 export const USER_ROLES = {
-  super_admin: "super_admin",
-  mod: "moderator",
-  professional: "professional",
-  student: "student",
+  super_admin: {
+    value:"super_admin",
+    label:"Super Admin"
+  },
+  moderator: {
+    value:"moderator",
+    label:"Moderator"
+  },
+  professional: {
+    value:"professional",
+    label:"Professional"
+  },
+  student: {
+    value:"student",
+    label:"Student"
+  }
 };
+
+export const ErrorMessage:any= {
+  userNotFound:"User Not Found!",
+  userExistWithEmail:"Another User Already Exist with this Email",
+  userExistWithUsername:"Another User Already Exist with this Username",
+  invalidNpi:"Invalid Npi Number!!"
+}
+
+export const EMAIL_VALIDATION = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
+
+export const RESOURCE_TYPE = {
+  resource:"resource",
+  news:"news"
+}

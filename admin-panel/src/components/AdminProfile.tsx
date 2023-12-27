@@ -1,7 +1,9 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { useState } from "react";
-
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+import { removeToken } from "@/redux/ducks/user.duck";
+import { GiExitDoor } from "react-icons/gi";
 
 const AdminProfile = () => {
   const router = useRouter();
@@ -40,6 +42,19 @@ const AdminProfile = () => {
             </div>
           </div>
 
+          <ConfirmationDialog
+            message="Are you sure you want to Logout of your Account?"
+            onClose={() => setModalOpen(false)}
+            onConfirm={() => {
+              dispatch(removeToken());
+              router.push("/login");
+            }}
+            title="LOGOUT"
+            isOpen={modalOpen}
+            icon={<GiExitDoor />
+          }
+
+          />
           {/* <BasicModal visible={modalOpen} background="bg-[#d9d9d9]">
             <div className="--wrapper ">
               <div className="flex items-center w-[100%] justify-center ">

@@ -140,11 +140,11 @@ const Select = ({
       borderRadius: "4px",
       cursor: "pointer",
       backgroundColor: state.isSelected
-        ? "rgba(212, 20, 90, 0.10) !important"
+        ? "rgba(253, 205, 38,0.7) !important"
         : "#ffffff",
-      color: state.isSelected ? "#d4145a" : "#342D3B",
+      color: state.isSelected ? "#d41414" : "#342D3B",
       "&:hover": {
-        backgroundColor: "rgba(212, 20, 90, 0.10)",
+        backgroundColor: "rgba(253, 205, 38,0.3)",
       },
     }),
     noOptionsMessage: (base: any) => ({

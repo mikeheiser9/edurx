@@ -6,7 +6,6 @@ import { FaGreaterThan, FaLessThan } from "react-icons/fa6";
 
 const Sidebar = (props:any) => {
   const { menuList } = props;
-  const router = useRouter();
   const path = usePathname();;
   const hideSidebar = path.includes("login");
   const [collapse, setCollapse] = useState(false);
@@ -16,7 +15,7 @@ const Sidebar = (props:any) => {
   const [activePage, setActivePage] = useState(!hideSidebar && active[0] && active[0].key);
   useEffect(() => {
     setActivePage(!hideSidebar && active[0] &&  active[0].key);
-  }, [hideSidebar]);
+  }, [hideSidebar,path]);
 
   return (
     !hideSidebar && (

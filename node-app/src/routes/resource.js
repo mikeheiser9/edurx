@@ -4,7 +4,8 @@ import { addResourceValidator, validateIds } from '../middleware/validator/resou
 
 const router = express.Router();
 
-router.get('/', ResourceController.getResources);
+router.get('/resources', ResourceController.getResources);
 router.post('/create', addResourceValidator, ResourceController.createResource);
+router.delete('/delete', ResourceController.deleteResourceById);
 
 export default router;

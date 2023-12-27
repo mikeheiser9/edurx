@@ -9,13 +9,16 @@ import {
 import { accountSettingModal } from "../model/user/accountSetting.js";
 
 const userExistWithEmail = async (email, excludeAttributeList = null) => {
-  const user = await userModel.findByEmail(email.toLowerCase(), excludeAttributeList);
+  const user = await userModel.findByEmail(
+    email.toLowerCase(),
+    excludeAttributeList
+  );
   return user ? { user, isExist: true } : { user, isExist: false };
 };
 const updateUser = async (email, user) => {
   return await userModel.findOneAndUpdate(
     {
-      email:email.toLowerCase(),
+      email: email.toLowerCase(),
     },
     {
       ...user,
@@ -328,35 +331,37 @@ const getAccountSettingById = async (userId) => {
   return await accountSettingModal.findOne({ userId });
 };
 
-const findFollowerById=async(userId)=>{
-  return userConnections.find({targetUserId:userId})
-}
+const findFollowerById = async (userId) => {
+  return userConnections.find({ targetUserId: userId });
+};
 
-const findUserFollowPostDetails=async(userId,postId)=>{
-  return await userConnections.findOne({userId,postId})
-}
+const findUserFollowPostDetails = async (userId, postId) => {
+  return await userConnections.findOne({ userId, postId });
+};
 
-const insertFollowPost=(userId,postId)=>{
-  return  userConnections.create({
+const insertFollowPost = (userId, postId) => {
+  return userConnections.create({
     postId,
-    userId
-  })
-}
-
-const removeFollowPost=(userId,postId)=>{
-  return  userConnections.deleteOne({
     userId,
-    postId
-  })
-}
+  });
+};
 
-const insertFollowPostMultiple=async(data)=>{
+const removeFollowPost = (userId, postId) => {
+  return userConnections.deleteOne({
+    userId,
+    postId,
+  });
+};
+
+const insertFollowPostMultiple = async (data) => {
   return await userConnections.insertMany(data);
-}
+};
 
-const findFollowersOfPostById=async(postId)=>{
-  return await userConnections.find({postId})
-}
+const findFollowersOfPostById = async (postId) => {
+  return await userConnections.find({ postId });
+};
+
+
 export {
   getUserProfileById,
   findUserByEmail,

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState } from "react";
 import { Form, Formik, FormikErrors, useFormik } from "formik";
 import * as yup from "yup";
@@ -8,43 +8,45 @@ import Button from "@/components/Button";
 import { validateAdmin } from "@/service/admin.service";
 import { TypeAdminLogin } from "@/types/auth";
 import { useDispatch } from "react-redux";
-import { setToken } from "@/redux/ducks/user.duck";
+import { setToken, setUserDetail } from "@/redux/ducks/user.duck";
 import { useRouter } from "next/navigation";
+import { EMAIL_VALIDATION } from "@/util/constant";
 
 const login = () => {
-
-  const [isLoading, setIsLoading] = useState(false)
-  const [serverResponse, setServerResponse] = useState({
-    resp_type: "",
-    resp_message: "",
-  });
+  const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   const router = useRouter();
 
   const YupStringPreFix = yup.string().trim();
   const validationSchema = yup.object().shape({
-    email: YupStringPreFix.required("E-mail is Required"),
+    email: YupStringPreFix.required("E-mail is Required").matches(
+      EMAIL_VALIDATION,
+      { message: "Invalid Email Address" }
+    ),
     password: YupStringPreFix.required("Password is required"),
   });
 
-  const handleSubmit = async (values: TypeAdminLogin , { setErrors}:{ setErrors: (errors: FormikErrors<TypeAdminLogin>) => void }) => {
-
+  const handleSubmit = async (
+    values: TypeAdminLogin,
+    { setErrors }: { setErrors: (errors: FormikErrors<TypeAdminLogin>) => void }
+  ) => {
     setIsLoading(true);
     const res = await validateAdmin(values);
 
     if (res) {
       if (res.data?.response_type === "success") {
         dispatch(setToken(res.data.data.token));
-        router.push("/");
+        dispatch(setUserDetail(res.data.data.details))
+        router.push("/manage/accounts");
       } else {
-       setErrors({
-        password:res.data.message
-       })
+        setErrors({
+          password: res.data.message,
+        });
       }
     } else {
       setErrors({
-        password:"Oops..Something went Wrong"
-       })
+        password: "Oops..Something went Wrong",
+      });
     }
     setIsLoading(false);
   };
@@ -64,8 +66,18 @@ const login = () => {
             >
               <Form autoComplete="off">
                 <div className="p-4 flex-col justify-center">
-                  <Input name="email" label="Email" required labelClassName="text-black" />
-                  <PasswordInput name="password" label={"Password"} required parentClassName="text-black" />
+                  <Input
+                    name="email"
+                    label="Email"
+                    required
+                    labelClassName="text-black"
+                  />
+                  <PasswordInput
+                    name="password"
+                    label={"Password"}
+                    required
+                    parentClassName="text-black"
+                  />
                   <div className="grid grid-cols-1 pt-6 self-center text-center">
                     <Button
                       title={"LOGIN"}
@@ -81,7 +93,6 @@ const login = () => {
                     />
                   </div>
                 </div>
-
               </Form>
             </Formik>
           </div>

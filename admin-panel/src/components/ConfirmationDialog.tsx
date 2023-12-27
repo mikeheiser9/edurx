@@ -45,7 +45,7 @@ const ConfirmationDialog = ({
                 <div className={`relative ${className}`}>
                   <div className="relative flex flex-col gap-3 items-center text-center mb-8">
                     {icon && (
-                      <div className="h-28 w-28 rounded-full bg-primary/10 flex items-center justify-center text-5xl text-primary mb-2 ">
+                      <div className="h-28 w-28 rounded-full bg-[#FDCD26] flex items-center justify-center text-5xl mb-2 ">
                         {icon}
                       </div>
                     )}

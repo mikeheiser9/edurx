@@ -3,6 +3,11 @@ import { findUserByEmail } from "../repository/user.js";
 import { generalResponse, trimFields } from "../util/commonFunctions.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import {
+  USER_ROLES,
+  taxonomyCodeToProfessionalMapping,
+} from "../util/constant.js";
+import axios from "axios";
 
 export const adminLogin = async (req, res) => {
   try {
@@ -32,7 +37,7 @@ export const adminLogin = async (req, res) => {
             "success",
             null,
             { token, details: user },
-            true
+            false
           );
         } else {
           throw "Incorrect Email/Password!!";
@@ -48,18 +53,28 @@ export const adminLogin = async (req, res) => {
       res,
       400,
       "error",
-      { error: error ? error : "Something Went Wrong while Login." },
+      error ? error : "Something Went Wrong while Login.",
       "",
-      true
+      false
     );
   }
 };
 
 export const fetchUsersByAdmin = async (req, res) => {
   try {
+    
+    const searchKeyword = req.query.search;
+    let query = {}
+    if (searchKeyword && searchKeyword.trim() !== '') {
+      query = { username: { $regex: searchKeyword, $options: "i" } }
+    }
     const list = await userModel
-      .find()
-    return generalResponse(res, 200, "success", "", list, true);
+      .find(query)
+      .select(
+        "first_name last_name username email password role npi_number taxonomy joined verified_account id npi_designation"
+      )
+      .sort({ first_name: 1 });
+    return generalResponse(res, 200, "success", "", list, false);
   } catch (error) {
     return generalResponse(
       res,
@@ -67,47 +82,147 @@ export const fetchUsersByAdmin = async (req, res) => {
       "error",
       { error: error ? error : "Something Went Wrong while Login." },
       "",
-      true
+      false
     );
   }
 };
 
 export const deleteUserByAdmin = async (req, res) => {
-  try{
-  const { acknowledged } = await userModel.deleteOne({
-    _id: req.body.id,
-  });
-  if(acknowledged){
+  try {
+    const { acknowledged } = await userModel.deleteOne({
+      _id: req.body.id,
+    });
+    if (acknowledged) {
+      return generalResponse(
+        res,
+        200,
+        "success",
+        "User Account Deleted Successfully!!",
+        null,
+        false
+      );
+    } else {
+      throw "Unable to Delete User Account!";
+    }
+  } catch (error) {
     return generalResponse(
       res,
-      200,
-      "success",
-      "User Account Deleted Successfully!!",
-      null,
-      true
+      400,
+      "error",
+      { error: error ? error : "Something Went Wrong while Delete User." },
+      "",
+      false
     );
-  }else {
-    throw "Unable to Delete User Account!"
   }
-} catch (error) {
-  return generalResponse(
-    res,
-    400,
-    "error",
-    { error: error ? error : "Something Went Wrong while Delete User." },
-    "",
-    true
-  );
-}
 };
 
-export const updateUserByAdmin = async (id, user) => {
-  return await userModel.findOneAndUpdate(
-    {
-      _id:id.toLowerCase(),
-    },
-    {
-      ...user,
+const npiLookupAdminReturnAddress = async (npi_number) => {
+  try {
+    const npiRes = await axios.get(process.env.NPI_LOOKUP_API, {
+      params: {
+        number: npi_number,
+        version: "2.1",
+      },
+    });
+
+    const npiData = npiRes?.data?.results?.[0] || null;
+    const isValid = npiRes?.data?.result_count > 0;
+    if (npiData && isValid) {
+      if (npiData.taxonomies) {
+        const validNpiCode = Object.keys(taxonomyCodeToProfessionalMapping);
+        const exists = npiData.taxonomies
+          .map((taxonomy) => taxonomy.code)
+          .some((code) => validNpiCode.includes(code));
+
+        if (exists) {
+          const primaryTaxonomy = npiData.taxonomies.find(
+            (taxonomy) => taxonomy?.primary
+          );
+          if (primaryTaxonomy) {
+            const address = npiData.addresses?.map((address) => {
+              return address?.address_1;
+            });
+            const state = primaryTaxonomy?.state;
+            const zip_code = npiData.addresses[0]?.postal_code;
+            const npi_designation = taxonomyCodeToProfessionalMapping[primaryTaxonomy.code];
+            if (npi_designation)
+              return { data: { address, state, zip_code, npi_designation } };
+          }
+        }
+      }
     }
-  );
+    throw "Invalid Npi Number";
+  } catch (error) {
+    return { data: null };
+  }
+};
+
+export const updateUserByAdmin = async (req, res) => {
+  try {
+    const userId = req.query.user_id;
+    const username = req.body.username.trim();
+    const email = req.body.email.trim().toLowerCase();
+    const userData = req.body;
+
+    // encrypt Password
+    if (userData.password.trim() !== "")
+      userData.password = await bcrypt.hash(userData.password, 10);
+    else delete userData["password"];
+
+    // user Exist
+    const isUserExist = await userModel
+      .findById({
+        _id: userId,
+      })
+      .select("email username npi_number");
+
+    if (isUserExist) {
+      // Exclude current user check if username or email exist with another user
+      const isEmailOrUsernameExist = await userModel.findOne({
+        $or: [
+          { email: email, _id: { $ne: userId } },
+          { username: username.trim(), _id: { $ne: userId } },
+        ],
+      });
+      if (isEmailOrUsernameExist) {
+        if (isEmailOrUsernameExist.username == username.trim())
+          throw "username-userExistWithUsername";
+        else if (isEmailOrUsernameExist.email == email.trim())
+          throw "email-userExistWithEmail";
+      } else {
+        if (
+          req.body.role === USER_ROLES.professional &&
+          isUserExist.npi_number !== userData.npi_number
+        ) {
+          // NPI Validation and Address Update
+          const { data } = await npiLookupAdminReturnAddress(
+            req.body.npi_number
+          );
+          if (data) {
+            await userModel.findByIdAndUpdate(userId, {
+              ...userData,
+              ...data,
+              addresses: data.address,
+            });
+          } else {
+            throw "npi_number-invalidNpi";
+          }
+        } else {
+          await userModel.findByIdAndUpdate(userId, userData);
+        }
+      }
+    } else {
+      throw "userNotFound";
+    }
+    return generalResponse(res, 200, "success", "", "", false);
+  } catch (error) {
+    return generalResponse(
+      res,
+      400,
+      "error",
+      error ? error : "Something Went Wrong while Updating User on admin side.",
+      "",
+      false
+    );
+  }
 };
