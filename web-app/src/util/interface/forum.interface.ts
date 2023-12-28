@@ -11,6 +11,7 @@ type ForumTypes =
   | "RDN"
   | "NDTR"
   | "Student";
+type PostModeType = "Edit" | "New" | "Draft" | undefined;
 interface PageDataState {
   page: number;
   totalRecords: number;
@@ -120,6 +121,7 @@ interface PostInterface {
   userPostFollowList?: userPostFollowList[];
   options?: string[];
   votingInfo?: votingInfoType[];
+  userPostFollowers?: userPostFollowList[];
 }
 
 interface CreatePostFormikInterface {

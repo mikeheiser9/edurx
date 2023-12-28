@@ -43,6 +43,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { showToast } from "@/components/toast";
 import { getUserDraftCount } from "@/service/user.service";
 import { uniqBy } from "lodash";
+import { Button } from "@/components/button";
 
 interface filterCategoryInput {
   category?: string | boolean;
@@ -81,11 +82,13 @@ export const AddPost = ({
   fetchPosts,
   postDetails,
   getDrafts,
+  mode = "New",
 }: {
   addPostModal: UseModalType;
   fetchPosts?: () => Promise<void>;
   postDetails?: CreatePostFormikInterface & { id: string };
   getDrafts?: ((page?: number | undefined) => Promise<void>) | undefined;
+  mode?: PostModeType;
 }) => {
   const loggedInUser = useSelector(selectUserDetail);
   const currentDraftCount = useSelector(selectDraftCount);
@@ -320,6 +323,24 @@ export const AddPost = ({
     );
   };
 
+  const EditPostFooter = () => (
+    <div className="flex flex-col gap-2 py-3 bg-primary-dark">
+      <div className="flex justify-center gap-4">
+        <Button
+          label="Cancel"
+          className="!m-0 !bg-eduBlack text-white"
+          type="button"
+          onClick={addPostModal?.closeModal}
+        />
+        <Button
+          label="Update"
+          type="submit"
+          className={`!m-0 cursor-not-allowed`}
+        />
+      </div>
+    </div>
+  );
+
   const onSubmit = async (
     values: CreatePostFormikInterface,
     actions: FormikHelpers<CreatePostFormikInterface>
@@ -371,6 +392,8 @@ export const AddPost = ({
       ...values,
       postType: values.postType || "post",
       ...selectedList,
+      postStatus:
+        (values as any)?.postStatus || mode == "Edit" ? "published" : "",
     };
 
     // when editing the post from the draft flow
@@ -827,14 +850,18 @@ export const AddPost = ({
                   )}
               </div>
             </div>
-            <ModalFooter
-              setFieldValue={actions.setFieldValue}
-              disable={shouldDisable({
-                errors: actions.errors,
-                touched: actions.touched,
-                categoryFilter: selectedList,
-              })}
-            />
+            {mode === "Edit" ? (
+              <EditPostFooter />
+            ) : (
+              <ModalFooter
+                setFieldValue={actions.setFieldValue}
+                disable={shouldDisable({
+                  errors: actions.errors,
+                  touched: actions.touched,
+                  categoryFilter: selectedList,
+                })}
+              />
+            )}
           </Form>
         </Modal>
       )}

@@ -42,8 +42,9 @@ import { RequestListModal } from "./requestListModal";
 import "react-quill/dist/quill.snow.css";
 import UnFollowConfirmation from "./unFollowConfirmation";
 import { ProgressBar } from "@/components/progressBar";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { AddPost } from "./addPost";
+import { Button } from "@/components/button";
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 interface Props {
@@ -85,24 +86,29 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
   const isVotingClosed: boolean = getIsVotingClosed(
     moment(post?.publishedOn).add("days", post?.votingLength ?? 0)
   );
+  const userFollowsPost: userPostFollowList | undefined =
+    post?.userPostFollowers?.find(
+      (i) => i?.userId === loggedInUser?._id && i?.postId === post?._id
+    );
+  const editPostModal = useModal();
 
   const returnButtonWithAppropriateLabel = () => {
-    if (post) {
-      if (post.isPrivate) {
-        if (post.userId?._id == loggedInUser._id)
-          setButtonLabel(postLabelType["Review Requests"]);
-      }
-      if (post?.userAccessRequests?.[0]) {
-        if (post?.userAccessRequests?.[0].userId == loggedInUser._id) {
-          if (post?.userAccessRequests?.[0].status == "accepted") {
-            setButtonLabel(postLabelType["Following"]);
-          } else if (post?.userAccessRequests?.[0].status == "pending") {
-            setButtonLabel(postLabelType["Requested"]);
-          }
-        }
+    if (userFollowsPost?._id && userFollowsPost?.postId === post?._id) {
+      setButtonLabel("Following");
+    } else if (post?.isPrivate) {
+      if (requestStatus) {
+        setButtonLabel(
+          requestStatus === "pending"
+            ? "Requested"
+            : requestStatus === "denied"
+            ? "Rejected"
+            : "Following"
+        );
       } else {
-        setButtonLabel(postLabelType["Follow"]);
+        setButtonLabel("Request Access");
       }
+    } else {
+      setButtonLabel("Follow");
     }
   };
 
@@ -188,7 +194,7 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
   const requestAccess = async () => {
     // if (requestStatus !== null) return;
     try {
-      if (buttonLabel == "Follow") {
+      if (!requestStatus) {
         const payload = {
           status: "pending",
           userId: loggedInUser?._id,
@@ -203,7 +209,7 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
             };
           });
         }
-      } else if (buttonLabel == "Unfollow") {
+      } else if (userFollowsPost) {
         unfollowPostConfirmationModel.openModal();
       }
     } catch (error) {
@@ -257,7 +263,7 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
     const res = await followPost(post._id, "remove");
     if (res) {
       if (res.status == responseCodes.SUCCESS) {
-        setButtonLabel("Follow");
+        getPostById();
         unfollowPostConfirmationModel.closeModal();
       }
     }
@@ -285,6 +291,41 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
     return (optionVotes / totalVotes) * 100;
   };
 
+  const onFollowPost = async () => {
+    if (!post?._id) return;
+    if (post.isPrivate) {
+      const payload = {
+        status: "pending",
+        userId: loggedInUser?._id,
+        postId: post?._id,
+      };
+      const response = await addPrivatePostRequest(payload);
+      if (response?.status === responseCodes.SUCCESS) {
+        getPostById();
+      }
+    } else {
+      const res = await followPost(post._id, "add");
+      if (res.status == responseCodes.SUCCESS) {
+        getPostById();
+      }
+    }
+  };
+
+  const onPostActions = () => {
+    if (userFollowsPost) {
+      unfollowPostConfirmationModel?.openModal();
+    } else if (post?.isPrivate && !userFollowsPost) {
+      requestAccess();
+    } else {
+      onFollowPost();
+    }
+  };
+
+  const onEditPost = () => {
+    viewPostModal?.closeModal();
+    editPostModal?.openModal();
+  };
+
   useEffect(() => {
     if (!viewPostModal?.isOpen) return;
     getPostById();
@@ -301,6 +342,14 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
 
   return (
     <>
+      {editPostModal.isOpen && (
+        <AddPost
+          addPostModal={editPostModal}
+          // fetchPosts={() => {"" as }}
+          postDetails={post as any}
+          mode="Edit"
+        />
+      )}
       <Modal
         onClose={viewPostModal.closeModal}
         visible={viewPostModal.isOpen}
@@ -435,38 +484,46 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
                       ))}
                     </div>
                   </div>
-                  {post?.isPrivate && (
-                    <>
-                      {isSelfPost ? (
-                        <ReviewRequestButton
-                          onClick={requestModal.openModal}
-                          count={post?.userAccessRequestCount || 0}
+                  <>
+                    {isSelfPost ? (
+                      <div className="flex gap-2">
+                        <Button
+                          label="Edit"
+                          onClick={onEditPost}
+                          className="w-auto m-auto px-4"
                         />
-                      ) : (
-                        <button
-                          id="buttonLabel"
-                          onClick={requestAccess}
-                          className={`p-2 px-4 text-sm text-black bg-white rounded-md w-auto font-medium bg-transparent border-eduBlack border-[1.5px] py-1 m-auto font-body transition-colors duration-500 hover:bg-eduBlack hover:text-white disabled:opacity-70 ${
-                            buttonLabel == "Requested" &&
-                            "!bg-eduLightBlue text-white"
-                          }`}
-                          onMouseEnter={() => {
-                            if (buttonLabel == "Following") {
-                              setButtonLabel("Unfollow");
-                            }
-                          }}
-                          onMouseLeave={() => {
-                            if (buttonLabel == "Unfollow") {
-                              setButtonLabel("Following");
-                            }
-                          }}
-                          disabled={buttonLabel == "Requested"}
-                        >
-                          {buttonLabel}
-                        </button>
-                      )}
-                    </>
-                  )}
+                        {/* {post?.isPrivate && (
+                          <ReviewRequestButton
+                            count={post?.postRequests?.length || 0}
+                            onClick={requestModal?.openModal}
+                          />
+                        )} */}
+                      </div>
+                    ) : (
+                      <button
+                        id="buttonLabel"
+                        // onClick={requestAccess}
+                        onClick={onPostActions}
+                        className={`p-2 px-4 text-sm text-black bg-white rounded-md w-auto font-medium bg-transparent border-eduBlack border-[1.5px] py-1 m-auto font-body transition-colors duration-500 hover:bg-eduBlack hover:text-white disabled:opacity-70 ${
+                          buttonLabel == "Requested" &&
+                          "!bg-eduLightBlue text-white"
+                        }`}
+                        onMouseEnter={() => {
+                          if (buttonLabel == "Following") {
+                            setButtonLabel("Unfollow");
+                          }
+                        }}
+                        onMouseLeave={() => {
+                          if (buttonLabel == "Unfollow") {
+                            setButtonLabel("Following");
+                          }
+                        }}
+                        disabled={buttonLabel == "Requested"}
+                      >
+                        {buttonLabel}
+                      </button>
+                    )}
+                  </>
                 </div>
                 <>
                   {post?.isPrivate &&

@@ -168,6 +168,20 @@ const resourceLabelType={
   "Read Now":"Read now"
 }
 
+// Reusable function to access nested keys and format data into {value, label} format
+const formatDataForSelect = (data:any[], valueKey:string, labelKey:string) => {
+  return data.map(item => ({
+    value: getValueFromNestedKey(item, valueKey.split('.')),
+    label: getValueFromNestedKey(item, labelKey.split('.'))
+  }));
+};
+
+// Function to retrieve value from nested keys
+const getValueFromNestedKey = (obj:any, keys:string[]) => {
+  return keys.reduce((acc, key) => (acc && acc[key] !== 'undefined') ? acc[key] : undefined, obj);
+};
+
+
 export {
   validateField,
   taxonomyCodeToProfessionalMapping,

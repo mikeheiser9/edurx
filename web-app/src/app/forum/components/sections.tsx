@@ -28,14 +28,18 @@ const ModalHeader = ({
   mode = "New",
 }: {
   onClose: () => void;
-  mode?: "Edit" | "New" | undefined;
+  mode?: PostModeType
 }): React.ReactElement => {
   const userPostDraftCount = useSelector(selectDraftCount);
   const dispatch = useDispatch();
   return (
     <div className="flex p-3 px-7  items-center  justify-start bg-eduDarkGray gap-3 ">
       <span className="text-xl font-medium  ">
-        {mode == "Edit" ? "Edit Draft" : "New Post"}{" "}
+        {mode == "Edit"
+          ? "Edit Post"
+          : mode == "Draft"
+          ? "Edit Draft"
+          : "New Post"}{" "}
       </span>
       <span></span>
       <span
