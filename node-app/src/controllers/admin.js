@@ -1,13 +1,22 @@
-import { userModel } from "../model/user/user.js";
-import { findUserByEmail } from "../repository/user.js";
-import { generalResponse, trimFields } from "../util/commonFunctions.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+
+import { findUserByEmail } from "../repository/user.js";
+import {
+  findAndPaginate,
+  generalResponse,
+  trimFields,
+} from "../util/commonFunctions.js";
+import { userModel } from "../model/user/user.js";
+
 import {
   USER_ROLES,
   taxonomyCodeToProfessionalMapping,
 } from "../util/constant.js";
 import axios from "axios";
+import { searchCategoryFilterByName } from "../repository/post.js";
+import { resourceModel } from "../model/resource/resource.js";
+import { categoryFilterModal } from "../model/post/categoryTag.js";
 
 export const adminLogin = async (req, res) => {
   try {
@@ -62,11 +71,10 @@ export const adminLogin = async (req, res) => {
 
 export const fetchUsersByAdmin = async (req, res) => {
   try {
-    
     const searchKeyword = req.query.search;
-    let query = {}
-    if (searchKeyword && searchKeyword.trim() !== '') {
-      query = { username: { $regex: searchKeyword, $options: "i" } }
+    let query = {};
+    if (searchKeyword && searchKeyword.trim() !== "") {
+      query = { username: { $regex: searchKeyword, $options: "i" } };
     }
     const list = await userModel
       .find(query)
@@ -144,7 +152,8 @@ const npiLookupAdminReturnAddress = async (npi_number) => {
             });
             const state = primaryTaxonomy?.state;
             const zip_code = npiData.addresses[0]?.postal_code;
-            const npi_designation = taxonomyCodeToProfessionalMapping[primaryTaxonomy.code];
+            const npi_designation =
+              taxonomyCodeToProfessionalMapping[primaryTaxonomy.code];
             if (npi_designation)
               return { data: { address, state, zip_code, npi_designation } };
           }
@@ -221,6 +230,83 @@ export const updateUserByAdmin = async (req, res) => {
       400,
       "error",
       error ? error : "Something Went Wrong while Updating User on admin side.",
+      "",
+      false
+    );
+  }
+};
+
+export const fetchCategoryByAdmin = async (req, res) => {
+  try {
+    const { page, limit } = req.query;
+    const query = {
+      $and: [{ isDeleted: { $ne: true } }, { type: "category" }],
+    };
+    const searchResult = await findAndPaginate(
+      categoryFilterModal,
+      query,
+      page && Number(page),
+      limit && Number(limit)
+    );
+    return generalResponse(res, 200, "success", "", searchResult);
+  } catch (error) {
+    return generalResponse(res, 400, "error", error.message, error, false);
+  }
+};
+
+export const deleteResourceById = async (req, res) => {
+  try {
+    await resourceModel.findByIdAndUpdate(req.body.id, {
+      isDeleted: true,
+    });
+    return generalResponse(
+      res,
+      200,
+      "success",
+      "Resource Deleted Successfully!!",
+      null,
+      false
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      400,
+      "error",
+      { error: error ? error : "Something Went Wrong while Delete User." },
+      "",
+      false
+    );
+  }
+};
+
+export const updateResourceById = async (req, res) => {
+  try {
+    const id = req.body._id;
+    const resourceData = req.body;
+    resourceData.isResource == "resource"
+      ? (resourceData.isResource = true)
+      : (resourceData.isResource = false);
+    await resourceModel.findByIdAndUpdate(id, resourceData);
+    return generalResponse(res, 200, "success", "", "", false);
+  } catch (error) {
+    return generalResponse(res, 400, "error", error.message, error, false);
+  }
+};
+
+export const insertResource = async (req, res) => {
+  try {
+    const resourceData = req.body;
+    resourceData.isResource == "resource"
+      ? (resourceData.isResource = true)
+      : (resourceData.isResource = false);
+    await new resourceModel(resourceData).save();
+    return generalResponse(res, 200, "success", "", "", false);
+  } catch (error) {
+    return generalResponse(
+      res,
+      400,
+      "error",
+      error ? error : "Something Went Wrong while Inserting Resources.",
       "",
       false
     );

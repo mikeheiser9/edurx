@@ -14,7 +14,6 @@ interface userDetailsType {
 interface initialStateType {
   token: string | null;
   details: userDetailsType | null;
-  draftsCount: number;
 }
 const initialState: initialStateType = {
   token: null,
@@ -28,8 +27,8 @@ const initialState: initialStateType = {
     // npi_designation: null,
     verified_account: null,
     // joined: null,
-  },
-  draftsCount: 0,
+  }
+  
 };
 
 const user = createSlice({
@@ -48,9 +47,7 @@ const user = createSlice({
     removeToken: (state) => {
       state.token = null;
     },
-    setDraftCount: (states, payload: PayloadAction<number>) => {
-      states.draftsCount = payload.payload;
-    },
+   
   },
 });
 const { actions, reducer } = user;
@@ -59,9 +56,7 @@ export const {
   removeUserDetail,
   setToken,
   setUserDetail,
-  setDraftCount,
 } = actions;
 export const selectToken = (state: AppState) => state.user.token;
 export const selectUserDetail = (state: AppState) => state.user.details;
-export const selectDraftCount = (state: AppState) => state.user.draftsCount;
 export default reducer;

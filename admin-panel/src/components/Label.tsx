@@ -16,7 +16,7 @@ const Label = ({
 }) => {
   return (
     <label
-      className={`flex items-center gap-1 text-dark text-xs ${className} `}
+      className={`flex items-center !text-sm !text-Thirdgrey !font-semibold mb-2 ${className} `}
     >
       {title}
       {required && <span className="text-red-500 font-medium">*</span>}

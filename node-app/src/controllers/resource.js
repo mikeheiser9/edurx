@@ -13,25 +13,6 @@ class ResourceController {
     }
   }
 
-  async getResources(req, res) {
-    try {
-      const resources = await resourceModel
-        .find({ isDeleted: { $ne: true } })
-        .select("title link publisher isResource tags createdAt _id")
-        .populate("tags");
-      return generalResponse(res, 200, "success", "", resources, false);
-    } catch (error) {
-      return generalResponse(
-        res,
-        400,
-        "error",
-        "Something Went Wrong while Fetching Resources.",
-        "",
-        false
-      );
-    }
-  }
-
   async getReadingList(req, res) {
     try {
       const userId = req.params.userId;
@@ -90,30 +71,27 @@ class ResourceController {
       res.status(500).send(error.message);
     }
   }
-
-  async deleteResourceById(req, res) {
-    try {
-      await resourceModel.findByIdAndUpdate(req.body.id, {
-        isDeleted: true,
-      });
-      return generalResponse(
-        res,
-        200,
-        "success",
-        "Resource Deleted Successfully!!",
-        null,
-        false
-      );
-    } catch (error) {
-      return generalResponse(
-        res,
-        400,
-        "error",
-        { error: error ? error : "Something Went Wrong while Delete User." },
-        "",
-        false
-      );
-    }
-  }
 }
+
+export const getResources = async (req, res) => {
+  try {
+    const resources = await resourceModel
+      .find({ isDeleted: { $ne: true } })
+      .select("title link publisher isResource tags createdAt _id tags")
+      .populate({
+        path:"tags",
+        select:"-__v"
+      });
+    return generalResponse(res, 200, "success", "", resources, false);
+  } catch (error) {
+    return generalResponse(
+      res,
+      400,
+      "error",
+      "Something Went Wrong while Fetching Resources.",
+      "",
+      false
+    );
+  }
+};
 export default new ResourceController();

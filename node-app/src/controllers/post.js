@@ -75,6 +75,7 @@ const createPost = async (req, res) => {
 const searchPostMetaLabel = async (req, res) => {
   try {
     const { name, type, page, limit, forumType } = req.query;
+    console.log({data:req.query});
     const forum = [];
     if (!forumType || forumType == "All Forums") {
       const role = req.user.role;

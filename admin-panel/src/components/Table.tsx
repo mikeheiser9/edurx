@@ -43,6 +43,7 @@ const Table = (props: TableProps) => {
   ): React.CSSProperties => ({
     borderBottom: "2px solid black",
     borderTop: "2px solid black",
+    wordWrap: "break-word",
   });
 
   return (

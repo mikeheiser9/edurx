@@ -7,7 +7,6 @@ import { axiosGet } from "@/axios/config";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlusCircle, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { responseCodes, roleAccess } from "@/util/constant";
-import { Chip } from "@/components/chip";
 import { PostCard } from "./components/postCard";
 import InfiniteScroll from "@/components/infiniteScroll";
 import { PostModal } from "./components/postModal";
@@ -25,6 +24,7 @@ import {
 import { getAllowedForumAccessBasedOnRoleAndNpiDesignation } from "@/util/helpers";
 import { getUserDraftCount } from "@/service/user.service";
 import DraftModal from "./components/draftModal";
+import { Chip } from "@/components/chip";
 
 const forumTabs = ["Forum Feed", "Your Posts", "Following"];
 

@@ -69,11 +69,13 @@ const EditUserModal = ({
     first_name: stringPrefixJoiValidation
       .min(2)
       .required()
-      .matches(/^[a-zA-Z0-9]*$/, "Only alphanumeric characters are allowed"),
+      .matches(/^[a-zA-Z0-9]*$/, "Only alphanumeric characters are allowed")
+      .max(200),
     last_name: stringPrefixJoiValidation
       .min(2)
       .required()
-      .matches(/^[a-zA-Z0-9]*$/, "Only alphanumeric characters are allowed"),
+      .matches(/^[a-zA-Z0-9]*$/, "Only alphanumeric characters are allowed")
+      .max(200),
     email: stringPrefixJoiValidation.email().required(),
     npi_number:
       userData.role !== USER_ROLES.student.value
@@ -82,6 +84,7 @@ const EditUserModal = ({
     password: password,
     username: stringPrefixJoiValidation
       .min(3)
+      .max(20)
       .required()
       .matches(/^[a-zA-Z0-9@#_.\\/-]*$/, {
         message:
@@ -167,7 +170,7 @@ const EditUserModal = ({
                     type="submit"
                     variant="filled"
                     //   isLoading={isLoading}
-                    bg={`bg-[${disableForm ? "#81929E" : "#254661"}]`}
+                    bg={disableForm ? "bg-[#81929E]" : `bg-[#254661]`}
                     disabled={disableForm}
                     className={disableForm && "cursor-not-allowed"}
                     isLoading={isFormSubmitting}

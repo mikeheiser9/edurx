@@ -14,5 +14,9 @@ export const deleteUserById = (id: string) => {
 };
 
 export const updateUserById = (id: string, data: TypeUserData) => {
-  return axiosPut(`/admin/user?user_id=${id}`, data);
+  return axiosPut(`/admin/user`, data, {
+    params: {
+      user_id: id,
+    },
+  });
 };

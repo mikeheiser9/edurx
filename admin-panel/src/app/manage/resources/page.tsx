@@ -13,11 +13,13 @@ import {
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import Table from "@/components/Table";
 import {
+  addResource,
   deleteResourceById,
+  getCategories,
   getResources,
   updateResourceById,
 } from "@/service/resources.service";
-import { TypeResourceData } from "@/types/resource";
+import { TypeResourceData, TypeResourceTags } from "@/types/resource";
 import EditResourceModal from "./component/EditResourceModal";
 import { FormikErrors } from "formik";
 
@@ -30,6 +32,20 @@ const page = () => {
   const [listLoader, setListLoader] = useState(false);
   const [isFormDisable, setIsFormDisable] = useState(true);
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
+  const [categoryList, setCategoryList] = useState<
+    { _id: string; name: string }[]
+  >([]);
+  const [tags, setTags] = useState<string[]>([]);
+
+  const setUserTag = (record: TypeResourceData) => {
+    if (record && record.tags && record.tags.length > 0) {
+      setTags(
+        (record.tags as TypeResourceTags[]).map(
+          (tag: TypeResourceTags) => tag._id
+        )
+      );
+    }
+  };
 
   const columns = [
     {
@@ -54,7 +70,7 @@ const page = () => {
       title: "Created At",
       width: 200,
       render: (record: TypeResourceData) =>
-        `${convertUTCtoGMT(record.createdAt)}`,
+        `${convertUTCtoGMT(record.createdAt as string)}`,
     },
     {
       accessor: "",
@@ -66,12 +82,14 @@ const page = () => {
           <ImBin
             onClick={() => {
               setIsDeleteOpen(true);
+              setUserTag(records);
               setSelectedResource(records);
             }}
           />
           <FiEdit
             onClick={() => {
               setIsEditOpen(true);
+              setUserTag(records);
               setSelectedResource(records);
               setIsFormDisable(true);
             }}
@@ -83,11 +101,25 @@ const page = () => {
 
   const getResourcesList = async () => {
     setListLoader(true);
-    const res = await getResources();
-    console.log({ res });
+    const resourceRes = await getResources();
+    const categoriesRes = await getCategories({
+      name: "",
+      limit: 4,
+      page: 1,
+    });
 
-    if (res && res.data?.response_type === "success") {
-      setResourceList(res.data.data);
+    if (resourceRes && resourceRes.data?.response_type === "success") {
+      setResourceList(resourceRes.data.data);
+    }
+    if (categoriesRes && categoriesRes.data?.response_type === "success") {
+      const categoriesData = categoriesRes.data.data.records;
+      let categories: { _id: string; name: string }[] = [];
+      if (categoriesData.length > 0) {
+        categoriesData.map((category: any) =>
+          categories.push({ name: category.name, _id: category._id })
+        );
+      }
+      setCategoryList(categories);
     }
     setListLoader(false);
   };
@@ -103,26 +135,43 @@ const page = () => {
 
   const handleSubmit = async (
     values: TypeResourceData,
-    { setErrors }: { setErrors: (errors: FormikErrors<TypeResourceData>) => void }
+    {
+      setErrors,
+    }: { setErrors: (errors: FormikErrors<TypeResourceData>) => void }
   ) => {
-    console.log({values});
-    
-    // setIsFormSubmitting(true);
-    // if (selectedResource) {
-    //   const res = await updateResourceById(selectedResource._id, values as any);
-    //   if (res && res.data && res.data.response_type == "error") {
-    //     const { key, message }: { key: string; message: string } =
-    //       getFieldnameAndErrorMessageBasedOnErrorString(res.data.message) || {
-    //         key: "",
-    //         message: "",
-    //       };
-    //     setErrors({ [key]: message });
-    //   } else if (res && res.data && res.data.response_type == "success") {
-    //     getResourcesList();
-    //     setIsFormDisable(true);
-    //   }
-    // }
-    // setIsFormSubmitting(false);
+    try {
+      if (categoryList.length > 0 &&( values.tags.length == 0 || values.tags.length > 2)) {
+        setErrors({
+          tags: "Minimum of 1 or Maximum 2 Category can be selected",
+        });
+        return;
+      }
+      setIsFormSubmitting(true);
+      if (selectedResource) {
+        const res = await updateResourceById(selectedResource._id as string, {
+          ...values,
+          _id: selectedResource._id,
+        });
+        if (res && res.data && res.data.response_type == "error") {
+          const { key, message }: { key: string; message: string } =
+            getFieldnameAndErrorMessageBasedOnErrorString(res.data.message) || {
+              key: "",
+              message: "",
+            };
+          setErrors({ [key]: message });
+        } else if (res && res.data && res.data.response_type == "success") {
+          getResourcesList();
+          setIsFormDisable(true);
+        }
+      } else {
+        const res = await addResource(values);
+        if (res && res.data && res.data.response_type == "success") {
+          getResourcesList();
+          setIsEditOpen(false);
+        }
+      }
+    } catch (error) {}
+    setIsFormSubmitting(false);
   };
 
   useEffect(() => {
@@ -139,6 +188,12 @@ const page = () => {
           buttonLabel="Add New"
           dataSource={resourceList}
           isLoading={listLoader}
+          buttonClick={() => {
+            setSelectedResource(null);
+            setTags([]);
+            setIsEditOpen(true);
+            setIsFormDisable(true);
+          }}
         />
       </MantineProvider>
 
@@ -151,23 +206,26 @@ const page = () => {
         title={`Are You Sure You want to Delete this Article?`}
         onClose={() => setIsDeleteOpen(false)}
         onConfirm={() => {
-          handleDelete(selectedResource ? selectedResource._id : null);
+          handleDelete(
+            selectedResource ? (selectedResource._id as string) : null
+          );
           setIsDeleteOpen(false);
         }}
       />
 
       {/* EDIT MODAL */}
-      {selectedResource && (
-        <EditResourceModal
-          isOpen={isEditOpen}
-          onClose={() => setIsEditOpen(false)}
-          userData={selectedResource}
-          disableForm={isFormDisable}
-          onEdit={() => setIsFormDisable(false)}
-          handleSubmit={handleSubmit}
-          isFormSubmitting={isFormSubmitting}
-        />
-      )}
+      <EditResourceModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        userData={selectedResource}
+        disableForm={isFormDisable}
+        onEdit={() => setIsFormDisable(false)}
+        handleSubmit={handleSubmit}
+        isFormSubmitting={isFormSubmitting}
+        categoryList={categoryList}
+        tags={tags}
+        setTags={setTags}
+      />
     </div>
   );
 };

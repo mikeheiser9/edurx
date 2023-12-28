@@ -12,7 +12,7 @@ const resourceSchema = new Schema(
     },
   },
   {
-    timestamps: { createdAt: "addedAt" },
+    timestamps: { createdAt: "createdAt" },
     toJSON: { virtuals: true },
   }
 );
