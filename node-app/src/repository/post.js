@@ -403,6 +403,10 @@ const getPostById = async (postId, userId) => {
         match: { userId },
       },
       {
+        path: "userPostFollowers",
+        match: { userId },
+      },
+      {
         path: "reactions",
         select: ["reactionType", "targetType", "userId"],
         match: { userId },
@@ -473,7 +477,7 @@ const getPosts = async ({
   filters,
   role,
   npi_designation,
-  postStatus
+  postStatus,
 }) => {
   try {
     let forum = [];
@@ -498,7 +502,7 @@ const getPosts = async ({
       ...(categories ? { categories: { $in: categories } } : {}),
       ...(filters ? { filters: { $in: filters } } : {}),
       isDeleted: { $ne: true },
-      postStatus
+      postStatus,
     };
     const pipeline = [
       {

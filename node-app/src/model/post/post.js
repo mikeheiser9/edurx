@@ -143,10 +143,16 @@ postSchema.virtual("userAccessRequestCount", {
   count: true,
 });
 
-postSchema.virtual("votingInfo",{
-  ref:"pollPostVote",
-  localField:"_id",
-  foreignField:"postId",
-})
+postSchema.virtual("votingInfo", {
+  ref: "pollPostVote",
+  localField: "_id",
+  foreignField: "postId",
+});
+
+postSchema.virtual("userPostFollowers", {
+  ref: "userConnections",
+  localField: "_id",
+  foreignField: "postId",
+});
 
 export const postModal = model("posts", postSchema);
