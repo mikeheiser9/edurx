@@ -473,6 +473,7 @@ const getPosts = async ({
   filters,
   role,
   npi_designation,
+  postStatus
 }) => {
   try {
     let forum = [];
@@ -497,6 +498,7 @@ const getPosts = async ({
       ...(categories ? { categories: { $in: categories } } : {}),
       ...(filters ? { filters: { $in: filters } } : {}),
       isDeleted: { $ne: true },
+      postStatus
     };
     const pipeline = [
       {

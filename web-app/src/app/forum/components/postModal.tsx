@@ -56,7 +56,7 @@ const getIsVotingClosed = (closingDate: any): boolean => {
   const endDate = moment(closingDate, "YYYY-MM-DD");
 
   // Check if the current date is after the closing date
-  const votingClosed = today.isAfter(endDate, "day");
+  const votingClosed = today.isAfter(endDate);
 
   return votingClosed;
 };
@@ -105,6 +105,12 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
       }
     }
   };
+
+  useEffect(() => {
+    if (post) {
+      returnButtonWithAppropriateLabel();
+    }
+  }, [post]);
 
   const getPostById = async () => {
     await axiosGet(`/post/${postId}`)
@@ -215,7 +221,10 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
           <span>|</span>
           <FontAwesomeIcon icon={faNewspaper} />
         </span>{" "}
-        <span className="font-body text-[16px]">{post?.title}</span>
+        <span className="font-body text-[16px]">{`${post?.title?.substring(
+          0,
+          26
+        )} ${post?.title && post?.title?.length > 26 && "..."}`}</span>
         <span>| </span>
         <span className="font-body font-semibold">
           {post?.forumType
@@ -502,7 +511,12 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
                                 key={option}
                                 label={
                                   <span className="p-4 font-medium flex justify-center items-center gap-3">
-                                    <b>{getPercentageForOption(option)}%</b>
+                                    <b>
+                                      {Math.round(
+                                        getPercentageForOption(option)
+                                      )}
+                                      %
+                                    </b>
                                     {option}
                                     {userChoosenOption?.choosenOption ===
                                       option && (
@@ -532,10 +546,16 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
                           <div>
                             <span>{post?.votingInfo?.length} votes - </span>
                             <span>
-                              {moment(post?.publishedOn)
-                                .add("days", Number(post?.votingLength))
-                                .diff(moment(), "days")}{" "}
-                              days left
+                              {moment(post.publishedOn).add(
+                                "day",
+                                Number(post?.votingLength)
+                              ) < moment()
+                                ? "final Results"
+                                : `${
+                                    moment(post?.publishedOn)
+                                      .add("day", Number(post?.votingLength))
+                                      .diff(moment(), "day") + 1
+                                  } days left`}
                             </span>
                           </div>
                         </div>

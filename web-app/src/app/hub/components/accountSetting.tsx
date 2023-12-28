@@ -136,8 +136,8 @@ export const AccountSetting = ({ accountSettingModal, userData }: Props) => {
   return (
     <Modal
       headerTitle={`Account Settings | ${getFullName(
-        userData.first_name,
-        userData.last_name
+        userData?.first_name,
+        userData?.last_name
       )}`}
       visible={accountSettingModal.isOpen}
       onClose={accountSettingModal.closeModal}

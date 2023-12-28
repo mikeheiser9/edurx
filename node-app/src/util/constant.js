@@ -83,11 +83,11 @@ export const userValidations = {
   banner_img: validateField.stringPrefixJoiValidation.required(),
   profile_img: validateField.stringPrefixJoiValidation.required(),
   socials: joi.object({
-    x: validateField.stringPrefixJoiValidation.allow(""),
-    linkedin: validateField.stringPrefixJoiValidation.allow(""),
-    instagram: validateField.stringPrefixJoiValidation.allow(""),
-    facebook: validateField.stringPrefixJoiValidation.allow(""),
-    website: validateField.stringPrefixJoiValidation.allow(""),
+    x: joi.string().regex(/(?:http:\/\/)?(?:www\.)?twitter\.com\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[\w\-]*\/)*([\w\-]*)/).message("Invalid Twitter URL").allow(""),
+    linkedin:joi.string().regex(/^(http(s)?:\/\/)?([\w]+\.)?linkedin\.com\/(pub|in|profile)\/([-a-zA-Z0-9]+)\/*/).message("Invalid LinkedIn URL").allow(""),
+    instagram: joi.string().regex(/(?:(?:http|https):\/\/)?(?:www\.)?(?:instagram\.com|instagr\.am)\/([A-Za-z0-9-._]+)/i).message("Invalid Instagram URL").allow(""),
+    facebook: joi.string().regex(/(?:(?:http|https):\/\/)?(?:www\.)?facebook\.com\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[?\w\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\w\-]*)?/i).message("Invalid Facebook URL").allow(""),
+    website: joi.string().regex(/^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/i).message("Invalid Website URL").allow(""),
   }),
   contact_email: validateField.email.allow(""),
   educations: joi

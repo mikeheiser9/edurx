@@ -18,7 +18,7 @@ import adminRoutes from "./routes/adminRoutes.js"
 const app=express();
 const PORT=process.env.PORT;
 app.use(cors({
-    origin:process.env.FRONTEND_SERVER_URL.toString()
+    origin:[process.env.FRONTEND_SERVER_URL.toString(),process.env.ADMIN_PANEL_URL.toString()]
 }))
 sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 app.use(express.json());

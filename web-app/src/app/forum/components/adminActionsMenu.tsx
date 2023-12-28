@@ -11,6 +11,7 @@ interface Props {
   onDeletePost?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onFlagPost?: (value: string) => void;
   currentFlag?: PostFlags | undefined | null;
+  postFlag?: PostFlags | null | undefined
 }
 
 interface TemplateProps extends Props {
@@ -87,6 +88,15 @@ export const AdminActionsMenu = ({
                   {flag}
                 </span>
               ))}
+              <strong
+                className="text-red-500 px-1 cursor-pointer"
+                onClick={() => {
+                  setCurrentStep(3);
+                  setSelectedFlag("");
+                }}
+              >
+                Remove Flag
+              </strong>
             </div>
           </Template>
         ) : (

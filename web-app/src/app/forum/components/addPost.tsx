@@ -297,9 +297,9 @@ export const AddPost = ({
                   }
                   className={`${
                     type === "categories"
-                      ? "bg-transparent border border-eduLightBlue"
+                      ? "bg-transparent border border-eduLightBlue "
                       : "!bg-eduDarkGray"
-                  }  text-xs px-2 leading-6 rounded-md`}
+                  }  text-xs px-2 leading-6 rounded-md capitalize`}
                   onSelect={() => onChipSelect(type, item)}
                   onClear={() => onChipeDelete(type, item)}
                   isSelected={selectedList?.[type]?.some(
@@ -817,7 +817,7 @@ export const AddPost = ({
                   actions={actions}
                   values={values}
                 />
-                {isLoading?.filter &&
+                {!isLoading?.filter &&
                   currentPage?.filter?.totalRecords >
                     filterCategoryList?.filters?.length && (
                     <LoadMore

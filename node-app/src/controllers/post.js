@@ -49,9 +49,10 @@ import {
 
 const createPost = async (req, res) => {
   try {
+    const { postStatus } = req.body;
     const post = await createNewPost(req.body);
     const followers = await findFollowerById(req.user._id);
-    if (followers && followers.length > 0) {
+    if (followers && followers.length > 0 && postStatus === "published") {
       const notificationReceiverUserIds = followers.map((follower) => {
         return follower.userId;
       });
@@ -296,6 +297,7 @@ const getAllPosts = async (req, res) => {
         filterList.map((filter) => new Types.ObjectId(filter)),
       role: req.user.role,
       npi_designation: req.user.npi_designation,
+      postStatus:"published"
     });
     return generalResponse(res, 200, "OK", "posts fetched successfully", posts);
   } catch (error) {
@@ -628,6 +630,11 @@ const updatePostByUser = async (req, res) => {
       _id: req.params.postId,
       isDeleted: false,
     };
+    const currentUserInfor=await findPostById(req.params.postId)
+    if(postStatus==="published" &&  currentUserInfor.postStatus=="draft")
+    {
+      setData.publishedOn=new Date();
+    }
     await updatePostByCondition(condition, setData);
     return generalResponse(
       res,
@@ -697,7 +704,6 @@ const pollVote = async (req, res) => {
       };
     }
 
-
     if (
       moment().utc().format("DD MM YYYY") >
       moment(postInfo[0].publishedOn)
@@ -707,7 +713,7 @@ const pollVote = async (req, res) => {
     ) {
       throw { message: "voting period is closed" };
     }
-    let customeError="Vote cast successful";
+    let customeError = "Vote cast successful";
     if (!postInfo[0].userVotedDetail?.length) {
       await insertPollVote({
         userId: req.user._id,
@@ -715,7 +721,7 @@ const pollVote = async (req, res) => {
         choosenOption: option,
       });
     } else if (postInfo[0].userVotedDetail[0].choosenOption === option) {
-      customeError="Your vote was removed"
+      customeError = "Your vote was removed";
       await deleteVoteById(postInfo[0].userVotedDetail[0]._id);
     } else {
       const setData = {

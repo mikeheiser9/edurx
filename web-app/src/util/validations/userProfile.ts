@@ -27,11 +27,11 @@ const validationSchema: Yup.AnyObject = {
     personal_bio: Yup.string().max(1000, "Can't exceed 1000 characters"),
     username: Yup.string().max(28, "Can't exceed 28 characters"),
     socials: Yup.object({
-      instagram: Yup.string().max(100, "Can't exceed 100 characters"),
-      linkedin: Yup.string().max(100, "Can't exceed 100 characters"),
-      facebook: Yup.string().max(100, "Can't exceed 100 characters"),
-      x: Yup.string().max(100, "Can't exceed 100 characters"),
-      website:Yup.string().matches(/^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,'URL is not valid' )
+      instagram: Yup.string().matches(/(?:(?:http|https):\/\/)?(?:www\.)?(?:instagram\.com|instagr\.am)\/([A-Za-z0-9-._]+)/i,'Invalid Instagram URL'),
+      linkedin: Yup.string().matches(/^(http(s)?:\/\/)?([\w]+\.)?linkedin\.com\/(pub|in|profile)\/([-a-zA-Z0-9]+)\/*/gm,'Invalid Linkedin URL'),
+      facebook: Yup.string().matches(/(?:(?:http|https):\/\/)?(?:www\.)?facebook\.com\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[?\w\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\w\-]*)?/i,'Invalid Facebook URL'),
+      x: Yup.string().matches(/(?:http:\/\/)?(?:www\.)?twitter\.com\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[\w\-]*\/)*([\w\-]*)/,"Invalid Twitter URL"),
+      website:Yup.string().matches(/^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,'Invalid Website URL' )
     }),
   }),
 

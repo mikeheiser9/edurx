@@ -12,13 +12,15 @@ interface Props {
     resource: ResourceInfo;
     userId: UserId;
     isSaved: boolean;
+    isResource:boolean
 }
 
 export const ResourceCard = (props: Props) => {
     const {
         resource,
         userId,
-        isSaved
+        isSaved,
+        isResource
     } = props;
 
 const [saved, setSaved] = useState(isSaved);
@@ -58,7 +60,7 @@ const [saved, setSaved] = useState(isSaved);
                     <span className="mx-[10px] text-eduDarkBlue text-[12px]"> | </span> 
                     <span className="text-eduDarkBlue text-[12px]">
                         {
-                            resource.isResource ? 'Resource Article' : 'News'
+                            isResource ? 'Resource Article' : 'News'
                         }
                     </span>
                 </div>

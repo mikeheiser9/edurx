@@ -32,8 +32,8 @@ export const DummyPostCard = (props: Props) => {
             <FontAwesomeIcon icon={faFlag} />
           </span>
           <span className="text-white text-sm font-semibold flex-1">
-            This post has been flagged for [
-            <strong className="text-red-500 px-1">{props?.post?.flag}</strong>],
+            This post has been flagged for 
+            <strong className="text-red-500 px-1">{props?.post?.flag}</strong>,
             however you may still view the forum
           </span>
           <div className="flex gap-2">

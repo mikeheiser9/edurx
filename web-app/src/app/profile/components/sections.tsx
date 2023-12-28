@@ -31,6 +31,14 @@ const labelProps = {
 };
 
 const About = (): React.JSX.Element => {
+  const socialMediaPlaceHolder={
+    linkedin:"https://linkedin.com/in/${username}",
+    instagram:"https://instagram.com/${username}",
+    x:"https://twitter.com/${username}",
+    facebook:"https://facebook.com/username-1234",
+    website:"https://example.com"
+  }
+
   return (
     <React.Fragment>
       <TextArea
@@ -55,9 +63,9 @@ const About = (): React.JSX.Element => {
         maxLength={80}
       />
       <div className="mt-6">
-        <div className="text-sm mt-2 grid grid-cols-2 gap-x-5 gap-y-5">
+        <div className="text-sm mt-2 grid grid-cols-[5%,1fr] gap-x-5 gap-y-5">
           {Object.keys(socialMediaIcons).map((socialMedia: string) => (
-            <div className="flex gap-1 items-center" key={socialMedia}>
+            <>
               <span className="!bg-eduYellow flex justify-center rounded-full h-9 w-9">
                 <Image
                   src={
@@ -70,17 +78,15 @@ const About = (): React.JSX.Element => {
                 />
               </span>
               <InputField
-                className="flex-1"
+                className="flex"
                 name={`socials.${socialMedia}`}
-                placeholder={`${
-                  socialMedia == "website" ? "URL" : "username"
-                } `}
-                maxLength={30}
+                placeholder={(socialMediaPlaceHolder as any)?.[socialMedia]}
+                maxLength={100}
                 onKeyDown={(event) => {
                   if (event.code === "Space") event.preventDefault();
                 }}
               />
-            </div>
+            </>
           ))}
         </div>
       </div>

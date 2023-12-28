@@ -156,14 +156,15 @@ const BasicInfo = ({
               {(userData.Collaboration ||
                 userData.Mentorship ||
                 userData.Research) && (
-                  <span className="relative right-[71px] text-eduBlack capitalize font-headers text-[18px] font-[600]">
-                    Available For :{" "}
-                  </span>
-                )}
+                <span className="relative right-[71px] text-eduBlack capitalize font-headers text-[18px] font-[600]">
+                  Available For :{" "}
+                </span>
+              )}
             </div>
+            <div className="flex">
               <div className="flex gap-2">
-                <div>
-                  {userData?.socials && Object.keys(userData?.socials)?.map((item: string) => {
+                {userData?.socials &&
+                  Object.keys(userData?.socials)?.map((item: string) => {
                     if (
                       userData?.socials?.[item as keyof socials]?.length &&
                       socialMediaIcons?.[item as keyof socials]
@@ -171,57 +172,56 @@ const BasicInfo = ({
                       return (
                         <SocialIcon
                           value={item as keyof socials}
-                          href={`https://${item}.com/${userData?.socials?.[item as keyof socials]
-                            }`}
+                          href={userData?.socials?.[item as keyof socials] || ""}
                           key={item}
                         />
                       );
                     }
                   })}
-                  {userData?.contact_email && (
-                    <SocialIcon
-                      value="email"
-                      href={`mailto:${userData?.contact_email}`}
-                    />
+                {userData?.contact_email && (
+                  <SocialIcon
+                    value="email"
+                    href={`mailto:${userData?.contact_email}`}
+                  />
+                )}
+              </div>
+              {(userData.Collaboration ||
+                userData.Mentorship ||
+                userData.Research) && (
+                <div className="relative left-[50%] flex gap-x-3 top-3">
+                  {userData.Collaboration && (
+                    <span className="bg-eduDarkGray text-eduLightBlue px-2 py-1 text-sm">
+                      Collaboration
+                    </span>
+                  )}
+                  {userData.Mentorship && (
+                    <span className="bg-eduDarkGray text-eduLightBlue px-2 py-1 text-sm">
+                      Mentorship
+                    </span>
+                  )}
+                  {userData.Research && (
+                    <span className="bg-eduDarkGray text-eduLightBlue px-2 py-1 text-sm">
+                      Research
+                    </span>
                   )}
                 </div>
-                {(userData.Collaboration ||
-                  userData.Mentorship ||
-                  userData.Research) && (
-                    <div className="relative left-[68%] flex gap-x-3 top-3">
-                      {userData.Collaboration && (
-                        <span className="bg-eduDarkGray text-eduLightBlue px-2 py-1 text-sm">
-                          Collaboration
-                        </span>
-                      )}
-                      {userData.Mentorship && (
-                        <span className="bg-eduDarkGray text-eduLightBlue px-2 py-1 text-sm">
-                          Mentorship
-                        </span>
-                      )}
-                      {userData.Research && (
-                        <span className="bg-eduDarkGray text-eduLightBlue px-2 py-1 text-sm">
-                          Research
-                        </span>
-                      )}
-                    </div>
-                  )}
-              </div>
+              )}
+            </div>
           </div>
         </div>
         {buttonJsx
           ? buttonJsx
           : openModal && (
-            <div className="justify-self-end self-start">
-              <button
-                type="button"
-                className="border rounded-[10px] py-2 px-4 font-body text-[16px] w-[125px] text-eduBlack border-eduBlack hover:text-white hover:bg-eduBlack transition-colors ease-in-out duration-300"
-                onClick={openModal}
-              >
-                Edit Profile
-              </button>
-            </div>
-          )}
+              <div className="justify-self-end self-start">
+                <button
+                  type="button"
+                  className="border rounded-[10px] py-2 px-4 font-body text-[16px] w-[125px] text-eduBlack border-eduBlack hover:text-white hover:bg-eduBlack transition-colors ease-in-out duration-300"
+                  onClick={openModal}
+                >
+                  Edit Profile
+                </button>
+              </div>
+            )}
       </div>
     </div>
   </div>
@@ -246,19 +246,22 @@ const About = ({
         {openModal && <EditIcon onClick={openModal} />}
       </div>
       <div
-        className={` overflow-hidden flex-auto relative rounded-lg flex items-center ${!showMore ? "h-[150px]" : "h-[300px] overflow-y-auto"
-          }`}
+        className={` overflow-hidden flex-auto relative rounded-lg flex items-center ${
+          !showMore ? "h-[150px]" : "h-[300px] overflow-y-auto"
+        }`}
       >
         <div className="flex flex-col gap-2">
           <p className="text-eduBlack/60 text-[16px] font-body">
-            {(personal_bio && personal_bio.length > 0) ? showMore
-              ? personal_bio
-              : personal_bio?.trim().substring(0, 470) + "..."
+            {personal_bio && personal_bio.length > 0
+              ? showMore
+                ? personal_bio
+                : personal_bio?.trim().substring(0, 470) + "..."
               : ""}
           </p>
         </div>
-        {!personal_bio && <p className="text-eduBlack/60 pl-[34%]">{emptyBioMessage}</p>}
-
+        {!personal_bio && (
+          <p className="text-eduBlack/60 pl-[34%]">{emptyBioMessage}</p>
+        )}
       </div>
       {personal_bio && personal_bio.length > 0 && (
         <span
@@ -268,7 +271,6 @@ const About = ({
           {showMore ? "Read Less" : "Read More"}
         </span>
       )}
-
     </div>
   );
 };
@@ -334,7 +336,9 @@ const PostList = ({
           ))}
         </div>
       ) : (
-        <span className="text-eduBlack text-eduBlack/60 text-[16px] font-body flex justify-center items-center">{noDataMessage}</span>
+        <span className="text-eduBlack text-eduBlack/60 text-[16px] font-body flex justify-center items-center">
+          {noDataMessage}
+        </span>
       )}
     </>
   );
@@ -346,14 +350,14 @@ const CommentList = ({
   noDataMessage,
   setSelectedPostId,
   showMore,
-  profileModal
+  profileModal,
 }: {
   comments: Comment[] | undefined;
   profileImage?: string | undefined;
   noDataMessage: string;
   setSelectedPostId: Dispatch<SetStateAction<string>>;
   showMore: boolean;
-  profileModal: UseModalType | undefined
+  profileModal: UseModalType | undefined;
 }): React.ReactElement => {
   let commentsToBeRendered: Comment[] | undefined = [];
   if (!showMore && comments && comments.length > 0) {
@@ -394,7 +398,9 @@ const CommentList = ({
           ))}
         </div>
       ) : (
-        <span className="text-eduBlack text-eduBlack/60 text-[16px] font-body flex justify-center items-center">{noDataMessage}</span>
+        <span className="text-eduBlack text-eduBlack/60 text-[16px] font-body flex justify-center items-center">
+          {noDataMessage}
+        </span>
       )}
     </>
   );
@@ -422,8 +428,9 @@ const Activity = ({
     <>
       <div className="bg-eduLightGray py-2">
         <div
-          className={`bg-eduLightGray flex-auto relative rounded-lg lg:min-h-[12rem] overflow-hidden ${!showMore ? "h-[150x]" : "h-[300px] overflow-y-auto"
-            }`}
+          className={`bg-eduLightGray flex-auto relative rounded-lg lg:min-h-[12rem] overflow-hidden ${
+            !showMore ? "h-[150x]" : "h-[300px] overflow-y-auto"
+          }`}
         >
           <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-col gap-2">
             <span className="text-eduBlack text-[24px] font-semibold font-headers tracking-wide">
@@ -462,7 +469,8 @@ const Activity = ({
           </div>
         </div>
 
-        {((posts && posts?.length > 2) || (comments && comments?.length > 2)) && (
+        {((posts && posts?.length > 2) ||
+          (comments && comments?.length > 2)) && (
           <span
             className=" flex justify-center items-center text-center font-[700] opacity-[50%] text-[0.8em] cursor-pointer"
             onClick={() => setShowMore(!showMore)}
@@ -471,7 +479,6 @@ const Activity = ({
           </span>
         )}
       </div>
-
     </>
   );
 };
@@ -494,7 +501,9 @@ const Education = ({
   }
   return (
     <div className="bg-eduLightGray py-2">
-      <div className={`overflow-hidden flex-auto relative rounded-lg lg:min-h-[12rem] text-eduBlack `}>
+      <div
+        className={`overflow-hidden flex-auto relative rounded-lg lg:min-h-[12rem] text-eduBlack `}
+      >
         <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <span className="text-eduBlack text-[24px] font-headers font-semibold tracking-wide">
@@ -502,8 +511,15 @@ const Education = ({
             </span>
             {onEditClick && <EditIcon onClick={onEditClick} />}
           </div>
-          <div className={`flex-auto flex flex-col gap-2 pr-6 lg:min-h-[12rem] ${!showMore ? "h-auto justify-center" : "h-[300px] overflow-y-auto justify-start"}`}>
-            {educationsToBeRendered && educationsToBeRendered?.length > 0 && (
+          <div
+            className={`flex-auto flex flex-col gap-2 pr-6 lg:min-h-[12rem] ${
+              !showMore
+                ? "h-auto justify-center"
+                : "h-[300px] overflow-y-auto justify-start"
+            }`}
+          >
+            {educationsToBeRendered &&
+              educationsToBeRendered?.length > 0 &&
               educationsToBeRendered?.map((value: education) => (
                 <div className="flex gap-4 " key={value?._id || Date.now()}>
                   <div className="flex flex-1 flex-col text-eduBlack gap-1">
@@ -524,9 +540,12 @@ const Education = ({
                     </div>
                   </div>
                 </div>
-              ))
+              ))}
+            {educationsToBeRendered?.length == 0 && (
+              <span className="text-eduBlack/60 text-[16px] font-body flex items-center justify-center ">
+                {noEducationMessage}
+              </span>
             )}
-            {educationsToBeRendered?.length == 0 && <span className="text-eduBlack/60 text-[16px] font-body flex items-center justify-center ">{noEducationMessage}</span>}
           </div>
         </div>
       </div>
@@ -549,27 +568,32 @@ const CertificateAndLicense = ({
   noDataMessage,
   onEditClick,
   isLoading,
-  onLoadMore
+  onLoadMore,
 }: {
   type: "licenses" | "certificates";
   userData: UserData;
   lastDocRef: LastDocRefType;
   noDataMessage: string;
-  onEditClick: (() => void) | undefined
-  isLoading: boolean
-  onLoadMore: () => Promise<void>
+  onEditClick: (() => void) | undefined;
+  isLoading: boolean;
+  onLoadMore: () => Promise<void>;
 }) => {
-  const [showMore, setShowMore] = useState(false)
+  const [showMore, setShowMore] = useState(false);
   let documentToBeRendered: userDocs[] | undefined = [];
   if (!showMore && userData?.[type] && userData?.[type].length > 0) {
     documentToBeRendered = userData?.[type].slice(0, 2);
   } else {
     documentToBeRendered = userData?.[type];
   }
-  const countCompare = type == "certificates" ? userData.certificatesCount : userData.licensesCount
+  const countCompare =
+    type == "certificates"
+      ? userData.certificatesCount
+      : userData.licensesCount;
   return (
     <div className="bg-eduLightGray py-2">
-      <div className={` overflow-hidden flex-auto relative rounded-lg text-eduBlack`}>
+      <div
+        className={` overflow-hidden flex-auto relative rounded-lg text-eduBlack`}
+      >
         <div className="p-4 pl-6 xl:pl-16 lg:pl-12 md:pl-10 sm:pl-8 flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <span className="text-eduBlack text-[24px] font-headers font-semibold tracking-wide capitalize">
@@ -577,8 +601,14 @@ const CertificateAndLicense = ({
             </span>
             {onEditClick && <EditIcon onClick={onEditClick} />}
           </div>
-          <div className={`flex-auto flex flex-col gap-2 pr-6 lg:min-h-[12rem] ${!showMore ? "h-auto justify-center" : "h-[300px] overflow-y-auto justify-start"}`}>
-            {documentToBeRendered?.length > 0 && (
+          <div
+            className={`flex-auto flex flex-col gap-2 pr-6 lg:min-h-[12rem] ${
+              !showMore
+                ? "h-auto justify-center"
+                : "h-[300px] overflow-y-auto justify-start"
+            }`}
+          >
+            {documentToBeRendered?.length > 0 &&
               documentToBeRendered?.map((value: userDocs) => (
                 <div className="flex gap-4 " key={value?._id || Date.now()}>
                   <div className="flex flex-1 flex-col text-eduBlack gap-1">
@@ -590,7 +620,8 @@ const CertificateAndLicense = ({
                     </span>
                     {value?.issue_date && (
                       <span className="text-eduBlack/60 text-[12px] capitalize font-body">
-                        Issued {moment(value?.issue_date).format("DD/MM/YYYY") || "-"}
+                        Issued{" "}
+                        {moment(value?.issue_date).format("DD/MM/YYYY") || "-"}
                       </span>
                     )}
                     {(value?.doc_id?.length as number) > 0 && (
@@ -600,31 +631,30 @@ const CertificateAndLicense = ({
                     )}
                   </div>
                 </div>
-              ))
+              ))}
+            {documentToBeRendered?.length == 0 && (
+              <span className="text-eduBlack/60 text-[16px] font-body flex items-center justify-center ">
+                {noDataMessage?.replaceAll("{type}", type)}
+              </span>
             )}
-            {documentToBeRendered?.length == 0 && <span className="text-eduBlack/60 text-[16px] font-body flex items-center justify-center ">{noDataMessage?.replaceAll("{type}", type)}</span>}
           </div>
         </div>
       </div>
       {showMore && userData?.[type]?.length < countCompare && (
-        <LoadMore
-          isLoading={isLoading}
-          onClick={onLoadMore}
-        />
+        <LoadMore isLoading={isLoading} onClick={onLoadMore} />
       )}
       {documentToBeRendered?.length > 0 && (
         <span
           className="font-[700] opacity-[50%] text-[0.8em] cursor-pointer flex justify-center items-center"
           onClick={() => {
-            setShowMore(!showMore)
+            setShowMore(!showMore);
           }}
         >
           {showMore ? "View Less" : "View More"}
         </span>
       )}
     </div>
-
-  )
+  );
 };
 
 const DocList = ({
@@ -770,10 +800,11 @@ const ModalHeader = ({
     <ul className="flex gap-2 justify-center px-8 py-4 font-body">
       {Object.keys(profileSections).map((section: string, index: number) => (
         <li
-          className={`flex items-center font-body font-normal text-[14px] ${currentSection === section
-            ? "text-primary"
-            : "text-eduBlack cursor-pointer"
-            }`}
+          className={`flex items-center font-body font-normal text-[14px] ${
+            currentSection === section
+              ? "text-primary"
+              : "text-eduBlack cursor-pointer"
+          }`}
           key={section}
           onClick={() => {
             setCurrentSection(section as keyof profileSections);
@@ -904,5 +935,5 @@ export {
   Education,
   ModalHeader,
   ModalFooter,
-  CertificateAndLicense
+  CertificateAndLicense,
 };

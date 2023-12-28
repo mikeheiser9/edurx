@@ -169,7 +169,7 @@ export const PostCard = (props: Props) => {
             {post?.postType}
           </span>
           <span className="text-[22px] text-eduBlack font-headers flex gap-2 items-center">
-            <span>{post.title}</span>
+            <span>{`${post.title?.substring(0,120)} ${post.title && post.title?.length>120 ? '...' :""}`}</span>
             {post?.isPrivate && (
               <span className="w-[20px] h-[20px] rounded-lg bg-eduYellow flex justify-center items-center">
                 <FontAwesomeIcon
