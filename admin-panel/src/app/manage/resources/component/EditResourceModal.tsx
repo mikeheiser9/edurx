@@ -7,7 +7,7 @@ import RadioBox from "@/components/RadioBox";
 import { TypeResourceData } from "@/types/resource";
 import { RESOURCE_TYPE, validateField } from "@/util/constant";
 import { ErrorMessage, Form, Formik } from "formik";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 
 const { stringPrefixJoiValidation, password } = validateField;
@@ -24,6 +24,8 @@ const EditResourceModal = ({
   categoryList,
   tags,
   setTags,
+  loadMoreButton,
+  loadMoreLoader
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -36,6 +38,8 @@ const EditResourceModal = ({
   categoryList: { _id: string; name: string }[];
   tags: string[];
   setTags: React.Dispatch<React.SetStateAction<string[]>>;
+  loadMoreButton?:() => void;
+  loadMoreLoader?:boolean
 }) => {
   const initialValues = {
     title: userData ? userData.title : "",
@@ -50,10 +54,11 @@ const EditResourceModal = ({
 
   const validationSchema: Yup.AnyObject = Yup.object({
     title: stringPrefixJoiValidation.required().min(2),
-    link: stringPrefixJoiValidation.required().min(2),
+    link: stringPrefixJoiValidation.required().min(2).url("url must be valid"),
     publisher: stringPrefixJoiValidation.required().min(2),
     isResource: stringPrefixJoiValidation.required(),
   });
+
 
   const onChipSelect = (id: string) => {
     setTags((tags) => [...tags, id]);
@@ -114,20 +119,40 @@ const EditResourceModal = ({
               />
               <Input name="link" label="Resource URL" disabled={disableForm} />
               <Label title={"Category"} />
-              <div className="flex gap-5 flex-wrap">
-                {categoryList.length > 0
-                  ? categoryList.map((category, i) => (
-                      <>
-                        <Chip
-                          label={category.name}
-                          onSelect={() => onChipSelect(category._id)}
-                          onClear={() => onChipeDelete(category._id)}
-                          isSelected={tags.includes(category._id)}
-                          disabled={disableForm}
+              <div className="">
+                {categoryList.length > 0 ? (
+                  <div>
+                    <div className="grid gap-5 w-full grid-cols-4">
+                      {categoryList.map((category, i) => (
+                        <>
+                          <Chip
+                            label={category.name}
+                            onSelect={() => onChipSelect(category._id)}
+                            onClear={() => onChipeDelete(category._id)}
+                            isSelected={tags.includes(category._id)}
+                            disabled={disableForm}
+                          />
+                        </>
+                      ))}
+                    </div>
+                    {!disableForm &&
+                      (
+                        <Button
+                          onClick={loadMoreButton}
+                          type="button"
+                          variant="filled"
+                          title={"Load More"}
+                          bg="bg-white"
+                          text="dark"
+                          className={"my-5 rounded-full"}
+                          hoverBg="bg-black"
+                          isLoading={loadMoreLoader}
                         />
-                      </>
-                    ))
-                  : "No Categories Found"}
+                      )}
+                  </div>
+                ) : (
+                  "No Categories Found"
+                )}
 
                 <ErrorMessage name={"tags"}>
                   {(msg) => (
@@ -138,19 +163,25 @@ const EditResourceModal = ({
                 </ErrorMessage>
               </div>
               <div className="flex justify-center items-center">
-                <div className={`grid grid-cols-2 gap-8`}>
-                  <Button
-                    onClick={onEdit}
-                    title={"Edit Info"}
-                    type="button"
-                    variant="outline"
-                    bg="transparent"
-                    hoverBg="dark"
-                    text="white"
-                    hoverText="white"
-                    border="dark"
-                    hoverBorder="dark"
-                  />
+                <div
+                  className={`grid ${
+                    userData ? "grid-cols-2" : "grid-cols-1"
+                  } gap-8 my-2`}
+                >
+                  {userData && (
+                    <Button
+                      onClick={onEdit}
+                      title={"Edit Info"}
+                      type="button"
+                      variant="outline"
+                      bg="transparent"
+                      hoverBg="dark"
+                      text="white"
+                      hoverText="white"
+                      border="dark"
+                      hoverBorder="dark"
+                    />
+                  )}
                   <Button
                     onClick={() => setFieldValue("tags", tags)}
                     title={"Save Changes"}

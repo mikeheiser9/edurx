@@ -14,7 +14,6 @@ import {
   taxonomyCodeToProfessionalMapping,
 } from "../util/constant.js";
 import axios from "axios";
-import { searchCategoryFilterByName } from "../repository/post.js";
 import { resourceModel } from "../model/resource/resource.js";
 import { categoryFilterModal } from "../model/post/categoryTag.js";
 
@@ -44,9 +43,9 @@ export const adminLogin = async (req, res) => {
             res,
             200,
             "success",
-            null,
+            "Login Successful!",
             { token, details: user },
-            false
+            true
           );
         } else {
           throw "Incorrect Email/Password!!";
@@ -74,8 +73,19 @@ export const fetchUsersByAdmin = async (req, res) => {
     const searchKeyword = req.query.search;
     let query = {};
     if (searchKeyword && searchKeyword.trim() !== "") {
-      query = { username: { $regex: searchKeyword, $options: "i" } };
+      const regex = new RegExp(searchKeyword, "i");
+      query = {
+        $or: [
+          { username: regex },
+          { first_name: regex },
+          { last_name: regex },
+          {
+            $where: `/.*${searchKeyword}.*/i.test(this.first_name + ' ' + this.last_name)`,
+          },
+        ],
+      };
     }
+
     const list = await userModel
       .find(query)
       .select(
@@ -88,7 +98,7 @@ export const fetchUsersByAdmin = async (req, res) => {
       res,
       400,
       "error",
-      { error: error ? error : "Something Went Wrong while Login." },
+      { error: error ? error : "Something Went Wrong while Fetching User." },
       "",
       false
     );
@@ -107,7 +117,7 @@ export const deleteUserByAdmin = async (req, res) => {
         "success",
         "User Account Deleted Successfully!!",
         null,
-        false
+        true
       );
     } else {
       throw "Unable to Delete User Account!";
@@ -117,9 +127,9 @@ export const deleteUserByAdmin = async (req, res) => {
       res,
       400,
       "error",
-      { error: error ? error : "Something Went Wrong while Delete User." },
+      "Something Went Wrong while Delete User.",
       "",
-      false
+      true
     );
   }
 };
@@ -223,15 +233,22 @@ export const updateUserByAdmin = async (req, res) => {
     } else {
       throw "userNotFound";
     }
-    return generalResponse(res, 200, "success", "", "", false);
+    return generalResponse(
+      res,
+      200,
+      "success",
+      "User account update Succesful!!",
+      "",
+      true
+    );
   } catch (error) {
     return generalResponse(
       res,
       400,
       "error",
-      error ? error : "Something Went Wrong while Updating User on admin side.",
+      "Something Went Wrong while Updating User on admin side.",
       "",
-      false
+      true
     );
   }
 };
@@ -242,12 +259,7 @@ export const fetchCategoryByAdmin = async (req, res) => {
     const query = {
       $and: [{ isDeleted: { $ne: true } }, { type: "category" }],
     };
-    const searchResult = await findAndPaginate(
-      categoryFilterModal,
-      query,
-      page && Number(page),
-      limit && Number(limit)
-    );
+    const searchResult = await findAndPaginate(categoryFilterModal, query);
     return generalResponse(res, 200, "success", "", searchResult);
   } catch (error) {
     return generalResponse(res, 400, "error", error.message, error, false);
@@ -265,31 +277,52 @@ export const deleteResourceById = async (req, res) => {
       "success",
       "Resource Deleted Successfully!!",
       null,
-      false
+      true
     );
   } catch (error) {
     return generalResponse(
       res,
       400,
       "error",
-      { error: error ? error : "Something Went Wrong while Delete User." },
+      "Something Went Wrong while Delete User.",
       "",
-      false
+      true
     );
   }
 };
 
 export const updateResourceById = async (req, res) => {
   try {
-    const id = req.body._id;
+    const id = req.query.id;
+    const resourceType = req.body.isResource;
+
     const resourceData = req.body;
     resourceData.isResource == "resource"
       ? (resourceData.isResource = true)
       : (resourceData.isResource = false);
     await resourceModel.findByIdAndUpdate(id, resourceData);
-    return generalResponse(res, 200, "success", "", "", false);
+    console.log(resourceType);
+    console.log(
+      `${resourceData.isResource.toString().toUpperCase()} Update Successful!!`
+    );
+    return generalResponse(
+      res,
+      200,
+      "success",
+      `${resourceType} update successful!!`,
+      "",
+      true
+    );
   } catch (error) {
-    return generalResponse(res, 400, "error", error.message, error, false);
+    console.log({ error });
+    return generalResponse(
+      res,
+      400,
+      "error",
+      "Something Went wrong while updating Resource.",
+      error,
+      true
+    );
   }
 };
 
@@ -300,15 +333,22 @@ export const insertResource = async (req, res) => {
       ? (resourceData.isResource = true)
       : (resourceData.isResource = false);
     await new resourceModel(resourceData).save();
-    return generalResponse(res, 200, "success", "", "", false);
+    return generalResponse(
+      res,
+      200,
+      "success",
+      "Resource Data added Successful!",
+      "",
+      true
+    );
   } catch (error) {
     return generalResponse(
       res,
       400,
       "error",
-      error ? error : "Something Went Wrong while Inserting Resources.",
+      "Something Went Wrong while Inserting Resources.",
       "",
-      false
+      true
     );
   }
 };

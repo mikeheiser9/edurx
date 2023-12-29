@@ -3,6 +3,7 @@ import { checkIsSuperAdmin, signInFieldValidator, updateUserByAdminValidator } f
 import { adminLogin, deleteResourceById, deleteUserByAdmin, fetchCategoryByAdmin, fetchUsersByAdmin, insertResource, updateResourceById, updateUserByAdmin } from "../controllers/admin.js";
 import { userAuth } from "../middleware/passport/userAuth.js";
 import { getResources } from "../controllers/resource.js";
+import { addResourceValidator } from "../middleware/validator/resource.js";
 
 const adminRoutes = Router();
 adminRoutes.post("/login",signInFieldValidator,adminLogin)
@@ -15,7 +16,7 @@ adminRoutes.put("/user",userAuth, checkIsSuperAdmin,updateUserByAdminValidator,u
 adminRoutes.get('/resource/resources',userAuth, getResources);
 adminRoutes.get("/resource/category",userAuth,checkIsSuperAdmin,fetchCategoryByAdmin);
 adminRoutes.delete('/resource', userAuth,checkIsSuperAdmin,deleteResourceById);
-adminRoutes.put('/resource', userAuth,checkIsSuperAdmin,updateResourceById);
-adminRoutes.post('/resource', userAuth,checkIsSuperAdmin,insertResource);
+adminRoutes.put('/resource', userAuth,checkIsSuperAdmin,addResourceValidator,updateResourceById);
+adminRoutes.post('/resource', userAuth,checkIsSuperAdmin,addResourceValidator,insertResource);
 
 export default adminRoutes;

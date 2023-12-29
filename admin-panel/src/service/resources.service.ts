@@ -5,8 +5,8 @@ export const getResources = () => {
   return axiosGet("/admin/resource/resources");
 };
 
-export const getCategories = (params?:object) => {
-  return axiosGet("/admin/resource/category",{ params });
+export const getCategories = (params?: object) => {
+  return axiosGet("/admin/resource/category", { params });
 };
 
 export const deleteResourceById = (id: string) => {
@@ -14,10 +14,13 @@ export const deleteResourceById = (id: string) => {
 };
 
 export const updateResourceById = (id: string, data: TypeResourceData) => {
-  return axiosPut(`/admin/resource`, data);
+  return axiosPut(`/admin/resource`, data, {
+    params: {
+      id,
+    },
+  });
 };
 
 export const addResource = (data: TypeResourceData) => {
   return axiosPost(`/admin/resource`, data);
 };
-
