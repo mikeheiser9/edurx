@@ -31,7 +31,7 @@ import {
 } from "@/util/helpers";
 import { ToggleSwitch } from "@/components/toggleSwitch";
 import { postCreationValidation } from "@/util/validations/post";
-import { responseCodes } from "@/util/constant";
+import { postStatus, responseCodes } from "@/util/constant";
 import { addNewPost, updatePostById } from "@/service/post.service";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -294,12 +294,11 @@ export const AddPost = ({
                     boldOnSearch(
                       item?.name,
                       searchText?.[
-                        type === "categories" ? "category" : "filter"
+                      type === "categories" ? "category" : "filter"
                       ]
                     ) as string
                   }
-                  className={`${
-                    type === "categories"
+                  className={`${type === "categories"
                       ? "bg-transparent border border-eduLightBlue "
                       : "!bg-eduDarkGray"
                   }  md:text-xs text-10px px-2 leading-6 rounded-md`}
@@ -323,7 +322,7 @@ export const AddPost = ({
     );
   };
 
-  const EditPostFooter = () => (
+  const EditPostFooter = ({setFieldValue}:{setFieldValue: (field: string, value: string) => void}) => (
     <div className="flex flex-col gap-2 py-3 bg-primary-dark">
       <div className="flex justify-center gap-4">
         <Button
@@ -336,6 +335,7 @@ export const AddPost = ({
           label="Update"
           type="submit"
           className={`!m-0 cursor-not-allowed`}
+          onMouseEnter={() => setFieldValue("postStatus", postStatus[1])}
         />
       </div>
     </div>
@@ -393,7 +393,7 @@ export const AddPost = ({
       postType: values.postType || "post",
       ...selectedList,
       postStatus:
-        (values as any)?.postStatus || mode == "Edit" ? "published" : "",
+        (values as any)?.postStatus
     };
 
     // when editing the post from the draft flow
@@ -795,7 +795,7 @@ export const AddPost = ({
                 className={`flex gap-4 grid-rows-2 ${
                   (values as any)?.forumType == "Choose forum" &&
                   "disabled cursor-not-allowed"
-                }`}
+                  }`}
               >
                 <div className="w-full">
                 <label htmlFor="categories">
@@ -823,7 +823,7 @@ export const AddPost = ({
                 />
                 {!isLoading?.category &&
                   currentPage?.category?.totalRecords >
-                    filterCategoryList?.categories?.length && (
+                  filterCategoryList?.categories?.length && (
                     <LoadMore
                       isLoading={isLoading.category as boolean}
                       onClick={() =>
@@ -1079,7 +1079,7 @@ export const AddPost = ({
                 />
                 {!isLoading?.filter &&
                   currentPage?.filter?.totalRecords >
-                    filterCategoryList?.filters?.length && (
+                  filterCategoryList?.filters?.length && (
                     <LoadMore
                       isLoading={isLoading.filter as boolean}
                       onClick={() => searchAPI("filter", searchText?.filter)}
@@ -1088,7 +1088,9 @@ export const AddPost = ({
               </div>
             </div>
             {mode === "Edit" ? (
-              <EditPostFooter />
+              <EditPostFooter
+              setFieldValue={actions.setFieldValue}
+              />
             ) : (
               <ModalFooter
                 setFieldValue={actions.setFieldValue}

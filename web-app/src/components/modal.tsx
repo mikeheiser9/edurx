@@ -21,6 +21,7 @@ interface ModalProps {
   showCloseIcon?: boolean;
   closeOnEscape?: boolean;
   resetReduxModalOnClose?: boolean;
+  modalHedaerClassName?: string
 }
 
 export const Modal = ({
@@ -76,7 +77,7 @@ export const Modal = ({
       return props.customHeader;
     }
     return (
-      <div className={`flex p-3 items-center bg-eduDarkGray w-full  ${props.resetReduxModalOnClose}`}>
+      <div className={`flex p-3 items-center bg-eduDarkGray w-full  ${props.modalHedaerClassName}`}>
         <span className="text-lg ipad-under:text-sm font-medium justify-self-start text-eduLightBlue">
           {props.headerTitle}
         </span>

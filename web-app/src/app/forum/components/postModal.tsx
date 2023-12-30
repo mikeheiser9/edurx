@@ -84,7 +84,7 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
       (req: any) => req?.userId === loggedInUser?._id
     )?.status || null;
   const isVotingClosed: boolean = getIsVotingClosed(
-    moment(post?.publishedOn).add("days", post?.votingLength ?? 0)
+    moment(post?.publishedOn).add(post?.votingLength ?? 0,"days")
   );
   const userFollowsPost: userPostFollowList | undefined =
     post?.userPostFollowers?.find(
@@ -230,7 +230,7 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
         <span className="font-body md:text-[16px] text-[12px]">{`${post?.title?.substring(
           0,
           26
-        )} ${post?.title && post?.title?.length > 26 && "..."}`}</span>
+        )} ${post?.title && post?.title?.length > 26 ? "..." : ""}`}</span>
         <span>| </span>
         <span className="font-body font-semibold">
           {post?.forumType
@@ -288,7 +288,7 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
       return 0; // To avoid division by zero
     }
 
-    return (optionVotes / totalVotes) * 100;
+    return Math.round((optionVotes / totalVotes) * 100);
   };
 
   const onFollowPost = async () => {
@@ -617,14 +617,14 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
                             <div>
                               <span>{post?.votingInfo?.length} votes - </span>
                               <span>
-                                {moment(post.publishedOn).add(
+                                {moment(post?.publishedOn).add(
                                   "day",
                                   Number(post?.votingLength)
                                 ) < moment()
                                   ? "final Results"
                                   : `${
                                       moment(post?.publishedOn)
-                                        .add("day", Number(post?.votingLength))
+                                        .add(Number(post?.votingLength),"day")
                                         .diff(moment(), "day") + 1
                                     } days left`}
                               </span>

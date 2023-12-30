@@ -1,5 +1,6 @@
 import { resourceModel } from "../model/resource/resource.js";
 import { userModel } from "../model/user/user.js";
+import { updateUserByCondition } from "../repository/user.js";
 import { generalResponse } from "../util/commonFunctions.js";
 
 class ResourceController {
@@ -31,7 +32,7 @@ class ResourceController {
       const userId = req.params.userId;
       const resourceId = req.body.resourceId;
 
-      const user = await userModel.findById(userId);
+      const user = await userModel.findById(userId).select('reading_list');
       if (!user) {
         return res.status(404).send("User not found");
       }
@@ -44,10 +45,10 @@ class ResourceController {
       // Add resource to reading_list if not already present
       if (!user.reading_list.includes(resourceId)) {
         user.reading_list.push(resourceId);
-        await user.save();
+        await updateUserByCondition({_id:userId}, user)
       }
 
-      res.status(200).send("Resource saved to reading list");
+      return generalResponse(res, 200, "success", "",null, false);
     } catch (error) {
       res.status(500).send(error.message);
     }
@@ -57,15 +58,13 @@ class ResourceController {
     try {
       const { userId } = req.params;
       const { resourceId } = req.body;
-
-      const user = await userModel.findById(userId);
+      const user = await userModel.findById(userId).select('reading_list');
       if (!user) return res.status(404).send("User not found");
 
       user.reading_list = user.reading_list.filter(
         (id) => id.toString() !== resourceId
       );
-      await user.save();
-
+      await updateUserByCondition({_id:userId}, user)
       res.status(200).send("Resource removed from reading list");
     } catch (error) {
       res.status(500).send(error.message);
@@ -75,6 +74,9 @@ class ResourceController {
 
 export const getResources = async (req, res) => {
   try {
+    const pageNumber = Number(req.query.page || 1)
+    const limit = Number(req.query.limit || 10)
+    const skip = (pageNumber - 1) * limit;
     const resources = await resourceModel
       .find({ isDeleted: { $ne: true } })
       .select("title link publisher isResource tags createdAt _id tags")
@@ -82,7 +84,10 @@ export const getResources = async (req, res) => {
         path: "tags",
         select: "-__v",
       })
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+
     return generalResponse(res, 200, "success", "", resources, false);
   } catch (error) {
     return generalResponse(

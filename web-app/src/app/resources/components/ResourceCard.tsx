@@ -34,7 +34,6 @@ const [saved, setSaved] = useState(isSaved);
     const handleSaveResource = async () => {
         try {
             await axios.put(`http://localhost:8001/user/${userId}/saveResource`, { resourceId: resource._id });
-            console.log('UserID:', userId, 'ResourceID:',resource);
             setSaved(true);
         } catch (error) {
             console.error('Error saving resource:', error);

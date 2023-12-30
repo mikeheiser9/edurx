@@ -1,13 +1,14 @@
 import { usePathname, useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
-import { removeToken } from "@/redux/ducks/user.duck";
+import { removeToken, selectUserDetail } from "@/redux/ducks/user.duck";
 import { GiExitDoor } from "react-icons/gi";
 
 const AdminProfile = () => {
   const router = useRouter();
   const path = usePathname();
+  const userDetails=useSelector(selectUserDetail);
   const hideSidebar = path.includes("login");
   const dispatch = useDispatch();
   const [modalOpen, setModalOpen] = useState(false);
@@ -19,7 +20,7 @@ const AdminProfile = () => {
             type="button"
             className="group flex items-center gap-6 text-base"
           >
-            <span className="font-bold text-white">Admin</span>
+            <span className="font-bold text-white">{userDetails?.first_name}</span>
             <img
               src="https://picsum.photos/200"
               className="h-14 w-14 rounded-full"

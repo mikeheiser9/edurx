@@ -75,9 +75,9 @@ userRoute.post(
 );
 userRoute.get("/account-settings", userAuth, getAccountSettings);
 
-userRoute.put("/:userId/saveResource", ResourceController.saveResource);
-userRoute.delete("/:userId/unsaveResource", ResourceController.unsaveResource);
-userRoute.get("/:userId/reading_list", ResourceController.getReadingList);
+userRoute.put("/:userId/saveResource", userAuth,ResourceController.saveResource);
+userRoute.delete("/:userId/unsaveResource", userAuth,ResourceController.unsaveResource);
+userRoute.get("/:userId/reading_list",userAuth,ResourceController.getReadingList);
 userRoute.get("/drafts", userAuth, userDrafts);
 userRoute.get("/drafts/count", userAuth, userDraftsCount);
 userRoute.delete("/draft/:id",userAuth,deletePostDraftValidator,userDraft)

@@ -361,6 +361,9 @@ const findFollowersOfPostById = async (postId) => {
   return await userConnections.find({ postId });
 };
 
+const updateUserByCondition=async(condition,setData)=>{
+  return await userModel.updateOne(condition,setData)
+}
 
 export {
   getUserProfileById,
@@ -385,5 +388,6 @@ export {
   insertFollowPost,
   removeFollowPost,
   insertFollowPostMultiple,
-  findFollowersOfPostById
+  findFollowersOfPostById,
+  updateUserByCondition
 };

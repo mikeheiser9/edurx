@@ -14,7 +14,7 @@ export default function RouteGuard({
   const token = useSelector(selectToken);
   const user = useSelector(selectUserDetail);
   const pathName = usePathname();
-  const customLayoutPaths = ["/forum", "/hub", "/resource"]; // IF path includes one of these then use custom layout
+  const customLayoutPaths = ["/forum", "/hub", "/resources"]; // IF path includes one of these then use custom layout
   const useCustomLayout = customLayoutPaths?.some(
     (path: string) => path === pathName
   );

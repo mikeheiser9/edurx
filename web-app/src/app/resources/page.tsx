@@ -1,44 +1,44 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { axiosGet } from "@/axios/config";
-// import { responseCodes, roleAccess, roleBasedForum } from "@/util/constant";
-// import { Chip } from "@/components/chip";
-// import InfiniteScroll from "@/components/infiniteScroll";
-// import { requireAuthentication } from "@/components/requireAuthentication";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { selectUserDetail } from "@/redux/ducks/user.duck";
-// import { showToast } from "@/components/toast";
-// import DashboardLayout from "@/components/dashboardLayout";
-// import {
-//   getSelectedForumFilters,
-//   setSelectedFilter,
-// } from "@/redux/ducks/forum.duck";
-import { HubLeftPenal } from "../hub/components/leftPanel";
 import { ResourceCard } from "./components/ResourceCard";
-import HeaderNav from "@/components/headerNav";
-import { LeftPanelWrapper } from "@/components/leftPanelWrapper";
-
-const resourceTabs = ["Resources", "News", "Reading List"];
+import { getResources } from "@/service/resource.service";
+import InfiniteScroll from "@/components/infiniteScroll";
 
 export default function Resources(props: any) {
-  const router = useRouter();
   const loggedInUser = useSelector(selectUserDetail);
-  const [resources, setResources] = useState<ResourceInfo[]>([]);
+  const resourceTabs = ["Resources", "News", "Reading List"];
   const [savedResources, setSavedResources] = useState(new Set());
-  const [isSaved, setIsSaved] = useState(false);
+  const [activeSubTab, setActiveSubTab] = useState(resourceTabs[0]);
 
-  console.log({resources});
+  // resource states
+  const [resources, setResources] = useState<ResourceInfo[]>([]);
+  const [resourceLoading, setResourceLoading] = useState(false);
+  const [resourceCurrentPage, setResourceCurrentPage] = useState(1)
+  const [showLoadMore, setShowLoadMore] = useState(false)
+  const pageResourcelimit = 5
+
+  const fetchResources = async (page: number = 1) => {
+    setResourceLoading(true)
+    try {
+      const response = await getResources(page)
+      if (response.data.response_type == "success") {
+        setResources((pre) => [...pre, ...response.data.data]);
+        setResourceCurrentPage((pre) => pre + 1);
+        if (response.data.data.length < pageResourcelimit) {
+          setShowLoadMore(false)
+        }
+      }
+    } catch (error) {
+      console.log("Error fetching resource data ", error);
+    }
+    setResourceLoading(false)
+  };
 
   useEffect(() => {
-    const fetchResources = async () => {
-      try {
-        const response = await axiosGet("/resource/resources");
-        setResources(response.data);
-      } catch (error) {
-        console.log("Error fetching resource data ", error);
-      }
-    };
+    setShowLoadMore(true)
     fetchResources();
   }, []);
 
@@ -56,7 +56,6 @@ export default function Resources(props: any) {
         const response = await axiosGet(
           `/user/${loggedInUser._id}/reading_list`
         );
-        console.log("response data in fetch reading list ", response.data);
         setSavedResources(
           new Set(response.data.map((item: ReadingListItem) => item._id))
         );
@@ -68,34 +67,45 @@ export default function Resources(props: any) {
     fetchReadingList();
   }, []);
 
+  const loadMorePosts = async () => {
+    await fetchResources(resourceCurrentPage)
+  }
+
   return (
     <>
-    <div className="flex flex-col w-full">
-    <div className="md:p-4 md:pb-0 h-[76px] md:block hidden">
-     <div className="logo-desktop block ipad-under:hidden pl-7"><a className="inline-block" href="#"><img src="https://i.ibb.co/gwRZ6gm/edu-Rx-blue-1.png" alt="edu-Rx-blue-1"/></a></div>
-      <div className="line w-full border-[2px] border-b-0 border-eduLightBlue h-[13px] mt-2.5 rounded-[6px_6px_0px_0px]" ></div>
-    </div>
-      <div className="flex md:p-4 md:px-5 w-full h-screen overflow-hidden md:max-h-[calc(100dvh_-_76px)]">
-        <LeftPanelWrapper>
-          <HubLeftPenal />{" "}
-        </LeftPanelWrapper>
 
-        <div className="flex-1 flex overflow-hidden flex-col gap-2">
-          <>
-            <HeaderNav />
-            {resources.length>0 && resources?.map((resource) => (
-              <ResourceCard
-                resource={resource}
-                userId={loggedInUser._id}
-                key={resource._id}
-                isSaved={savedResources.has(resource._id)}
-                isResource={false}
-              />
-            ))}
-          </>
-        </div>
-      </div>
-      </div>
+      <ul className="flex gap-6 ipad-under:mx-auto justify-center items-center">
+        {resourceTabs.map((item) => (
+          <li
+            onClick={() => setActiveSubTab(item)}
+            className={`text-eduBlack font-body font-medium ease-in-out duration-500 border-b-2 py-2 text-[14px] cursor-pointer ipad-under:text-xs ipad-under:py-1 ${item === activeSubTab
+              ? "border-primary"
+              : "border-transparent"
+              }`}
+            key={item}
+          >
+            {item}
+          </li>
+        ))}
+      </ul>
+      <InfiniteScroll
+        className="flex flex-col w-full h-full rounded-md gap-4 overflow-y-scroll"
+        callBack={loadMorePosts}
+        hasMoreData={showLoadMore}
+        showLoading={resourceLoading}
+      >
+        {resources.length > 0 && resources?.map((resource, index) => (
+          <div key={index}>
+            <ResourceCard
+              resource={resource}
+              userId={loggedInUser?._id}
+              key={resource._id}
+              isSaved={savedResources.has(resource._id)}
+              isResource={false}
+            />
+          </div>
+        ))}
+      </InfiniteScroll>
     </>
   );
 }

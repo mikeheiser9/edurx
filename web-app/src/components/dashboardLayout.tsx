@@ -10,6 +10,7 @@ const HeaderNav = dynamic(() => import("./headerNav"), { ssr: false });
 const leftPanelComponents = {
   forum: LeftPanel,
   hub: HubLeftPenal,
+  resources:HubLeftPenal,
 };
 
 export default function DashboardLayout({
