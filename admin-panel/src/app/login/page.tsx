@@ -50,7 +50,7 @@ const login = () => {
     }
     setIsLoading(false);
   };
-
+  
   return (
     <div className="bg-[#c0c0c2] min-h-screen flex items-center justify-center ">
       <div>

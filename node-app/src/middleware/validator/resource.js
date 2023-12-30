@@ -3,10 +3,10 @@ import Joi from 'joi';
 // Validator for adding a new resource
 const addResourceValidator = (req, res, next) => {
   const schema = Joi.object({
-    title: Joi.string().required(),
-    link: Joi.string().uri().required(),
-    publisher: Joi.string().required(),
-    isResource: Joi.boolean().required(),
+    title: Joi.string().required().min(2),
+    link: Joi.string().uri().required().min(2),
+    publisher: Joi.string().required().min(2),
+    isResource: Joi.string().required().valid('news', 'resource'),
     tags: Joi.array().items(Joi.string())
   });
 
@@ -14,7 +14,6 @@ const addResourceValidator = (req, res, next) => {
   if (error) {
     return res.status(400).send(error.details[0].message);
   }
-
   next();
 };
 

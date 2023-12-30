@@ -5,26 +5,46 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-const RouterGard = ({ children }: { children: JSX.Element }) => {
+interface Props {
+  children: JSX.Element;
+}
+
+const RouterGard = ({ children }: Props) => {
+  const [isAllowed, setIsAllowed] = useState(false);
   const router = useRouter();
   const pathName = usePathname();
-  const [access, setAccess] = useState(false);
   const user = useSelector(selectUserDetail);
   const token = useSelector(selectToken);
 
   useEffect(() => {
-    if (user && user.role === USER_ROLES.super_admin && token) {
-      router.push("/manage/accounts");
-    } else {
-      router.push("/login");
+
+
+    if (token == null) {
+      if(pathName == "/login"){
+        router.replace("/login");
+        setIsAllowed(true)
+      }else{
+        router.replace("/login");
+        setIsAllowed(false)
+      }
+    } else if (user.role == USER_ROLES.super_admin.value) {
+      if (pathName.includes("login")) {
+        router.push("/manage/accounts");
+      } else if (pathName.includes("/manage/resources?")) {
+        router.push("/manage/resources");
+      } else if (pathName.includes("/manage/accounts?")) {
+        router.push("/manage/accounts");
+      } else if (pathName === "/") {
+        router.push("/manage/accounts");
+      } else {
+        setIsAllowed(true);
+      }
     }
-    setAccess(true);
+
+
   }, [pathName]);
 
-  if (access) {
-    return <>{children}</>;
-  } else {
-    return <></>;
-  }
+  return isAllowed ? children : <></>;
 };
+
 export default RouterGard;

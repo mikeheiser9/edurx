@@ -14,7 +14,6 @@ export default function DropdownMenu({
 }) {
   const [isDropDownHover, setIsDropDownHover] = useState(false);
   const calc = parentHeight - 16 - scrollPixel;
-  console.log("calc: ", calc);
   const dynamicTransform = `translate(58px, ${calc}px)`;
   return (
     <div

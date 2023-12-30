@@ -37,15 +37,12 @@ const page = () => {
   >([]);
   const [tags, setTags] = useState<string[]>([]);
 
-  const setUserTag = (record: TypeResourceData) => {
-    if (record && record.tags && record.tags.length > 0) {
-      setTags(
-        (record.tags as TypeResourceTags[]).map(
-          (tag: TypeResourceTags) => tag._id
-        )
-      );
-    }
-  };
+  const [filteredCategory, setFilteredCategory] = useState<
+    { _id: string; name: string }[]
+  >([]);
+  const [loadMoreLoader, setLoadMoreLoader] = useState(false);
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  const batchSize = 4;
 
   const columns = [
     {
@@ -81,17 +78,16 @@ const page = () => {
         <div className="flex gap-4 cursor-pointer">
           <ImBin
             onClick={() => {
-              setIsDeleteOpen(true);
-              setUserTag(records);
               setSelectedResource(records);
+              setIsDeleteOpen(true);
             }}
           />
           <FiEdit
             onClick={() => {
-              setIsEditOpen(true);
-              setUserTag(records);
               setSelectedResource(records);
+              setUserTag(records);
               setIsFormDisable(true);
+              setIsEditOpen(true);
             }}
           />
         </div>
@@ -102,11 +98,7 @@ const page = () => {
   const getResourcesList = async () => {
     setListLoader(true);
     const resourceRes = await getResources();
-    const categoriesRes = await getCategories({
-      name: "",
-      limit: 4,
-      page: 1,
-    });
+    const categoriesRes = await getCategories();
 
     if (resourceRes && resourceRes.data?.response_type === "success") {
       setResourceList(resourceRes.data.data);
@@ -140,17 +132,20 @@ const page = () => {
     }: { setErrors: (errors: FormikErrors<TypeResourceData>) => void }
   ) => {
     try {
-      if (categoryList.length > 0 &&( values.tags.length == 0 || values.tags.length > 2)) {
+      if (
+        categoryList.length > 0 &&
+        (values.tags.length == 0 || values.tags.length > 2)
+      ) {
         setErrors({
-          tags: "Minimum of 1 or Maximum 2 Category can be selected",
+          tags: "Minimum 1 or Maximum 2 Category can be selected",
         });
         return;
       }
       setIsFormSubmitting(true);
+
       if (selectedResource) {
         const res = await updateResourceById(selectedResource._id as string, {
           ...values,
-          _id: selectedResource._id,
         });
         if (res && res.data && res.data.response_type == "error") {
           const { key, message }: { key: string; message: string } =
@@ -174,9 +169,59 @@ const page = () => {
     setIsFormSubmitting(false);
   };
 
+  const setUserTag = (record: TypeResourceData) => {
+    if (record && record.tags && record.tags.length > 0) {
+      setTags(
+        (record.tags as TypeResourceTags[]).map(
+          (tag: TypeResourceTags) => tag._id
+        )
+      );
+    }
+  };
+
   useEffect(() => {
     getResourcesList();
   }, []);
+
+  useEffect(() => {
+    if (!isEditOpen) {
+      setFilteredCategory([])
+    }
+  }, [isEditOpen]);
+
+  useEffect(() => {
+    selectedResource && loadMoreCategories();
+  }, [selectedResource]);
+
+  const loadMoreCategories = () => {
+    setLoadMoreLoader(true);
+    if (categoryList.length > 0) {
+      let filteredData: { _id: string; name: string }[] = [];
+      if (tags.length > 0) {
+        filteredData = [
+          ...categoryList.filter((item) => tags.includes(item._id)),
+          ...categoryList.filter((item) => !tags.includes(item._id)),
+        ];
+      } else {
+        filteredData = categoryList;
+      }
+
+      timeout = setTimeout(() => {
+        setFilteredCategory(
+          filteredData.slice(0, filteredCategory.length + batchSize)
+        );
+        setLoadMoreLoader(false);
+      }, 1000);
+    } else {
+      setLoadMoreLoader(false);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [timeout]);
 
   return (
     <div>
@@ -192,7 +237,7 @@ const page = () => {
             setSelectedResource(null);
             setTags([]);
             setIsEditOpen(true);
-            setIsFormDisable(true);
+            setIsFormDisable(false);
           }}
         />
       </MantineProvider>
@@ -216,15 +261,21 @@ const page = () => {
       {/* EDIT MODAL */}
       <EditResourceModal
         isOpen={isEditOpen}
-        onClose={() => setIsEditOpen(false)}
+        onClose={() => {
+          setFilteredCategory([]);
+          loadMoreCategories()
+          setIsEditOpen(false);
+        }}
         userData={selectedResource}
         disableForm={isFormDisable}
         onEdit={() => setIsFormDisable(false)}
         handleSubmit={handleSubmit}
         isFormSubmitting={isFormSubmitting}
-        categoryList={categoryList}
+        categoryList={filteredCategory}
         tags={tags}
         setTags={setTags}
+        loadMoreButton={loadMoreCategories}
+        loadMoreLoader={loadMoreLoader}
       />
     </div>
   );

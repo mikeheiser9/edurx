@@ -79,9 +79,10 @@ export const getResources = async (req, res) => {
       .find({ isDeleted: { $ne: true } })
       .select("title link publisher isResource tags createdAt _id tags")
       .populate({
-        path:"tags",
-        select:"-__v"
-      });
+        path: "tags",
+        select: "-__v",
+      })
+      .sort({ createdAt: -1 });
     return generalResponse(res, 200, "success", "", resources, false);
   } catch (error) {
     return generalResponse(

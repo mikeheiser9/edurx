@@ -14,28 +14,21 @@ export const axiosParse = (store: AppDispatch) => {
   axios.interceptors.response.use(
     (response) => {
       if (response?.data?.toast) {
-        // store.dispatch(
-        //   setToast({
-        //     toastMessage: { msg: response.data.message, type: "success" },
-        //   })
-        // );
+        store.dispatch(
+          setToast({
+            toastMessage: { msg: response.data.message, type: response.data.response_type },
+          })
+        );
       }
       return response;
     },
     (e) => {
-      const status = e?.response?.status;
-      console.log(e.response);
-      
-      if (status == responseCodes.FORBIDDEN) {
-        // store.dispatch(removeToken());
-        // store.dispatch(removeUserDetail());
-      }
-      if (status == 400 && e?.response?.data?.toast) {
-        // store.dispatch(
-        //   setToast({
-        //     toastMessage: { msg: e.response.data.message, type: "error" },
-        //   })
-        // );
+      if (e?.response?.data?.toast) {
+        store.dispatch(
+          setToast({
+            toastMessage: { msg: e.response.data.message, type: e.response.data.response_type },
+          })
+        );
       }
       return e.response;
     }

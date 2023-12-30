@@ -46,6 +46,37 @@ const Table = (props: TableProps) => {
     wordWrap: "break-word",
   });
 
+  const scrollViewportRef = useRef<HTMLDivElement>(null);
+  
+  const batchSize = 20;
+  const [loading, setLoading] = useState(false);
+  const [records, setRecords] = useState(dataSource ?? []);
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+
+  useEffect(() => {
+    loadMoreRecords();
+  }, [dataSource]);
+
+  const loadMoreRecords = () => {
+    if (dataSource) {
+      
+        setLoading(true);
+        timeout = setTimeout(() => {
+          setRecords(dataSource.slice(0, records.length + batchSize));
+          setLoading(false);
+        }, 1000);
+      }else{
+        setRecords([]);
+        setLoading(false);
+      }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [timeout]);
+  
   return (
     <div className="relative px-6 pt-2 ">
       <div className="relative bg-[#A5A5A8] p-6 rounded-xl min-h-[calc(100vh-120px)]">
@@ -83,21 +114,18 @@ const Table = (props: TableProps) => {
         ) : (
           <DataTable
             columns={columns}
-            records={dataSource}
-            minHeight={450}
+            records={records}
+            minHeight={650}
             miw={650}
             idAccessor={(records: any) => records._id}
-            //   page={10000}
-            //   recordsPerPage={100000}
-            //   totalRecords={pagination.total}
-            //   recordsPerPageOptions={pagination.page_sizes_option}
-            //   onRecordsPerPageChange={setPageSize}
-            //   sortStatus={sortStatus}
-            //   onSortStatusChange={setSortStatus}
-            //   onPageChange={(p) => setPagination({ ...pagination, page: p })}
             noRecordsText={noRecordsText ?? "No Data"}
             backgroundColor={"#A5A5A8"}
             rowStyle={customRowStyle}
+            onScrollToBottom={loadMoreRecords}
+            scrollViewportRef={scrollViewportRef}
+            height={300}
+            fetching={loading}
+            customLoader={<SectionLoader />}
           />
         )}
       </div>
