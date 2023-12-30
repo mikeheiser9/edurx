@@ -27,25 +27,25 @@ export const DummyPostCard = (props: Props) => {
   return (
     <div className="flex select-none w-full rounded-md bg-primary-dark gap-2 p-4 relative">
       <div className="w-full rounded-md ease-in-out duration-200 flex items-center justify-center h-full bg-[#13222A]/70 absolute -m-4 backdrop-blur-sm p-4">
-        <div className="flex gap-2 items-center p-2 border border-white rounded-md w-full">
-          <span className="border animate-wiggle text-white border-white rounded-md p-1 px-2">
+        <div className="flex gap-2 items-center p-2 border border-white ipad-under:border-primary rounded-md w-full ipad-under:opacity-60">
+          <span className="border animate-wiggle text-white border-white  rounded-md p-1 px-2">
             <FontAwesomeIcon icon={faFlag} />
           </span>
-          <span className="text-white text-sm font-semibold flex-1">
-            This post has been flagged for 
-            <strong className="text-red-500 px-1">{props?.post?.flag}</strong>,
+          <span className="text-white text-sm font-semibold flex-1 ipad-under:text-10px">
+            This post has been flagged for [
+            <strong className="text-red-500 px-1">{props?.post?.flag}</strong>],
             however you may still view the forum
           </span>
-          <div className="flex gap-2">
+          <div className="flex gap-2 ipad-under:flex-col large:flex-wrap">
             <Button
               label="View"
-              className="text-xs duration-200 ease-in-out hover:text-primary hover:!bg-primary/20 bg-transparent text-white outline outline-1 font-bold !p-1 !px-4 justify-center items-center flex flex-auto"
+              className="text-xs duration-200 ipad-under:text-[11px] ipad-under:w-14 ease-in-out hover:text-primary hover:!bg-primary/20 bg-transparent text-white outline outline-1 font-medium !p-1 !px-4 justify-center items-center flex flex-auto md:!w-[80px]"
               onClick={props?.onViewClcik}
             />
             {props.isAdmin && (
               <Button
                 label="Edit"
-                className="text-xs duration-200 ease-in-out hover:text-primary hover:!bg-primary/20 bg-transparent text-white outline outline-1 font-bold !p-1 !px-4 justify-center items-center flex flex-auto"
+                className="text-xs duration-200 ipad-under:text-[11px] ipad-under:w-14 ease-in-out hover:text-primary hover:!bg-primary/20 bg-transparent text-white outline outline-1  font-medium !p-1 !px-4 justify-center items-center flex flex-auto md:!w-[80px]"
                 onClick={props?.onEditClick}
               />
             )}

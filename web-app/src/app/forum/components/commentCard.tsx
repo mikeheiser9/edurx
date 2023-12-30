@@ -159,7 +159,7 @@ export const CommentCard = React.memo(
       <div key={comment?._id} className={wrapperClass}>
         <div className="flex gap-2">
           <div className="flex flex-col items-center">
-            <span className="w-[32px] overflow-hidden h-[32px] justify-center items-center flex bg-white/80 rounded-full">
+            <span className="w-[32px] overflow-hidden h-[32px] ipad-under:min-h-[20px] min-h-[32px]  ipad-under:w-5 ipad-under:h-5 justify-center items-center flex bg-white/80 rounded-full">
               {comment?.userId?.profile_img ? (
                 <Image
                   src={getStaticImageUrl(comment?.userId?.profile_img)}
@@ -168,18 +168,15 @@ export const CommentCard = React.memo(
                   alt="user_img"
                 />
               ) : (
-                <FontAwesomeIcon icon={faUserAlt} />
+                <FontAwesomeIcon icon={faUserAlt} className="ipad-under:text-xs" />
               )}
             </span>
             {showBorder && (
               <span className="bg-eduDarkGray h-full w-[1px] rounded-sm" />
             )}
           </div>
-          <div className="flex-1 flex flex-col gap-2 pb-2">
-            <Link
-              href={`/profile/${comment?.userId?._id}`}
-              className="text-[14px] font-semibold lowercase font-body"
-            >
+          <div className="flex-1 flex flex-col gap-2 pb-2 ipad-under:pb-4">
+            <span className="md:text-[14px] ipad-under:text-[10px] font-semibold lowercase font-body ipad-under:text-eduLightBlue ipad-under:pt-0.5">
               {comment?.userId?.username ||
                 getFullName(
                   comment?.userId?.first_name,
@@ -191,25 +188,25 @@ export const CommentCard = React.memo(
                 comment?.createdAt
               ).fromNow()}`}
             </span> */}
-            </Link>
-            <span className="text-eduBlack/60 font-body text-[12px]">
-              • {moment(comment?.createdAt).fromNow()}
+              <span className="text-eduBlack/60 font-body text-[12px] ipad-under:text-10px ipad-under:text-eduLightBlue">
+                • {moment(comment?.createdAt).fromNow()}
+              </span>
             </span>
-            <div className="py-2 font-body text-[16px]">
+            <div className="py-2 font-body text-[16px] ipad-under:text-xs">
               {comment.content &&
                 replaceTaggedUsers({
                   content: comment.content,
                   taggedUsers: comment?.taggedUsers ?? [],
                 })}
             </div>
-            <div className="flex gap-6 text-[14px] items-center text-eduBlack/60">
-              <span className="flex gap-2 justify-center items-center font-body">
+            <div className="flex md:gap-6 gap-4 md:text-[14px] ipad-under:text-xs items-center text-eduBlack/60">
+              <span className="flex gap-2 justify-center items-center font-body ipad-under:text-eduLightBlue">
                 <FontAwesomeIcon
                   icon={faArrowUp}
                   className={`${
                     userReactionOnComment?.reactionType === "like"
                       ? "text-eduYellow cursor-pointer"
-                      : "text-eduBlack/60 cursor-pointer"
+                      : "text-eduBlack/60 cursor-pointer ipad-under:text-eduLightBlue"
                   } ease-in-out duration-200`}
                   onClick={() => reactOnComment("like")}
                 />
@@ -221,12 +218,12 @@ export const CommentCard = React.memo(
                   className={`${
                     userReactionOnComment?.reactionType === "dislike"
                       ? "text-eduYellow cursor-pointer"
-                      : "text-eduBlack/60 cursor-pointer"
+                      : "text-eduBlack/60 cursor-pointer ipad-under:text-eduLightBlue"
                   } ease-in-out duration-200`}
                   onClick={() => reactOnComment("dislike")}
                 />
               </span>
-              <span className="cursor-pointer font-body" onClick={onReplyClick}>
+              <span className="cursor-pointer font-body ipad-under:text-eduLightBlue" onClick={onReplyClick}>
                 <FontAwesomeIcon icon={faCommentDots} />
                 &nbsp;Reply
               </span>
@@ -236,7 +233,7 @@ export const CommentCard = React.memo(
             </span> */}
               {comment?.replies && comment?.replies?.length > 0 && (
                 <span
-                  className="p-1 cursor-pointer px-2 rounded-[10px] border border-eduBlack text-[14px] text-eduBlack font-body"
+                  className="p-1 cursor-pointer px-2 rounded-[10px] border border-eduBlack ipad-under:border-eduLightBlue text-[14px] ipad-under:text-[10px] ipad-under:text-eduLightBlue ipad-under:rounded text-eduBlack font-body"
                   onClick={() => {
                     setShowReplies(!showReplies);
                   }}
@@ -252,11 +249,11 @@ export const CommentCard = React.memo(
               )}
             </div>
             {isReplyBoxVisible && (
-              <div className="flex animate-fade-in-down flex-col w-1/2">
+              <div className="flex animate-fade-in-down flex-col md:w-1/2 w-full">
                 <MentionInput
                   textAreaProps={{
                     placeholder: "What are your thoughts?",
-                    className: "text-xs rounded-b-none rounded-t-md !w-full",
+                    className: "text-xs rounded-b-none rounded-t-md !w-full !bg-eduDarkGray",
                     style: {
                       minBlockSize: "3rem",
                       maxBlockSize: "10rem",
@@ -288,15 +285,15 @@ export const CommentCard = React.memo(
                     showLoading: true,
                   }}
                 />
-                <span className="bg-eduLightBlue rounded-[10px] -mt-2 p-2 w-full flex justify-end rounded-t-none gap-4">
+                <span className="bg-eduLightBlue rounded-[10px] -mt-2 p-2 ipad-under:!pt-3 w-full flex justify-end rounded-t-none gap-4">
                   <Button
                     label="Cancel"
-                    className="border border-white w-[80px] !text-[12px] !m-0 !rounded-[10px] text-white self-end hover:!bg-eduBlack ease-in-out duration-300 hover:!border-eduBlack"
+                    className="border border-white w-[80px] !text-[12px] !m-0 !rounded-[10px] text-white self-end hover:!bg-eduBlack ease-in-out duration-300 hover:!border-eduBlack ipad-under:!rounded ipad-under:p-0.5"
                     onClick={() => setisReplyBoxVisible(false)}
                   />
                   <Button
                     label="Reply"
-                    className="border border-white w-[80px] !text-[12px] !m-0 !rounded-[10px] text-white self-end hover:!bg-eduBlack ease-in-out duration-300 hover:!border-eduBlack"
+                    className="border border-white w-[80px] !text-[12px] !m-0 !rounded-[10px] text-white self-end hover:!bg-eduBlack ease-in-out duration-300 hover:!border-eduBlack ipad-under:!rounded ipad-under:p-0.5"
                     type="button"
                     onClick={handleReply}
                   />

@@ -5,7 +5,7 @@ import { useModal } from "@/hooks";
 import { resetModalState, selectModalState } from "@/redux/ducks/modal.duck";
 import { selectDraftCount, setDraftCount } from "@/redux/ducks/user.duck";
 import { deleteDraftById, getUserDrafts } from "@/service/user.service";
-import { faX } from "@fortawesome/free-solid-svg-icons";
+import { faChevronLeft, faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
@@ -113,16 +113,23 @@ export default function DraftModal() {
         visible={viewDraftModal.isOpen}
         showCloseIcon
         customHeader={
-          <div className="flex p-3 px-7 items-center  justify-start bg-eduDarkGray gap-3 ">
-            <span className="text-xl pl-5 font-light  cursor-pointer">
+          <div className="flex p-3 px-7 items-center  md:justify-start justify-center relative bg-eduDarkGray gap-3 ">
+            <FontAwesomeIcon
+              icon={faChevronLeft}
+              size="sm"
+              onClick={viewDraftModal.closeModal}
+              className="text-xl self-center cursor-pointer text-gray-500 block md:hidden absolute left-5"
+            />
+            <span className="md:text-xl text-base md:text-eduBlack text- font-light  cursor-pointer">
               Your Drafts&nbsp;
               {`(${count})`}
             </span>
             <FontAwesomeIcon
               icon={faX}
               onClick={viewDraftModal.closeModal}
-              className="ml-auto font-bold self-center cursor-pointer text-eduBlack"
+              className="ml-auto text-xl self-center cursor-pointer text-gray-500 md:block hidden"
             />
+            
           </div>
         }
         showFooter={false}
@@ -131,7 +138,7 @@ export default function DraftModal() {
         <InfiniteScroll
           hasMoreData={count > allDrafts.length}
           callBack={onLoadMore}
-          className={`flex flex-col gap-3 h-full !overflow-y-auto `}
+          className={`flex flex-col gap-3 h-full !overflow-y-auto -mx-4 `}
           showLoading={draftLoading}
         >
           {allDrafts.map((draft: PostInterface, index: number) => {
@@ -139,28 +146,34 @@ export default function DraftModal() {
             const contentLength = content?.length;
             return (
               <>
-                <div className="w-full px-9 " key={index}>
-                  <div className="flex justify-between">
-                    <span className="w-[4em] border-solid border-[#13222A] border-[1px] text-center opacity-[60%] text-[#13222A] rounded bg-white">
+                <div className="w-full md:px-6 px-4 " key={index}>
+                  <div className="flex justify-between items-center mb-0.5">
+                    <div>
+                    <span className="w-[50px] py-0.5 inline-block text-xs border-solid border-eduBlack border-[1px] text-center  text-eduBlack rounded-sm bg-eduDarkGray md:bg-white">
                       {draft.postType}
                     </span>
-                    <span className="text-eduDarkBlue">
+                    </div>
+                    <span className="text-eduDarkBlue md:text-sm text-10px">
                       {" "}
                       {moment(draft.publishedOn).format("DD/MM/YYYY")}
                     </span>
                   </div>
-                  <span className="text-[22px] text-eduBlack font-headers flex gap-2 items-center">
-                    {draft.title}
-                  </span>
-                  <div className="flex justify-between ">
+                 
+                  <div className="flex justify-between md:items-end gap-2 ">
+                    <div className="text-xs">
+                    <p className="text-base text-eduBlack font-headers font-medium flex gap-2 items-center md:mb-1.5 mb-3">
+                      {draft.title}
+                    </p>
                     {contentLength != 0
                       ? `${content?.substring(0, 60)}${
                           (contentLength as number) > 60 ? "..." : ""
                         }`
                       : "no forum content"}
-                    <div className="flex gap-2  justify-end">
+                      </div>
+                      <div className="draftBtnWrap">
+                    <div className="flex gap-2  justify-end md:flex-row flex-col">
                       <Button
-                        className={`w-[100px] rounded-md font-medium !m-0 text-sm `}
+                        className={`!w-[80px] md:!w-[100px] !rounded-md font-medium !m-0  md:!text-xs !text-xs `}
                         label={"Edit"}
                         onClick={() => {
                           setDraftPostToDelete(draft._id);
@@ -168,13 +181,14 @@ export default function DraftModal() {
                         }}
                       />
                       <Button
-                        className={`w-[100px] rounded-md font-medium !m-0 text-sm `}
+                        className={`!w-[80px] md:!w-[100px] !rounded-md font-medium !m-0  md:!text-xs !text-xs `}
                         label={"Delete"}
                         onClick={() => {
                           deleteDraftModal.openModal();
                           setDraftPostToDelete(draft._id);
                         }}
                       />
+                    </div>
                     </div>
                   </div>
                 </div>

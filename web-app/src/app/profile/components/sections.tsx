@@ -27,7 +27,7 @@ const socialMediaIcons: socials = {
   website,
 };
 const labelProps = {
-  className: "text-eduBlack font-body text-[16px] mb-[5px]",
+  className: "text-eduBlack font-body md:text-[16px] md:leading-normal text-xs mb-[5px] inline-block",
 };
 
 const About = (): React.JSX.Element => {
@@ -63,10 +63,10 @@ const About = (): React.JSX.Element => {
         maxLength={80}
       />
       <div className="mt-6">
-        <div className="text-sm mt-2 grid grid-cols-[5%,1fr] gap-x-5 gap-y-5">
+        <div className="text-sm mt-2 grid md:grid-cols-1 grid-cols-1 gap-x-5 gap-y-5">
           {Object.keys(socialMediaIcons).map((socialMedia: string) => (
-            <>
-              <span className="!bg-eduYellow flex justify-center rounded-full h-9 w-9">
+            <div className="flex gap-2 items-center" key={socialMedia}>
+              <span className="!bg-eduYellow flex justify-center rounded-full h-9 w-9 min-w-[36px]">
                 <Image
                   src={
                     socialMediaIcons[
@@ -77,6 +77,7 @@ const About = (): React.JSX.Element => {
                   className="w-5"
                 />
               </span>
+              <div className="w-full md:text-sm text-xs">
               <InputField
                 className="flex"
                 name={`socials.${socialMedia}`}
@@ -85,8 +86,8 @@ const About = (): React.JSX.Element => {
                 onKeyDown={(event) => {
                   if (event.code === "Space") event.preventDefault();
                 }}
-              />
-            </>
+              /></div>
+            </div>
           ))}
         </div>
       </div>
@@ -142,32 +143,32 @@ const Education = ({
   const ListView = () => (
     <>
       {userData?.educations?.map((value: education) => (
-        <div className="flex gap-x-6" key={value?._id || Date.now()}>
-          <div className="flex flex-1 flex-col text-eduBlack text-[16px] font-headers gap-1">
-            <span className="text-lg capitalize">{value.school_name}</span>
-            <span className="text-eduBlack text-[14px] font-body ">
+        <div className="flex gap-x-6 bg-eduLightGray p-4 ipad-under:rounded rounded-[10px]" key={value?._id || Date.now()}>
+          <div className="flex flex-1 flex-col text-eduBlack md:text-[16px] md:leading-normal text-xs font-headers gap-1">
+            <span className="md:text-lg text-xs capitalize">{value.school_name}</span>
+            <span className="text-eduBlack md:text-[14px] md:leading-normal text-10px font-body ">
               {value.field_of_study}
             </span>
             {value?.activities?.length > 0 && (
-              <span className="text-eduBlack/60 text-[14px] font-body font-[400]">
+              <span className="text-eduBlack/60 md:text-[14px] md:leading-normal text-10px font-body font-[400]">
                 {`${value?.activities?.substring(0, 50)} ${
                   value?.activities?.length > 50 ? "..." : ""
                 }  `}
               </span>
             )}
             <div>
-              <span className="text-eduBlack/60 text-[14px] font-body font-[400]">
+              <span className="text-eduBlack/60 md:text-[14px] md:leading-normal text-10px font-body font-[400]">
                 {moment(value?.start_date).format("YYYY")}
               </span>
               {" - "}
-              <span className="text-eduBlack/60 text-[14px] font-body font-[400]">
+              <span className="text-eduBlack/60 md:text-[14px] md:leading-normal text-10px font-body font-[400]">
                 {value?.is_in_progress
                   ? "Present"
                   : moment(value?.start_date).format("YYYY")}
               </span>
             </div>
           </div>
-          <div className="flex p-6 py-2 justify-end">
+          <div className="flex  justify-end">
             <FontAwesomeIcon
               icon={faPenToSquare}
               className="text-eduBlack cursor-pointer"
@@ -178,13 +179,13 @@ const Education = ({
       ))}
       <div className="flex gap-x-2 my-4">
         <span
-          className="bg-eduYellow rounded-xl cursor-pointer w-10 h-10 flex justify-center"
+          className="bg-eduYellow rounded-xl cursor-pointer md:w-10 md:h-10 h-[30px] w-[30px] flex justify-center"
           onClick={addMore}
         >
           <FontAwesomeIcon icon={faPlus} className="text-black self-center" />
         </span>
         <span
-          className="cursor-pointer text-[16px] text-eduBlack/60 font-body p-2 bg-eduLightGray w-[250px] rounded-[10px]"
+          className="cursor-pointer md:text-[16px] md:leading-normal text-xs text-eduBlack/60 font-body p-2 bg-eduLightGray w-[250px] rounded-[10px]"
           onClick={addMore}
         >
           Add another
@@ -203,7 +204,7 @@ const Education = ({
   };
   return (
     <React.Fragment>
-      <div className="flex gap-2 flex-col ">
+      <div className="flex gap-3 flex-col ">
         {isListView && userData?.educations?.length ? (
           <ListView />
         ) : (
@@ -242,7 +243,7 @@ const Education = ({
               labelProps={labelProps}
               mandatory
             />
-            <div className="flex flex-auto gap-4">
+            <div className="flex flex-auto gap-4 sm:flex-row flex-col">
               <div className="flex flex-col flex-1">
                 <InputField
                   label="Start Date"
@@ -308,7 +309,7 @@ const Education = ({
             />
             <div className="flex gap-x-2 my-4">
               <span
-                className="bg-eduYellow rounded-xl cursor-pointer w-10 h-10 flex justify-center"
+                className="bg-eduYellow rounded-xl cursor-pointer md:w-10 md:h-10 w-[30px] h-[30px] flex justify-center"
                 onClick={executedSaveAndAddAnother}
               >
                 <FontAwesomeIcon
@@ -325,7 +326,7 @@ const Education = ({
                 }
               ></button>
               <span
-                className=" cursor-pointer text-[16px] text-eduBlack/60 font-body p-2 bg-eduLightGray w-[250px] rounded-[10px]"
+                className="cursor-pointer md:text-[16px] md:leading-normal text-xs text-eduBlack/60 font-body p-2 bg-eduLightGray w-[250px] rounded-[10px]"
                 onClick={executedSaveAndAddAnother}
               >
                 Save and Add Another
@@ -387,7 +388,7 @@ const UserDocs = ({
   const ListView = () => (
     <>
       {userData?.[dataKey]?.map((value: userDocs) => (
-        <div className="flex gap-x-6" key={value?._id || Date.now()}>
+        <div className="flex gap-x-6 bg-eduLightGray p-4 ipad-under:rounded rounded-[10px]" key={value?._id || Date.now()}>
           {/* <div className="flex">
             <FontAwesomeIcon
               icon={faFileCircleCheck}
@@ -395,22 +396,22 @@ const UserDocs = ({
             />
           </div> */}
           <div className="flex flex-1 flex-col text-eduBlack text-[16px] font-headers gap-1">
-            <span className="text-lg capitalize">{value.doc_name}</span>
-            <span className="text-eduBlack/60 text-[14px] font-body capitalize">
+            <span className="md:text-lg text-xs capitalize">{value.doc_name}</span>
+            <span className="text-eduBlack/60 md:text-[14px] md:leading-normal text-10px font-body font-[400]">
               {value.issuer_organization}
             </span>
             {value?.issue_date && (
-              <span className="text-eduBlack/60 text-[14px] font-body capitalize">
-                Issued {moment(value?.issue_date).format("DD/MM/YYYY")}
+              <span className="text-eduBlack/60  md:text-[14px] md:leading-normal text-10px font-body capitalize">
+                 Issued {moment(value?.issue_date).format("DD/MM/YYYY")}
               </span>
             )}
             {(value?.doc_id?.length as number) > 0 && (
-              <span className="text-eduBlack/60 text-[14px] font-body capitalize">
+              <span className="text-eduBlack/60  md:text-[14px] md:leading-normal text-10px font-body capitalize">
                 Credential ID {value?.doc_id || "-"}
               </span>
             )}
           </div>
-          <div className="flex p-4 py-2 justify-end">
+          <div className="flex  justify-end">
             <FontAwesomeIcon
               icon={faPenToSquare}
               className="text-eduBlack cursor-pointer"
@@ -419,15 +420,15 @@ const UserDocs = ({
           </div>
         </div>
       ))}
-      <div className="flex gap-x-4 my-4">
+      <div className="flex md:gap-x-4 gap-x-2 my-4">
         <span
-          className="bg-eduYellow rounded-xl cursor-pointer w-10 h-10 flex justify-center"
+          className="bg-eduYellow rounded-xl cursor-pointer md:w-10 md:h-10 h-[30px] w-[30px] flex justify-center"
           onClick={addMore}
         >
           <FontAwesomeIcon icon={faPlus} className="self-center text-black" />
         </span>
         <span
-          className="cursor-pointer text-eduBlack/60 p-2 px-6 bg-eduLightGray w-[250px] rounded-[10px]"
+          className="cursor-pointer text-eduBlack/60  p-2 px-6 bg-eduLightGray w-[250px] rounded-[10px]"
           onClick={addMore}
         >
           Add another
@@ -486,7 +487,7 @@ const UserDocs = ({
             labelProps={labelProps}
             mandatory
           />
-          <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-auto gap-4 sm:flex-row flex-col">
             <div className="flex flex-col">
               <InputField
                 label="Issue Date"
@@ -561,7 +562,7 @@ const UserDocs = ({
           />
           <div className="flex gap-x-2 my-4">
             <span
-              className="bg-eduYellow rounded-xl cursor-pointer w-10 h-10 flex justify-center"
+              className="bg-eduYellow rounded-xl cursor-pointer md:w-10 md:h-10 h-[30px] w-[30px] flex justify-center"
               onClick={executedSaveAndAddAnother}
             >
               <FontAwesomeIcon
@@ -578,7 +579,7 @@ const UserDocs = ({
               }
             ></button>
             <span
-              className=" cursor-pointer text-[16px] text-eduBlack/60 font-body p-2 bg-eduLightGray w-[250px] rounded-[10px]"
+              className="cursor-pointer md:text-[16px] md:leading-normal text-xs text-eduBlack/60 font-body p-2 bg-eduLightGray w-[250px] rounded-[10px]"
               onClick={executedSaveAndAddAnother}
             >
               Save and Add Another
@@ -680,11 +681,11 @@ const DropZone = ({
 
   return (
     <>
-      <div className="flex items-center w-full relative">
+      <div className="flex items-center w-full relative tet">
         <label
           htmlFor={img_type}
           className={`${
-            img_type === "profile_img" ? "w-1/5" : "w-full"
+            img_type === "profile_img" ? "w-[150px] text-center" : "w-full"
           } flex h-[12rem] flex-col overflow-hidden items-center justify-center min-h-[10rem] border transition-colors duration-300 border-white border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-white dark:hover:bg-gray-600`}
         >
           {values[img_type] ? (
@@ -718,7 +719,7 @@ const DropZone = ({
                   d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                 />
               </svg>
-              <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
+              <p className="mb-2 md:text-xs text-10px text-gray-500 dark:text-gray-400">
                 <span className="font-semibold">Click to upload</span> or drag
                 and drop
               </p>
@@ -735,7 +736,7 @@ const DropZone = ({
         </label>
       </div>
       <span
-        className={`text-red-500 capitalize text-sm animate-fade-in-down ${
+        className={`text-red-500 capitalize md:text-sm text-10px animate-fade-in-down ${
           errorMessage ? "visible" : "hidden"
         }`}
       >
@@ -769,27 +770,27 @@ const ProfileImages = ({
   return (
     <div className="flex flex-col gap-4 mb-3">
       <div className="flex flex-col items-start gap-2">
-        <span className="text-eduBlack font-body text-[16px]">
+        <span className="text-eduBlack font-body md:text-[16px] md:leading-normal text-sm">
           Upload Profile Picture
         </span>
         <DropZone img_type="profile_img" values={values} actions={actions} />
-        <span className="text-eduBlack/60 text-[12px] font-body">
+        <span className="text-eduBlack/60 md:text-[12px] text-10px font-body">
           (Image file should not exceed 500x500 pixels or 8MB)
         </span>
       </div>
       <span className="w-full border border-eduBlack/60" />
       <div className="flex flex-col items-start gap-2">
-        <span className="text-eduBlack font-body text-[16px]">
+        <span className="text-eduBlack font-body md:text-[16px] md:leading-normal">
           Upload Banner Image
         </span>
         <DropZone img_type="banner_img" values={values} actions={actions} />
-        <span className="text-eduBlack/60 text-[12px] font-body">
+        <span className="text-eduBlack/60 md:text-[12px] text-10px font-body">
           (Image file should not exceed 1400x250 pixels or 18MB)
         </span>
       </div>
       <span className="w-full border border-eduBlack/60" />
       <div className="flex flex-col gap-2">
-        <span className="text-eduBlack font-body text-[16px]">
+        <span className="text-eduBlack font-body md:text-[16px] md:leading-normal">
           Available for
         </span>
         {/* {notificationCategories[item].types?.map((type) => ( */}

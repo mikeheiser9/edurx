@@ -348,11 +348,11 @@ const Page = () => {
         {viewPostModal.isOpen && (
           <PostModal viewPostModal={viewPostModal} postId={selectedPostId} />
         )}
-        <ul className="flex justify-center gap-6">
+        <ul className="flex justify-center gap-6 ipad-under:mb-5">
           {hubTab.map((item, index) => (
             <li
               onClick={() => setActiveSubTab(item)}
-              className={`text-eduBlack font-body font-medium ease-in-out duration-500 border-b-2 py-2 text-[14px] cursor-pointer ${
+              className={`text-eduBlack font-body font-medium ease-in-out ipad-under:font-medium duration-500 border-b-2 py-2 text-[14px] ipad-under:text-xs ipad-under:py-1 cursor-pointer ${
                 item === activeSubTab ? "border-primary" : "border-transparent"
               }`}
               key={index}
@@ -363,8 +363,8 @@ const Page = () => {
         </ul>
       </div>
 
-      <div className="ml-[15px] w-full h-full overflow-auto">
-        <div className="text-[20px] font-[Hahmlet]">
+      <div className="ml-[15px] tablet-lg:ml-0 w-full h-full overflow-auto ipad-under:ml-0">
+        <div className="text-[20px] font-[Hahmlet] pt-2">
           {activeSubTab == "All Notifications"
             ? activeSubTab
             : `${activeSubTab} Notifications`}
@@ -499,10 +499,10 @@ const Page = () => {
                 newNotifications?.map((notification, index: number) => {
                   return (
                     <div
-                      className="flex w-full p-4 rounded-[10px] bg-eduLightGray border-[1px] border-[#13222A] gap-2"
+                      className="flex w-full p-4 rounded-[10px] bg-eduLightGray border-[1px] border-[#13222A] gap-2 ipad-under:items-center"
                       key={index}
                     >
-                      <span className="w-7 mt-1 overflow-hidden h-7 justify-center items-center flex bg-eduDarkGray rounded-full">
+                      <div className="w-[28px] mt-1 mr-3 ipad-under:w-6 ipad-under:h-6 ipad-under:rounded-full ipad-under:overflow-hidden">
                         {notification?.notificationFrom[0]?.profile_img ? (
                           <img
                             src={getStaticImageUrl(
@@ -513,16 +513,16 @@ const Page = () => {
                         ) : (
                           <FontAwesomeIcon icon={faUserAlt} size="xs" />
                         )}
-                      </span>
+                      </div>
                       <div className="flex flex-col text-start gap-3">
-                        <span className="text-[20px] text-eduBlack font-headers">
+                        <span className="text-[20px] ipad-under:text-[11px] tablet-lg:text-[18px] text-eduBlack font-headers">
                           {(notification.createdBy == loggedInUser._id
                             ? "You "
                             : notification.notificationFrom[0].username + " ") +
                             getSemanticDescriptionFromEventType(
                               notification.notificationType
                             )}
-                          <span className="opacity-[60%]">
+                          <span className="opacity-[60%] ipad-under:text-10px">
                             {" "}
                             <span>&#8226;</span>{" "}
                             {moment(notification?.eventTime).fromNow()}
@@ -530,7 +530,7 @@ const Page = () => {
                         </span>
                         {notification.notificationType.indexOf("comment") !=
                           -1 && (
-                          <span className="opacity-[60%]">
+                          <span className="opacity-[60%] ipad-under:text-10px">
                             "
                             {notification.commentsInfo[0].content.length > 311
                               ? notification.commentsInfo[0].content.substring(
@@ -608,10 +608,10 @@ const Page = () => {
                 oldNotifications?.map((notification, index: number) => {
                   return (
                     <div
-                      className="flex w-full p-4 rounded-[10px] bg-eduLightGray border-[1px] border-[#13222A] gap-2"
+                      className="flex w-full p-4 rounded-[10px] bg-eduLightGray border-[1px] border-[#13222A] gap-2 ipad-under:items-center"
                       key={index}
                     >
-                      <span className="w-7 mt-1 overflow-hidden h-7 justify-center items-center flex bg-eduDarkGray rounded-full">
+                      <div className="w-[28px] mt-1 mr-3 ipad-under:rounded-full ipad-under:w-6 ipad-under:h-6 ipad-under:overflow-hidden">
                         {notification?.notificationFrom[0]?.profile_img ? (
                           <img
                             src={getStaticImageUrl(
@@ -622,9 +622,9 @@ const Page = () => {
                         ) : (
                           <FontAwesomeIcon icon={faUserAlt} size="xs" />
                         )}
-                      </span>
+                      </div>
                       <div className="flex flex-col text-start gap-3">
-                        <span className="text-[20px] text-eduBlack font-headers">
+                        <div className="text-[20px] ipad-under:text-[11px] tablet-lg:text-[18px] text-eduBlack font-headers">
                           {(notification.createdBy == loggedInUser._id
                             ? "You "
                             : notification.notificationFrom?.[0]?.username +
@@ -632,15 +632,15 @@ const Page = () => {
                             getSemanticDescriptionFromEventType(
                               notification.notificationType
                             )}
-                          <span className="opacity-[60%]">
+                          <span className="opacity-[60%] ipad-under:text-10px">
                             {" "}
                             <span>&#8226;</span>{" "}
                             {moment(notification?.eventTime).fromNow()}
                           </span>
-                        </span>
+                        </div>
                         {notification.notificationType.indexOf("comment") !=
                           -1 && (
-                          <span className="opacity-[60%]">
+                          <span className="opacity-[60%] ipad-under:text-10px">
                             "
                             {notification.commentsInfo[0].content.length > 311
                               ? notification.commentsInfo[0].content.substring(
@@ -651,7 +651,7 @@ const Page = () => {
                             "{" "}
                           </span>
                         )}
-                        <div className="flex gap-6">
+                        <div className="flex gap-6 ipad-under:text-[11px] tablet-lg:text-[14px]">
                           <Link
                             className="text-eduLightBlue font-[600] underline"
                             href={`#`}

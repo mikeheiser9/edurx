@@ -29,8 +29,10 @@ export const ProfileDialog = ({ profileModal, loggedInUser }: Props) => {
       <Modal
         visible={profileModal.isOpen}
         onClose={profileModal.closeModal}
-        modalBodyClassName="relative  !h-full overflow-y-auto !w-full"
+        modalBodyClassName="relative  !h-full overflow-y-auto !w-full test"
         headerTitle="View Profile"
+         modalClassName=" ipad-under:!max-h-[100vh] ipad-under:w-full  ipad-under:!rounded-none ipad-under:!min-h-[100vh] ipad-under:bg-eduLightGray"
+         modalHedaerClassName="ipad-under:!bg-eduLightGray ipad-under:!border-b"
       >
         <UserProfile
           userId={loggedInUser?._id}

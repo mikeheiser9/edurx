@@ -314,7 +314,7 @@ const EditProfile = ({
   if (!userData) return null;
 
   return (
-    <div className="flex-auto flex flex-col p-4 pt-2">
+    <div className="flex-auto flex flex-col pt-2">
       <Formik
         enableReinitialize
         initialValues={(intialFormikValues as any)[currentSection]}

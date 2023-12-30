@@ -182,7 +182,7 @@ export const UserProfile = ({ userId, profileModal, setSelectedPostId }: { userI
                 visible={editModal.isOpen}
                 onClose={editModal.closeModal}
                 closeOnOutsideClick
-                modalClassName="!w-2/5"
+                modalClassName="md:w-[660px]"
                 modalBodyClassName="flex flex-auto p-4 !h-full overflow-y-auto"
                 customHeader={
                   <ModalHeader
@@ -264,6 +264,7 @@ export const UserProfile = ({ userId, profileModal, setSelectedPostId }: { userI
                       ) : undefined
                     }
                   />
+                  
                   <About
                     openModal={isSelfProfile ? editModal.openModal : undefined}
                     personal_bio={userData?.personal_bio}
@@ -341,7 +342,7 @@ export const UserProfile = ({ userId, profileModal, setSelectedPostId }: { userI
                     onLoadMore={()=>loadMoreDocuments("license")}
                   />
                 </div>
-              </div>
+                </div>
             </>
           )}
         </>

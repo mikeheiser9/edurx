@@ -72,7 +72,7 @@ export const EditProfileDialog = ({
       visible={editProfileModal.isOpen}
       onClose={editProfileModal.closeModal}
       closeOnOutsideClick
-      modalClassName="!w-2/5"
+      modalClassName="md:!w-2/5"
       modalBodyClassName="flex flex-auto p-4 !h-full overflow-y-auto"
       customHeader={
         <ModalHeader

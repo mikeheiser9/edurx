@@ -705,8 +705,10 @@ const pollVote = async (req, res) => {
       };
     }
 
+    console.log(moment().utc(),moment(postInfo[0].publishedOn)
+    .utc());
     if (
-      moment().utc().format("DD MM YYYY") >
+      moment().utc().format("DD MM YYYY") <=
       moment(postInfo[0].publishedOn)
         .utc()
         .add(postInfo[0].votingLength, "days")

@@ -59,6 +59,8 @@ module.exports = {
         eduLightGray: "#F9F8F9",
       },
       fontSize: {
+        '8px': '5px',
+        '10px': '10px',
         h1: [
           "40px",
           {

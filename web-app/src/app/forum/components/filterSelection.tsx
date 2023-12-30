@@ -99,12 +99,12 @@ export const FilterSetting = ({ accountSettingModal }: Props) => {
       headerTitle={`Sort by filter`}
       visible={accountSettingModal.isOpen}
       onClose={accountSettingModal.closeModal}
-      modalClassName="!w-2/6"
+      modalClassName="md:!max-w-[550px]"
       showFooter={false}
     >
       <div className="flex gap-4 flex-col">
         <div className="text-eduBlack flex gap-2 flex-col">
-          <span className="font-headers font-medium text-xl text-eduBlack mb-4">
+          <span className="font-headers font-medium md:text-xl text-base text-eduBlack mb-4">
             Select Filters
           </span>
           <InfiniteScroll

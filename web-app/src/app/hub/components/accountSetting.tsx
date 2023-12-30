@@ -141,7 +141,7 @@ export const AccountSetting = ({ accountSettingModal, userData }: Props) => {
       )}`}
       visible={accountSettingModal.isOpen}
       onClose={accountSettingModal.closeModal}
-      modalClassName="!w-2/6"
+      modalClassName="md:!w-2/6"
       showFooter={false}
       resetReduxModalOnClose
     >

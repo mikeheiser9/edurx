@@ -30,7 +30,7 @@ export const TextArea = forwardRef(
         {label && (
           <label
             htmlFor={name}
-            className="block text-[16px] font-body text-eduBlack"
+            className="block md:text-[16px] md:leading-normal text-xs font-body text-eduBlack"
             {...labelProps}
           >
             {label}
@@ -38,7 +38,7 @@ export const TextArea = forwardRef(
         )}
         <textarea
           id={label && name}
-          className={`bg-eduLightGray text-eduBlack rounded-[10px] mt-[10px] p-2 focus-visible:border-none outline-none autofill:active:bg-black font-body placeholder:text-eduBlack/60 ${
+          className={`bg-eduLightGray text-eduBlack md:text-base text-xs rounded-[10px] mt-[10px] p-2 focus-visible:border-none outline-none autofill:active:bg-black font-body placeholder:text-eduBlack/60 ${
             meta?.touched && meta.error ? "border-[1px] border-red-500" : ""
           } ${className}`}
           rows={rows}

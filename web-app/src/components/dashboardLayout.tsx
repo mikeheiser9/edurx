@@ -28,21 +28,19 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className="flex flex-col w-full h-screen overflow-hidden">
-      <div className="w-full p-4 px-8">
-        <Image width={40} height={40} src={eduRxLogo} alt="eduRx-Logo" />
+    <div className="flex flex-col w-full">
+    <div className="md:p-4 md:pb-0 h-[76px] md:block hidden">
+     <div className="logo-desktop block ipad-under:hidden pl-7"><a className="inline-block" href="#"><img src="https://i.ibb.co/gwRZ6gm/edu-Rx-blue-1.png" alt="edu-Rx-blue-1"/></a></div>
+      <div className="line w-full border-[2px] border-b-0 border-eduLightBlue h-[13px] mt-2.5 rounded-[6px_6px_0px_0px]" ></div>
+    </div>
+    <div className="flex md:p-4 md:px-5 w-full h-screen overflow-hidden md:max-h-[calc(100dvh_-_76px)]">
+      <LeftPanelWrapper>{getLeftPanel()}</LeftPanelWrapper>
+      <div className="flex-1 flex overflow-hidden flex-col gap-2">
+        <HeaderNav />
+        {/* Nested inner routes */}
+        <div className="w-full md:p-4 ipad-under:px-4 ipad-under:pb-[90px] flex flex-col h-full overflow-hidden">{children}</div>
       </div>
-      <span className="border-2 border-b-0 h-6 -mb-7 rounded-lg rounded-b-none border-eduLightBlue w-[99%] self-center" />
-      <div className="flex p-5 w-full h-screen overflow-hidden">
-        <LeftPanelWrapper>{getLeftPanel()}</LeftPanelWrapper>
-        <div className="flex-1 flex overflow-hidden flex-col gap-2">
-          <HeaderNav />
-          {/* Nested inner routes */}
-          <div className="w-full p-4 flex flex-col h-full overflow-hidden">
-            {children}
-          </div>
-        </div>
-      </div>
+    </div>
     </div>
   );
 }

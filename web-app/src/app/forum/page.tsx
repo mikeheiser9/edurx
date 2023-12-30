@@ -196,30 +196,30 @@ const Page = () => {
       )}
       <DraftModal />
       <PostModal viewPostModal={viewPostModal} postId={selectedPostId} />
-      <div className="flex justify-between items-center w-full h-[55px]">
-        <div className="flex justify-center items-center gap-2">
-          {/* <span className="bg-primary-dark w-8 h-8 flex items-center justify-center rounded-md ">
+      <div className="flex justify-between items-center w-full x-large:mb-2 x-large:gap-y-4 flex-wrap ipad-under:mb-5 ipad-under:flex-col-reverse ipad-under:gap-4">
+        <div className="flex justify-center items-center gap-3 ipad-under:hidden">
+          <span className="bg-primary-dark w-8 h-8 flex items-center justify-center rounded-[5px] ">
             <FontAwesomeIcon
               icon={faSearch}
-              className="text-eduBlack text-[18px] bg-eduDarkGray p-[8px] rounded-[10px]"
+              className="text-eduBlack text-[18px] bg-eduDarkGray p-[8px] rounded-[5px]"
             />
-          </span> */}
+          </span> 
           <Button
             onClick={addPostModal.openModal}
-            className="!w-[125px] hover:!bg-eduBlack !bg-eduLightGray text-eduBlack flex gap-3 justify-center items-center px-2 py-2 !border-none"
+            className="!w-[125px] hover:!bg-eduBlack !h-[34px] !bg-eduDarkGray group text-eduBlack flex gap-3 justify-center items-center px-2 py-2 !border-none"
           >
             <FontAwesomeIcon
               icon={faPlusCircle}
-              className="text-primary text-[20px]"
+              className="text-eduLightBlue group-hover:text-white text-[18px]"
             />
-            <span className="text-[14px] font-body font-medium">New Post</span>
+            <span className="text-[14px] font-body font-medium text-eduLightBlue group-hover:text-white">New Post</span>
           </Button>
         </div>
-        <ul className="flex gap-6">
+        <ul className="flex gap-6 ipad-under:mx-auto">
           {forumTabs.map((item) => (
             <li
               onClick={() => setSelectedForumTab(item)}
-              className={`text-eduBlack font-body font-medium ease-in-out duration-500 border-b-2 py-2 text-[14px] cursor-pointer ${
+              className={`text-eduBlack font-body font-medium ease-in-out duration-500 border-b-2 py-2 text-[14px] cursor-pointer ipad-under:text-xs ipad-under:py-1 ${
                 item === selectedForumTab
                   ? "border-primary"
                   : "border-transparent"
@@ -233,7 +233,7 @@ const Page = () => {
         <div className="flex justify-center items-center gap-2">
           <label
             htmlFor="forumType"
-            className="text-eduBlack font-body text-[14px] font-medium"
+            className="text-eduBlack font-body text-[14px] font-medium ipad-under:hidden"
           >
             Viewing :
           </label>
@@ -250,11 +250,11 @@ const Page = () => {
             onSelect={(e) => handleFilters("forumType", e?.value)}
             onClear={() => handleFilters("forumType", "")}
             value={selectedFilters?.forumType || "Change forum"}
-            wrapperClass="!w-[12rem]"
+            wrapperClass="!w-[12rem] h-[34px]"
           />
         </div>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 mb-2">
         {selectedFilters?.categories?.map((item: TagCategoryType) => (
           <Chip
             key={item._id}
@@ -266,7 +266,7 @@ const Page = () => {
                 ) ?? [];
               handleFilters("categories", values);
             }}
-            className="bg-transparent border border-eduLightBlue  text-xs px-2 leading-6 rounded-md gap-2"
+            className="bg-transparent border border-eduLightBlue  text-xs ipad-under:text-[8px] ipad-under:rounded-sm ipad-under:leading-normal ipad-under:py-1 px-2 leading-6 rounded-md gap-2"
             isSelected
           />
         ))}
@@ -281,7 +281,7 @@ const Page = () => {
                 ) ?? [];
               handleFilters("filters", values);
             }}
-            className="!bg-eduDarkGray border text-eduDarkBlue text-xs px-2 leading-6 rounded-md gap-2"
+            className="!bg-eduDarkGray border text-eduDarkBlue text-xs ipad-under:text-[8px] ipad-under:rounded-sm ipad-under:leading-normal ipad-under:py-1 px-2 leading-6 rounded-md gap-2"
             isSelected
           />
         ))}

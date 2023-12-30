@@ -218,16 +218,16 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
   };
 
   const HeaderJsx = (): React.ReactElement => (
-    <div className="bg-eduDarkGray p-2 px-4 font-sans flex gap-2 h-[50px] items-center">
-      <div className="flex gap-4">
-        <span className="flex gap-4 items-center font-body text-[16px]">
+    <div className="bg-eduDarkGray ipad-under:bg-eduLightGray ipad-under:border-b p-2 px-4 font-sans flex gap-2 h-[50px] items-center ipad-under:text-eduLightBlue">
+      <div className="flex md:gap-4 gap-2">
+        <span className="flex md:gap-4 gap-2 items-center font-body md:text-[16px] text-[12px]">
           <FontAwesomeIcon icon={faArrowUp} className="font-bold " />
           {(post?.likeCount || 0) - (post?.dislikeCount || 0)}
           <FontAwesomeIcon icon={faArrowDown} className="font-bold" />
           <span>|</span>
           <FontAwesomeIcon icon={faNewspaper} />
         </span>{" "}
-        <span className="font-body text-[16px]">{`${post?.title?.substring(
+        <span className="font-body md:text-[16px] text-[12px]">{`${post?.title?.substring(
           0,
           26
         )} ${post?.title && post?.title?.length > 26 && "..."}`}</span>
@@ -242,7 +242,7 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
       <FontAwesomeIcon
         icon={faX}
         onClick={viewPostModal.closeModal}
-        className="ml-auto font-bold self-center cursor-pointer text-eduBlack"
+        className="ml-auto self-center cursor-pointer md:text-[24px] text-xs text-eduBlack"
       />
     </div>
   );
@@ -356,7 +356,7 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
         showCloseIcon
         customHeader={<HeaderJsx />}
         showFooter={false}
-        modalClassName="h-full"
+        modalClassName="h-full md:!rounded-xl  ipad-under:!max-h-[100vh] ipad-under:w-full !rounded-none ipad-under:!min-h-[100vh] md:min-h-[auto] !bg-eduLightGray"
         closeOnOutsideClick
       >
         <React.Fragment>
@@ -364,268 +364,283 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
             <RequestListModal requestModal={requestModal} postId={postId} />
           )}
           <div className="flex flex-col flex-auto text-eduBlack">
-            <div className="flex flex-auto gap-4">
-              <div className="flex flex-col gap-2 items-center">
-                <span
-                  onClick={() => reactOnPost("like")}
-                  onAnimationEnd={() => updateAnimation("like", false)}
-                  className={`w-7 h-7 ease-in-out duration-300  cursor-pointer rounded-md flex justify-center items-center border-2 ${
-                    animate?.like && "animate-wiggle"
-                  } ${
-                    userReactionOnPost?.reactionType === "like"
-                      ? "border-eduYellow text-eduYellow"
-                      : "border-eduDarkBlue text-eduDarkBlue"
-                  } `}
-                >
-                  <FontAwesomeIcon icon={faThumbsUp} size="sm" />
-                </span>
-                <span className="font-body">
-                  {(post?.likeCount || 0) - (post?.dislikeCount || 0)}
-                </span>
-                <span
-                  onClick={() => reactOnPost("dislike")}
-                  onAnimationEnd={() => updateAnimation("dislike", false)}
-                  className={`w-7 h-7 rounded-md flex cursor-pointer justify-center items-center border-2 ${
-                    animate?.dislike && "animate-wiggle"
-                  } ${
-                    userReactionOnPost?.reactionType === "dislike"
-                      ? "border-primary text-primary"
-                      : "border-eduDarkBlue text-EduDarkBlue"
-                  } `}
-                >
-                  <FontAwesomeIcon icon={faThumbsDown} />
-                </span>
-              </div>
+            <div className="flex flex-auto">
               <div className="flex flex-auto flex-col gap-1">
-                <div className="flex">
-                  <div className="flex flex-col flex-1">
-                    <div className="flex gap-2 items-center w-full">
-                      <div>
-                        <span className="w-[28px] overflow-hidden h-[28px] justify-center items-center flex bg-eduDarkGray rounded-full">
-                          {post?.userId?.profile_img ? (
-                            <Image
-                              src={getStaticImageUrl(post?.userId?.profile_img)}
-                              width={200}
-                              height={200}
-                              alt="user_img"
-                            />
-                          ) : (
-                            <FontAwesomeIcon icon={faImage} />
-                          )}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-eduDarkBlue text-[14px] font-body">
-                          {post?.forumType
-                            ? npiToDefinition[
-                                post.forumType as keyof typeof npiToDefinition
-                              ] || post?.forumType
-                            : "-"}
-                        </span>
-                      </div>
-                      <div>
-                        <span>•</span>
-                      </div>
-                      <div>
-                        <span className="text-eduDarkBlue text-[14px] font-body">
-                          Posted by{" "}
-                          <Link
-                            href={`/profile/${post?.userId?._id}`}
-                            className="font-body font-semibold"
-                          >
-                            {post?.userId?.username ||
-                              getFullName(
-                                post?.userId?.first_name,
-                                post?.userId?.last_name,
-                                "_"
-                              )}
-                          </Link>
-                        </span>
-                      </div>
-                      <div>
-                        <span>•</span>
-                      </div>
-                      <div>
-                        <span className="font-body text-[14px] text-eduDarkBlue">
-                          Published on{" "}
-                          {moment(post?.createdAt).format("DD/MM/YYYY")}
-                        </span>
-                      </div>
-                      <div className="flex flex-1 items-center">
-                        <FontAwesomeIcon
-                          icon={post?.isPrivate ? faLock : faEye}
-                          className="animate-fade-in-down justify-center"
-                          size="sm"
-                        />
-                      </div>
-                      {/* {post?.flag && <Badge label={post?.flag} type="default" />} */}
-                    </div>
-                    <div>
-                      <h2 className="text-eduBlack text-[28px] font-headers">
-                        {post?.title}
-                      </h2>
-                    </div>
-                    <div className="flex gap-2 flex-wrap flex-auto">
-                      {post?.categories?.map((category: any) => (
-                        <span
-                          key={category?._id}
-                          className="text-[12px] py-2 px-4 bg-transparent text-eduDarkBlue rounded-[10px] border border-eduDarkBlue"
-                        >
-                          {category?.name}
-                        </span>
-                      ))}
-                      {post?.filters?.map((filter: any) => (
-                        <span
-                          key={filter._id}
-                          className="text-[12px] p-2 px-4 bg-eduDarkGray rounded-[10px]"
-                        >
-                          {filter.name}
-                        </span>
-                      ))}
-                    </div>
+                <div className="flex gap-3">
+                  <div className="flex flex-col gap-2 items-center">
+                    <span
+                      onClick={() => reactOnPost("like")}
+                      onAnimationEnd={() => updateAnimation("like", false)}
+                      className={`w-7 h-7 ease-in-out duration-300  cursor-pointer rounded-md flex justify-center items-center border-2 ${
+                        animate?.like && "animate-wiggle"
+                      } ${
+                        userReactionOnPost?.reactionType === "like"
+                          ? "border-eduYellow text-eduYellow"
+                          : "border-eduDarkBlue text-eduDarkBlue"
+                      } `}
+                    >
+                      <FontAwesomeIcon icon={faThumbsUp} size="sm" />
+                    </span>
+                    <span className="font-body ipad-under:text-xs">
+                      {(post?.likeCount || 0) - (post?.dislikeCount || 0)}
+                    </span>
+                    <span
+                      onClick={() => reactOnPost("dislike")}
+                      onAnimationEnd={() => updateAnimation("dislike", false)}
+                      className={`w-7 h-7 rounded-md flex cursor-pointer justify-center items-center border-2 ${
+                        animate?.dislike && "animate-wiggle"
+                      } ${
+                        userReactionOnPost?.reactionType === "dislike"
+                          ? "border-primary text-primary"
+                          : "border-eduDarkBlue text-EduDarkBlue"
+                      } `}
+                    >
+                      <FontAwesomeIcon icon={faThumbsDown} />
+                    </span>
                   </div>
-                  <>
-                    {isSelfPost ? (
-                      <div className="flex gap-2">
-                        <Button
-                          label="Edit"
-                          onClick={onEditPost}
-                          className="w-auto m-auto px-4"
-                        />
-                        {/* {post?.isPrivate && (
+
+                  <div className="flex w-[calc(100%_-_40px)]">
+                    <div className="flex flex-col flex-1">
+                      <div className="flex gap-y-1 gap-x-2 items-center w-full flex-wrap">
+                        <div>
+                          <span className="md:w-[28px] overflow-hidden md:h-[28px] w-4 h-4 justify-center items-center flex bg-eduDarkGray rounded-full">
+                            {post?.userId?.profile_img ? (
+                              <Image
+                                src={getStaticImageUrl(
+                                  post?.userId?.profile_img
+                                )}
+                                width={200}
+                                height={200}
+                                alt="user_img"
+                              />
+                            ) : (
+                              <FontAwesomeIcon
+                                icon={faImage}
+                                className="ipad-under:text-10px w-2.5"
+                              />
+                            )}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-eduDarkBlue md:text-[14px] text-[9px] font-body">
+                            {post?.forumType
+                              ? npiToDefinition[
+                                  post.forumType as keyof typeof npiToDefinition
+                                ] || post?.forumType
+                              : "-"}
+                          </span>
+                        </div>
+                        <div>
+                          <span>•</span>
+                        </div>
+                        <div>
+                          <span className="text-eduDarkBlue md:text-[14px] text-[9px] font-body">
+                            Posted by{" "}
+                            <Link
+                              href={`/profile/${post?.userId?._id}`}
+                              className="font-body font-semibold"
+                            >
+                              {post?.userId?.username ||
+                                getFullName(
+                                  post?.userId?.first_name,
+                                  post?.userId?.last_name,
+                                  "_"
+                                )}
+                            </Link>
+                          </span>
+                        </div>
+                        <div>
+                          <span>•</span>
+                        </div>
+                        <div>
+                          <span className="font-body md:text-[14px] text-[9px] text-eduDarkBlue">
+                            Published on{" "}
+                            {moment(post?.createdAt).format("DD/MM/YYYY")}
+                          </span>
+                        </div>
+                        <div className="flex flex-1 items-center">
+                          <FontAwesomeIcon
+                            icon={post?.isPrivate ? faLock : faEye}
+                            className="animate-fade-in-down justify-center"
+                            size="sm"
+                          />
+                        </div>
+                        {/* {post?.flag && <Badge label={post?.flag} type="default" />} */}
+                      </div>
+                      <div className="flex justify-between gap-1">
+                        <div className="titleCategory">
+                          <div className="pt-1 pb-3">
+                            <h2 className="text-eduBlack md:text-[28px] text-[15px] font-medium font-headers leading-none">
+                              {post?.title}
+                            </h2>
+                          </div>
+                          <div className="flex gap-2 flex-wrap flex-auto items-center">
+                            {post?.categories?.map((category: any) => (
+                              <div>
+                                <span
+                                  key={category?._id}
+                                  className="md:text-[12px] ipad-under:bg-white text-[8px] md:py-1 md:px-4 py-0.5 px-2 bg-transparent text-eduDarkBlue rounded-[2px] md:rounded-[5px] border border-eduDarkBlue"
+                                >
+                                  {category?.name}
+                                </span>
+                              </div>
+                            ))}
+                            {post?.filters?.map((filter: any) => (
+                              <span
+                                key={filter._id}
+                                className="md:text-[12px] text-[8px] ipad-under:leading-normal md:py-1 md:px-4 py-0.5 px-2 ipad-under:bg-white ipad-under:border-eduDarkBlue ipad-under:text-eduDarkBlue bg-eduDarkGray md:rounded-[5px] border"
+                              >
+                                {filter.name}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="PostBTN">
+                          {isSelfPost ? (
+                            <div className="flex gap-2">
+                              <Button
+                                label="Edit"
+                                onClick={onEditPost}
+                                className="w-auto m-auto px-4"
+                              />
+                              {/* {post?.isPrivate && (
                           <ReviewRequestButton
                             count={post?.postRequests?.length || 0}
                             onClick={requestModal?.openModal}
                           />
                         )} */}
+                            </div>
+                          ) : (
+                            <button
+                              id="buttonLabel"
+                              // onClick={requestAccess}
+                              onClick={onPostActions}
+                              className={`p-2 px-4 md:text-sm text-10px text-black bg-white rounded-md w-auto font-medium bg-transparent border-eduBlack border-[1.5px] py-1 m-auto font-body transition-colors duration-500 hover:bg-eduBlack hover:text-white disabled:opacity-70 ${
+                                buttonLabel == "Requested" &&
+                                "!bg-eduLightBlue text-white"
+                              }`}
+                              onMouseEnter={() => {
+                                if (buttonLabel == "Following") {
+                                  setButtonLabel("Unfollow");
+                                }
+                              }}
+                              onMouseLeave={() => {
+                                if (buttonLabel == "Unfollow") {
+                                  setButtonLabel("Following");
+                                }
+                              }}
+                              disabled={buttonLabel == "Requested"}
+                            >
+                              {buttonLabel}
+                            </button>
+                          )}
+                        </div>
                       </div>
+                    </div>
+                  </div>
+                  </div>
+                  <>
+                    {post?.isPrivate &&
+                    !isSelfPost &&
+                    requestStatus !== "accepted" ? (
+                      <DummyPost />
                     ) : (
-                      <button
-                        id="buttonLabel"
-                        // onClick={requestAccess}
-                        onClick={onPostActions}
-                        className={`p-2 px-4 text-sm text-black bg-white rounded-md w-auto font-medium bg-transparent border-eduBlack border-[1.5px] py-1 m-auto font-body transition-colors duration-500 hover:bg-eduBlack hover:text-white disabled:opacity-70 ${
-                          buttonLabel == "Requested" &&
-                          "!bg-eduLightBlue text-white"
-                        }`}
-                        onMouseEnter={() => {
-                          if (buttonLabel == "Following") {
-                            setButtonLabel("Unfollow");
-                          }
-                        }}
-                        onMouseLeave={() => {
-                          if (buttonLabel == "Unfollow") {
-                            setButtonLabel("Following");
-                          }
-                        }}
-                        disabled={buttonLabel == "Requested"}
-                      >
-                        {buttonLabel}
-                      </button>
+                      <>
+                        {post?.content && (
+                          <ReactQuill
+                            className="text-eduBlack -mx-3 post-body ipad-under:text-xs"
+                            value={post?.content}
+                            theme="bubble"
+                            readOnly
+                          />
+                        )}
+                        <div className="flex flex-1 gap-4 py-4 text-eduDarkBlue items-center">
+                          <span className="font-body md:text-[14px] text-10px">
+                            <FontAwesomeIcon
+                              className="md:text-[18px] text-10px"
+                              icon={faCommentDots}
+                            />{" "}
+                            {post?.commentCount} Comments
+                          </span>
+                          <span className="font-body md:text-[14px] text-10px">
+                            <FontAwesomeIcon
+                              className="md:text-[18px] text-10px"
+                              icon={faChartColumn}
+                            />{" "}
+                            {post?.views} Views
+                          </span>
+                        </div>
+                        {post.postType == "poll" && (
+                          <div className="flex flex-col w-full gap-2 text-eduLightBlue font-[400] mb-2 ">
+                            {post.options?.map((option: string) =>
+                              isVotingClosed ? (
+                                <ProgressBar
+                                  wrapperClass={
+                                    "h-10 rounded text-md cursor-pointer border border-eduDarkGray"
+                                  }
+                                  onClick={() => handleVote(post._id, option)}
+                                  key={option}
+                                  label={
+                                    <span className="p-4 font-medium flex justify-center items-center gap-3 whitespace-nowrap">
+                                      <b>
+                                        {Math.round(
+                                          getPercentageForOption(option)
+                                        )}
+                                        %
+                                      </b>
+                                      {option}
+                                      {userChoosenOption?.choosenOption ===
+                                        option && (
+                                        <FontAwesomeIcon icon={faCheckCircle} />
+                                      )}
+                                    </span>
+                                  }
+                                  progress={getPercentageForOption(option)}
+                                  filledClass={`!justify-start ${
+                                    userChoosenOption?.choosenOption === option
+                                      ? "bg-eduYellow"
+                                      : "!bg-eduDarkGray"
+                                  }`}
+                                />
+                              ) : (
+                                <span
+                                  className={`border-[1px] p-2 rounded border-eduLightBlue text-center cursor-pointer ${
+                                    userChoosenOption?.choosenOption ===
+                                      option && "!bg-eduYellow"
+                                  }`}
+                                  onClick={() => handleVote(post._id, option)}
+                                >
+                                  {option}
+                                </span>
+                              )
+                            )}
+                            <div>
+                              <span>{post?.votingInfo?.length} votes - </span>
+                              <span>
+                                {moment(post.publishedOn).add(
+                                  "day",
+                                  Number(post?.votingLength)
+                                ) < moment()
+                                  ? "final Results"
+                                  : `${
+                                      moment(post?.publishedOn)
+                                        .add("day", Number(post?.votingLength))
+                                        .diff(moment(), "day") + 1
+                                    } days left`}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                        <CommentManager
+                          addReaction={addReaction}
+                          post={post}
+                          setPost={setPost}
+                          getPostById={getPostById}
+                        />
+                      </>
                     )}
                   </>
-                </div>
-                <>
-                  {post?.isPrivate &&
-                  !isSelfPost &&
-                  requestStatus !== "accepted" ? (
-                    <DummyPost />
-                  ) : (
-                    <>
-                      {post?.content && (
-                        <ReactQuill
-                          className="text-eduBlack -mx-3 post-body"
-                          value={post?.content}
-                          theme="bubble"
-                          readOnly
-                        />
-                      )}
-                      <div className="flex flex-1 gap-4 py-4 text-eduDarkBlue items-center">
-                        <span className="font-body text-[14px]">
-                          <FontAwesomeIcon
-                            className="text-[18px]"
-                            icon={faCommentDots}
-                          />{" "}
-                          {post?.commentCount} Comments
-                        </span>
-                        <span className="font-body text-[14px]">
-                          <FontAwesomeIcon
-                            className="text-[18px]"
-                            icon={faChartColumn}
-                          />{" "}
-                          {post?.views} Views
-                        </span>
-                      </div>
-                      {post.postType == "poll" && (
-                        <div className="flex flex-col w-full gap-2 text-eduLightBlue font-[400]">
-                          {post.options?.map((option: string) =>
-                            isVotingClosed ? (
-                              <ProgressBar
-                                wrapperClass={
-                                  "h-10 rounded text-md cursor-pointer border border-eduDarkGray"
-                                }
-                                onClick={() => handleVote(post._id, option)}
-                                key={option}
-                                label={
-                                  <span className="p-4 font-medium flex justify-center items-center gap-3">
-                                    <b>
-                                      {Math.round(
-                                        getPercentageForOption(option)
-                                      )}
-                                      %
-                                    </b>
-                                    {option}
-                                    {userChoosenOption?.choosenOption ===
-                                      option && (
-                                      <FontAwesomeIcon icon={faCheckCircle} />
-                                    )}
-                                  </span>
-                                }
-                                progress={getPercentageForOption(option)}
-                                filledClass={`!justify-start ${
-                                  userChoosenOption?.choosenOption === option
-                                    ? "bg-eduYellow"
-                                    : "!bg-eduDarkGray"
-                                }`}
-                              />
-                            ) : (
-                              <span
-                                className={`border-[1px] p-2 rounded border-eduLightBlue text-center cursor-pointer ${
-                                  userChoosenOption?.choosenOption === option &&
-                                  "!bg-eduYellow"
-                                }`}
-                                onClick={() => handleVote(post._id, option)}
-                              >
-                                {option}
-                              </span>
-                            )
-                          )}
-                          <div>
-                            <span>{post?.votingInfo?.length} votes - </span>
-                            <span>
-                              {moment(post.publishedOn).add(
-                                "day",
-                                Number(post?.votingLength)
-                              ) < moment()
-                                ? "final Results"
-                                : `${
-                                    moment(post?.publishedOn)
-                                      .add("day", Number(post?.votingLength))
-                                      .diff(moment(), "day") + 1
-                                  } days left`}
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                      <CommentManager
-                        addReaction={addReaction}
-                        post={post}
-                        setPost={setPost}
-                        getPostById={getPostById}
-                      />
-                    </>
-                  )}
-                </>
+                
               </div>
             </div>
           </div>
@@ -634,7 +649,7 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
             visible={unfollowPostConfirmationModel.isOpen}
             customHeader={<Header />}
             showCloseIcon
-            modalClassName="!w-auto min-w-[30rem] !rounded-lg"
+            modalClassName="md:!w-auto md:min-w-[30rem]  !rounded-lg"
             modalBodyClassName="bg-white"
             showFooter={false}
             closeOnEscape

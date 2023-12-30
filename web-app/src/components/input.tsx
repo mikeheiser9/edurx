@@ -10,6 +10,7 @@ interface InputFieldType extends InputHTMLAttributes<HTMLInputElement> {
   mandatory?: boolean;
   iconContainerClass?: string;
   isFormikField?: boolean;
+  parentClass?:string;
 }
 
 export default function InputField({
@@ -19,17 +20,22 @@ export default function InputField({
   mandatory,
   iconContainerClass,
   isFormikField = true,
+  parentClass,
   ...props
 }: InputFieldType): React.JSX.Element {
   // const [field, meta] = isFormikField ? useField(props) : [];
   const [field, meta] = isFormikField ? useField(props) : [{}, {}];
 
   return (
-    <div>
+    <div className={
+      parentClass
+        ? parentClass
+        : ""
+    }>
       {label && (
         <label
           htmlFor={props.name}
-          className="block mt-4 mb-2 text-[16px] text-eduBlack font-body"
+          className="block mt-4 mb-2 md:text-[16px] md:leading-normal text-xs text-eduBlack font-body"
           {...labelProps}
         >
           {label}
@@ -60,7 +66,7 @@ export default function InputField({
           {...field}
         />
         {meta?.touched && meta.error ? (
-          <span className="text-xs font-body mt-1 first-letter:capitalize flex-shrink-0 opacity-50 text-[#FF0000] font-[500]">
+          <span className="text-xs ipad-under:text-10px font-body mt-1 first-letter:capitalize flex-shrink-0 opacity-50 text-[#FF0000] font-[500]">
             {meta.error}
           </span>
         ) : null}

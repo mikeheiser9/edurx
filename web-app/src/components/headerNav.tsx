@@ -1,6 +1,14 @@
 "use client";
 import React from "react";
 import EduRxIcon from "../assets/icons/eduRx-black.svg";
+import HubMobileIcon from "../assets/icons/hubMobileIcon.svg";
+import HubMobileIconActive from "../assets/icons/hubMobileIcon-active.svg";
+import ForumMobileIcon from "../assets/icons/forumMobileIcon.svg";
+import ForumMobileIconActive from "../assets/icons/forumMobileIcon-active.svg";
+import NewPostMobileIcon from "../assets/icons/newPostMobileIcon.svg";
+import NewPostMobileIconActive from "../assets/icons/newPostMobileIcon-active.svg";
+import ResourcesMobileIcon from "../assets/icons/ResourcesMobileIcon.svg";
+import ResourcesMobileIconActive from "../assets/icons/ResourcesMobileIcon-active.svg";
 import {
   removeToken,
   removeUserDetail,
@@ -8,6 +16,7 @@ import {
 } from "@/redux/ducks/user.duck";
 import { getStaticImageUrl } from "@/util/helpers";
 import {
+  faChevronRight,
   faGear,
   faSignOut,
   faUserAlt,
@@ -32,6 +41,13 @@ const tabMenuOptions = [
   { label: "Health Check", isDisabled: true },
 ];
 
+const tabMenuOptionsForMobile=[
+  { label: "Hub", img: EduRxIcon, path: "hub",activeIcon:HubMobileIconActive,inActiveIcon:HubMobileIcon },
+  { label: "Forum", path: "forum" ,activeIcon:ForumMobileIconActive,inActiveIcon:ForumMobileIcon},
+  { label: "New Post", path: "" ,activeIcon:NewPostMobileIconActive,inActiveIcon:NewPostMobileIcon},
+  { label: "Resources", path: "resources" ,activeIcon:ResourcesMobileIconActive,inActiveIcon:ResourcesMobileIcon},
+]
+
 const HeaderNav = () => {
   const router = useRouter();
   const pathName = usePathname();
@@ -47,28 +63,47 @@ const HeaderNav = () => {
 
   const onNavigate = (item: any) => {
     if (!item?.path || item?.isDisabled) return;
+    if(item.label=="New Post")
+    {
 
-    router.push(item.path);
+    }
+    else{
+      router.push(item.path);
+    }
   };
 
   const returnAppropriateClass = (path: string | undefined) => {
     return pathName === "/" + path ? "!bg-white" : "!bg-black";
   };
 
+  console.log({tabMenuOptionsForMobile,pathName});
+  
   return (
-    <nav className="relative px-2 flex flex-row flex-nowrap min-w-full justify-between">
-      {loggedInUser && (
+    <>
+    <div className="nav-header relative x-large:pr-2 pl-4 ipad-under:p-4 ipad-under:pl-0 ipad-under:flex ipad-under:justify-between ipad-under:pr-11">
+    <div className="toogle-open hidden ipad-under:block">
+              <span className="bg-eduLightBlue w-12 h-10  rounded-[3px] rounded-l-none flex items-center justify-center text-white">
+              <FontAwesomeIcon
+                  className="text-white cursor-pointer text-2xl"
+                  icon={faChevronRight}
+                />
+              </span>
+           </div>
+           <div className="logo-mobile hidden ipad-under:block ipad-under:mx-auto">
+            <a href="#"><img src="https://i.ibb.co/gwRZ6gm/edu-Rx-blue-1.png" alt="edu-Rx-blue-1" /></a>
+           </div>
+           {loggedInUser && (
         <ProfileDialog
           loggedInUser={loggedInUser}
           profileModal={profileModal}
         />
       )}
-      <div className="relative w-[95%] flex flex-row flex-nowrap justify-between items-center">
+      <nav className="flex ipad-under:hidden relative  gap-4  justify-start rounded-md 2xl:pr-[70px] 2xl:justify-center max-w-[calc(100%_-_70px)] overflow-auto x-large:justify-start">
         {tabMenuOptions.map((item, index: number) => (
           <button
             key={index}
             onClick={() => onNavigate(item)}
-            className={`text-eduBlack duration-300 py-[5px] ease-in-out transition-colors text-[16px] rounded-[5px] font-semibold px-2 w-[145px] text-center cursor-pointer h-[40px] flex flex-row flex-nowrap items-center justify-center ${
+            className={`text-eduBlack duration-300 py-2  whitespace-nowrap large:min-w-[145px] min-w-[140px] ease-in-out transition-colors text-[16px] rounded-[5px] font-semibold px-4 2xl:w-[145px] text-center cursor-pointer ${
               item?.isDisabled && "!cursor-not-allowed"
             } disabled:opacity-60 ${
               pathName === `/${item?.path}`
@@ -94,81 +129,75 @@ const HeaderNav = () => {
                 {item?.label}
               </span>
             ) : (
-              <div className="flex justify-start w-full">
-                <div
-                  className={`relative w-1/3 flex flex-row flex-nowrap justify-start items-start pr-[5px] ${
-                    pathName === "/" + item?.path
-                      ? "border-r-eduYellow"
-                      : "border-r-black"
-                  }`}
-                >
-                  <span
-                    className={`absolute h-[40px] top-[-8px] right-0 border-r-2 ${
-                      pathName === "/" + item?.path
-                        ? "border-r-white"
-                        : "border-r-black"
-                    }`}
-                  ></span>
-                  <div className="flex flex-col w-1/3 h-full justify-between">
-                    <span
-                      className={`w-[8px] h-[8px] rounded-[50%] ${returnAppropriateClass(
-                        item?.path
-                      )}`}
-                    ></span>
-                    <span
-                      className={`w-[8px] h-[8px] rounded-[50%] ${returnAppropriateClass(
-                        item?.path
-                      )}`}
-                    ></span>
-                  </div>
-                  <div className="flex flex-col w-1/3 h-full justify-center">
-                    <span
-                      className={`w-[8px] h-[8px] rounded-[50%] ${returnAppropriateClass(
-                        item?.path
-                      )} `}
-                    ></span>
-                  </div>
-                  <div className="flex flex-col w-1/3 h-full justify-between">
-                    <span
-                      className={`w-[8px] h-[8px] rounded-[50%] ${returnAppropriateClass(
-                        item?.path
-                      )} `}
-                    ></span>
-                    <span
-                      className={`w-[8px] h-[8px] rounded-[50%] ${returnAppropriateClass(
-                        item?.path
-                      )}`}
-                    ></span>
-                  </div>
-                </div>
-                <div className="relative flex flex-row flex-nowrap w-2/3 justify-center items-center">
-                  <div
-                    className={`relative rotate-[-90deg] text-[0.7em] flex justify-center items-center ${
-                      pathName === "/" + item?.path
-                        ? "border-white"
-                        : "border-black"
-                    } border-solid border-[1px] w-[20px] h-[20px] text-center`}
-                  >
-                    RX
-                  </div>
-                  <span className="ml-1">{item.label}</span>
-                </div>
+              <div className="flex  text-center  items-center justify-between relative">
+              <div
+                className={`w-[40px] h-[28px] relative -ml-1.5 ${
+                  pathName === "/" + item?.path
+                    ? "border-r-white"
+                    : "border-r-black"
+                } grid grid-cols-2 gap-1`}
+              >
+                <span
+                  className={`w-[10px] h-[10px] t-l absolute left-0 top-0 rounded-full ${returnAppropriateClass(
+                    item?.path
+                  )}`}
+                ></span>
+                <span
+                  className={`w-[10px] h-[10px] absolute left-0 bottom-0 rounded-full ${returnAppropriateClass(
+                    item?.path
+                  )}`}
+                ></span>
+                <span
+                  className={`w-[10px] h-[10px] rounded-full absolute  top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  ${returnAppropriateClass(
+                    item?.path
+                  )} `}
+                ></span>
+                <span
+                  className={`w-[10px] h-[10px] rounded-full absolute right-0 top-0 ${returnAppropriateClass(
+                    item?.path
+                  )} `}
+                ></span>
+                <span
+                  className={`w-[10px] h-[10px] rounded-full absolute right-0 bottom-0 ${returnAppropriateClass(
+                    item?.path
+                  )}`}
+                ></span>
               </div>
+
+              <span
+                className={`absolute h-[44px] top-[-8px] left-[44px]  border-r-2 ${
+                  pathName === "/" + item?.path
+                    ? "border-r-white"
+                    : "border-r-black"
+                }`}
+              ></span>
+              <div className="flex items-center">
+              <span
+                className={`rotate-[-90deg] text-[9px] ${
+                  pathName === "/" + item?.path
+                    ? "border-white"
+                    : "border-black"
+                } border-solid border-[1px] h-[14px] w-[20px] text-center`}
+              >
+                RX
+              </span>
+              <span className="ml-1">{item.label}</span>
+              </div>
+            </div>
             )}
           </button>
         ))}
-      </div>
-      <div className="relative w-[5%] flex flex-col justify-center items-end">
-        <div
-          className={`absolute transition-colors rounded-md ease-in-out duration-100 p-2 z-40 flex flex-col top-[-5px] ${
-            showDropdown ? "bg-primary-darker" : "bg-transparent"
-          }`}
-          ref={dropDownRef}
-        >
+      </nav>
+      <div
+        className={`absolute transition-colors rounded-md ease-in-out duration-100 p-1 z-40 flex gap-2 flex-col top-0 ipad-under:top-4 right-4 ipad-under:p-0 ${
+          showDropdown ? "bg-primary-darker" : "bg-transparent"
+        }`}
+        ref={dropDownRef}
+      >
           <div className="flex justify-end">
             <span
               onClick={() => setshowDropdown(!showDropdown)}
-              className={`flex ease-in-out duration-500 cursor-pointer ring-eduBlack overflow-hidden w-8 h-8 justify-center items-center rounded-full bg-eduDarkGray ${
+              className={`flex ease-in-out duration-500 cursor-pointer ring-eduBlack overflow-hidden w-10 h-10 ipad-under:w-10 ipad-under:h-10 justify-center items-center rounded-full bg-eduDarkGray ${
                 showDropdown ? "shadow-[0px_0px_5px] shadow-black" : ""
               }`}
             >
@@ -214,8 +243,72 @@ const HeaderNav = () => {
             ]}
           />
         </div>
-      </div>
-    </nav>
+    </div>
+   
+    <div className="mobile-bottom-menu hidden ipad-under:block">
+    <nav className="fixed bottom-0 inset-x-0 bg-white flex justify-between text-sm text-eduLightBlue capitalize">
+    {tabMenuOptionsForMobile.map((menu)=>{
+return (
+  <div
+    className="w-full flex-col justify-between pt-4 pb-3 px-3 text-center flex items-center"
+    onClick={()=>onNavigate(menu)}
+  > <div className="min-h-[30px] relative flex flex-wrap items-center mb-1">
+     {menu.label=="hub" &&<span className="count-mobile flex leading-normal items-center justify-center min-w-[14px] min-h-[14px] text-[8px] bg-primary text-eduBlack font-medium absolute rounded-full -top-2 -right-2">4</span>}
+     <Image  src={ pathName.substring(1) == menu?.path ? menu.activeIcon :menu.inActiveIcon}
+                  alt={"alternative"}
+                  className=""
+                />
+                </div>
+    <span className={`text-[11px]  ${pathName.substring(1) == menu?.path ?'font-semibold' : '' }`}>{menu.label}</span>
+  </div>
+)
+    })}
+  {/* <a
+    href="#"
+    className="w-full flex-col justify-between pt-4 pb-3 px-3 text-center flex items-center"
+  >
+    <div className="min-h-[30px] relative flex flex-wrap items-center mb-1">
+     
+    <Image  src={ForumMobileIcon}
+                  alt={ForumMobileIcon}
+                  className=""
+                />
+                </div>
+     <span className="text-[11px]">Forum</span>
+  </a>
+  <a
+    href="#"
+    className="w-full flex-col justify-between pt-4 pb-3 px-3 text-center flex items-center"
+  >
+     <div className="min-h-[30px] relative flex flex-wrap items-center mb-1">
+   <Image
+                  src={NewPostMobileIcon}
+                    
+                  alt={NewPostMobileIcon}
+                  className=""
+                />
+                </div>
+    
+    <span className="text-[11px]">New Post</span>
+  </a>
+  <a
+    href="#"
+    className="w-full flex-col justify-between pt-4 pb-3 px-3 text-center flex items-center"
+  >
+    <div className="min-h-[30px] relative flex flex-wrap items-center mb-1">
+   <Image
+                  src={ResourcesMobileIcon}
+                    
+                  alt={ResourcesMobileIcon}
+                  className=""
+                />
+                </div>
+    
+    <span className="text-[11px]">Resources</span>
+  </a> */}
+</nav>
+    </div>
+    </>
   );
 };
 

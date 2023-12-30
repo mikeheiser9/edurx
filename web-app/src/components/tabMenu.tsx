@@ -48,14 +48,14 @@ export const TabMenu = (props: Props): React.ReactElement => {
 
   return (
     <React.Fragment>
-      <div className={props.tabContainerClass || "flex gap-4"}>
+      <div className={props.tabContainerClass || "flex md:gap-4 gap-2"}>
         {props.options.map((tabItem, index) => (
           <div
             onClick={() => handleTabClick(index)}
             role="presentation"
             className={`${
               props.tabItemClass ||
-              "p-1 px-3 border border-eduBlack ease-in-out duration-200 text-[14px] font-body rounded capitalize cursor-pointer text-eduLightBlue"
+              "p-1 px-3 border border-eduBlack ease-in-out duration-200 md:text-[14px] text-[9px] font-body rounded capitalize cursor-pointer text-eduLightBlue"
             } ${
               index === activeTab && !tabItem.isDisabled
                 ? props.activeTabClass || "bg-eduLightBlue text-white"

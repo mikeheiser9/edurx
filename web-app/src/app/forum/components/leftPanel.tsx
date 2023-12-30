@@ -14,7 +14,7 @@ import ThumbsUpIcon from "../../../assets/icons/thumb_up.svg";
 import Image from "next/image";
 import { Checkbox } from "@/components/checkbox";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import InfiniteScroll from "@/components/infiniteScroll";
 import { useModal } from "@/hooks";
 import { FilterSetting } from "./filterSelection";
@@ -153,7 +153,13 @@ export const LeftPanel = () => {
       />
       <FilterSetting accountSettingModal={filterSetting} />
       <ProfileDialog loggedInUser={loggedInUser} profileModal={profileModal} />
-      <div className="flex flex-col h-full flex-auto">
+      <div className="flex flex-col h-full flex-auto relative">
+      <span className="hidden ipad-under:flex items-center justify-center ipad-under:absolute ipad-under:top-0 ipad-under:right-0 ipad-under:w-6 ipad-under:h-6 ">
+            <FontAwesomeIcon
+                className="text-eduLightBlue cursor-pointer text-xl"
+                icon={faChevronLeft}
+              />
+            </span>
         <span className="text-eduBlack text-[22px] font-medium font-headers mb-[20px]">
           Sort By
         </span>
@@ -187,8 +193,8 @@ export const LeftPanel = () => {
             </li>
           ))}
         </ul>
-        <hr className="my-4 h-[3px] bg-eduBlack border-0" />
-        <span className="text-eduBlack text-[22px] font-headers mb-[20px]">
+        <hr className="my-4 h-[1px] min-h-[1px] bg-eduBlack/60 border-0" />
+        <span className="text-eduBlack text-[22px] font-headers mb-[20px] font-medium">
           Category
         </span>
         <InfiniteScroll
@@ -241,10 +247,10 @@ export const LeftPanel = () => {
             />
           </div>
         )}
-        <hr className="my-2 h-[3px] bg-eduBlack border-0" />
+        <hr className="my-2 h-[1px] min-h-[1px] bg-eduBlack/60 border-0" />
         <div className="flex-1 flex flex-col justify-end">
           <Button
-            className="rounded-md w-auto px-4 font-medium text-sm"
+            className="rounded-md ml-0 px-4 font-medium text-sm"
             label="Sort by Filter"
             type="button"
             onClick={() => {
@@ -253,8 +259,8 @@ export const LeftPanel = () => {
             // disabled={!isUpdated}
           />
         </div>
-        <hr className="my-2 h-[3px] bg-eduBlack border-0" />
-        <div className="flex flex-col gap-3 text-eduBlack ">
+        <hr className="my-2 h-[1px] min-h-[1px] bg-eduBlack/60 border-0" />
+        <div className="flex flex-col gap-2 text-eduBlack text-base pt-2 ">
           <span
             className="cursor-pointer"
             onClick={() => {

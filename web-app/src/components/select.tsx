@@ -72,13 +72,13 @@ export const Select = ({ value, options = [], icon, ...rest }: Props) => {
       </button>
       {isOpen && (
         <div className="absolute w-full z-10 bg-eduDarkGray rounded-b-md">
-          <ul className="max-h-56 rounded-md py-1 ease-in-out transition-all text-base ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+          <ul className="max-h-56 rounded-md py-1 ease-in-out transition-all text-base ipad-under:text-xs ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
             {options?.map((option, index) => (
               <li
                 className={`
                   ${
                     rest?.optionClass || ""
-                  } group/option text-gray-900 cursor-default hover:bg-eduDarkBlue hover:text-white select-none relative p-2
+                  } group/option text-gray-900 cursor-default hover:bg-eduDarkBlue hover:text-white select-none relative p-2 ipad-under:py-1
                 `}
                 onClick={(event) => handleChange(event, option)}
                 key={index}

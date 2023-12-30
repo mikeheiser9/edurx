@@ -185,20 +185,20 @@ export const CommentManager = ({
             minBlockSize: "8rem",
           },
           className:
-            "text-[16px] w-full rounded-t-md rounded-none p-4 bg-eduDarkGray text-eduBlack",
+            "text-[16px] w-full rounded-t-md rounded-none p-4 !bg-eduDarkGray ipad-under:!bg-eduDarkGray text-eduBlack",
           placeholder: "What are your thoughts? (Type @ to mention a user)",
         }}
       />
       <span className="bg-eduLightBlue rounded-md p-2 flex justify-end rounded-t-none mt-[-10px]">
         <Button
           label="Comment"
-          className="!text-[12px] !m-0 w-[150px] !rounded-[10px] text-white self-end border-white hover:!bg-eduBlack hover:text-white ease-in-out duration-300"
+          className="!text-[12px] !m-0 w-[150px] ipad-under:!rounded ipad-under:!p-0.5 !rounded-[10px] text-white self-end border-white hover:!bg-eduBlack hover:text-white ease-in-out duration-300"
           onClick={() => onCommentSubmit(null, "comment")}
         />
       </span>
-      <hr className="my-6 border-eduBlack/60 border rounded-md" />
+      <hr className="md:my-6 my-5 border-eduBlack/60 border-t rounded-md" />
       <div className="flex">
-        <span className="text-[28px] font-headers font-semibold">
+        <span className="md:text-[28px] text-base font-headers font-semibold">
           {post?.commentCount} Responses
         </span>
       </div>

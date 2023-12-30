@@ -48,7 +48,7 @@ export const AdminActionsMenu = ({
 
   return (
     <div className="relative z-10">
-      <div className="flex flex-col bg-slate-300 -top-3 rounded-md p-2 text-sm min-w-[8em] w-max absolute right-4 animate-fade-in-down">
+      <div className="flex flex-col bg-slate-300 -top-3 rounded-md p-2 text-sm ipad-under:text-xs min-w-[8em] w-max absolute right-4 animate-fade-in-down">
         {currentStep === 0 ? (
           <>
             <span

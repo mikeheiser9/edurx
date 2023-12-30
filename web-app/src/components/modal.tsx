@@ -76,8 +76,8 @@ export const Modal = ({
       return props.customHeader;
     }
     return (
-      <div className="flex p-3 items-center bg-eduDarkGray w-full">
-        <span className="text-lg font-medium justify-self-start text-eduLightBlue">
+      <div className={`flex p-3 items-center bg-eduDarkGray w-full  ${props.resetReduxModalOnClose}`}>
+        <span className="text-lg ipad-under:text-sm font-medium justify-self-start text-eduLightBlue">
           {props.headerTitle}
         </span>
         {showCloseIcon && (
@@ -111,7 +111,7 @@ export const Modal = ({
         >
           <div
             onClick={handleModalClick}
-            className={`flex flex-col bg-white rounded-[10px] w-3/4 max-w-[1000px] shadow-lg  h-auto xl:max-h-[80vh] lg:max-h-[80vh] md:max-h-[80vh] sm:max-h-[80vh] max-h-[80vh] overflow-hidden transition-opacity duration-300 ease-in-out ${props.modalClassName}`}
+            className={`flex flex-col bg-white rounded-[10px] md:w-3/4 w-[90%] max-w-[1000px] shadow-lg  h-auto xl:max-h-[80vh] lg:max-h-[80vh] md:max-h-[80vh] sm:max-h-[80vh] max-h-[80vh] overflow-hidden transition-opacity duration-300 ease-in-out ${props.modalClassName}`}
           >
             {showHeader && <Header />}
             <div

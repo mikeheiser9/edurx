@@ -52,7 +52,7 @@ const EditIcon = ({ onClick }: { onClick: () => void }) => (
 
 const SocialIcon = ({ value, href }: { value: string; href: string }) => (
   <a
-    className="bg-eduDarkBlue flex justify-center rounded-full h-7 w-7"
+    className="bg-eduDarkBlue flex justify-center rounded-full md:h-7 md:w-7 md:p-0 w-5 h-5 p-1"
     href={href}
     target="_blank"
     rel="noopener noreferrer"
@@ -75,7 +75,7 @@ const BasicInfo = ({
   openModal?: () => void;
   buttonJsx?: React.ReactElement;
 }): React.ReactElement => (
-  <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-lg">
+  <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-none">
     {openModal && <EditIcon onClick={openModal} />}
     <div className="w-full hover:blur-sm duration-500 h-40 overflow-hidden bg-eduDarkGray items-center justify-center flex">
       {userData?.banner_img ? (
@@ -90,8 +90,8 @@ const BasicInfo = ({
         <FontAwesomeIcon icon={faImage} className="text-eduDarkBlue text-4xl" />
       )}
     </div>
-    <div className="p-6 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 bg-eduLightGray">
-      <div className="rounded-lg overflow-hidden flex items-center justify-center hover:blur-sm ease-in-out duration-500 bg-white -mt-[4rem] relative w-24 h-24">
+    <div className="p-6  xl:px-16 lg:px-12 md:px-10 px-4 bg-eduLightGray ipad-under:bg-white">
+      <div className="rounded-lg overflow-hidden flex items-center justify-center hover:blur-sm ease-in-out duration-500 bg-white -mt-[4rem] relative w-20 h-20 md:w-24 md:h-24">
         {userData?.profile_img ? (
           <Image
             src={getStaticImageUrl(userData?.profile_img)}
@@ -110,10 +110,10 @@ const BasicInfo = ({
       <div className="flex gap-2 mt-4">
         <div className="flex-1">
           <div className="flex gap-2 flex-col">
-            <span className="text-eduBlack capitalize font-headers text-[24px]">
+            <span className="text-eduBlack capitalize font-headers md:text-[24px] text-base">
               {getFullName(userData?.first_name, userData?.last_name)}
             </span>
-            <span className="text-eduBlack/60 text-[16px] font-body">
+            <span className="text-eduBlack/60 md:text-base text-10px font-body">
               {userData?.role === "student" ? (
                 "Student "
               ) : (
@@ -134,78 +134,25 @@ const BasicInfo = ({
               {/* • Member Since{" "}
               {userData?.joined ? moment(userData?.joined).year() : "-"} */}
             </span>
-            <span className="text-eduBlack/60 text-[16px] font-body">
+            <span className="text-eduBlack/60 md:text-base text-10px font-body">
               <FontAwesomeIcon icon={faStethoscope} className="me-2" />
               Licensed in: {userData?.state}
             </span>
-            <div className="flex text-eduBlack text-xs gap-x-4 font-body justify-between">
+            <div className="flex text-eduBlack md:text-xs text-10px gap-x-4 font-body justify-between">
               <div>
                 <span className="font-body">
-                  <b className="text-eduBlack text-[12px] font-body">
+                  <b className="text-eduBlack md:text-[12px] text-10px font-body">
                     {userData?.followingCount}
                   </b>{" "}
                   Following
                 </span>
                 <span className="font-body">
-                  <b className="text-eduBlack text-[12px] font-body">
+                  <b className="text-eduBlack md:text-[12px] text-10px font-body">
                     &nbsp;&nbsp; {userData?.followersCount}
                   </b>{" "}
                   Followers
                 </span>
               </div>
-              {(userData.Collaboration ||
-                userData.Mentorship ||
-                userData.Research) && (
-                <span className="relative right-[71px] text-eduBlack capitalize font-headers text-[18px] font-[600]">
-                  Available For :{" "}
-                </span>
-              )}
-            </div>
-            <div className="flex">
-              <div className="flex gap-2">
-                {userData?.socials &&
-                  Object.keys(userData?.socials)?.map((item: string) => {
-                    if (
-                      userData?.socials?.[item as keyof socials]?.length &&
-                      socialMediaIcons?.[item as keyof socials]
-                    ) {
-                      return (
-                        <SocialIcon
-                          value={item as keyof socials}
-                          href={userData?.socials?.[item as keyof socials] || ""}
-                          key={item}
-                        />
-                      );
-                    }
-                  })}
-                {userData?.contact_email && (
-                  <SocialIcon
-                    value="email"
-                    href={`mailto:${userData?.contact_email}`}
-                  />
-                )}
-              </div>
-              {(userData.Collaboration ||
-                userData.Mentorship ||
-                userData.Research) && (
-                <div className="relative left-[50%] flex gap-x-3 top-3">
-                  {userData.Collaboration && (
-                    <span className="bg-eduDarkGray text-eduLightBlue px-2 py-1 text-sm">
-                      Collaboration
-                    </span>
-                  )}
-                  {userData.Mentorship && (
-                    <span className="bg-eduDarkGray text-eduLightBlue px-2 py-1 text-sm">
-                      Mentorship
-                    </span>
-                  )}
-                  {userData.Research && (
-                    <span className="bg-eduDarkGray text-eduLightBlue px-2 py-1 text-sm">
-                      Research
-                    </span>
-                  )}
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -215,13 +162,70 @@ const BasicInfo = ({
               <div className="justify-self-end self-start">
                 <button
                   type="button"
-                  className="border rounded-[10px] py-2 px-4 font-body text-[16px] w-[125px] text-eduBlack border-eduBlack hover:text-white hover:bg-eduBlack transition-colors ease-in-out duration-300"
+                  className="border md:rounded-[10px] rounded md:py-2 py-1 md:px-4 px-2 font-body md:text-[16px] text-xs md:w-[125px] w-[92px] text-eduBlack border-eduBlack hover:text-white hover:bg-eduBlack transition-colors ease-in-out duration-300"
                   onClick={openModal}
                 >
                   Edit Profile
                 </button>
               </div>
             )}
+      </div>
+      <div className="flex gap-2 justify-between flex-wrap mt-3">
+        <div className="flex md:gap-2 gap-1 SocialIconBlock pt-4">
+          {userData?.socials &&
+            Object.keys(userData?.socials)?.map((item: string) => {
+              if (
+                userData?.socials?.[item as keyof socials]?.length &&
+                socialMediaIcons?.[item as keyof socials]
+              ) {
+                return (
+                  <SocialIcon
+                    value={item as keyof socials}
+                    href={userData?.socials?.[item as keyof socials] || ""}
+                    key={item}
+                  />
+                );
+              }
+            })}
+          {userData?.contact_email && (
+            <SocialIcon
+              value="email"
+              href={`mailto:${userData?.contact_email}`}
+            />
+          )}
+        </div>
+
+        <div className="available-block ml-auto">
+          {(userData.Collaboration ||
+            userData.Mentorship ||
+            userData.Research) && (
+            <span className="relative block mb-3  text-eduBlack capitalize font-headers md:text-[18px] text-xs font-[600]">
+              Available For :{" "}
+            </span>
+          )}
+
+          {(userData.Collaboration ||
+            userData.Mentorship ||
+            userData.Research) && (
+            <div className="relative  flex md:gap-x-3 gap-x-1">
+              {userData.Collaboration && (
+                <span className="bg-eduDarkGray text-eduLightBlue px-2 py-1 md:text-sm text-[8px]">
+                  Collaboration
+                </span>
+              )}
+              {userData.Mentorship && (
+                <span className="bg-eduDarkGray text-eduLightBlue px-2 py-1 md:text-sm text-[8px]">
+                  Mentorship
+                </span>
+              )}
+              {userData.Research && (
+                <span className="bg-eduDarkGray text-eduLightBlue px-2 py-1 md:text-sm text-[8px]">
+                  Research
+                </span>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   </div>
@@ -238,9 +242,9 @@ const About = ({
 }) => {
   const [showMore, setShowMore] = useState(false);
   return (
-    <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 bg-eduLightGray">
-      <div className="flex justify-between items-center">
-        <span className="text-eduBlack text-[24px] font-semibold font-headers tracking-wide">
+    <div className="p-4 px-4 xl:px-16 lg:px-12 md:px-10  bg-eduLightGray ipad-under:bg-white">
+      <div className="flex justify-between items-center md:mb-0 mb-3.5">
+        <span className="text-eduBlack md:text-[24px] text-base font-semibold font-headers tracking-wide">
           About
         </span>
         {openModal && <EditIcon onClick={openModal} />}
@@ -251,7 +255,7 @@ const About = ({
         }`}
       >
         <div className="flex flex-col gap-2">
-          <p className="text-eduBlack/60 text-[16px] font-body">
+          <p className="text-eduBlack/60 md:text-base text-xs font-body">
             {personal_bio && personal_bio.length > 0
               ? showMore
                 ? personal_bio
@@ -265,7 +269,7 @@ const About = ({
       </div>
       {personal_bio && personal_bio.length > 0 && (
         <span
-          className="flex justify-center items-center font-[700] opacity-[50%] text-[0.8em] cursor-pointer"
+          className="flex justify-center items-center font-[700] opacity-[50%] md:text-[0.8em] text-[9px] cursor-pointer"
           onClick={() => setShowMore(!showMore)}
         >
           {showMore ? "Read Less" : "Read More"}
@@ -309,25 +313,25 @@ const PostList = ({
                 }}
               >
                 <div className="flex flex-col gap-1">
-                  <span className="text-eduBlack text-[16px] font-[500] font-headers capitalize">
+                  <span className="text-eduBlack md:text-[16px] md:leading-normal text-[11px] font-[500] font-headers capitalize">
                     {post?.title && post?.title.length < 73
                       ? post?.title
                       : post?.title?.substring(0, 73) + "..."}
                   </span>
                 </div>
-                <div className="text-[15px] text-eduBlack/60 font-body">
+                <div className="md:text-[15px] md:leading-normal text-10px text-eduBlack/60 font-body">
                   {post?.forumType} • Published on{" "}
                   {moment(post?.createdAt).format("DD/MM/YYYY")}
                 </div>
               </div>
-              <div className="flex text-[15px] text-eduBlack/60  font-body  justify-between">
-                <div className="flex gap-4 text-eduLightBlue">
+              <div className="flex md:text-[15px] text-10px text-eduBlack/60  font-body  justify-between">
+                <div className="flex md:gap-4 gap-1.5 text-eduLightBlue">
                   <FontAwesomeIcon icon={faComments} />
                   <span>
                     {getSemanticViewsCount(Number(post?.commentCount))}
                   </span>
                 </div>
-                <div className="flex gap-4 text-eduLightBlue">
+                <div className="flex md:gap-4 gap-1.5 text-eduLightBlue">
                   <FontAwesomeIcon icon={faChartColumn} />
                   <span>{getSemanticViewsCount(Number(post?.views))}</span>
                 </div>
@@ -336,7 +340,7 @@ const PostList = ({
           ))}
         </div>
       ) : (
-        <span className="text-eduBlack text-eduBlack/60 text-[16px] font-body flex justify-center items-center">
+        <span className="text-eduBlack text-eduBlack/60 md:text-[16px] md:leading-normal text-10px font-body flex justify-center items-center">
           {noDataMessage}
         </span>
       )}
@@ -386,7 +390,9 @@ const CommentList = ({
                     showCard: false,
                   })}
               </div>
-              <span className="text-eduBlack text-[14px]">•</span>
+              <span className="text-eduBlack text-[14px] ipad-under:text-[12px]">
+                •
+              </span>
               <span className="text-[12px] text-eduDarkBlue">
                 {moment(comment?.createdAt).fromNow()}
               </span>
@@ -398,7 +404,7 @@ const CommentList = ({
           ))}
         </div>
       ) : (
-        <span className="text-eduBlack text-eduBlack/60 text-[16px] font-body flex justify-center items-center">
+        <span className="text-eduBlack text-eduBlack/60 md:text-[16px] md:leading-normal text-10px font-body flex justify-center items-center">
           {noDataMessage}
         </span>
       )}
@@ -426,14 +432,14 @@ const Activity = ({
   const [showMore, setShowMore] = useState(false);
   return (
     <>
-      <div className="bg-eduLightGray py-2">
+      <div className="bg-eduLightGray py-2 ipad-under:bg-white">
         <div
-          className={`bg-eduLightGray flex-auto relative rounded-lg lg:min-h-[12rem] overflow-hidden ${
+          className={`bg-eduLightGray ipad-under:bg-white flex-auto relative rounded-lg lg:min-h-[12rem] overflow-hidden ${
             !showMore ? "h-[150x]" : "h-[300px] overflow-y-auto"
           }`}
         >
-          <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-col gap-2">
-            <span className="text-eduBlack text-[24px] font-semibold font-headers tracking-wide">
+          <div className="p-4 px-4 xl:px-16 lg:px-12 md:px-10  flex flex-col gap-2">
+            <span className="text-eduBlack md:text-[24px] md:leading-normal text-base font-semibold font-headers tracking-wide">
               Activity
             </span>
             <TabMenu
@@ -500,13 +506,13 @@ const Education = ({
     educationsToBeRendered = educations;
   }
   return (
-    <div className="bg-eduLightGray py-2">
+    <div className="bg-eduLightGray py-2 ipad-under:bg-white">
       <div
         className={`overflow-hidden flex-auto relative rounded-lg lg:min-h-[12rem] text-eduBlack `}
       >
-        <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-col gap-2">
+        <div className="p-4 px-4 xl:px-16 lg:px-12 md:px-10  flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <span className="text-eduBlack text-[24px] font-headers font-semibold tracking-wide">
+            <span className="text-eduBlack md:text-[24px] md:leading-normal text-base font-semibold font-headers tracking-wide">
               Education
             </span>
             {onEditClick && <EditIcon onClick={onEditClick} />}
@@ -523,13 +529,13 @@ const Education = ({
               educationsToBeRendered?.map((value: education) => (
                 <div className="flex gap-4 " key={value?._id || Date.now()}>
                   <div className="flex flex-1 flex-col text-eduBlack gap-1">
-                    <span className="capitalize text-eduBlack text-[16px] font-[500] font-headers">
+                    <span className="capitalize text-eduBlack md:text-[16px] md:leading-normal text-xs font-[500] font-headers">
                       {value?.school_name || "-"}
                     </span>
-                    <span className="text-eduBlack/60 text-[15px] font-body">
+                    <span className="text-eduBlack/60 md:text-[15px] text-10px font-body">
                       {value?.field_of_study} - {value?.degree}
                     </span>
-                    <div className="text-eduBlack/60 text-[15px] font-body">
+                    <div className="text-eduBlack/60 md:text-[15px] text-10px font-body">
                       {moment(value?.start_date).format("YYYY")}
                       {" - "}
                       <span>
@@ -551,7 +557,7 @@ const Education = ({
       </div>
       {educations && educations.length > 0 && (
         <span
-          className="font-[700] opacity-[50%] text-[0.8em] cursor-pointer flex justify-center items-center"
+          className="font-[700] opacity-[50%] md:text-[0.8em] text-[9px] cursor-pointer flex justify-center items-center"
           onClick={() => setShowMore(!showMore)}
         >
           {showMore ? "View Less" : "View More"}
@@ -590,13 +596,13 @@ const CertificateAndLicense = ({
       ? userData.certificatesCount
       : userData.licensesCount;
   return (
-    <div className="bg-eduLightGray py-2">
+    <div className="bg-eduLightGray py-2 ipad-under:bg-white">
       <div
         className={` overflow-hidden flex-auto relative rounded-lg text-eduBlack`}
       >
-        <div className="p-4 pl-6 xl:pl-16 lg:pl-12 md:pl-10 sm:pl-8 flex flex-col gap-2">
+        <div className="p-4 pl-4 xl:pl-16 lg:pl-12 md:pl-10  flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <span className="text-eduBlack text-[24px] font-headers font-semibold tracking-wide capitalize">
+            <span className="text-eduBlack md:text-[24px] md:leading-normal text-base font-headers font-semibold tracking-wide capitalize">
               {type}
             </span>
             {onEditClick && <EditIcon onClick={onEditClick} />}
@@ -612,20 +618,20 @@ const CertificateAndLicense = ({
               documentToBeRendered?.map((value: userDocs) => (
                 <div className="flex gap-4 " key={value?._id || Date.now()}>
                   <div className="flex flex-1 flex-col text-eduBlack gap-1">
-                    <span className="capitalize text-eduBlack text-[16px] font-[500] font-headers">
+                    <span className="capitalize text-eduBlack md:text-[16px] md:leading-normal text-xs font-[500] font-headers">
                       {value?.doc_name || "-"}
                     </span>
-                    <span className="text-eduBlack/60 text-[15px] font-body">
+                    <span className="text-eduBlack/60 md:text-[15px] text-10px font-body">
                       {value?.issuer_organization || "-"}
                     </span>
                     {value?.issue_date && (
-                      <span className="text-eduBlack/60 text-[12px] capitalize font-body">
-                        Issued{" "}
+                      <span className="text-eduBlack/60 md:text-[12px] text-10px capitalize font-body">
+                        Issued {" "}
                         {moment(value?.issue_date).format("DD/MM/YYYY") || "-"}
                       </span>
                     )}
                     {(value?.doc_id?.length as number) > 0 && (
-                      <span className="text-eduBlack/60 text-[12px] capitalize font-body">
+                      <span className="text-eduBlack/60 md:text-[12px] text-10px capitalize font-body">
                         Credential ID {value?.doc_id || "-"}
                       </span>
                     )}
@@ -645,7 +651,7 @@ const CertificateAndLicense = ({
       )}
       {documentToBeRendered?.length > 0 && (
         <span
-          className="font-[700] opacity-[50%] text-[0.8em] cursor-pointer flex justify-center items-center"
+          className="font-[700] opacity-[50%] md:text-[0.8em] text-[9px] cursor-pointer flex justify-center items-center"
           onClick={() => {
             setShowMore(!showMore);
           }}
@@ -788,7 +794,7 @@ const ModalHeader = ({
 }) => (
   <>
     <div className="flex p-3 items-center bg-eduDarkGray">
-      <span className="text-[22px] font-semibold justify-self-start font-headers text-eduBlack">
+      <span className="text-[22px] ipad-under:text-[16px] font-semibold justify-self-start font-headers text-eduBlack">
         {profileSections[currentSection] as string}
       </span>
       <FontAwesomeIcon
@@ -797,27 +803,29 @@ const ModalHeader = ({
         className="ml-auto font-bold self-center cursor-pointer text-eduBlack"
       />
     </div>
-    <ul className="flex gap-2 justify-center px-8 py-4 font-body">
-      {Object.keys(profileSections).map((section: string, index: number) => (
-        <li
-          className={`flex items-center font-body font-normal text-[14px] ${
-            currentSection === section
-              ? "text-primary"
-              : "text-eduBlack cursor-pointer"
-          }`}
-          key={section}
-          onClick={() => {
-            setCurrentSection(section as keyof profileSections);
-            setIsListView(true);
-          }}
-        >
-          {profileSections[section as keyof profileSections]}
-          {index !== Object.keys(profileSections).length - 1 && (
-            <span className="w-2 h-2 rounded-full ml-4 bg-eduBlack inline-block" />
-          )}
-        </li>
-      ))}
-    </ul>
+    <div className="px-2">
+      <ul className="flex gap-2 md:justify-center px-8 py-4 font-body  overflow-auto">
+        {Object.keys(profileSections).map((section: string, index: number) => (
+          <li
+            className={`flex items-center font-body font-normal md:text-[14px] md:leading-normal text-xs whitespace-nowrap  ${
+              currentSection === section
+                ? "text-primary"
+                : "text-eduBlack cursor-pointer"
+            }`}
+            key={section}
+            onClick={() => {
+              setCurrentSection(section as keyof profileSections);
+              setIsListView(true);
+            }}
+          >
+            {profileSections[section as keyof profileSections]}
+            {index !== Object.keys(profileSections).length - 1 && (
+              <span className="w-2 h-2 rounded-full ml-4 bg-eduBlack inline-block" />
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
   </>
 );
 

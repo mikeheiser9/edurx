@@ -20,6 +20,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ProfileDialog } from "./profileDialog";
 import { EditProfileDialog } from "./editProfileDialog";
 import { AccountSetting } from "./accountSetting";
+import { faChevronLeft, faLeftRight } from "@fortawesome/free-solid-svg-icons";
 
 export const HubLeftPenal = () => {
   const router = useRouter();
@@ -107,10 +108,16 @@ export const HubLeftPenal = () => {
         <Loader />
       ) : (
         <div className="flex flex-auto flex-col gap-4">
-          <div className="flex justify-center items-center flex-col gap-4">
+          <div className="flex justify-center items-center flex-col gap-4 ipad-under:relative ipad-under:gap-3">
+            <span className="hidden ipad-under:flex items-center justify-center ipad-under:absolute ipad-under:top-0 ipad-under:right-0 ipad-under:w-6 ipad-under:h-6 ">
+            <FontAwesomeIcon
+                className="text-eduLightBlue cursor-pointer text-xl"
+                icon={faChevronLeft}
+              />
+            </span>
             {userData?.profile_img && (
               <Image
-                className="rounded-lg w-20 h-20 hover:blur-sm transition-all duration-200"
+                className="rounded-lg w-20 h-20 ipad-under:h-[70px] ipad-under:w-[70px] hover:blur-sm transition-all duration-200"
                 src={getStaticImageUrl(loggedInUser?.profile_img)}
                 alt="user_profile_img"
                 width={500}
@@ -127,7 +134,7 @@ export const HubLeftPenal = () => {
                 icon={faEdit}
               />
             </div>
-            <div className="flex gap-2 justify-between">
+            <div className="flex gap-2 ipad-under:gap-4 justify-between">
               <span className="text-base font-light">
                 <span className="font-medium">{userData?.followersCount}</span>{" "}
                 Followers
@@ -137,9 +144,9 @@ export const HubLeftPenal = () => {
                 Following
               </span>
             </div>
-            <hr className="w-full border border-eduBlack/40" />
+            <hr className="w-full border-t border-eduBlack/40" />
           </div>
-          <h3 className="font-headers text-2xl">My EduRx</h3>
+          <h3 className="font-headers text-2xl ipad-under:font-medium">My EduRx</h3>
           <NavList
             options={[
               {
@@ -161,13 +168,13 @@ export const HubLeftPenal = () => {
               },
             ]}
           />
-          <hr className="w-full border border-eduBlack/40" />
-          <span className="text-base">Coming Soon!</span>
+          <hr className="w-full  border-t border-eduBlack/40" />
+          <span className="text-base ipad-under:font-medium">Coming Soon!</span>
           <div className="flex flex-col gap-2 flex-auto opacity-20 blur-[1px] overflow-y-auto">
             <Button label="Navcess" disabled className="!m-0" />
-            <hr className="w-full border border-eduBlack/40" />
+            <hr className="w-full border-t border-eduBlack/40" />
             <div className="flex flex-col gap-2 flex-auto">
-              <h3 className="font-headers text-2xl">Events</h3>
+              <h3 className="font-headers text-2xl ipad-under:font-medium">Events</h3>
               <span className="font-medium text-xs">In Person</span>
               <ul className="flex gap-2 opacity-60 flex-col">
                 <li className="font-medium text-xs">
@@ -191,7 +198,7 @@ export const HubLeftPenal = () => {
             />
             <ProgressBar label="Medicinal Plant Certificate" progress={25} />
           </div>
-          <hr className="w-full border border-eduBlack/40" />
+          <hr className="w-full border-t border-eduBlack/40" />
           <NavList
             options={[
               {

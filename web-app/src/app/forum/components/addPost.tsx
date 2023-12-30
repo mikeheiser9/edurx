@@ -285,7 +285,7 @@ export const AddPost = ({
             <Loader />
           </div>
         ) : (
-          <div className="flex flex-wrap gap-2 flex-auto">
+          <div className="flex flex-wrap gap-2 flex-auto mt-1">
             {filterCategoryList?.[type]?.length ? (
               filterCategoryList?.[type]?.map((item: TagCategoryType) => (
                 <Chip
@@ -302,7 +302,7 @@ export const AddPost = ({
                     type === "categories"
                       ? "bg-transparent border border-eduLightBlue "
                       : "!bg-eduDarkGray"
-                  }  text-xs px-2 leading-6 rounded-md capitalize`}
+                  }  md:text-xs text-10px px-2 leading-6 rounded-md`}
                   onSelect={() => onChipSelect(type, item)}
                   onClear={() => onChipeDelete(type, item)}
                   isSelected={selectedList?.[type]?.some(
@@ -311,7 +311,7 @@ export const AddPost = ({
                 />
               ))
             ) : (
-              <span className={`text-eduBlack`}>
+              <span className={`text-eduBlack ipad-under:text-10px`}>
                 {(values as any).forumType == "Choose forum"
                   ? `choose forum type to view ${type}`
                   : `No ${type} found`}
@@ -598,13 +598,13 @@ export const AddPost = ({
             />
           }
           showFooter={false}
-          modalClassName="!rounded-xl"
-          modalBodyClassName="relative p-4 overflow-y-auto font-body overflow-hidden bg-white"
+          modalClassName="md:!rounded-xl  ipad-under:!max-h-[100vh] ipad-under:w-full !rounded-none ipad-under:!min-h-[100vh] md:min-h-[auto] ipad-under:bg-eduLightGray"
+          modalBodyClassName="relative p-4 overflow-y-auto font-body overflow-hidden md:bg-white bg-eduLightGray"
         >
           <Form>
-            <div className="flex flex-col gap-4 p-2 ">
-              <div className="flex justify-between">
-                <div className="flex">
+            <div className="flex flex-col gap-4 md:p-2 ">
+              <div className="flex justify-between gap-4">
+                <div className="flex md:flex-wrap flex-col md:flex-row gap-1 md:w-auto  w-1/2">
                   <Select
                     defaultValue="Choose Group"
                     options={dropdownOptions}
@@ -613,15 +613,17 @@ export const AddPost = ({
                       actions.setFieldValue("forumType", e?.value);
                       setForumSelected(e?.value);
                     }}
-                    wrapperClass="!w-[12rem] !text-xs"
+                    wrapperClass="md:!w-[12rem] w-full !text-xs mf:h-auto h-[30px]"
                     optionClass="text-xs"
                   />
                   {actions?.touched.forumType && actions.errors.forumType ? (
-                    <span className="ml-1 text-xs font-body mt-1 first-letter:capitalize flex-shrink-0 opacity-50 text-[#FF0000] font-[500]">
+                    <span className="ml-1 md:text-xs text-10px font-body mt-1 first-letter:capitalize flex-shrink-0 opacity-50 text-[#FF0000] font-[500]">
                       forum type is a required field
                     </span>
                   ) : null}
                 </div>
+                <div className="md:w-auto w-1/2">
+                <div className="md:block  ipad-under:top-1.5 ipad-under:left-4 ipad-under:fixed">
                 <ToggleSwitch
                   name="isPrivate"
                   off={{
@@ -633,21 +635,23 @@ export const AddPost = ({
                     label: "private",
                   }}
                 />
-              </div>
-              <TabMenu
+                </div>
+                {/* TabMenu Hear */}
+                <TabMenu
+              tabContainerClass="flex md:gap-4 gap-2 md:hidden"
                 options={[
                   {
                     component() {
                       return (
-                        <>
-                          <InputField name="title" placeholder="Title" />
+                        <div className="gray-quill md:pb-0 pb-10 hidden">
+                          <InputField name="title" placeholder="Title" className="ipad-under:!bg-eduDarkGray" />
                           <TextEditor
                             value={values?.content}
                             setFieldValue={actions?.setFieldValue}
                             error={actions.errors.content}
                             isTouched={actions.touched.content}
                           />
-                        </>
+                        </div>
                       );
                     },
                     label: "Post",
@@ -656,11 +660,12 @@ export const AddPost = ({
                   {
                     component() {
                       return (
-                        <div>
+                        <div className="gray-quill md:pb-0 pb-10 hidden">
                           <InputField
                             name="title"
                             placeholder="Title"
                             maxLength={130}
+                            className="ipad-under:!bg-eduDarkGray"
                           />
                           <TextEditor
                             value={values.content}
@@ -670,7 +675,7 @@ export const AddPost = ({
                           />
                           {actions?.touched.options &&
                           actions.errors.options ? (
-                            <span className="ml-1 text-xs font-body mt-1 first-letter:capitalize flex-shrink-0 opacity-50 text-[#FF0000] font-[500]">
+                            <span className="ml-1 md:text-xs text-10px font-body mt-1 first-letter:capitalize flex-shrink-0 opacity-50 text-[#FF0000] font-[500]">
                               {actions.errors.options}
                             </span>
                           ) : null}
@@ -680,10 +685,10 @@ export const AddPost = ({
                               <div>
                                 {values.options && values.options.length > 0 ? (
                                   <>
-                                    <div className="gap-2 grid grid-cols-2">
+                                    <div className="gap-2 grid md:grid-cols-2 grid-cols-1">
                                       {values.options.map((option, index) => (
                                         <div
-                                          className="flex animate-scale-in gap-2"
+                                          className="flex animate-scale-in gap-2 md:w-auto w-full"
                                           key={index}
                                         >
                                           <FontAwesomeIcon
@@ -695,8 +700,9 @@ export const AddPost = ({
                                             name={`options.${index}`}
                                             placeholder={`Option ${index + 1}`}
                                             type="text"
-                                            className="w-full"
+                                            className="w-full  ipad-under:!bg-eduDarkGray"
                                             maxLength={80}
+                                            parentClass="w-full"
                                           />
                                         </div>
                                       ))}
@@ -711,7 +717,7 @@ export const AddPost = ({
                                                 ""
                                               )
                                             }
-                                            className="text-white animate-scale-in inline-block mt-2 bg-eduLightBlue p-2 py-1 rounded-md text-xs cursor-pointer"
+                                            className="text-eduBlack animate-scale-in inline-block mt-2  p-2 py-1 font-medium rounded-md md:text-xs text-10px cursor-pointer"
                                           >
                                             Add Option
                                           </span>
@@ -723,13 +729,13 @@ export const AddPost = ({
                                                 values.options.length - 1
                                               )
                                             }
-                                            className="animate-scale-in inline-block mt-2 bg-eduBlack text-white p-2 py-1 rounded-md text-xs cursor-pointer"
+                                            className="text-eduBlack animate-scale-in inline-block mt-2 p-2 py-1 rounded-md font-medium md:text-xs text-10px cursor-pointer"
                                           >
                                             Remove
                                           </span>
                                         )}
                                       </div>
-                                      <div className="text-white text-xs flex gap-1 items-center">
+                                      <div className="text-white md:text-xs text-10px flex gap-1 items-center">
                                         <label
                                           htmlFor="votingLength "
                                           className="text-black"
@@ -758,8 +764,239 @@ export const AddPost = ({
                                               e.value
                                             )
                                           }
-                                          wrapperClass="text-black !w-[5rem] !text-xs !font-semibold"
-                                          optionClass="!text-xs"
+                                          wrapperClass="text-black !w-[5rem] md:!text-xs !text-10px !font-semibold ipad-under:!bg-transparent"
+                                          optionClass="md:!text-xs !text-10px"
+                                        />
+                                      </div>
+                                    </div>
+                                  </>
+                                ) : (
+                                  ""
+                                )}
+                              </div>
+                            )}
+                          />
+                        </div>
+                      );
+                    },
+                    label: "Poll",
+                    icon: faPoll,
+                  },
+                ]}
+                iconClass="text-eduLightBlue"
+                tabItemClass="bg-eduDarkGray p-1 text-eduLightBlue font-normal px-3 ease-in-out duration-300 text-[10px] rounded-[5px] capitalize"
+                activeTabClass="ring-1 ring-eduLightBlue outline-eduLightBlue"
+                formikFieldName="postType"
+              />
+                </div>
+              </div>
+              <div className="hidden ipad-under:block">
+              <div
+                className={`flex gap-4 grid-rows-2 ${
+                  (values as any)?.forumType == "Choose forum" &&
+                  "disabled cursor-not-allowed"
+                }`}
+              >
+                <div className="w-full">
+                <label htmlFor="categories">
+                  Categories{" "}
+                  {actions?.touched.categories && actions.errors.categories ? (
+                    <span className="ml-1 md:text-xs text-10px font-body mt-1 first-letter:capitalize flex-shrink-0 opacity-50 text-[#FF0000] font-[500]">
+                      {actions.errors.categories}
+                    </span>
+                  ) : null}
+                </label>
+                <InputField
+                  name="category"
+                  placeholder="Search"
+                  type="search"
+                  onChange={onSearch}
+                  value={searchText?.category}
+                  isFormikField={false}
+                  parentClass="w-full"
+                  className="w-full ipad-under:!bg-eduDarkGray"
+                />
+                <ChipsTemplate
+                  type="categories"
+                  actions={actions}
+                  values={values}
+                />
+                {!isLoading?.category &&
+                  currentPage?.category?.totalRecords >
+                    filterCategoryList?.categories?.length && (
+                    <LoadMore
+                      isLoading={isLoading.category as boolean}
+                      onClick={() =>
+                        searchAPI("category", searchText?.category)
+                      }
+                    />
+                  )}
+                </div>
+                <div className="w-full">
+                <label className="text-eduBlack" htmlFor="categories">
+                  filter&nbsp;
+                  {actions?.touched.filters && actions.errors.filters ? (
+                    <span className="ml-1 md:text-xs text-10px font-body mt-1 first-letter:capitalize flex-shrink-0 opacity-50 text-[#FF0000] font-[500]">
+                      {actions.errors.filters}
+                    </span>
+                  ) : null}
+                </label>
+                <InputField
+                  name="filter"
+                  placeholder="Search"
+                  type="search"
+                  onChange={onSearch}
+                  value={searchText?.filter}
+                  isFormikField={false}
+                  parentClass="w-full"
+                  className="w-full ipad-under:!bg-eduDarkGray"
+                />
+                <ChipsTemplate
+                  type="filters"
+                  actions={actions}
+                  values={values}
+                />
+                {isLoading?.filter &&
+                  currentPage?.filter?.totalRecords >
+                    filterCategoryList?.filters?.length && (
+                    <LoadMore
+                      isLoading={isLoading.filter as boolean}
+                      onClick={() => searchAPI("filter", searchText?.filter)}
+                    />
+                  )}
+              </div>
+              </div>
+              </div>
+              <TabMenu
+              tabContainerClass="md:flex md:gap-4 gap-2 hidden"
+                options={[
+                  {
+                    component() {
+                      return (
+                        <div className="gray-quill md:pb-0 pb-10">
+                          <InputField name="title" placeholder="Title" className="ipad-under:!bg-eduDarkGray" />
+                          <TextEditor
+                            value={values?.content}
+                            setFieldValue={actions?.setFieldValue}
+                            error={actions.errors.content}
+                            isTouched={actions.touched.content}
+                          />
+                        </div>
+                      );
+                    },
+                    label: "Post",
+                    icon: faPlusCircle,
+                  },
+                  {
+                    component() {
+                      return (
+                        <div className="gray-quill md:pb-0 pb-10">
+                          <InputField
+                            name="title"
+                            placeholder="Title"
+                            maxLength={130}
+                            className="ipad-under:!bg-eduDarkGray"
+                          />
+                          <TextEditor
+                            value={values.content}
+                            setFieldValue={actions.setFieldValue}
+                            error={actions.errors.content}
+                            isTouched={actions.touched.content}
+                          />
+                          {actions?.touched.options &&
+                          actions.errors.options ? (
+                            <span className="ml-1 md:text-xs text-10px font-body mt-1 first-letter:capitalize flex-shrink-0 opacity-50 text-[#FF0000] font-[500]">
+                              {actions.errors.options}
+                            </span>
+                          ) : null}
+                          <FieldArray
+                            name="options"
+                            render={(arrayHelpers) => (
+                              <div className="pt-2">
+                                {values.options && values.options.length > 0 ? (
+                                  <>
+                                    <div className="gap-2 grid md:grid-cols-2 grid-cols-1">
+                                      {values.options.map((option, index) => (
+                                        <div
+                                          className="flex animate-scale-in gap-2 md:w-auto w-full"
+                                          key={index}
+                                        ><span className="inline-block pt-2">
+                                          <FontAwesomeIcon
+                                            size="lg"
+                                            icon={faGripVertical}
+                                            className="self-center text-eduBlack/60"
+                                          />
+                                          </span>
+                                          <InputField
+                                            name={`options.${index}`}
+                                            placeholder={`Option ${index + 1}`}
+                                            type="text"
+                                            className="w-full ipad-under:!bg-eduDarkGray"
+                                            maxLength={80}
+                                            parentClass="w-full"
+                                          />
+                                        </div>
+                                      ))}
+                                    </div>
+                                    <div className="flex flex-auto items-center py-2 justify-between gap-2">
+                                      <div className="gap-2 flex items-center">
+                                        {values.options.length < 8 && (
+                                          <span
+                                            onClick={() =>
+                                              arrayHelpers.insert(
+                                                values.options.length + 1,
+                                                ""
+                                              )
+                                            }
+                                            className="text-eduBlack animate-scale-in inline-block mt-2  p-2 py-1 font-medium rounded-md md:text-xs text-10px cursor-pointer"
+                                          >
+                                            Add Option
+                                          </span>
+                                        )}
+                                        {values.options.length > 2 && (
+                                          <span
+                                            onClick={() =>
+                                              arrayHelpers.remove(
+                                                values.options.length - 1
+                                              )
+                                            }
+                                            className="text-eduBlack animate-scale-in inline-block mt-2 p-2 py-1 rounded-md font-medium md:text-xs text-10px cursor-pointer"
+                                          >
+                                            Remove
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div className="text-white md:text-xs text-10px flex gap-1 items-center">
+                                        <label
+                                          htmlFor="votingLength "
+                                          className="text-black"
+                                        >
+                                          Voting Length
+                                        </label>
+                                        <Select
+                                          options={[
+                                            { label: "1 Day", value: 1 },
+                                            { label: "3 Days", value: 3 },
+                                            { label: "5 Days", value: 5 },
+                                          ]}
+                                          onClear={() =>
+                                            actions.setFieldValue(
+                                              "votingLength",
+                                              0
+                                            )
+                                          }
+                                          // className="bg-transparent outline-none font-bold"
+                                          // optionClassName="text-black text-xs"
+                                          value={values?.votingLength}
+                                          defaultValue="Select"
+                                          onSelect={(e) =>
+                                            actions.setFieldValue(
+                                              "votingLength",
+                                              e.value
+                                            )
+                                          }
+                                          wrapperClass="text-black !w-[5rem] md:!text-xs !text-10px !font-semibold ipad-under:!bg-transparent"
+                                          optionClass="md:!text-xs !text-10px"
                                         />
                                       </div>
                                     </div>
@@ -783,7 +1020,7 @@ export const AddPost = ({
                 formikFieldName="postType"
               />
               <div
-                className={`flex gap-2 flex-col ${
+                className={`md:flex gap-2 flex-col hidden  ${
                   (values as any)?.forumType == "Choose forum" &&
                   "disabled cursor-not-allowed"
                 }`}
@@ -791,7 +1028,7 @@ export const AddPost = ({
                 <label htmlFor="categories">
                   Categories{" "}
                   {actions?.touched.categories && actions.errors.categories ? (
-                    <span className="ml-1 text-xs font-body mt-1 first-letter:capitalize flex-shrink-0 opacity-50 text-[#FF0000] font-[500]">
+                    <span className="ml-1 md:text-xs text-10px font-body mt-1 first-letter:capitalize flex-shrink-0 opacity-50 text-[#FF0000] font-[500]">
                       {actions.errors.categories}
                     </span>
                   ) : null}
@@ -822,7 +1059,7 @@ export const AddPost = ({
                 <label className="text-eduBlack" htmlFor="categories">
                   filter&nbsp;
                   {actions?.touched.filters && actions.errors.filters ? (
-                    <span className="ml-1 text-xs font-body mt-1 first-letter:capitalize flex-shrink-0 opacity-50 text-[#FF0000] font-[500]">
+                    <span className="ml-1 md:text-xs text-10px font-body mt-1 first-letter:capitalize flex-shrink-0 opacity-50 text-[#FF0000] font-[500]">
                       {actions.errors.filters}
                     </span>
                   ) : null}

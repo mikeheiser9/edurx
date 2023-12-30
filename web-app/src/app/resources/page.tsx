@@ -17,24 +17,23 @@ import { selectUserDetail } from "@/redux/ducks/user.duck";
 import { HubLeftPenal } from "../hub/components/leftPanel";
 import { ResourceCard } from "./components/ResourceCard";
 import HeaderNav from "@/components/headerNav";
+import { LeftPanelWrapper } from "@/components/leftPanelWrapper";
 
 const resourceTabs = ["Resources", "News", "Reading List"];
-
 
 export default function Resources(props: any) {
   const router = useRouter();
   const loggedInUser = useSelector(selectUserDetail);
   const [resources, setResources] = useState<ResourceInfo[]>([]);
   const [savedResources, setSavedResources] = useState(new Set());
-  const [ isSaved, setIsSaved ] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
 
-
-  // console.log(loggedInUser);
+  console.log({resources});
 
   useEffect(() => {
     const fetchResources = async () => {
       try {
-        const response = await axiosGet('/resource')
+        const response = await axiosGet("/resource/resources");
         setResources(response.data);
       } catch (error) {
         console.log("Error fetching resource data ", error);
@@ -69,37 +68,33 @@ export default function Resources(props: any) {
     fetchReadingList();
   }, []);
 
-  console.log("saved resources ", savedResources);
-  console.log(loggedInUser._id);
-  // console.log('resource state ', resources);
-
   return (
     <>
-      <div className="relative w-screen min-h-screen flex justify-center items-start bg-white overflow-x-hidden">
-        <div className="relative max-w-[1640px] w-full h-auto flex flex-1 justify-start items-start">
-          <div className="realtive flex flex-row flex-nowrap w-full">
-            <div className="relative flex-col">
-              <div className="relative w-[300px] min-h-screen p-4">
-                <HubLeftPenal />
-              </div>
-            </div>
-            <div className="w-full flex flex-col items-center justify-start p-4">
-              <>
-                <div>
-                  <HeaderNav />
-                </div>
-                {resources?.map((resource) => (
-                  <ResourceCard
-                    resource={resource}
-                    userId={loggedInUser._id}
-                    key={resource._id}
-                    isSaved={savedResources.has(resource._id)}
-                  />
-                ))}
-              </>
-            </div>
-          </div>
+    <div className="flex flex-col w-full">
+    <div className="md:p-4 md:pb-0 h-[76px] md:block hidden">
+     <div className="logo-desktop block ipad-under:hidden pl-7"><a className="inline-block" href="#"><img src="https://i.ibb.co/gwRZ6gm/edu-Rx-blue-1.png" alt="edu-Rx-blue-1"/></a></div>
+      <div className="line w-full border-[2px] border-b-0 border-eduLightBlue h-[13px] mt-2.5 rounded-[6px_6px_0px_0px]" ></div>
+    </div>
+      <div className="flex md:p-4 md:px-5 w-full h-screen overflow-hidden md:max-h-[calc(100dvh_-_76px)]">
+        <LeftPanelWrapper>
+          <HubLeftPenal />{" "}
+        </LeftPanelWrapper>
+
+        <div className="flex-1 flex overflow-hidden flex-col gap-2">
+          <>
+            <HeaderNav />
+            {resources.length>0 && resources?.map((resource) => (
+              <ResourceCard
+                resource={resource}
+                userId={loggedInUser._id}
+                key={resource._id}
+                isSaved={savedResources.has(resource._id)}
+                isResource={false}
+              />
+            ))}
+          </>
         </div>
+      </div>
       </div>
     </>
   );
