@@ -35,7 +35,7 @@ export default function InputField({
       {label && (
         <label
           htmlFor={props.name}
-          className="block mt-4 mb-2 md:text-[16px] md:leading-normal text-xs text-eduBlack font-body"
+          className="block mt-4 mb-2 md:text-[14px] md:leading-normal text-xs text-eduBlack font-body"
           {...labelProps}
         >
           {label}
@@ -55,7 +55,7 @@ export default function InputField({
         <input
           id={label && props.name}
           {...props}
-          className={`bg-eduLightGray font-body text-eduBlack rounded-lg p-2 focus-visible:border-none outline-none autofill:active:bg-black ${
+          className={`bg-eduLightGray font-body text-eduBlack rounded-lg p-2 pl-3 focus-visible:border-none outline-none autofill:active:bg-black ${
             meta && meta.touched && meta.error
               ? "border-[1px] border-[#FF0000]"
               : ""

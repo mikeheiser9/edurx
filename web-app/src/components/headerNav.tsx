@@ -9,6 +9,7 @@ import NewPostMobileIcon from "../assets/icons/newPostMobileIcon.svg";
 import NewPostMobileIconActive from "../assets/icons/newPostMobileIcon-active.svg";
 import ResourcesMobileIcon from "../assets/icons/ResourcesMobileIcon.svg";
 import ResourcesMobileIconActive from "../assets/icons/ResourcesMobileIcon-active.svg";
+import EduLogoMobile from "../assets/imgs/eduRx-logo-2.png";
 import {
   removeToken,
   removeUserDetail,
@@ -90,7 +91,7 @@ const HeaderNav = () => {
               </span>
            </div>
            <div className="logo-mobile hidden ipad-under:block ipad-under:mx-auto">
-            <a href="#"><img src="https://i.ibb.co/gwRZ6gm/edu-Rx-blue-1.png" alt="edu-Rx-blue-1" /></a>
+            <span><Image src={EduLogoMobile} alt="Edu Logo" width={34} /></span>
            </div>
            {loggedInUser && (
         <ProfileDialog

@@ -20,7 +20,9 @@ const config: Config = {
         'eduDarkBlue': '#05233b',
         'eduYellow': '#fdcd26',
         'eduDarkGray': '#e7e5e2',
-        'eduLightGray': '#f9f8f9'
+        'eduLightGray': '#f9f8f9',
+        'adminDarkGray': '#A5A5A8',
+        'adminLightGray': '#D9D9D9'
       },
       fontFamily:{
         body: ['Poppins', 'sans-serif'],

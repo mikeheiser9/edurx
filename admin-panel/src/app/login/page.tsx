@@ -52,31 +52,33 @@ const login = () => {
   };
   
   return (
-    <div className="bg-[#c0c0c2] min-h-screen flex items-center justify-center ">
-      <div>
-        <div className="w-[700px] p-5 shadow-login rounded-[10px]">
+    <div className="bg-adminDarkGray/60 min-h-screen flex items-center justify-center ">
+        <div className="max-w-[90%] w-[530px] bg-adminDarkGray p-10 ipad-under:p-5 shadow-login  mx-auto">
           <div className="flex justify-center text-[30px] py-2">
-            <h1>Login EduRx Admin</h1>
+            <h1 className="font-semibold text-black mb-4">Login EduRx Admin</h1>
           </div>
-          <div className="px-4 py-2 text-zinc-500">
+          <div className="">
             <Formik
               initialValues={{ email: "", password: "" }}
               onSubmit={handleSubmit}
               validationSchema={validationSchema}
             >
               <Form autoComplete="off">
-                <div className="p-4 flex-col justify-center">
+                <div className="flex-col justify-center">
                   <Input
                     name="email"
                     label="Email"
                     required
                     labelClassName="text-black"
+                    className="bg-adminLightGray rounded-none  !border border-adminLightGray"
+                    parentClassName="lg:!mb-4 !mb-4"
                   />
                   <PasswordInput
                     name="password"
                     label={"Password"}
                     required
-                    parentClassName="text-black"
+                    parentClassName="text-black lg:!mb-4 !mb-4"
+                    className="bg-adminLightGray rounded-none !border border-adminLightGray"
                   />
                   <div className="grid grid-cols-1 pt-6 self-center text-center">
                     <Button
@@ -84,20 +86,21 @@ const login = () => {
                       type="submit"
                       variant="filled"
                       bg="bg-black"
-                      hoverBg="black"
+                      hoverBg="bg-eduYellow"
                       text="white"
-                      hoverText="white"
+                      hoverText="eduYellow"
                       border="dark"
                       hoverBorder="dark"
                       isLoading={isLoading}
+                      className="hover:bg-eduYellow hover:text-black duration-300"
                     />
                   </div>
                 </div>
+                <div className="bg-eduYellow hidden"></div>
               </Form>
             </Formik>
           </div>
         </div>
-      </div>
     </div>
   );
 };

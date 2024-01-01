@@ -30,7 +30,7 @@ export const TextArea = forwardRef(
         {label && (
           <label
             htmlFor={name}
-            className="block md:text-[16px] md:leading-normal text-xs font-body text-eduBlack"
+            className="block md:text-[14px] md:leading-normal text-xs font-body text-eduBlack"
             {...labelProps}
           >
             {label}
