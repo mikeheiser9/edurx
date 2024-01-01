@@ -74,7 +74,7 @@ export default function Resources(props: any) {
   return (
     <>
 
-      <ul className="flex gap-6 ipad-under:mx-auto justify-center items-center">
+      <ul className="flex gap-6 ipad-under:mx-auto justify-center items-center mb-4">
         {resourceTabs.map((item) => (
           <li
             onClick={() => setActiveSubTab(item)}

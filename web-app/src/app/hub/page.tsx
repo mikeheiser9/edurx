@@ -364,7 +364,7 @@ const Page = () => {
       </div>
 
       <div className="ml-[15px] tablet-lg:ml-0 w-full h-full overflow-auto ipad-under:ml-0">
-        <div className="text-[20px] font-[Hahmlet] pt-2">
+        <div className="text-[20px] font-[Hahmlet] ipad-under:text-[18px] pt-2">
           {activeSubTab == "All Notifications"
             ? activeSubTab
             : `${activeSubTab} Notifications`}

@@ -173,7 +173,7 @@ const HeaderNav = () => {
               ></span>
               <div className="flex items-center">
               <span
-                className={`rotate-[-90deg] text-[9px] ${
+                className={`rotate-[-90deg] leading-normal text-[9px] ${
                   pathName === "/" + item?.path
                     ? "border-white"
                     : "border-black"

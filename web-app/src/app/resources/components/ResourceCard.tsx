@@ -52,26 +52,35 @@ const [saved, setSaved] = useState(isSaved);
     };
 
     return (
-        <div className="flex flex-row flex-nowrap w-full p-4 rounded-[10px] bg-eduLightGray mt-4">
-            <div className="flex flex-col flex-1 w-[80%] justify-start items-start">
-                <div className="flex flex-row flex-nowrap">
-                    <span className="text-eduDarkBlue text-[12px]">Published by {resource.publisher}</span>
-                    <span className="mx-[10px] text-eduDarkBlue text-[12px]"> | </span> 
-                    <span className="text-eduDarkBlue text-[12px]">
-                        {
-                            isResource ? 'Resource Article' : 'News'
-                        }
-                    </span>
+        <div className="flex w-full p-4 rounded-[10px] bg-eduLightGray gap-2 tablet-lg:gap-2.5 !cursor-pointer postcard tablet-lg:flex-wrap tablet-lg:flex-col">
+            <div className="flex-1 gap-4 tablet-lg:gap-2.5 flex-col flex">
+                <div className="flex justify-between ipad-under:items-center gap-2">
+                    <div className="flex flex-row flex-wrap">
+                        <span className="text-eduDarkBlue text-[12px]">Published by {resource.publisher}</span>
+                        <span className="mx-[10px] text-eduDarkBlue text-[12px]"> | </span> 
+                        <span className="text-eduDarkBlue text-[12px]">
+                            {
+                                isResource ? 'Resource Article' : 'News'
+                            }
+                        </span>
+                    </div>
+                    <div className="hidden tablet-lg:block">
+                    <Button
+                    className="w-[150px] rounded-md font-medium text-sm tablet-lg:w-[100px] tablet-lg:text-[11px] !my-0"
+                    label={'Read Now'}
+                    onClick={handleResourceClick}
+                    />
                 </div>
-                <div className="mt-2">
-                    <h2 className="text-[22px] font-headers">{resource.title}</h2>
                 </div>
-                <div className="flex flex-row flex-nowrap gap-2 mt-2">
+                <div className="">
+                    <h2 className="text-[22px] ipad-under:text-[15px] tablet-lg:text-[20px] ipad-under:leading-normal ipad-under:font-medium text-eduBlack  flex gap-2 items-center">{resource.title}</h2>
+                </div>
+                <div className="flex flex-row flex-nowrap gap-2">
                     {resource?.tags?.map((tag) => (
-                        <div className="py-[8px] px-[15px] bg-transparent border text-eduDarkBlue border-eduDarkBlue rounded-[5px] flex justify-center items-center">
+                        <div className="">
                             <span
                             key={tag._id}
-                            className="text-[8px] leading-[8px]"
+                            className="text-[8px] py-1.5 px-4 leading-normal ipad-under:py-1 ipad-under:px-2 ipad-under:rounded-sm ipad-under:leading-normal bg-white text-eduDarkBlue rounded-[5px] border border-eduDarkBlue"
                             >
                                 {tag.name}
                             </span>
@@ -80,18 +89,18 @@ const [saved, setSaved] = useState(isSaved);
                     }
                 </div>
             </div>
-            <div className="flex flex-row flex-nowrap flex-1 w-[20%] justify-end items-center mr-5">
-                <div>
+            <div className="flex flex-row flex-nowrap flex-1 max-w-[210px] tablet-lg:max-w-full justify-end tablet-lg:justify-start items-center gap-4">
+                <div className="tablet-lg:hidden">
                     <Button
-                    className="w-[150px] rounded-md font-medium text-sm mr-4"
+                    className="w-[150px] rounded-md font-medium text-sm"
                     label={'Read Now'}
                     onClick={handleResourceClick}
                     />
                 </div>
-                <div className="cursor-pointer" onClick={saved ? handleUnsaveResource : handleSaveResource}>
+                <div className="cursor-pointer px-2 tablet-lg:px-0 tablet-lg:mt-1" onClick={saved ? handleUnsaveResource : handleSaveResource}>
                      <FontAwesomeIcon 
                         icon={faBookmark}
-                        className={`text-[20px] ${saved ? 'text-eduYellow' : 'text-black'}`}
+                        className={`text-[20px] tablet-lg:text-[18px] ${saved ? 'text-eduYellow' : 'text-black'}`}
                      />
                 </div>
             </div>

@@ -27,7 +27,7 @@ const socialMediaIcons: socials = {
   website,
 };
 const labelProps = {
-  className: "text-eduBlack font-body md:text-[16px] md:leading-normal text-xs mb-[5px] inline-block",
+  className: "text-eduBlack font-body md:text-[14px] md:leading-normal text-xs mb-[5px] inline-block",
 };
 
 const About = (): React.JSX.Element => {
@@ -185,7 +185,7 @@ const Education = ({
           <FontAwesomeIcon icon={faPlus} className="text-black self-center" />
         </span>
         <span
-          className="cursor-pointer md:text-[16px] md:leading-normal text-xs text-eduBlack/60 font-body p-2 bg-eduLightGray w-[250px] rounded-[10px]"
+          className="cursor-pointer md:text-[16px] md:leading-normal text-xs text-eduBlack/60 font-body p-2 px-6 bg-eduLightGray w-[250px] rounded-[10px]"
           onClick={addMore}
         >
           Add another
@@ -301,12 +301,14 @@ const Education = ({
                 />
               </div>
             </div>
+            <div>
             <TextArea
               label="Activities and Societies"
               name="activities"
               className="w-full resize-y"
               isFormikField={true}
             />
+            </div>
             <div className="flex gap-x-2 my-4">
               <span
                 className="bg-eduYellow rounded-xl cursor-pointer md:w-10 md:h-10 w-[30px] h-[30px] flex justify-center"
@@ -488,7 +490,7 @@ const UserDocs = ({
             mandatory
           />
           <div className="flex flex-auto gap-4 sm:flex-row flex-col">
-            <div className="flex flex-col">
+            <div className="flex flex-col flex-1">
               <InputField
                 label="Issue Date"
                 name="issue_date"
@@ -498,7 +500,7 @@ const UserDocs = ({
                 mandatory
               />
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col flex-1">
               <InputField
                 label="Expiration Date"
                 name="expiration_date"
@@ -508,7 +510,8 @@ const UserDocs = ({
                 disabled={values.has_no_expiry}
               />
             </div>
-            <div className="flex items-center text-eduBlack/60">
+          </div>
+          <div className="flex items-center text-eduBlack/60">
               <li className="animate-fade-in-down text-sm font-normal text-eduBlack flex ">
                 <input
                   id="has_no_expiry"
@@ -543,7 +546,6 @@ const UserDocs = ({
                 No Expiry
               </label>
             </div>
-          </div>
           <InputField
             type="text"
             name="doc_id"
@@ -579,7 +581,7 @@ const UserDocs = ({
               }
             ></button>
             <span
-              className="cursor-pointer md:text-[16px] md:leading-normal text-xs text-eduBlack/60 font-body p-2 bg-eduLightGray w-[250px] rounded-[10px]"
+              className="cursor-pointer md:text-[16px] md:leading-normal text-xs text-eduBlack/60 font-body p-2 px-6 bg-eduLightGray w-[250px] rounded-[10px]"
               onClick={executedSaveAndAddAnother}
             >
               Save and Add Another

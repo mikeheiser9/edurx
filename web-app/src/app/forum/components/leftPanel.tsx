@@ -250,7 +250,7 @@ export const LeftPanel = () => {
         <hr className="my-2 h-[1px] min-h-[1px] bg-eduBlack/60 border-0" />
         <div className="flex-1 flex flex-col justify-end">
           <Button
-            className="rounded-md ml-0 px-4 font-medium text-sm"
+            className="rounded-md ml-0 px-4 font-medium text-sm min-w-[120px]"
             label="Sort by Filter"
             type="button"
             onClick={() => {

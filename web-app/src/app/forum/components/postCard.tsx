@@ -163,7 +163,7 @@ export const PostCard = (props: Props) => {
         className="flex w-full p-4 rounded-[10px] bg-eduLightGray gap-2 tablet-lg:gap-2.5 !cursor-pointer postcard tablet-lg:flex-wrap tablet-lg:flex-col"
         onClick={onPostClick}
       >
-        <div className="flex-1 gap-4 tablet-lg::gap-2.5 flex-col flex">
+        <div className="flex-1 gap-4 tablet-lg:gap-2.5 flex-col flex">
           <div className="flex justify-between ipad-under:items-center gap-1">
           <span className="text-eduDarkBlue text-[12px] ipad-under:text-[11px] font-body">
             Published on {moment(post?.createdAt).format("DD/MM/YYYY")} |{" "}
