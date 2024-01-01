@@ -403,7 +403,7 @@ const Page = () => {
                         return (
                           <div
                             key={index}
-                            className={`flex w-full p-4  bg-eduYellow rounded-[10px] bg-eduLightGray border-[2px] border-[#13222A] gap-2  justify-between ${
+                            className={`flex w-full p-4 rounded-[10px] bg-eduLightGray border-[2px] border-[#13222A] gap-2  justify-between ${
                               timeSensitiveNotificationAction?.findIndex(
                                 (ids) => ids == notification._id
                               ) != -1 && "opacity-60"
