@@ -97,7 +97,7 @@ export const fetchUsersByAdmin = async (req, res) => {
       userModel
         .find(query)
         .select(
-          "first_name last_name username email password role npi_number taxonomy joined verified_account id npi_designation"
+          "first_name last_name username email role npi_number taxonomy joined verified_account id npi_designation"
         )
         .skip(skip)
         .limit(itemsPerPage)

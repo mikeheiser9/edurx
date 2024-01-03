@@ -87,7 +87,7 @@ const Table = (props: TableProps) => {
             records={dataSource}
             height={650}
             miw={650}
-            idAccessor={(records: any) => records._id}
+            idAccessor={(records: any) => `${records.id + Math.random()}`}
             noRecordsText={noRecordsText ?? "No Data"}
             backgroundColor={"#A5A5A8"}
             rowStyle={customRowStyle}
