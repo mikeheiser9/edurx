@@ -24,6 +24,7 @@ import { FormikErrors } from "formik";
 
 const page = () => {
   const [usersList, setUsersList] = useState<TypeUserData[]>([]);
+  const [totalUser, setTotalUser] = useState(0);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<TypeUserData | null>(null);
@@ -32,7 +33,11 @@ const page = () => {
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
   const [prevSearchKeyword, setPrevSearchKeyword] = useState("");
   const [searchKeyword, setSearchKeyword] = useState("");
-
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 20,
+  });
+  const [loadMoreLoader, setLoadMoreLoader] = useState(true);
   const columns = [
     {
       accessor: "",
@@ -83,12 +88,18 @@ const page = () => {
     },
   ];
 
-  const getUsersList = async () => {
-    setListLoader(true);
-    const res = await getUsers(searchKeyword);
+  const getUsersList = async (data: TypeUserData[]) => {
+    setLoadMoreLoader(true);
+    const res = await getUsers(
+      searchKeyword,
+      pagination.page,
+      pagination.limit
+    );
     if (res && res.data?.response_type === "success") {
-      setUsersList(res.data.data);
+      setTotalUser(res.data.data.count);
+      setUsersList([...data, ...res.data.data.data]);
     }
+    setLoadMoreLoader(false);
     setListLoader(false);
   };
 
@@ -96,7 +107,12 @@ const page = () => {
     if (id) {
       const res = await deleteUserById(id);
       if (res && res.data.response_type === "success") {
-        getUsersList();
+        if (pagination.page !== 1) {
+          setPagination({ ...pagination, page: 1 });
+          setUsersList([]);
+        } else {
+          getUsersList([]);
+        }
       }
     }
   };
@@ -116,7 +132,12 @@ const page = () => {
           };
         setErrors({ [key]: message });
       } else if (res && res.data && res.data.response_type == "success") {
-        getUsersList();
+        if (pagination.page !== 1) {
+          setUsersList([]);
+          setPagination({ ...pagination, page: 1 });
+        } else {
+          getUsersList([]);
+        }
         setIsFormDisable(true);
       }
     }
@@ -124,13 +145,18 @@ const page = () => {
   };
 
   useEffect(() => {
-    getUsersList();
+    setListLoader(true);
+    getUsersList([]);
   }, []);
+
+  useEffect(() => {
+    getUsersList(usersList);
+  }, [pagination.page]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (prevSearchKeyword.trim() != searchKeyword.trim()) {
-        getUsersList();
+        getUsersList([]);
         setPrevSearchKeyword(searchKeyword);
       }
     }, 1000);
@@ -140,7 +166,15 @@ const page = () => {
       clearTimeout(timeout);
     };
   }, [searchKeyword]);
-  
+
+  const loadMoreData = async () => {
+    if (totalUser > usersList.length && usersList) {
+      setPagination((prev) => {
+        return { page: prev.page + 1, limit: prev.limit };
+      });
+    }
+  };
+
   return (
     <div>
       {/* USER LIST */}
@@ -152,6 +186,8 @@ const page = () => {
           isLoading={listLoader}
           searchKeyword={searchKeyword}
           setSearchKeyword={setSearchKeyword}
+          loadMoreLoader={loadMoreLoader}
+          loadMoreData={loadMoreData}
           noRecordsText={
             (searchKeyword.length > 0 &&
               usersList.length == 0 &&

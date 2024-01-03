@@ -45,7 +45,12 @@ const sortingOptions: { value: string; label: string; icon: any }[] = [
   },
 ];
 
-export const LeftPanel = () => {
+interface TypeLeftPanelProps {
+  setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+export const LeftPanel = (props:TypeLeftPanelProps) => {
+  
   const dispatch = useDispatch();
   const selectedFilters: FilterOptionsState = useSelector(
     getSelectedForumFilters
@@ -158,6 +163,7 @@ export const LeftPanel = () => {
             <FontAwesomeIcon
                 className="text-eduLightBlue cursor-pointer text-xl"
                 icon={faChevronLeft}
+                onClick={()=> props.setIsSidebarOpen(false)}
               />
             </span>
         <span className="text-eduBlack text-[22px] font-medium font-headers mb-[20px]">

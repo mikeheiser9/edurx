@@ -110,9 +110,6 @@ export const AccountSetting = ({ accountSettingModal, userData }: Props) => {
       })
       .catch((error) => {
         console.error("Unable to retrieve settings", error);
-        showToast.error(
-          (error as Error).message || "Unable to retrieve settings"
-        );
       });
   }, []);
 

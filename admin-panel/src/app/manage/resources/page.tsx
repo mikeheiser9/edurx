@@ -25,6 +25,16 @@ import { FormikErrors } from "formik";
 
 const page = () => {
   const [resourceList, setResourceList] = useState<TypeResourceData[]>([]);
+  const [totalResources, setTotalResources] = useState(0);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 20,
+  });
+  const [categoryPagination, setCategoryPagination] = useState({
+    page: 1,
+    limit: 4,
+  });
+  const [totalCategory, setTotalCategory] = useState(0);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedResource, setSelectedResource] =
@@ -36,13 +46,8 @@ const page = () => {
     { _id: string; name: string }[]
   >([]);
   const [tags, setTags] = useState<string[]>([]);
-
-  const [filteredCategory, setFilteredCategory] = useState<
-    { _id: string; name: string }[]
-  >([]);
+  const [categoryLoader, setCategoryLoader] = useState(false);
   const [loadMoreLoader, setLoadMoreLoader] = useState(false);
-  let timeout: ReturnType<typeof setTimeout> | undefined;
-  const batchSize = 4;
 
   const columns = [
     {
@@ -88,6 +93,10 @@ const page = () => {
               setUserTag(records);
               setIsFormDisable(true);
               setIsEditOpen(true);
+              const getCatTags = (records.tags as TypeResourceTags[]).map(
+                (tag: TypeResourceTags) => tag._id
+              );
+              getCategoryList([], getCatTags);
             }}
           />
         </div>
@@ -95,24 +104,50 @@ const page = () => {
     },
   ];
 
-  const getResourcesList = async () => {
-    setListLoader(true);
-    const resourceRes = await getResources();
-    const categoriesRes = await getCategories();
+  const getCategoryList = async (
+    data: { _id: string; name: string }[],
+    getCatTag?: string[]
+  ) => {
+    setCategoryLoader(true);
+    
+    let categoryPaginate =
+      totalCategory > categoryList.length
+        ? { ...categoryPagination }
+        : { page: 1, limit: 4 };
 
-    if (resourceRes && resourceRes.data?.response_type === "success") {
-      setResourceList(resourceRes.data.data);
+    let categoriesRes;
+    if (getCatTag && getCatTag.length > 0) {
+      categoriesRes = await getCategories({
+        ...categoryPaginate,
+        selectedCategoryIds: getCatTag,
+      });
+    } else {
+      categoriesRes = await getCategories({ ...categoryPaginate });
     }
+
     if (categoriesRes && categoriesRes.data?.response_type === "success") {
       const categoriesData = categoriesRes.data.data.records;
+      setTotalCategory(categoriesRes.data.data.totalRecords);
       let categories: { _id: string; name: string }[] = [];
       if (categoriesData.length > 0) {
         categoriesData.map((category: any) =>
           categories.push({ name: category.name, _id: category._id })
         );
       }
-      setCategoryList(categories);
+      setCategoryList([...data, ...categories]);
     }
+    setCategoryLoader(false);
+  };
+
+  const getResourcesList = async (data: TypeResourceData[]) => {
+    setLoadMoreLoader(true)
+    const resourceRes = await getResources({ ...pagination });
+
+    if (resourceRes && resourceRes.data?.response_type === "success") {
+      setResourceList([...data, ...resourceRes.data.data.data]);
+      setTotalResources(resourceRes.data.data.count);
+    }
+    setLoadMoreLoader(false)
     setListLoader(false);
   };
 
@@ -120,7 +155,12 @@ const page = () => {
     if (id) {
       const res = await deleteResourceById(id);
       if (res && res.data.response_type === "success") {
-        getResourcesList();
+        if (pagination.page !== 1) {
+          setPagination({ ...pagination, page: 1 });
+          setResourceList([]);
+        } else {
+          getResourcesList([]);
+        }
       }
     }
   };
@@ -155,13 +195,23 @@ const page = () => {
             };
           setErrors({ [key]: message });
         } else if (res && res.data && res.data.response_type == "success") {
-          getResourcesList();
+          if (pagination.page !== 1) {
+            setPagination({ ...pagination, page: 1 });
+            setResourceList([]);
+          } else {
+            getResourcesList([]);
+          }
           setIsFormDisable(true);
         }
       } else {
         const res = await addResource(values);
         if (res && res.data && res.data.response_type == "success") {
-          getResourcesList();
+          if (pagination.page !== 1) {
+            setPagination({ ...pagination, page: 1 });
+            setResourceList([]);
+          } else {
+            getResourcesList([]);
+          }
           setIsEditOpen(false);
         }
       }
@@ -179,49 +229,34 @@ const page = () => {
     }
   };
 
-  useEffect(() => {
-    getResourcesList();
-  }, []);
-
-  useEffect(() => {
-    if (!isEditOpen) {
-      setFilteredCategory([])
-    }
-  }, [isEditOpen]);
-
-  useEffect(() => {
-    selectedResource && loadMoreCategories();
-  }, [selectedResource]);
-
   const loadMoreCategories = () => {
-    setLoadMoreLoader(true);
-    if (categoryList.length > 0) {
-      let filteredData: { _id: string; name: string }[] = [];
-      if (tags.length > 0) {
-        filteredData = [
-          ...categoryList.filter((item) => tags.includes(item._id)),
-          ...categoryList.filter((item) => !tags.includes(item._id)),
-        ];
-      } else {
-        filteredData = categoryList;
-      }
+    if (totalCategory > categoryList.length) {
+      setCategoryPagination((prev) => {
+        return { page: prev.page + 1, limit: 4 };
+      });
+    }
+  };
 
-      timeout = setTimeout(() => {
-        setFilteredCategory(
-          filteredData.slice(0, filteredCategory.length + batchSize)
-        );
-        setLoadMoreLoader(false);
-      }, 1000);
-    } else {
-      setLoadMoreLoader(false);
+  const loadMoreData = async () => {
+    if (totalResources > resourceList.length && resourceList) {
+      setPagination((prev) => {
+        return { page: prev.page + 1, limit: prev.limit };
+      });
     }
   };
 
   useEffect(() => {
-    return () => {
-      if (timeout) clearTimeout(timeout);
-    };
-  }, [timeout]);
+    setListLoader(true);
+    getResourcesList([]);
+  }, []);
+
+  useEffect(() => {
+    getResourcesList(resourceList);
+  }, [pagination.page]);
+
+  useEffect(() => {
+    getCategoryList(categoryList);
+  }, [categoryPagination.page]);
 
   return (
     <div>
@@ -233,12 +268,14 @@ const page = () => {
           buttonLabel="Add New"
           dataSource={resourceList}
           isLoading={listLoader}
+          loadMoreData={loadMoreData}
           buttonClick={() => {
             setSelectedResource(null);
             setTags([]);
             setIsEditOpen(true);
             setIsFormDisable(false);
           }}
+          loadMoreLoader={loadMoreLoader}
         />
       </MantineProvider>
 
@@ -262,8 +299,6 @@ const page = () => {
       <EditResourceModal
         isOpen={isEditOpen}
         onClose={() => {
-          setFilteredCategory([]);
-          loadMoreCategories()
           setIsEditOpen(false);
         }}
         userData={selectedResource}
@@ -271,11 +306,11 @@ const page = () => {
         onEdit={() => setIsFormDisable(false)}
         handleSubmit={handleSubmit}
         isFormSubmitting={isFormSubmitting}
-        categoryList={filteredCategory}
+        categoryList={categoryList}
         tags={tags}
         setTags={setTags}
         loadMoreButton={loadMoreCategories}
-        loadMoreLoader={loadMoreLoader}
+        loadMoreLoader={categoryLoader}
       />
     </div>
   );

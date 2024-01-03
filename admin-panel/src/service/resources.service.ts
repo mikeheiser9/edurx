@@ -1,8 +1,8 @@
 import { axiosDelete, axiosGet, axiosPost, axiosPut } from "@/axios/config";
 import { TypeResourceData } from "@/types/resource";
 
-export const getResources = () => {
-  return axiosGet("/admin/resource/resources");
+export const getResources = (params?:object) => {
+  return axiosGet("/admin/resource/resources",{params});
 };
 
 export const getCategories = (params?: object) => {

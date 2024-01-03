@@ -3,4 +3,8 @@ interface ResourceInfo {
     title: string,
     link: string,
     publisher: string,
-    tags: { _id: string; name: string; }[];}
+    tags: { _id: string; name: string; }[];
+    createdAt:string;
+    isReadByUser:boolean;
+    isResource:boolean
+}

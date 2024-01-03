@@ -70,29 +70,47 @@ export const adminLogin = async (req, res) => {
 
 export const fetchUsersByAdmin = async (req, res) => {
   try {
-    const searchKeyword = req.query.search;
+    const { page, search, limit } = req.query;
+
+    const currentPage = page ? parseInt(page) : 1;
+    const itemsPerPage = limit ? parseInt(limit) : 20;
+
     let query = {};
-    if (searchKeyword && searchKeyword.trim() !== "") {
-      const regex = new RegExp(searchKeyword, "i");
+    if (search && search.trim() !== "") {
+      const regex = new RegExp(search, "i");
       query = {
         $or: [
           { username: regex },
           { first_name: regex },
           { last_name: regex },
           {
-            $where: `/.*${searchKeyword}.*/i.test(this.first_name + ' ' + this.last_name)`,
+            $where: `/.*${search}.*/i.test(this.first_name + ' ' + this.last_name)`,
           },
         ],
       };
     }
 
-    const list = await userModel
-      .find(query)
-      .select(
-        "first_name last_name username email password role npi_number taxonomy joined verified_account id npi_designation"
-      )
-      .sort({ first_name: 1 });
-    return generalResponse(res, 200, "success", "", list, false);
+    const skip = (currentPage - 1) * itemsPerPage;
+
+    const [count, list] = await Promise.all([
+      userModel.countDocuments(),
+      userModel
+        .find(query)
+        .select(
+          "first_name last_name username email password role npi_number taxonomy joined verified_account id npi_designation"
+        )
+        .skip(skip)
+        .limit(itemsPerPage)
+        .sort({ first_name: 1 }),
+    ]);
+    return generalResponse(
+      res,
+      200,
+      "success",
+      "",
+      { data: list, count: count },
+      false
+    );
   } catch (error) {
     return generalResponse(
       res,
@@ -246,23 +264,99 @@ export const updateUserByAdmin = async (req, res) => {
       res,
       400,
       "error",
-      "Something Went Wrong while Updating User on admin side.",
+      error ? error : "Something Went Wrong while Updating User on admin side.",
       "",
-      true
+      false
     );
   }
 };
 
 export const fetchCategoryByAdmin = async (req, res) => {
   try {
-    const { page, limit } = req.query;
-    const query = {
+    const { selectedCategoryIds } = req.query;
+
+    const limit = parseInt(req.query.limit);
+    const page = parseInt(req.query.page);
+
+    const selectedIdsQuery = { _id: { $in: selectedCategoryIds } };
+    const otherCategoriesQuery = {
       $and: [{ isDeleted: { $ne: true } }, { type: "category" }],
     };
-    const searchResult = await findAndPaginate(categoryFilterModal, query);
-    return generalResponse(res, 200, "success", "", searchResult);
+    const query = { $or: [selectedIdsQuery, otherCategoriesQuery] };
+    const allRecords = await categoryFilterModal.find(query);
+
+    let selectedRecords, unselectedRecords;
+
+    if (selectedCategoryIds) {
+      selectedRecords = allRecords.filter((record) =>
+        selectedCategoryIds.includes(String(record._id))
+      );
+      unselectedRecords = allRecords.filter(
+        (record) => !selectedCategoryIds.includes(String(record._id))
+      );
+    } else {
+      selectedRecords = [];
+      unselectedRecords = allRecords;
+    }
+
+    const sortedRecords = selectedRecords.concat(unselectedRecords);
+
+    const startIndex = (page-1) * limit;
+    const endIndex = startIndex + limit
+    const paginatedRecords = sortedRecords.slice(startIndex, endIndex);
+
+    const data = {
+      records: paginatedRecords,
+      totalPages: Math.ceil(sortedRecords.length / limit),
+      currentPage: page,
+      totalRecords: sortedRecords.length,
+    };
+
+    return generalResponse(res, 200, "success", "", data);
   } catch (error) {
     return generalResponse(res, 400, "error", error.message, error, false);
+  }
+};
+
+export const fetchResourceByAdmin = async (req, res) => {
+  try {
+    const { page, limit } = req.query;
+    const currentPage = page ? parseInt(page) : 1;
+    const itemsPerPage = limit ? parseInt(limit) : 20;
+
+    const skip = (currentPage - 1) * itemsPerPage;
+
+    const [count, resources] = await Promise.all([
+      resourceModel.countDocuments({ isDeleted: false }),
+      resourceModel
+        .find({ isDeleted: { $ne: true } })
+        .select("title link publisher isResource tags createdAt _id tags")
+        .populate({
+          path: "tags",
+          select: "-__v",
+        })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(itemsPerPage),
+    ]);
+
+    return generalResponse(
+      res,
+      200,
+      "success",
+      "",
+      { data: resources, count },
+      false
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      400,
+      "error",
+      "Something Went Wrong while Fetching Resources.",
+      "",
+      false
+    );
   }
 };
 
@@ -271,6 +365,7 @@ export const deleteResourceById = async (req, res) => {
     await resourceModel.findByIdAndUpdate(req.body.id, {
       isDeleted: true,
     });
+
     return generalResponse(
       res,
       200,
@@ -301,10 +396,6 @@ export const updateResourceById = async (req, res) => {
       ? (resourceData.isResource = true)
       : (resourceData.isResource = false);
     await resourceModel.findByIdAndUpdate(id, resourceData);
-    console.log(resourceType);
-    console.log(
-      `${resourceData.isResource.toString().toUpperCase()} Update Successful!!`
-    );
     return generalResponse(
       res,
       200,
@@ -314,7 +405,6 @@ export const updateResourceById = async (req, res) => {
       true
     );
   } catch (error) {
-    console.log({ error });
     return generalResponse(
       res,
       400,

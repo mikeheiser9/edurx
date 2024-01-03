@@ -2,11 +2,7 @@ import Button from "@/components/Button";
 import Input from "@/components/Input";
 import SearchInput from "@/components/SearchInput";
 import SectionLoader from "@/components/SectionLoader";
-import {
-  DataTable,
-  DataTableColumn,
-  DataTableSortStatus,
-} from "mantine-datatable";
+import { DataTable, DataTableColumn } from "mantine-datatable";
 import React, { useEffect, useRef, useState } from "react";
 import { RiSearch2Line } from "react-icons/ri";
 
@@ -21,6 +17,8 @@ interface TableProps {
   isLoading?: boolean;
   searchKeyword?: string;
   setSearchKeyword?: React.Dispatch<React.SetStateAction<string>>;
+  loadMoreData?: () => void;
+  loadMoreLoader?:boolean
 }
 
 const Table = (props: TableProps) => {
@@ -35,6 +33,8 @@ const Table = (props: TableProps) => {
     isLoading,
     searchKeyword,
     setSearchKeyword,
+    loadMoreData,
+    loadMoreLoader      
   } = props;
 
   const customRowStyle = (
@@ -47,36 +47,6 @@ const Table = (props: TableProps) => {
   });
 
   const scrollViewportRef = useRef<HTMLDivElement>(null);
-  
-  const batchSize = 20;
-  const [loading, setLoading] = useState(false);
-  const [records, setRecords] = useState(dataSource ?? []);
-  let timeout: ReturnType<typeof setTimeout> | undefined;
-
-  useEffect(() => {
-    loadMoreRecords();
-  }, [dataSource]);
-
-  const loadMoreRecords = () => {
-    if (dataSource) {
-      
-        setLoading(true);
-        timeout = setTimeout(() => {
-          setRecords(dataSource.slice(0, records.length + batchSize));
-          setLoading(false);
-        }, 1000);
-      }else{
-        setRecords([]);
-        setLoading(false);
-      }
-  };
-
-  useEffect(() => {
-    return () => {
-      if (timeout) clearTimeout(timeout);
-    };
-  }, [timeout]);
-  
   return (
     <div className="relative px-6 pt-2 ">
       <div className="relative bg-[#A5A5A8] p-6 rounded-xl min-h-[calc(100vh-120px)]">
@@ -109,24 +79,23 @@ const Table = (props: TableProps) => {
 
         {isLoading ? (
           <div className="relative h-[calc(100vh-208px)]">
-            <SectionLoader />
+            <SectionLoader className="h-full w-full" />
           </div>
         ) : (
           <DataTable
             columns={columns}
-            records={records}
-            minHeight={650}
+            records={dataSource}
+            height={650}
             miw={650}
             idAccessor={(records: any) => records._id}
             noRecordsText={noRecordsText ?? "No Data"}
             backgroundColor={"#A5A5A8"}
             rowStyle={customRowStyle}
-            onScrollToBottom={loadMoreRecords}
+            onScrollToBottom={loadMoreData}
             scrollViewportRef={scrollViewportRef}
-            height={300}
-            fetching={loading}
             customLoader={<SectionLoader />}
-          />
+            fetching={loadMoreLoader}
+            />
         )}
       </div>
     </div>

@@ -74,21 +74,71 @@ class ResourceController {
 
 export const getResources = async (req, res) => {
   try {
-    const pageNumber = Number(req.query.page || 1)
-    const limit = Number(req.query.limit || 10)
+    const pageNumber = Number(req.query.page || 1);
+    const limit = Number(req.query.limit);
     const skip = (pageNumber - 1) * limit;
-    const resources = await resourceModel
-      .find({ isDeleted: { $ne: true } })
-      .select("title link publisher isResource tags createdAt _id tags")
-      .populate({
-        path: "tags",
-        select: "-__v",
-      })
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
+    const filter = req.query.filter;
 
-    return generalResponse(res, 200, "success", "", resources, false);
+    const pipeline = [
+      {
+        $match: {
+          isDeleted: false,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "reading_list",
+          as: "usersData",
+        },
+      },
+
+      {
+        $sort: { createdAt: -1 },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limit,
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          link: 1,
+          publisher: 1,
+          isResource: 1,
+          tags: 1,
+          createdAt: 1,
+          usersData: 1,
+        },
+      },
+    ];
+    if (filter === "reading_list") {
+      pipeline.splice(2, 0, {
+        $match: {
+          usersData: { $exists: true, $ne: [] },
+        },
+      });
+    }
+    const getRes = await resourceModel.aggregate(pipeline);
+    await resourceModel.populate(getRes, {
+      path: "tags",
+      select: "-__v",
+    });
+
+    const filteredByReadList = getRes.map((data, i) => {
+      if (data.usersData.length > 0) {
+        delete data["usersData"];
+        return { ...data, isReadByUser: true };
+      } else {
+        delete data["usersData"];
+        return { ...data, isReadByUser: false };
+      }
+    });
+    return generalResponse(res, 200, "success", "", filteredByReadList, false);
   } catch (error) {
     return generalResponse(
       res,
@@ -96,7 +146,7 @@ export const getResources = async (req, res) => {
       "error",
       "Something Went Wrong while Fetching Resources.",
       "",
-      false
+      true
     );
   }
 };

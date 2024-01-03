@@ -1,6 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { axiosGet } from "@/axios/config";
+import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { selectUserDetail } from "@/redux/ducks/user.duck";
 import { ResourceCard } from "./components/ResourceCard";
@@ -9,82 +8,103 @@ import InfiniteScroll from "@/components/infiniteScroll";
 
 export default function Resources(props: any) {
   const loggedInUser = useSelector(selectUserDetail);
-  const resourceTabs = ["Resources", "News", "Reading List"];
-  const [savedResources, setSavedResources] = useState(new Set());
-  const [activeSubTab, setActiveSubTab] = useState(resourceTabs[0]);
+  const resourceTabs = {
+    resources: {
+      key: "resources",
+      label: "Resources",
+    },
+    news: {
+      key: "news",
+      label: "News",
+    },
+    reading_list: {
+      key: "reading_list",
+      label: "Reading List",
+    },
+  };
+  const [activeSubTab, setActiveSubTab] = useState(resourceTabs.resources);
 
   // resource states
   const [resources, setResources] = useState<ResourceInfo[]>([]);
   const [resourceLoading, setResourceLoading] = useState(false);
-  const [resourceCurrentPage, setResourceCurrentPage] = useState(1)
-  const [showLoadMore, setShowLoadMore] = useState(false)
-  const pageResourcelimit = 5
+  const [resourceCurrentPage, setResourceCurrentPage] = useState(1);
+  const [showLoadMore, setShowLoadMore] = useState(false);
+  const pageResourcelimit = 5;
 
   const fetchResources = async (page: number = 1) => {
-    setResourceLoading(true)
+    setResourceLoading(true);
     try {
-      const response = await getResources(page)
+      const response = await getResources(page, 5, activeSubTab.key);
       if (response.data.response_type == "success") {
         setResources((pre) => [...pre, ...response.data.data]);
-        setResourceCurrentPage((pre) => pre + 1);
         if (response.data.data.length < pageResourcelimit) {
-          setShowLoadMore(false)
+          setShowLoadMore(false);
         }
+
+        setResourceCurrentPage((pre) => pre + 1);
       }
     } catch (error) {
       console.log("Error fetching resource data ", error);
     }
-    setResourceLoading(false)
+    setResourceLoading(false);
   };
 
+  // For GetResources based on Active SubTabs
   useEffect(() => {
-    setShowLoadMore(true)
+    setResourceCurrentPage(1);
+    setResources([]);
+    setShowLoadMore(true);
     fetchResources();
-  }, []);
+  }, [activeSubTab]);
 
-  useEffect(() => {
-    interface ReadingListItem {
-      _id: string;
-      title: string;
-      link: string;
-      publisher: string;
-      tags: Array<string>;
-    }
+  // useEffect(() => {
+  //   interface ReadingListItem {
+  //     _id: string;
+  //     title: string;
+  //     link: string;
+  //     publisher: string;
+  //     tags: Array<string>;
+  //   }
 
-    const fetchReadingList = async () => {
-      try {
-        const response = await axiosGet(
-          `/user/${loggedInUser._id}/reading_list`
-        );
-        setSavedResources(
-          new Set(response.data.map((item: ReadingListItem) => item._id))
-        );
-      } catch (error) {
-        console.log("Error fetching reading list data ", error);
-      }
-    };
+  //   const fetchReadingList = async () => {
+  //     try {
+  //       const response = await axiosGet(
+  //         `/user/${loggedInUser._id}/reading_list`
+  //       );
 
-    fetchReadingList();
-  }, []);
+  //       console.log(response.data.map((item: ReadingListItem) => item._id));
+
+  //       setSavedResources(
+  //         new Set(response.data.map((item: ReadingListItem) => item._id))
+  //       );
+  //     } catch (error) {
+  //       console.log("Error fetching reading list data ", error);
+  //     }
+  //   };
+
+  //   fetchReadingList();
+  // }, []);
 
   const loadMorePosts = async () => {
-    await fetchResources(resourceCurrentPage)
-  }
+    resourceCurrentPage !== 1 && (await fetchResources(resourceCurrentPage));
+  };
 
   return (
     <>
-
       <ul className="flex gap-6 ipad-under:mx-auto justify-center items-center mb-4">
-        {resourceTabs.map((item) => (
+        {Object.values(resourceTabs).map((tab) => (
           <li
-            onClick={() => setActiveSubTab(item)}
-            className={`text-eduBlack font-body font-medium ease-in-out duration-500 border-b-2 py-2 text-[14px] cursor-pointer ipad-under:text-xs ipad-under:py-1 ${item === activeSubTab
-              ? "border-primary"
-              : "border-transparent"
-              }`}
-            key={item}
+            onClick={() => {
+              setActiveSubTab(tab);
+            }}
+            className={`text-eduBlack font-body font-medium ease-in-out duration-500 border-b-2 py-2 text-[14px] cursor-pointer ipad-under:text-xs ipad-under:py-1 ${
+              tab.key === activeSubTab.key
+                ? "border-primary"
+                : "border-transparent"
+            }`}
+            key={tab.key}
           >
-            {item}
+            {tab.label}
           </li>
         ))}
       </ul>
@@ -94,17 +114,16 @@ export default function Resources(props: any) {
         hasMoreData={showLoadMore}
         showLoading={resourceLoading}
       >
-        {resources.length > 0 && resources?.map((resource, index) => (
-          <div key={index}>
-            <ResourceCard
-              resource={resource}
-              userId={loggedInUser?._id}
-              key={resource._id}
-              isSaved={savedResources.has(resource._id)}
-              isResource={false}
-            />
-          </div>
-        ))}
+        {resources.length > 0 &&
+          resources?.map((resource, index) => (
+            <div key={index}>
+              <ResourceCard
+                resource={resource}
+                userId={loggedInUser?._id}
+                key={resource._id}
+              />
+            </div>
+          ))}
       </InfiniteScroll>
     </>
   );

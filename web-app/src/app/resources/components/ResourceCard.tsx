@@ -11,19 +11,15 @@ import axios from 'axios';
 interface Props {
     resource: ResourceInfo;
     userId: UserId;
-    isSaved: boolean;
-    isResource:boolean
 }
 
 export const ResourceCard = (props: Props) => {
     const {
         resource,
         userId,
-        isSaved,
-        isResource
     } = props;
 
-const [saved, setSaved] = useState(isSaved);
+const [saved, setSaved] = useState(resource.isReadByUser);
 
 
     const handleResourceClick = () => {
@@ -38,7 +34,6 @@ const [saved, setSaved] = useState(isSaved);
         } catch (error) {
             console.error('Error saving resource:', error);
         }
-
     };
 
     // Function to handle unsaving a resource
@@ -60,7 +55,7 @@ const [saved, setSaved] = useState(isSaved);
                         <span className="mx-[10px] text-eduDarkBlue text-[12px]"> | </span> 
                         <span className="text-eduDarkBlue text-[12px]">
                             {
-                                isResource ? 'Resource Article' : 'News'
+                                resource.isResource ? 'Resource Article' : 'News'
                             }
                         </span>
                     </div>

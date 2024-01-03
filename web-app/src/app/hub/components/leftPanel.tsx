@@ -14,7 +14,7 @@ import { getStaticImageUrl } from "@/util/helpers";
 import { faEdit } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ProfileDialog } from "./profileDialog";
@@ -22,7 +22,11 @@ import { EditProfileDialog } from "./editProfileDialog";
 import { AccountSetting } from "./accountSetting";
 import { faChevronLeft, faLeftRight } from "@fortawesome/free-solid-svg-icons";
 
-export const HubLeftPenal = () => {
+interface TypeLeftPanelProps {
+  setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export const HubLeftPenal = (props: TypeLeftPanelProps) => {
   const router = useRouter();
   const dispatch = useDispatch();
   const loggedInUser = useSelector(selectUserDetail);
@@ -31,6 +35,11 @@ export const HubLeftPenal = () => {
   const profileModal = useModal();
   const editProfileModal = useModal();
   const accountSettingModal = useModal();
+  const [defaultPath, setDefaultPath] = useState({
+    hub: true,
+    resources: false,
+  });
+  const pathname = usePathname();
   const getUserByApi = async () => {
     const userId = loggedInUser?._id;
     if (!userId) return;
@@ -60,6 +69,16 @@ export const HubLeftPenal = () => {
   useEffect(() => {
     getUserByApi();
   }, []);
+
+  // Used For the Sidebar tabs that get active based on Route
+  useEffect(() => {
+    const updatedDefaultPath: Record<string, any> = {};
+
+    Object.keys(defaultPath).forEach((key) => {
+      updatedDefaultPath[key] = pathname.includes(key);
+    });
+    setDefaultPath(updatedDefaultPath as { hub: boolean; resources: boolean });
+  }, [pathname]);
 
   const handleClick = () => {
     axiosGet(`/user/${loggedInUser?._id}/profile?editProfile=true`, {})
@@ -110,9 +129,10 @@ export const HubLeftPenal = () => {
         <div className="flex flex-auto flex-col gap-4">
           <div className="flex justify-center items-center flex-col gap-4 ipad-under:relative ipad-under:gap-3">
             <span className="hidden ipad-under:flex items-center justify-center ipad-under:absolute ipad-under:top-0 ipad-under:right-0 ipad-under:w-6 ipad-under:h-6 ">
-            <FontAwesomeIcon
+              <FontAwesomeIcon
                 className="text-eduLightBlue cursor-pointer text-xl"
                 icon={faChevronLeft}
+                onClick={() => props.setIsSidebarOpen(false)}
               />
             </span>
             {userData?.profile_img && (
@@ -146,28 +166,33 @@ export const HubLeftPenal = () => {
             </div>
             <hr className="w-full border-t border-eduBlack/40" />
           </div>
-          <h3 className="font-headers text-2xl ipad-under:font-medium">My EduRx</h3>
-          <NavList
-            options={[
-              {
-                label: "Notifications",
-                isDefault: true,
-                onClick: () => router.push("hub"),
-              },
-              {
-                label: "My Profile",
-                onClick: profileModal?.openModal,
-              },
-              {
-                label: "Forum Hub",
-                onClick: () => router.push("forum"),
-              },
-              {
-                label: "Resources",
-                onClick: () => router.push("resources"),
-              },
-            ]}
-          />
+          <h3 className="font-headers text-2xl ipad-under:font-medium">
+            My EduRx
+          </h3>
+          {defaultPath && (
+            <NavList
+              options={[
+                {
+                  label: "Notifications",
+                  isDefault: defaultPath.hub,
+                  onClick: () => router.push("hub"),
+                },
+                {
+                  label: "My Profile",
+                  onClick: profileModal?.openModal,
+                },
+                {
+                  label: "Forum Hub",
+                  onClick: () => router.push("forum"),
+                },
+                {
+                  label: "Resources",
+                  isDefault: defaultPath.resources,
+                  onClick: () => router.push("resources"),
+                },
+              ]}
+            />
+          )}
           <hr className="w-full  border-t border-eduBlack/40" />
           <span className="text-base ipad-under:font-medium">Coming Soon!</span>
           <div className="flex flex-col gap-2 flex-auto opacity-20 blur-[1px] overflow-y-auto">

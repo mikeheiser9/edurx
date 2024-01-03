@@ -6,7 +6,7 @@ import { postStatus } from "@/util/constant";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faEye, faLock, faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 interface NavOption {
@@ -35,62 +35,60 @@ const ModalHeader = ({
   const dispatch = useDispatch();
   return (
     <>
-    <div className="for-desktop md:flex hidden p-3 px-7  items-center  justify-start bg-eduDarkGray gap-3 ">
-      <span className="text-xl font-medium">
-        {mode == "Edit"
-          ? "Edit Post"
-          : mode == "Draft"
-          ? "Edit Draft"
-          : "New Post"}{" "}
-      </span>
-      <span></span>
-      <span
-        className="border-l-2 border-solid border-l-eduBlack text-xl pl-5 font-light underline cursor-pointer"
-        onClick={() => {
-          onClose?.();
-          setTimeout(() => {
-            dispatch(setModalState({ isOpen: true, type: "viewDraftModal" }));
-          }, 200);
-        }}
-      >
-        Drafts&nbsp;
-        <b className="font-medium">{userPostDraftCount}</b>
-      </span>
-      <FontAwesomeIcon
-        icon={faX}
-        onClick={onClose}
-        className="ml-auto font-bold self-center cursor-pointer text-eduBlack"
-      />
-       
-    </div>
-    <div className=" for-mobile flex p-3 md:px-7 px-4  items-center  justify-between md:bg-eduDarkGray bg-eduLightGray border-b gap-3 md:hidden">
-      <div className="toggle-private w-[85px]">
+      <div className="for-desktop md:flex hidden p-3 px-7  items-center  justify-start bg-eduDarkGray gap-3 ">
+        <span className="text-xl font-medium">
+          {mode == "Edit"
+            ? "Edit Post"
+            : mode == "Draft"
+            ? "Edit Draft"
+            : "New Post"}{" "}
+        </span>
+        <span></span>
+        <span
+          className="border-l-2 border-solid border-l-eduBlack text-xl pl-5 font-light underline cursor-pointer"
+          onClick={() => {
+            onClose?.();
+            setTimeout(() => {
+              dispatch(setModalState({ isOpen: true, type: "viewDraftModal" }));
+            }, 200);
+          }}
+        >
+          Drafts&nbsp;
+          <b className="font-medium">{userPostDraftCount}</b>
+        </span>
+        <FontAwesomeIcon
+          icon={faX}
+          onClick={onClose}
+          className="ml-auto font-bold self-center cursor-pointer text-eduBlack"
+        />
       </div>
-      <div>
-      <span className="md:text-xl text-[15px] font-medium  ">{mode=="Edit"? 'Edit Draft' : 'New Post'} </span>
-      <span></span>
+      <div className=" for-mobile flex p-3 md:px-7 px-4  items-center  justify-between md:bg-eduDarkGray bg-eduLightGray border-b gap-3 md:hidden">
+        <div className="toggle-private w-[85px]"></div>
+        <div>
+          <span className="md:text-xl text-[15px] font-medium  ">{mode=="Edit"? 'Edit Draft' : 'New Post'} </span>
+          <span></span>
+        </div>
+        <div className="flex items-center gap-4">
+          <div
+            className="md:text-xl text-[11px] text-eduLightBlue  font-semibold md:underline cursor-pointer"
+            onClick={() => {
+              onClose?.();
+              setTimeout(() => {
+                dispatch(setModalState({ isOpen: true, type: "viewDraftModal" }));
+              }, 200);
+            }}
+          >
+            Drafts&nbsp;
+            <span className="font-semibold text-center bg-[#D9D9D9] min-w-[18px] min-h-[18px] inline-block">{userPostDraftCount}</span>
+          </div>
+          <FontAwesomeIcon
+            icon={faX}
+            size="sm"
+            onClick={onClose}
+            className="ml-auto md:text-xl text-sm self-center cursor-pointer text-eduLightBlue"
+          />
+        </div>
       </div>
-      <div className="flex items-center gap-4">
-      <div
-        className="md:text-xl text-[11px] text-eduLightBlue  font-semibold md:underline cursor-pointer"
-        onClick={() => {
-          onClose?.();
-          setTimeout(() => {
-            dispatch(setModalState({ isOpen: true, type: "viewDraftModal" }));
-          }, 200);
-        }}
-      >
-        Drafts&nbsp;
-        <span className="font-semibold text-center bg-[#D9D9D9] min-w-[18px] min-h-[18px] inline-block">{userPostDraftCount}</span>
-      </div>
-      <FontAwesomeIcon
-        icon={faX}
-        size="sm"
-        onClick={onClose}
-        className="ml-auto md:text-xl text-sm self-center cursor-pointer text-eduLightBlue"
-      />
-       </div>
-    </div>
     </>
   );
 };
@@ -179,13 +177,15 @@ const ReviewRequestButton = ({
 );
 
 const NavList = ({ options }: { options: Option[] }) => {
-  const [selectedTab, setSelectedTab] = useState<string>(
-    options?.find((option) => option?.isDefault)?.label || ""
-  );
+  const [selectedTab, setSelectedTab] = useState<string>("");
   const onClick = (item: Option) => {
     setSelectedTab(item?.label);
     item?.onClick?.();
   };
+
+  useEffect(() => {
+    setSelectedTab(options.filter((option) => option.isDefault)[0]?.label || "");
+  }, [options]);
 
   return (
     <ul className="flex gap-2 flex-auto flex-col">
