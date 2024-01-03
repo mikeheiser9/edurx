@@ -36,7 +36,7 @@ const Domino: React.FC = () => {
 };
 
 const GLBContent: React.FC = () => {
-  const dominoRef = useRef<THREE.Object3D>(null);
+  const dominoRef = useRef<THREE.Object3D | null>(null);
   const { scene } = useThree();
   const gltf = useGLTF('/models/domino.glb');
   const mouse = useLerpedMouse();
