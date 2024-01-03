@@ -4,7 +4,7 @@ import "./globals.css";
 import { Provider } from "react-redux";
 import { store } from "@/redux/store";
 import { axiosParse } from "@/axios/config";
-import RouterGard from "@/routerGuard/RouterGuard";
+import RouteGuard from "@/routerGuard/RouterGuard";
 import ToastNotification from "@/components/ToastNotification";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -20,7 +20,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <Provider store={store}>
           <ToastNotification />
-          <RouterGard>{children as JSX.Element}</RouterGard>
+          <RouteGuard>{children as JSX.Element}</RouteGuard>
         </Provider>
       </body>
     </html>

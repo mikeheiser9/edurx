@@ -93,7 +93,7 @@ export const fetchUsersByAdmin = async (req, res) => {
     const skip = (currentPage - 1) * itemsPerPage;
 
     const [count, list] = await Promise.all([
-      userModel.countDocuments(),
+      (await userModel.find(query)).length,
       userModel
         .find(query)
         .select(
@@ -112,6 +112,7 @@ export const fetchUsersByAdmin = async (req, res) => {
       false
     );
   } catch (error) {
+    console.log({error});
     return generalResponse(
       res,
       400,

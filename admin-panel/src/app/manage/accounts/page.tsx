@@ -23,21 +23,126 @@ import Table from "@/components/Table";
 import { FormikErrors } from "formik";
 
 const page = () => {
+  //======================= Use States =========================//
+
   const [usersList, setUsersList] = useState<TypeUserData[]>([]);
   const [totalUser, setTotalUser] = useState(0);
+
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<TypeUserData | null>(null);
+
   const [listLoader, setListLoader] = useState(false);
+  const [loadMoreLoader, setLoadMoreLoader] = useState(true);
+  const [userPage, setUserPage] = useState(1);
+
   const [isFormDisable, setIsFormDisable] = useState(true);
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
+
   const [prevSearchKeyword, setPrevSearchKeyword] = useState("");
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: 20,
-  });
-  const [loadMoreLoader, setLoadMoreLoader] = useState(true);
+
+  //================================================================//
+  //======================= Use Effects ============================//
+
+  useEffect(() => {
+    setListLoader(true);
+    getUsersList();
+  }, []);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (prevSearchKeyword.trim() != searchKeyword.trim()) {
+        resetUser()
+        setPrevSearchKeyword(searchKeyword);
+      }
+    }, 1000);
+
+    return () => {
+      if (!timeout) return;
+      clearTimeout(timeout);
+    };
+  }, [searchKeyword]);
+
+  //================================================================//
+  //======================= Submit Handler =========================//
+
+  const handleSubmit = async (
+    values: TypeUserData,
+    { setErrors }: { setErrors: (errors: FormikErrors<TypeUserData>) => void }
+  ) => {
+    setIsFormSubmitting(true);
+    try {
+      if (selectedUser) {
+        const res = await updateUserById(selectedUser.id, values);
+        if (res && res.data && res.data.response_type == "error") {
+          const { key, message }: { key: string; message: string } =
+            getFieldnameAndErrorMessageBasedOnErrorString(res.data.message) || {
+              key: "",
+              message: "",
+            };
+          setErrors({ [key]: message });
+        } else if (res && res.data && res.data.response_type == "success") {
+          if (res && res.data?.response_type === "success") {
+            resetUser();
+            setIsFormDisable(true);
+          }
+        }
+      }
+    } catch (error) {
+      console.log("something went wrong in updating user");
+    }
+    setIsFormSubmitting(false);
+  };
+
+  //================================================================//
+  //======================= Api Calls ==============================//
+
+  const getUsersList = async (page: number = 1) => {
+    setLoadMoreLoader(true);
+    try {
+      const res = await getUsers(searchKeyword, page);
+      if (res && res.data?.response_type === "success") {
+        setUsersList((prev) => [...prev, ...res.data.data.data]);
+        setTotalUser(res.data.data.count);
+        setUserPage((prev) => prev + 1);
+      }
+    } catch (error) {}
+    setLoadMoreLoader(false);
+    setListLoader(false);
+  };
+
+  const handleDelete = async (id: string | null) => {
+    try {
+      if (id) {
+        const res = await deleteUserById(id);
+        if (res && res.data.response_type === "success") {
+          resetUser();
+        }
+      }
+    } catch (error) {
+      console.log("something went wrong in deleting user");
+    }
+  };
+
+  //================================================================//
+  //======================= Function ===============================//
+
+  const resetUser = () => {
+    setUserPage(1);
+    setUsersList([]);
+    getUsersList();
+  };
+
+  const loadMoreUsers = async () => {
+    if (totalUser > usersList.length && userPage !== 1) {
+      await getUsersList(userPage);
+    }
+  };
+
+  //================================================================//
+  //======================= Constant ===============================//
+
   const columns = [
     {
       accessor: "",
@@ -88,93 +193,6 @@ const page = () => {
     },
   ];
 
-  const getUsersList = async (data: TypeUserData[]) => {
-    setLoadMoreLoader(true);
-    const res = await getUsers(
-      searchKeyword,
-      pagination.page,
-      pagination.limit
-    );
-    if (res && res.data?.response_type === "success") {
-      setTotalUser(res.data.data.count);
-      setUsersList([...data, ...res.data.data.data]);
-    }
-    setLoadMoreLoader(false);
-    setListLoader(false);
-  };
-
-  const handleDelete = async (id: string | null) => {
-    if (id) {
-      const res = await deleteUserById(id);
-      if (res && res.data.response_type === "success") {
-        if (pagination.page !== 1) {
-          setPagination({ ...pagination, page: 1 });
-          setUsersList([]);
-        } else {
-          getUsersList([]);
-        }
-      }
-    }
-  };
-
-  const handleSubmit = async (
-    values: TypeUserData,
-    { setErrors }: { setErrors: (errors: FormikErrors<TypeUserData>) => void }
-  ) => {
-    setIsFormSubmitting(true);
-    if (selectedUser) {
-      const res = await updateUserById(selectedUser.id, values);
-      if (res && res.data && res.data.response_type == "error") {
-        const { key, message }: { key: string; message: string } =
-          getFieldnameAndErrorMessageBasedOnErrorString(res.data.message) || {
-            key: "",
-            message: "",
-          };
-        setErrors({ [key]: message });
-      } else if (res && res.data && res.data.response_type == "success") {
-        if (pagination.page !== 1) {
-          setUsersList([]);
-          setPagination({ ...pagination, page: 1 });
-        } else {
-          getUsersList([]);
-        }
-        setIsFormDisable(true);
-      }
-    }
-    setIsFormSubmitting(false);
-  };
-
-  useEffect(() => {
-    setListLoader(true);
-    getUsersList([]);
-  }, []);
-
-  useEffect(() => {
-    getUsersList(usersList);
-  }, [pagination.page]);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (prevSearchKeyword.trim() != searchKeyword.trim()) {
-        getUsersList([]);
-        setPrevSearchKeyword(searchKeyword);
-      }
-    }, 1000);
-
-    return () => {
-      if (!timeout) return;
-      clearTimeout(timeout);
-    };
-  }, [searchKeyword]);
-
-  const loadMoreData = async () => {
-    if (totalUser > usersList.length && usersList) {
-      setPagination((prev) => {
-        return { page: prev.page + 1, limit: prev.limit };
-      });
-    }
-  };
-
   return (
     <div>
       {/* USER LIST */}
@@ -187,7 +205,7 @@ const page = () => {
           searchKeyword={searchKeyword}
           setSearchKeyword={setSearchKeyword}
           loadMoreLoader={loadMoreLoader}
-          loadMoreData={loadMoreData}
+          loadMoreData={loadMoreUsers}
           noRecordsText={
             (searchKeyword.length > 0 &&
               usersList.length == 0 &&

@@ -3,8 +3,8 @@ import { TypeUserData } from "@/types/user";
 
 export const getUsers = (
   searchKeyword?: string,
-  page?: number,
-  limit?: number
+  page: number = 1,
+  limit: number = 20
 ) => {
   let url = "/admin/users";
   if (searchKeyword && searchKeyword !== "") {

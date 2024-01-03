@@ -9,7 +9,7 @@ interface Props {
   children: JSX.Element;
 }
 
-const RouterGard = ({ children }: Props) => {
+const RouteGuard = ({ children }: Props) => {
   const [isAllowed, setIsAllowed] = useState(false);
   const router = useRouter();
   const pathName = usePathname();
@@ -17,15 +17,13 @@ const RouterGard = ({ children }: Props) => {
   const token = useSelector(selectToken);
 
   useEffect(() => {
-
-
     if (token == null) {
-      if(pathName == "/login"){
+      if (pathName == "/login") {
         router.replace("/login");
-        setIsAllowed(true)
-      }else{
+        setIsAllowed(true);
+      } else {
         router.replace("/login");
-        setIsAllowed(false)
+        setIsAllowed(false);
       }
     } else if (user.role == USER_ROLES.super_admin.value) {
       if (pathName.includes("login")) {
@@ -40,11 +38,9 @@ const RouterGard = ({ children }: Props) => {
         setIsAllowed(true);
       }
     }
-
-
   }, [pathName]);
 
   return isAllowed ? children : <></>;
 };
 
-export default RouterGard;
+export default RouteGuard;

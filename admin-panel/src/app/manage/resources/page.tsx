@@ -23,31 +23,197 @@ import { TypeResourceData, TypeResourceTags } from "@/types/resource";
 import EditResourceModal from "./component/EditResourceModal";
 import { FormikErrors } from "formik";
 
+interface TypeCategory {
+  _id: string;
+  name: string;
+}
+
 const page = () => {
+  //======================= Use States =============================//
+
   const [resourceList, setResourceList] = useState<TypeResourceData[]>([]);
+  const [categoryList, setCategoryList] = useState<TypeCategory[]>([]);
   const [totalResources, setTotalResources] = useState(0);
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: 20,
-  });
-  const [categoryPagination, setCategoryPagination] = useState({
-    page: 1,
-    limit: 4,
-  });
   const [totalCategory, setTotalCategory] = useState(0);
+
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+
+  const [resourcePage, setResourcePage] = useState(1);
+  const [categoryPage, setCategoryPage] = useState(1);
+
   const [selectedResource, setSelectedResource] =
     useState<TypeResourceData | null>(null);
+
   const [listLoader, setListLoader] = useState(false);
-  const [isFormDisable, setIsFormDisable] = useState(true);
-  const [isFormSubmitting, setIsFormSubmitting] = useState(false);
-  const [categoryList, setCategoryList] = useState<
-    { _id: string; name: string }[]
-  >([]);
-  const [tags, setTags] = useState<string[]>([]);
   const [categoryLoader, setCategoryLoader] = useState(false);
   const [loadMoreLoader, setLoadMoreLoader] = useState(false);
+
+  const [isFormDisable, setIsFormDisable] = useState(true);
+  const [isFormSubmitting, setIsFormSubmitting] = useState(false);
+
+  // For setTags according to Selected Category
+  const [tags, setTags] = useState<string[]>([]);
+
+  //================================================================//
+
+  //======================= Use Effects ============================//
+
+  useEffect(() => {
+    setListLoader(true);
+    getResourcesList();
+    getCategoryList();
+  }, []);
+
+  //================================================================//
+  //======================= Submit Handler =========================//
+
+  const handleSubmit = async (
+    values: TypeResourceData,
+    {
+      setErrors,
+    }: { setErrors: (errors: FormikErrors<TypeResourceData>) => void }
+  ) => {
+    try {
+      let responseSuccess = false;
+      if (
+        categoryList.length > 0 &&
+        (values.tags.length == 0 || values.tags.length > 2)
+      ) {
+        setErrors({
+          tags: "Minimum 1 or Maximum 2 Category can be selected",
+        });
+        return;
+      }
+      setIsFormSubmitting(true);
+
+      if (selectedResource) {
+        const res = await updateResourceById(selectedResource._id as string, {
+          ...values,
+        });
+        if (res && res.data && res.data.response_type == "error") {
+          const { key, message }: { key: string; message: string } =
+            getFieldnameAndErrorMessageBasedOnErrorString(res.data.message) || {
+              key: "",
+              message: "",
+            };
+          setErrors({ [key]: message });
+        } else if (res && res.data && res.data.response_type == "success") {
+          responseSuccess = true;
+          setIsFormDisable(true);
+        }
+      } else {
+        const res = await addResource(values);
+        if (res && res.data && res.data.response_type == "success") {
+          responseSuccess = true;
+          setIsEditOpen(false);
+        }
+      }
+      if (responseSuccess) {
+        resetResource();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    setIsFormSubmitting(false);
+  };
+
+  //================================================================//
+  //======================= Api Calls ==============================//
+
+  const getResourcesList = async (page: number = 1) => {
+    setLoadMoreLoader(true);
+    try {
+      const resourceRes = await getResources(page);
+
+      if (resourceRes && resourceRes.data?.response_type === "success") {
+        setResourceList((prev) => [...prev, ...resourceRes.data.data.data]);
+        setTotalResources(resourceRes.data.data.count);
+        setResourcePage((prev) => prev + 1);
+      }
+    } catch (error) {
+      console.log("Error in Fetching Resources");
+    }
+    setLoadMoreLoader(false);
+    setListLoader(false);
+  };
+
+  const getCategoryList = async (
+    page: number = 1,
+    selectedCategoryIds?: string[]
+  ) => {
+    setCategoryLoader(true);
+    let categoriesRes;
+    if (selectedCategoryIds && selectedCategoryIds.length > 0) {
+      categoriesRes = await getCategories(page, 4, selectedCategoryIds);
+    } else {
+      categoriesRes = await getCategories(page);
+    }
+    if (categoriesRes && categoriesRes.data?.response_type === "success") {
+      const categoriesData = categoriesRes.data.data.records;
+      let categories: { _id: string; name: string }[] = [];
+      if (categoriesData.length > 0) {
+        categoriesData.map((category: any) =>
+          categories.push({ name: category.name, _id: category._id })
+        );
+      }
+      setTotalCategory(categoriesRes.data.data.totalRecords);
+      setCategoryList((prev) => [...prev, ...categories]);
+      setCategoryPage((prev) => prev + 1);
+    }
+    setCategoryLoader(false);
+  };
+
+  const handleDelete = async (id: string | null) => {
+    if (id) {
+      const res = await deleteResourceById(id);
+      if (res && res.data.response_type === "success") {
+        resetResource();
+      }
+    }
+  };
+
+  //================================================================//
+  //=======================  Function ==============================//
+
+  const resetResource = () => {
+    setResourcePage(1);
+    setResourceList([]);
+    getResourcesList();
+  };
+
+  const resetCategory = () => {
+    setCategoryPage(1);
+    setCategoryList([]);
+  };
+
+  // LoadMore Resources
+  const loadMoreResources = async () => {
+    if (totalResources > resourceList.length && resourcePage !== 1) {
+      await getResourcesList(resourcePage);
+    }
+  };
+
+  // LoadMore Category
+  const loadMoreCategories = async () => {
+    if (totalCategory > categoryList.length && categoryPage !== 1) {
+      await getCategoryList(categoryPage, tags);
+    }
+  };
+
+  // For setTags according to Selected Category
+  const setUserTag = (record: TypeResourceData) => {
+    if (record && record.tags && record.tags.length > 0) {
+      setTags(
+        (record.tags as TypeResourceTags[]).map(
+          (tag: TypeResourceTags) => tag._id
+        )
+      );
+    }
+  };
+
+  //================================================================//
+  //======================= Constant ===============================//
 
   const columns = [
     {
@@ -96,167 +262,14 @@ const page = () => {
               const getCatTags = (records.tags as TypeResourceTags[]).map(
                 (tag: TypeResourceTags) => tag._id
               );
-              getCategoryList([], getCatTags);
+              resetCategory();
+              getCategoryList(1, getCatTags);
             }}
           />
         </div>
       ),
     },
   ];
-
-  const getCategoryList = async (
-    data: { _id: string; name: string }[],
-    getCatTag?: string[]
-  ) => {
-    setCategoryLoader(true);
-    
-    let categoryPaginate =
-      totalCategory > categoryList.length
-        ? { ...categoryPagination }
-        : { page: 1, limit: 4 };
-
-    let categoriesRes;
-    if (getCatTag && getCatTag.length > 0) {
-      categoriesRes = await getCategories({
-        ...categoryPaginate,
-        selectedCategoryIds: getCatTag,
-      });
-    } else {
-      categoriesRes = await getCategories({ ...categoryPaginate });
-    }
-
-    if (categoriesRes && categoriesRes.data?.response_type === "success") {
-      const categoriesData = categoriesRes.data.data.records;
-      setTotalCategory(categoriesRes.data.data.totalRecords);
-      let categories: { _id: string; name: string }[] = [];
-      if (categoriesData.length > 0) {
-        categoriesData.map((category: any) =>
-          categories.push({ name: category.name, _id: category._id })
-        );
-      }
-      setCategoryList([...data, ...categories]);
-    }
-    setCategoryLoader(false);
-  };
-
-  const getResourcesList = async (data: TypeResourceData[]) => {
-    setLoadMoreLoader(true)
-    const resourceRes = await getResources({ ...pagination });
-
-    if (resourceRes && resourceRes.data?.response_type === "success") {
-      setResourceList([...data, ...resourceRes.data.data.data]);
-      setTotalResources(resourceRes.data.data.count);
-    }
-    setLoadMoreLoader(false)
-    setListLoader(false);
-  };
-
-  const handleDelete = async (id: string | null) => {
-    if (id) {
-      const res = await deleteResourceById(id);
-      if (res && res.data.response_type === "success") {
-        if (pagination.page !== 1) {
-          setPagination({ ...pagination, page: 1 });
-          setResourceList([]);
-        } else {
-          getResourcesList([]);
-        }
-      }
-    }
-  };
-
-  const handleSubmit = async (
-    values: TypeResourceData,
-    {
-      setErrors,
-    }: { setErrors: (errors: FormikErrors<TypeResourceData>) => void }
-  ) => {
-    try {
-      if (
-        categoryList.length > 0 &&
-        (values.tags.length == 0 || values.tags.length > 2)
-      ) {
-        setErrors({
-          tags: "Minimum 1 or Maximum 2 Category can be selected",
-        });
-        return;
-      }
-      setIsFormSubmitting(true);
-
-      if (selectedResource) {
-        const res = await updateResourceById(selectedResource._id as string, {
-          ...values,
-        });
-        if (res && res.data && res.data.response_type == "error") {
-          const { key, message }: { key: string; message: string } =
-            getFieldnameAndErrorMessageBasedOnErrorString(res.data.message) || {
-              key: "",
-              message: "",
-            };
-          setErrors({ [key]: message });
-        } else if (res && res.data && res.data.response_type == "success") {
-          if (pagination.page !== 1) {
-            setPagination({ ...pagination, page: 1 });
-            setResourceList([]);
-          } else {
-            getResourcesList([]);
-          }
-          setIsFormDisable(true);
-        }
-      } else {
-        const res = await addResource(values);
-        if (res && res.data && res.data.response_type == "success") {
-          if (pagination.page !== 1) {
-            setPagination({ ...pagination, page: 1 });
-            setResourceList([]);
-          } else {
-            getResourcesList([]);
-          }
-          setIsEditOpen(false);
-        }
-      }
-    } catch (error) {}
-    setIsFormSubmitting(false);
-  };
-
-  const setUserTag = (record: TypeResourceData) => {
-    if (record && record.tags && record.tags.length > 0) {
-      setTags(
-        (record.tags as TypeResourceTags[]).map(
-          (tag: TypeResourceTags) => tag._id
-        )
-      );
-    }
-  };
-
-  const loadMoreCategories = () => {
-    if (totalCategory > categoryList.length) {
-      setCategoryPagination((prev) => {
-        return { page: prev.page + 1, limit: 4 };
-      });
-    }
-  };
-
-  const loadMoreData = async () => {
-    if (totalResources > resourceList.length && resourceList) {
-      setPagination((prev) => {
-        return { page: prev.page + 1, limit: prev.limit };
-      });
-    }
-  };
-
-  useEffect(() => {
-    setListLoader(true);
-    getResourcesList([]);
-  }, []);
-
-  useEffect(() => {
-    getResourcesList(resourceList);
-  }, [pagination.page]);
-
-  useEffect(() => {
-    getCategoryList(categoryList);
-  }, [categoryPagination.page]);
 
   return (
     <div>
@@ -268,14 +281,16 @@ const page = () => {
           buttonLabel="Add New"
           dataSource={resourceList}
           isLoading={listLoader}
-          loadMoreData={loadMoreData}
+          loadMoreData={loadMoreResources}
+          loadMoreLoader={loadMoreLoader}
           buttonClick={() => {
             setSelectedResource(null);
             setTags([]);
             setIsEditOpen(true);
+            resetCategory();
             setIsFormDisable(false);
+            getCategoryList();
           }}
-          loadMoreLoader={loadMoreLoader}
         />
       </MantineProvider>
 
