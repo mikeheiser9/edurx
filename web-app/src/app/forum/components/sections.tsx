@@ -1,5 +1,6 @@
 import { Button } from "@/components/button";
 import { ToggleSwitch } from "@/components/toggleSwitch";
+import { getActiveLeftPanelTab } from "@/redux/ducks/forum.duck";
 import { setModalState } from "@/redux/ducks/modal.duck";
 import { selectDraftCount } from "@/redux/ducks/user.duck";
 import { postStatus } from "@/util/constant";
@@ -177,6 +178,7 @@ const ReviewRequestButton = ({
 );
 
 const NavList = ({ options }: { options: Option[] }) => {
+  const alreadyActiveTab = useSelector(getActiveLeftPanelTab);
   const [selectedTab, setSelectedTab] = useState<string>("");
   const onClick = (item: Option) => {
     setSelectedTab(item?.label);
@@ -195,7 +197,7 @@ const NavList = ({ options }: { options: Option[] }) => {
             key={index}
             onClick={() => onClick(item)}
             className={`${
-              item?.label === selectedTab
+              item?.label === (alreadyActiveTab?.label || selectedTab)
                 ? "decoration-primary"
                 : "decoration-transparent"
             } underline duration-300 decoration-2 ease-in-out animate-fade-in-down touch-pinch-zoom text-sm ipad-under:text-base ipad-under:font-medium transition-colors text-eduBlack underline-offset-4 cursor-pointer`}

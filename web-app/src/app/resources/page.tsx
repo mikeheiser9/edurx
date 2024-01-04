@@ -1,12 +1,14 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectUserDetail } from "@/redux/ducks/user.duck";
 import { ResourceCard } from "./components/ResourceCard";
 import { getResources } from "@/service/resource.service";
 import InfiniteScroll from "@/components/infiniteScroll";
+import { setActiveLeftPanelTab } from "@/redux/ducks/forum.duck";
 
 export default function Resources(props: any) {
+  const dispatch = useDispatch();
   const loggedInUser = useSelector(selectUserDetail);
   const resourceTabs = {
     resources: {
@@ -56,6 +58,11 @@ export default function Resources(props: any) {
     setShowLoadMore(true);
     fetchResources();
   }, [activeSubTab]);
+
+  useEffect(() => {
+    dispatch(setActiveLeftPanelTab({ label: "Resources" }));
+  }, [])
+  
 
   // useEffect(() => {
   //   interface ReadingListItem {

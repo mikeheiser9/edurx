@@ -502,13 +502,13 @@ const Page = () => {
                       className="flex w-full p-4 rounded-[10px] bg-eduLightGray border-[1px] border-[#13222A] gap-2 ipad-under:items-center"
                       key={index}
                     >
-                      <div className="w-[28px] mt-1 mr-3 ipad-under:w-6 ipad-under:h-6 ipad-under:rounded-full ipad-under:overflow-hidden">
+                      <div className="w-[28px] overflow-hidden rounded-full mt-1 mr-3 ipad-under:w-6 ipad-under:h-6 ipad-under:rounded-full ipad-under:overflow-hidden">
                         {notification?.notificationFrom[0]?.profile_img ? (
                           <img
                             src={getStaticImageUrl(
                               notification?.notificationFrom[0]?.profile_img
                             )}
-                            className="rounded"
+                            className="rounded-full"
                           />
                         ) : (
                           <FontAwesomeIcon icon={faUserAlt} size="xs" />
@@ -611,13 +611,13 @@ const Page = () => {
                       className="flex w-full p-4 rounded-[10px] bg-eduLightGray border-[1px] border-[#13222A] gap-2 ipad-under:items-center"
                       key={index}
                     >
-                      <div className="w-[28px] mt-1 mr-3 ipad-under:rounded-full ipad-under:w-6 ipad-under:h-6 ipad-under:overflow-hidden">
+                      <div className="w-[28px] overflow-hidden rounded-full mt-1 mr-3 ipad-under:rounded-full ipad-under:w-6 ipad-under:h-6 ipad-under:overflow-hidden">
                         {notification?.notificationFrom[0]?.profile_img ? (
                           <img
                             src={getStaticImageUrl(
                               notification?.notificationFrom[0]?.profile_img
                             )}
-                            className="rounded"
+                            className="rounded-full"
                           />
                         ) : (
                           <FontAwesomeIcon icon={faUserAlt} size="xs" />
