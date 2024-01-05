@@ -75,7 +75,7 @@ const createPost = async (req, res) => {
 const searchPostMetaLabel = async (req, res) => {
   try {
     const { name, type, page, limit, forumType } = req.query;
-    console.log({data:req.query});
+    console.log({ data: req.query });
     const forum = [];
     if (!forumType || forumType == "All Forums") {
       const role = req.user.role;
@@ -298,7 +298,7 @@ const getAllPosts = async (req, res) => {
         filterList.map((filter) => new Types.ObjectId(filter)),
       role: req.user.role,
       npi_designation: req.user.npi_designation,
-      postStatus:"published"
+      postStatus: "published",
     });
     return generalResponse(res, 200, "OK", "posts fetched successfully", posts);
   } catch (error) {
@@ -631,10 +631,9 @@ const updatePostByUser = async (req, res) => {
       _id: req.params.postId,
       isDeleted: false,
     };
-    const currentUserInfor=await findPostById(req.params.postId)
-    if(postStatus==="published" &&  currentUserInfor.postStatus=="draft")
-    {
-      setData.publishedOn=new Date();
+    const currentUserInfor = await findPostById(req.params.postId);
+    if (postStatus === "published" && currentUserInfor.postStatus == "draft") {
+      setData.publishedOn = new Date();
     }
     await updatePostByCondition(condition, setData);
     return generalResponse(
@@ -704,16 +703,12 @@ const pollVote = async (req, res) => {
           "either of this parameter wrongly passed (postType,postId,option)",
       };
     }
-
-    console.log(moment().utc(),moment(postInfo[0].publishedOn)
-    .utc());
-    if (
-      moment().utc().format("DD MM YYYY") <=
-      moment(postInfo[0].publishedOn)
+    let currentDate = moment().utc().format("DD/MM/YYYY"),
+      closingDate = moment(postInfo[0].publishedOn)
         .utc()
         .add(postInfo[0].votingLength, "days")
-        .format("DD MM YYYY")
-    ) {
+        .format("DD/MM/YYYY");
+    if (currentDate >= closingDate) {
       throw { message: "voting period is closed" };
     }
     let customeError = "Vote cast successful";
