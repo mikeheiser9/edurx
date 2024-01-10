@@ -1,9 +1,8 @@
 import Button from "@/components/Button";
-import Input from "@/components/Input";
 import SearchInput from "@/components/SearchInput";
 import SectionLoader from "@/components/SectionLoader";
 import { DataTable, DataTableColumn } from "mantine-datatable";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef } from "react";
 import { RiSearch2Line } from "react-icons/ri";
 
 interface TableProps {
@@ -87,7 +86,7 @@ const Table = (props: TableProps) => {
             records={dataSource}
             height={650}
             miw={650}
-            idAccessor={(records: any) => `${records.id + Math.random()}`}
+            idAccessor={(records: any) => `${(records.id ?? records._id) + Math.random()}`}
             noRecordsText={noRecordsText ?? "No Data"}
             backgroundColor={"#A5A5A8"}
             rowStyle={customRowStyle}

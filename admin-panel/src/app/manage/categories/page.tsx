@@ -224,7 +224,7 @@ const page = () => {
         isOpen={isDeleteOpen}
         confirmText="DELETE ACCOUNT"
         buttonsClassName="grid grid-rows-2 gap-4 w-[40%] "
-        title={`Are You Sure You want to Delete this Article?`}
+        title={`Are You Sure You want to Delete this ${selectedCategoryFilter && capitalize(selectedCategoryFilter.type)}?`}
         onClose={() => setIsDeleteOpen(false)}
         onConfirm={() => {
           //   handleDelete(
