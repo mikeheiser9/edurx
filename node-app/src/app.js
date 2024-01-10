@@ -47,5 +47,3 @@ app.use("/admin", adminRoutes);
 app.listen(PORT, () => {
   console.log(`app is up on PORT : ${PORT}`);
 });
-
-
