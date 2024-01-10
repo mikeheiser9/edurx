@@ -6,6 +6,7 @@ import { HiInformationCircle } from "react-icons/hi";
 import ReactSelect, { StylesConfig } from "react-select";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
+import { ErrorMessage } from "formik";
 type valueType = {
   value: string | boolean;
   label?: string;
@@ -42,7 +43,7 @@ const Select = ({
   parentClassName?: any;
   labelClassName?: any;
   error?: any;
-  components?:any,
+  components?: any;
   required?: any;
   options?: any;
   className?: any;
@@ -53,7 +54,7 @@ const Select = ({
   size?: "sm" | "md" | "lg";
   border?: "sm" | "md";
   register?: any;
-  name?: string;
+  name: string;
   onChange?: (...event: any[]) => void;
   value?: valueType | valueType[];
   defaultValue?: valueType | valueType[] | null;
@@ -61,7 +62,7 @@ const Select = ({
   isCreateble?: boolean;
   disabled?: boolean;
   isClearable?: boolean;
-  isSearchable?:boolean;
+  isSearchable?: boolean;
 }) => {
   const [selectedValue, setSelectedValue] = useState("");
 
@@ -92,7 +93,7 @@ const Select = ({
       // "&:hover": {
       //   borderColor: "rgba(231, 231, 231, 100)",
       // },
-      borderColor:"#CBCBD0",
+      borderColor: "#CBCBD0",
       outline: "none !important",
       boxShadow: "none !important",
     }),
@@ -105,7 +106,7 @@ const Select = ({
         whiteSpace: "nowrap",
         overflow: "hidden",
         display: "initial",
-        fontWeight: "bold", 
+        fontWeight: "bold",
       };
     },
     valueContainer: (base: any) => ({
@@ -155,7 +156,7 @@ const Select = ({
     }),
     multiValue: (base: any) => ({
       ...base,
-      background: "#0c0c0c",
+      background: "#FDCD27",
       color: "#ffffff",
       fontWeight: 500,
       padding: "6px 8px",
@@ -163,7 +164,7 @@ const Select = ({
     }),
     multiValueLabel: (base: any) => ({
       ...base,
-      color: "#ffffff",
+      color: "#000",
       padding: "0 !important",
       fontSize: 10,
     }),
@@ -171,7 +172,7 @@ const Select = ({
       ...base,
       padding: "0 !important",
       marginLeft: "5px",
-      background: "#0c0c0c !important",
+      background: "#cfb046 !important",
     }),
   };
 
@@ -192,7 +193,7 @@ const Select = ({
         <label
           className={`flex items-center gap-1 text-black-800 !text-sm !text-Thirdgrey !font-bold ${labelClassName} `}
         >
-          {label}{" "}
+          {label}
           {required && <span className="text-red-500 font-medium">*</span>}
           {info && (
             <Tooltip placement="top">
@@ -204,26 +205,29 @@ const Select = ({
           )}
         </label>
       )}
-        <ReactSelect
-          placeholder={placeholder || "Select"}
-          styles={customStyles}
-          options={options}
-          menuPlacement="auto"
-          {...register}
-          isMulti={isMulti}
-          name={name}
-          components={components}
-          onChange={onChange}
-          value={selectedValue || (value as valueType)}
-          defaultValue={defaultValue}
-          isDisabled={disabled}
-          isClearable={isClearable}
-          noOptionsMessage={() => "No Option"}
-          isSearchable={isSearchable}
-        />
-      
+      <ReactSelect
+        placeholder={placeholder || "Select"}
+        styles={customStyles}
+        options={options}
+        menuPlacement="auto"
+        {...register}
+        isMulti={isMulti}
+        name={name}
+        components={components}
+        onChange={onChange}
+        value={selectedValue || (value as valueType)}
+        defaultValue={defaultValue}
+        isDisabled={disabled}
+        isClearable={isClearable}
+        noOptionsMessage={() => "No Option"}
+        isSearchable={isSearchable}
+      />
 
-      {error && <p className="text-red-500 text-xs">{error}</p>}
+      <ErrorMessage name={name}>
+        {(msg) => (
+          <p className=" text-red-600 text-[12px] font-semibold">{msg}</p>
+        )}
+      </ErrorMessage>
     </div>
   );
 };

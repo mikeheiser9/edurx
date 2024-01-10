@@ -6,7 +6,6 @@ const schema = new Schema(
     name: {
       type: String,
       required: true,
-      unique: true,
     },
     type: {
       type: String,
@@ -17,7 +16,10 @@ const schema = new Schema(
     //   type: Schema.Types.ObjectId,
     //   ref: "user",
     // },
-    isDeleted: Boolean,
+    isDeleted: {
+      type:Boolean,
+      default:false
+    },
     forumType: {
       type: Schema.Types.String,
       enum: forumTypes,

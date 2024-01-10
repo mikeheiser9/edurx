@@ -1,4 +1,5 @@
-import Joi from 'joi';
+import Joi from "joi";
+import { returnAppropriateError } from "../../util/commonFunctions.js";
 
 // Validator for adding a new resource
 const addResourceValidator = (req, res, next) => {
@@ -6,8 +7,8 @@ const addResourceValidator = (req, res, next) => {
     title: Joi.string().required().min(2),
     link: Joi.string().uri().required().min(2),
     publisher: Joi.string().required().min(2),
-    isResource: Joi.string().required().valid('news', 'resource'),
-    tags: Joi.array().items(Joi.string())
+    isResource: Joi.string().required().valid("news", "resource"),
+    tags: Joi.array().items(Joi.string()),
   });
 
   const { error } = schema.validate(req.body);
@@ -21,7 +22,7 @@ const addResourceValidator = (req, res, next) => {
 const validateIds = (req, res, next) => {
   const schema = Joi.object({
     userId: Joi.string().required(),
-    resourceId: Joi.string().required()
+    resourceId: Joi.string().required(),
   });
 
   const { error } = schema.validate(req.params);
@@ -32,4 +33,24 @@ const validateIds = (req, res, next) => {
   next();
 };
 
-export { addResourceValidator, validateIds }; 
+const addCategoryFilterValidator = async (req, res, next) => {
+  try {
+
+    const objectSchema = Joi.object({
+      label: Joi.string(),
+      value: Joi.string()
+    });
+
+    const schema = Joi.object({
+      name: Joi.string().required().min(2),
+      type: Joi.string().required().valid("category", "filter"),
+      forumType: Joi.array().required().min(1).items(objectSchema),
+    });
+
+    await schema.validateAsync(req.body);
+    next();
+  } catch (error) {
+    returnAppropriateError(res, error);
+  }
+};
+export { addResourceValidator, validateIds , addCategoryFilterValidator };

@@ -58,3 +58,8 @@ export const RESOURCE_TYPE = {
   resource:"resource",
   news:"news"
 }
+
+export const CATEGORYFILTER_TYPE = {
+  category:"category",
+  filter:"filter"
+}

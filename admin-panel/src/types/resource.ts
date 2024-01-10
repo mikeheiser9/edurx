@@ -15,3 +15,11 @@ export interface TypeResourceData {
   createdAt?: string;
   _id?: string;
 }
+
+export interface TypeCategoryFilter {
+  _id?: string;
+  name: string;
+  type: string;
+  forumType: string | { label:string,value:string}[];
+  createdAt?: string;
+}

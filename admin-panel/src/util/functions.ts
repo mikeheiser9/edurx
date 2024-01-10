@@ -36,3 +36,10 @@ export const getFieldnameAndErrorMessageBasedOnErrorString = (str: string) => {
     return { key: "global", message: str };
   }
 };
+
+export const capitalize = (str: string) => {
+  if (typeof str !== "string" || str.length === 0) {
+    return str;
+  }
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};

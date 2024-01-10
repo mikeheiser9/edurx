@@ -1,7 +1,7 @@
 "use client";
 import AdminProfile from "@/components/AdminProfile";
 import Sidebar from "@/components/Sidebar";
-import { FaRegNewspaper, FaUsers } from "react-icons/fa6";
+import { FaRegNewspaper, FaUsers , FaListUl } from "react-icons/fa6";
 
 export default function AdminPanelLayout({
   children,
@@ -18,10 +18,16 @@ export default function AdminPanelLayout({
       url: "/manage/accounts",
     },
     {
-      name: "Manage Resources/ News",
+      name: "Manage Resources / News",
       icon: <FaRegNewspaper />,
       key: "resources",
       url: "/manage/resources",
+    },
+    {
+      name: "Manage Category / Filters",
+      icon: <FaListUl />,
+      key: "categories",
+      url: "/manage/categories",
     },
   ];
 

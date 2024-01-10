@@ -1,12 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-
 import { findUserByEmail } from "../repository/user.js";
-import {
-  findAndPaginate,
-  generalResponse,
-  trimFields,
-} from "../util/commonFunctions.js";
+import { generalResponse, trimFields } from "../util/commonFunctions.js";
 import { userModel } from "../model/user/user.js";
 
 import {
@@ -16,7 +11,12 @@ import {
 import axios from "axios";
 import { resourceModel } from "../model/resource/resource.js";
 import { categoryFilterModal } from "../model/post/categoryTag.js";
+import {
+  addCategoryFilter,
+  findCategoryOrPostByCondition,
+} from "../repository/post.js";
 
+// ADMIN
 export const adminLogin = async (req, res) => {
   try {
     req.body = trimFields(req.body);
@@ -68,6 +68,7 @@ export const adminLogin = async (req, res) => {
   }
 };
 
+// OPERATION - USER
 export const fetchUsersByAdmin = async (req, res) => {
   try {
     const { page, search, limit } = req.query;
@@ -112,7 +113,7 @@ export const fetchUsersByAdmin = async (req, res) => {
       false
     );
   } catch (error) {
-    console.log({error});
+    console.log({ error });
     return generalResponse(
       res,
       400,
@@ -272,6 +273,8 @@ export const updateUserByAdmin = async (req, res) => {
   }
 };
 
+// OPERATION - RESOURCE
+
 export const fetchCategoryByAdmin = async (req, res) => {
   try {
     const { selectedCategoryIds } = req.query;
@@ -302,8 +305,8 @@ export const fetchCategoryByAdmin = async (req, res) => {
 
     const sortedRecords = selectedRecords.concat(unselectedRecords);
 
-    const startIndex = (page-1) * limit;
-    const endIndex = startIndex + limit
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
     const paginatedRecords = sortedRecords.slice(startIndex, endIndex);
 
     const data = {
@@ -439,6 +442,83 @@ export const insertResource = async (req, res) => {
       "error",
       "Something Went Wrong while Inserting Resources.",
       "",
+      true
+    );
+  }
+};
+
+// OPERATION - CATEGORY / FILTER
+
+export const fetchCategoryAndFilters = async (req, res) => {
+  try {
+    const { page, limit } = req.query;
+    const currentPage = page ? parseInt(page) : 1;
+    const itemsPerPage = limit ? parseInt(limit) : 20;
+
+    const skip = (currentPage - 1) * itemsPerPage;
+
+    const [count, resources] = await Promise.all([
+      categoryFilterModal.countDocuments({ isDeleted: { $ne: true } }),
+      categoryFilterModal
+        .find({ isDeleted: { $ne: true } })
+        .select("name forumType type createdAt")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(itemsPerPage),
+    ]);
+
+    return generalResponse(
+      res,
+      200,
+      "success",
+      "",
+      { data: resources, count },
+      false
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      400,
+      "error",
+      "Something Went Wrong while Fetching Categories and Filters.",
+      "",
+      false
+    );
+  }
+};
+
+export const insertCategoryFilter = async (req, res) => {
+  try {
+    const { forumType, name, type } = req.body;
+    const categegoryOrFilterToBeInserted = [];
+    for (let i = 0; i < forumType.length; i++) {
+      const data = {
+        forumType: forumType[i].value,
+        name: name,
+        type: type,
+      };
+      categegoryOrFilterToBeInserted.push(data);
+      const res = await findCategoryOrPostByCondition(data);
+      if (res) {
+        throw `${type} is already exist with name or forum type`;
+      }
+    }
+    const response = await addCategoryFilter(categegoryOrFilterToBeInserted);
+    return generalResponse(
+      res,
+      200,
+      "success",
+      `${type} created successfully`,
+      null,
+      true
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      400,
+      "error",
+      error ? error : "something went wrong!",
+      error,
       true
     );
   }

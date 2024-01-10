@@ -47,13 +47,13 @@ export const AdminActionsMenu = ({
   );
 
   return (
-    <div className="relative z-10">
+    <div className="relative z-50">
       <div className="flex flex-col bg-slate-300 -top-3 rounded-md p-2 text-sm ipad-under:text-xs min-w-[8em] w-max absolute right-4 animate-fade-in-down">
         {currentStep === 0 ? (
           <>
             <span
               onClick={() => setCurrentStep(1)}
-              className="rounded-md ease-in-out duration-200 p-1 hover:bg-slate-100"
+              className="rounded-md ease-in-out duration-200 p-1 hover:bg-slate-100 z-100"
             >
               Flag
             </span>

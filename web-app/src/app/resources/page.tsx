@@ -61,8 +61,7 @@ export default function Resources(props: any) {
 
   useEffect(() => {
     dispatch(setActiveLeftPanelTab({ label: "Resources" }));
-  }, [])
-  
+  }, []);
 
   // useEffect(() => {
   //   interface ReadingListItem {
@@ -102,13 +101,16 @@ export default function Resources(props: any) {
         {Object.values(resourceTabs).map((tab) => (
           <li
             onClick={() => {
-              setActiveSubTab(tab);
+              tab.key !== "news" && setActiveSubTab(tab);
             }}
             className={`text-eduBlack font-body font-medium ease-in-out duration-500 border-b-2 py-2 text-[14px] cursor-pointer ipad-under:text-xs ipad-under:py-1 ${
               tab.key === activeSubTab.key
                 ? "border-primary"
                 : "border-transparent"
-            }`}
+            } ${
+              tab.key === "news" &&
+              "border-transparent !cursor-not-allowed text-gray-400"
+            }  `}
             key={tab.key}
           >
             {tab.label}

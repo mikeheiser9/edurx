@@ -160,150 +160,153 @@ export const PostCard = (props: Props) => {
         <RequestListModal requestModal={requestModal} postId={post?._id} />
       )}
       <div
-        className="flex w-full p-4 rounded-[10px] bg-eduLightGray gap-2 tablet-lg:gap-2.5 !cursor-pointer postcard tablet-lg:flex-wrap tablet-lg:flex-col"
-        onClick={onPostClick}
+        className="flex w-full p-4 rounded-[10px] bg-eduLightGray items-center justify-between"        
       >
-        <div className="flex-1 gap-4 tablet-lg:gap-2.5 flex-col flex">
-          <div className="flex justify-between ipad-under:items-center gap-1">
-          <span className="text-eduDarkBlue text-[12px] ipad-under:text-[11px] font-body">
-            Published on {moment(post?.createdAt).format("DD/MM/YYYY")} |{" "}
-            {post?.postType}
-          </span>
-          <span className="hidden tablet-lg:block">
-          <Button
-            className={`w-[150px] tablet-lg:w-[100px] rounded-md font-medium !m-0 text-sm tablet-lg:text-[11px] ${
-              ["Following", "Requested"].includes(forumButtonLabel) &&
-              "!bg-eduLightBlue text-white"
-            }`}
-            label={forumButtonLabel}
-            onClick={handleForumAction}
-            onMouseEnter={() => {
-              if (forumButtonLabel == "Following") {
-                setForumButtonLabel("Unfollow");
-              }
-            }}
-            onMouseLeave={() => {
-              if (forumButtonLabel == "Unfollow") {
-                setForumButtonLabel("Following");
-              }
-            }}
-            disabled={forumButtonLabel == "Requested"}
-          />
-          </span>
-          </div>
-          <span className="text-[22px] ipad-under:text-[15px] tablet-lg:text-[20px] ipad-under:leading-normal ipad-under:font-medium text-eduBlack font-headers flex gap-2 items-center">
-            <span>{`${post.title?.substring(0,120)} ${post.title && post.title?.length>120 ? '...' :""}`}</span>
-            {post?.isPrivate && (
-              <span className="w-[20px] h-[20px] min-w-[20px] rounded-lg bg-eduYellow flex justify-center items-center">
-                <FontAwesomeIcon
-                  icon={faLock}
-                  className="animate-fade-in-down w-[0.7em] "
-                  size="2xs"
-                />
-              </span>
-            )}
-          </span>
-          <div className="flex flex-wrap gap-2">
-            {post?.categories?.map((category) => (
-              <span
-                key={category._id}
-                className="text-[8px] py-1.5 px-4 leading-normal ipad-under:py-1 ipad-under:px-2 ipad-under:rounded-sm ipad-under:leading-normal bg-white text-eduDarkBlue rounded-[5px] border border-eduDarkBlue"
-              >
-                {category.name}
-              </span>
-            ))}
-            {post?.filters?.map((filter) => (
-                <span
-                key={filter._id}
-                className="text-[8px] py-1.5 flex items-center px-4 leading-normal ipad-under:py-1 ipad-under:px-2 ipad-under:rounded-sm ipad-under:leading-normal bg-eduDarkGray text-eduDarkBlue rounded-[5px]"
-              >
-                {filter?.name}
-                </span>
-            ))}
-          </div>
-        </div>
-        <div className="flex-1 flex gap-8 justify-end items-center tablet-lg:justify-between">
-          <Button
-            className={`w-[150px] tablet-lg:hidden rounded-md font-medium !m-0 text-sm ${
-              ["Following", "Requested"].includes(forumButtonLabel) &&
-              "!bg-eduLightBlue text-white"
-            }`}
-            label={forumButtonLabel}
-            onClick={handleForumAction}
-            onMouseEnter={() => {
-              if (forumButtonLabel == "Following") {
-                setForumButtonLabel("Unfollow");
-              }
-            }}
-            onMouseLeave={() => {
-              if (forumButtonLabel == "Unfollow") {
-                setForumButtonLabel("Following");
-              }
-            }}
-            disabled={forumButtonLabel == "Requested"}
-          />
-          <div className="flex flex-col tablet-lg:flex-row ipad-under:justify-between items-center justify-center text-[12px] text-eduBlack gap-4">
-            <div className="flex tablet-lg:gap-2 flex-col tablet-lg:flex-row tablet-lg:items-center text-[12px]">
-              <FontAwesomeIcon icon={faChartColumn} className="text-[18px] ipad-under:text-[14px]" />
-              <span className="font-sans font-semibold text-center mt-[5px] tablet-lg:mt-0">
-                {post?.views}
-              </span>
-            </div>
-            <div className="flex tablet-lg:gap-2 flex-col tablet-lg:flex-row tablet-lg:items-center text-[12px]">
-              <FontAwesomeIcon icon={faComments} className="text-[18px] ipad-under:text-[14px]" />
-              <span className="font-sans font-semibold text-center mt-[5px] tablet-lg:mt-0">
-                {post?.commentCount}
-              </span>
-            </div>
-          </div>
-          {isAdmin && (
-          <div
-            className=" justify-center items-center md:px-6 tablet-lg:flex hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <FontAwesomeIcon
-              icon={faEllipsisVertical}
-              className="cursor-pointer"
-              size="xl"
-              onClick={handleAdminActions}
+        <div onClick={onPostClick} className="w-full flex items-center justify-between gap-2 tablet-lg:gap-2.5 !cursor-pointer postcard tablet-lg:flex-wrap tablet-lg:flex-col z-10">
+          <div className="flex-1 gap-4 tablet-lg:gap-2.5 flex-col flex">
+            <div className="flex justify-between ipad-under:items-center gap-1">
+            <span className="text-eduDarkBlue text-[12px] ipad-under:text-[11px] font-body">
+              Published on {moment(post?.createdAt).format("DD/MM/YYYY")} |{" "}
+              {post?.postType}
+            </span>
+            <span className="hidden tablet-lg:block">
+            <Button
+              className={`w-[150px] tablet-lg:w-[100px] rounded-md font-medium !m-0 text-sm tablet-lg:text-[11px] ${
+                ["Following", "Requested"].includes(forumButtonLabel) &&
+                "!bg-eduLightBlue text-white"
+              }`}
+              label={forumButtonLabel}
+              onClick={handleForumAction}
+              onMouseEnter={() => {
+                if (forumButtonLabel == "Following") {
+                  setForumButtonLabel("Unfollow");
+                }
+              }}
+              onMouseLeave={() => {
+                if (forumButtonLabel == "Unfollow") {
+                  setForumButtonLabel("Following");
+                }
+              }}
+              disabled={forumButtonLabel == "Requested"}
             />
-
-            {isToggle && (
-              <AdminActionsMenu
-                currentStep={currentStep}
-                setCurrentStep={setCurrentStep}
-                onDeletePost={onDeletePost}
-                onFlagPost={flagPost}
-                currentFlag={post?.flag}
-              />
-            )}
+            </span>
+            </div>
+            <span className="text-[22px] ipad-under:text-[15px] tablet-lg:text-[20px] ipad-under:leading-normal ipad-under:font-medium text-eduBlack font-headers flex gap-2 items-center">
+              <span>{`${post.title?.substring(0,120)} ${post.title && post.title?.length>120 ? '...' :""}`}</span>
+              {post?.isPrivate && (
+                <span className="w-[20px] h-[20px] min-w-[20px] rounded-lg bg-eduYellow flex justify-center items-center">
+                  <FontAwesomeIcon
+                    icon={faLock}
+                    className="animate-fade-in-down w-[0.7em] "
+                    size="2xs"
+                  />
+                </span>
+              )}
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {post?.categories?.map((category) => (
+                <span
+                  key={category._id}
+                  className="text-[8px] py-1.5 px-4 leading-normal ipad-under:py-1 ipad-under:px-2 ipad-under:rounded-sm ipad-under:leading-normal bg-white text-eduDarkBlue rounded-[5px] border border-eduDarkBlue"
+                >
+                  {category.name}
+                </span>
+              ))}
+              {post?.filters?.map((filter) => (
+                  <span
+                  key={filter._id}
+                  className="text-[8px] py-1.5 flex items-center px-4 leading-normal ipad-under:py-1 ipad-under:px-2 ipad-under:rounded-sm ipad-under:leading-normal bg-eduDarkGray text-eduDarkBlue rounded-[5px]"
+                >
+                  {filter?.name}
+                  </span>
+              ))}
+            </div>
           </div>
-        )}
+          <div className="flex-1 flex gap-8 justify-end items-center tablet-lg:justify-between">
+            <Button
+              className={`w-[150px] tablet-lg:hidden rounded-md font-medium !m-0 text-sm ${
+                ["Following", "Requested"].includes(forumButtonLabel) &&
+                "!bg-eduLightBlue text-white"
+              }`}
+              label={forumButtonLabel}
+              onClick={handleForumAction}
+              onMouseEnter={() => {
+                if (forumButtonLabel == "Following") {
+                  setForumButtonLabel("Unfollow");
+                }
+              }}
+              onMouseLeave={() => {
+                if (forumButtonLabel == "Unfollow") {
+                  setForumButtonLabel("Following");
+                }
+              }}
+              disabled={forumButtonLabel == "Requested"}
+            />
+            <div className="flex flex-col tablet-lg:flex-row ipad-under:justify-between items-center justify-center text-[12px] text-eduBlack gap-4">
+              <div className="flex tablet-lg:gap-2 flex-col tablet-lg:flex-row tablet-lg:items-center text-[12px]">
+                <FontAwesomeIcon icon={faChartColumn} className="text-[18px] ipad-under:text-[14px]" />
+                <span className="font-sans font-semibold text-center mt-[5px] tablet-lg:mt-0">
+                  {post?.views}
+                </span>
+              </div>
+              <div className="flex tablet-lg:gap-2 flex-col tablet-lg:flex-row tablet-lg:items-center text-[12px]">
+                <FontAwesomeIcon icon={faComments} className="text-[18px] ipad-under:text-[14px]" />
+                <span className="font-sans font-semibold text-center mt-[5px] tablet-lg:mt-0">
+                  {post?.commentCount}
+                </span>
+              </div>
+            </div>
+            {isAdmin && (
+            <div
+              className=" justify-center items-center md:px-6 tablet-lg:flex hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <FontAwesomeIcon
+                icon={faEllipsisVertical}
+                className="cursor-pointer"
+                size="xl"
+                onClick={handleAdminActions}
+              />
+
+              {isToggle && (
+                <AdminActionsMenu
+                  currentStep={currentStep}
+                  setCurrentStep={setCurrentStep}
+                  onDeletePost={onDeletePost}
+                  onFlagPost={flagPost}
+                  currentFlag={post?.flag}
+                />
+              )}
+            </div>
+          )}
+          </div>
         </div>
-        {isAdmin && (
-          <div
-            className="flex justify-center items-center px-4 tablet-lg:hidden"
-           
-          >
-            <span  onClick={(e) => e.stopPropagation()}>
-            <FontAwesomeIcon
-              icon={faEllipsisVertical}
-              className="cursor-pointer"
-              size="xl"
-              onClick={handleAdminActions}
-            /></span>
+        <div className="">
+          {isAdmin && (
+            <div
+              className="flex justify-center items-center px-4 tablet-lg:hidden"
+            
+            >
+              <span  onClick={(e) => e.stopPropagation()}>
+              <FontAwesomeIcon
+                icon={faEllipsisVertical}
+                className="cursor-pointer"
+                size="xl"
+                onClick={handleAdminActions}
+              /></span>
 
-            {isToggle && (
-              <AdminActionsMenu
-                currentStep={currentStep}
-                setCurrentStep={setCurrentStep}
-                onDeletePost={onDeletePost}
-                onFlagPost={flagPost}
-                currentFlag={post?.flag}
-              />
-            )}
-          </div>
-        )}
+              {isToggle && (
+                <AdminActionsMenu
+                  currentStep={currentStep}
+                  setCurrentStep={setCurrentStep}
+                  onDeletePost={onDeletePost}
+                  onFlagPost={flagPost}
+                  currentFlag={post?.flag}
+                />
+              )}
+            </div>
+          )}
+        </div>
 
         <Modal
           onClose={unfollowPostConfirmationModel.closeModal}
