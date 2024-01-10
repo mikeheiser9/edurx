@@ -414,3 +414,37 @@ export const isUserExists = async (req, res) => {
     generalResponse(res, 400, "error", "Something went wrong", error, true);
   }
 };
+
+export const forgotPassword = async (req, res) => {
+  try {
+    const user = await findUserByEmail(req.body.email);
+    if (user) {
+      const { mail, codeExpireTime, randomCode } = prepareVerificationCodeForEmailConfirmation(user.first_name, user.email);
+      user.verification_code = randomCode;
+      user.verification_code_expiry_time = codeExpireTime;
+      const update = await updateUser(req.body.email, user);
+      if (update) {
+        return generalResponse(res, 200, "success", "Verification code sent to your email", null, true);
+      }
+    }
+    return generalResponse(res, 400, "error", "Email not found", null, true);
+  } catch (error) {
+    return generalResponse(res, 400, "error", "Something went wrong", error, true);
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const user = await findUserByEmail(req.body.email);
+    if (user && req.body.code == user.verification_code && new Date().getTime() < user.verification_code_expiry_time) {
+      user.password = bcrypt.hashSync(req.body.newPassword, 10);
+      const update = await updateUser(req.body.email, user);
+      if (update) {
+        return generalResponse(res, 200, "success", "Password reset successful", null, true);
+      }
+    }
+    return generalResponse(res, 400, "error", "Invalid verification code", null, true);
+  } catch (error) {
+    return generalResponse(res, 400, "error", "Something went wrong", error, true);
+  }
+};

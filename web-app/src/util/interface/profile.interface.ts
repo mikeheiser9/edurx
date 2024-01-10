@@ -91,7 +91,6 @@ interface UserData {
   educations?: education[];
   contact_email?: string;
   personal_bio?: string;
-  username: string;;
   profile_img?: string;
   banner_img?: string;
   followersCount?: number;

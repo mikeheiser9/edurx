@@ -16,6 +16,8 @@ import {
   npiLookup,
   universityLookup,
   isUserExists,
+  forgotPassword,
+  resetPassword
 } from "../controllers/auth.js";
 
 const authRoute = Router();
@@ -39,5 +41,6 @@ authRoute.get(
   universityLookupValidator,
   universityLookup
 );
-
+authRoute.post("/forgot_password", forgotPassword);
+authRoute.post("/reset_password", resetPassword);
 export default authRoute;

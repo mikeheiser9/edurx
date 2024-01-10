@@ -22,6 +22,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter } from "next/navigation";
 
 export default function SignIn() {
+
   const dispatch = useDispatch();
   const router = useRouter();
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -33,6 +34,11 @@ export default function SignIn() {
   ] = useState(false);
   const [commonMessage, setCommonMessage] = useState<string | null>(null);
   const { stringPrefixJoiValidation, email } = validateField;
+  const [forgotPassword, setForgotPassword] = useState<boolean>(false);
+  const [userEmailFound, setUserEmailFound] = useState<boolean>(false);
+  const [resetPassOtp, setResetPassOtp] = useState<boolean>(false);
+  const [validResetPass, setValidResetPass] = useState<boolean>(false);
+
 
   interface loginInterface extends userLoginField {
     otp: string;
@@ -152,8 +158,32 @@ export default function SignIn() {
     );
   };
 
+  const handleForgotPassword = async (values) => {
+    const response = await axios.post('/forgot-password', { email: values.email });
+    if (response.data.success) {
+      setUserEmailFound(true);
+    }
+  };
+
+  const handlePasswordReset = async (values) => {
+    const response = await axios.post('/reset-password', { email: values.email, password: values.password });
+    if (response.data.success) {
+      // Show a message indicating that the password has been reset
+    }
+  };
+
   return (
     <div className="flex justify-center gap-4 flex-auto items-center h-full min-h-screen bg-eduDarkBlue/60">
+      {
+        forgotPassword ? (
+          <Formik
+          initialValues={{ email: '', otp: '', password: '', confirmPassword: '' }}
+          onSubmit={userEmailFound ? (resetPassOtp ? handlePasswordReset : handleOtpSubmit) : handleForgotPassword}
+          >
+
+          </Formik>
+        )
+     :
       <CommonUI
         fields={
           <Formik
@@ -229,6 +259,18 @@ export default function SignIn() {
                         </span>
                       </div>
                     )}
+                    {!isVerificationPending &&
+                    !accountCreationSucceedScreenOpen && (
+                      <div className="text-center text-sm font-[400] opacity-40 pb-3 mt-[-20px]">
+                        <span
+                          className="hover:underline font-[400] cursor-pointer"
+                          onClick={() => {setForgotPassword(true)}}
+                        >
+                          Forgot Password?
+                        </span>
+                      </div>
+                    )}
+
                   {commonMessage && (
                     <span className="capitalize font-medium text-red-500 text-sm text-center animate-fade-in-down">
                       {commonMessage}
@@ -256,6 +298,7 @@ export default function SignIn() {
         isVerificationPending={isVerificationPending}
         setIsVerificationPending={setIsVerificationPending}
       />
+    } 
     </div>
   );
 }
