@@ -3,13 +3,14 @@ import { useField } from "formik";
 import React, { LabelHTMLAttributes, InputHTMLAttributes } from "react";
 interface InputFieldType extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
-  name: string;
+  name: string; 
   className?: string;
   icon?: React.JSX.Element;
   labelProps?: LabelHTMLAttributes<HTMLLabelElement>;
   mandatory?: boolean;
   iconContainerClass?: string;
   isFormikField?: boolean;
+  parentClass?:string;
 }
 
 export default function InputField({
@@ -19,16 +20,22 @@ export default function InputField({
   mandatory,
   iconContainerClass,
   isFormikField = true,
+  parentClass,
   ...props
 }: InputFieldType): React.JSX.Element {
-  const [field, meta] = isFormikField ? useField(props) : [];
+  // const [field, meta] = isFormikField ? useField(props) : [];
+  const [field, meta] = isFormikField ? useField(props) : [{}, {}];
 
   return (
-    <>
+    <div className={
+      parentClass
+        ? parentClass
+        : ""
+    }>
       {label && (
         <label
           htmlFor={props.name}
-          className="block mb-2 text-sm font-semibold text-gray-900 dark:text-white/50"
+          className="block mt-4 mb-2 md:text-[14px] md:leading-normal text-xs text-eduBlack font-body"
           {...labelProps}
         >
           {label}
@@ -40,7 +47,7 @@ export default function InputField({
           className={
             iconContainerClass
               ? iconContainerClass
-              : "absolute self-end px-2 mt-[.65rem]"
+              : "absolute self-end px-2 mt-[5px]"
           }
         >
           {icon}
@@ -48,17 +55,22 @@ export default function InputField({
         <input
           id={label && props.name}
           {...props}
-          className={`bg-[#3A3A3A] text-white rounded-lg p-2 focus-visible:border-none outline-none autofill:active:bg-black ${
-            meta?.touched && meta.error ? "border-[1px] border-red-500" : ""
+          className={`bg-eduLightGray font-body text-eduBlack rounded-lg p-2 pl-3 focus-visible:border-none outline-none autofill:active:bg-black ${
+            meta && meta.touched && meta.error
+              ? "border-[1px] border-[#FF0000]"
+              : ""
           } ${props.className}`}
+          // className={`bg-eduLightGray text-eduBlack rounded-lg p-2 focus-visible:border-none outline-none autofill:active:bg-black ${
+          //   meta.touched && meta.error ? "border-[1px] border-red-500" : ""
+          // } ${props.className}`}
           {...field}
         />
         {meta?.touched && meta.error ? (
-          <span className="text-white text-xs first-letter:capitalize flex-shrink-0 opacity-50">
+          <span className="text-xs ipad-under:text-10px font-body mt-1 first-letter:capitalize flex-shrink-0 opacity-50 text-[#FF0000] font-[500]">
             {meta.error}
           </span>
         ) : null}
       </div>
-    </>
+    </div>
   );
 }

@@ -1,3 +1,5 @@
+import { forumTypes } from "./constant";
+
 const getInputDateFormat = (date: Date): string => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -40,7 +42,7 @@ const boldOnSearch = (text: string, search: string) => {
 };
 
 const areArraysEqual = (array1: string[], array2: string[]) => {
-  if (array1.length !== array2.length) {
+  if (array1?.length !== array2?.length) {
     return false;
   }
 
@@ -66,6 +68,63 @@ const removeSubstring = (
   return resultString;
 };
 
+const getAllowedForumAccessBasedOnRoleAndNpiDesignation = (
+  role: RolesTypes,
+  npiDesignation: string[]
+): string[] => {
+  const listOfForum=["All Forums"];
+  if (role == "student") {
+    listOfForum.push("Student");
+    return listOfForum;
+  } else if (role == "moderator" || role == "super_admin") {
+      return [...listOfForum,...forumTypes]
+  } else {
+    let forumAccess: string[] = npiDesignation.map((designation: string) => {
+        return designation;
+    });
+    forumAccess = [
+      ...listOfForum,
+      ...forumAccess,
+      "Dietetics & Nutrition",
+      "Medical professionals",
+    ];
+    return forumAccess;
+  }
+};
+
+const calculateView=(dividend:number,divider:number,appendString:"m"|"k")=>{
+  const value=(dividend/divider).toString().split(".");
+  const withoutDecimalPlace=value[0]
+  const withDecimalPlace=value[1]
+  if(!withDecimalPlace){
+      return withoutDecimalPlace+appendString
+  }
+  else if(withDecimalPlace[0]=="0")
+  {
+      return withoutDecimalPlace+".1 "+appendString+"+";
+  }
+  else 
+  {
+      return withoutDecimalPlace+"."+withDecimalPlace.toString()[0]+" "+appendString+"+"
+  }
+}
+
+const getSemanticViewsCount=(views:number)=>{
+    const viewLength=views.toString().length
+    if(viewLength<4)
+    {
+        return views
+    }
+    else if(viewLength>=4 && viewLength<7)
+    {
+        return calculateView(views,1000,"k")
+    }
+    else if(viewLength>=7)
+    {
+       return calculateView(views,1000000,"m")
+    }
+}
+
 export {
   getInputDateFormat,
   getStaticImageUrl,
@@ -73,4 +132,6 @@ export {
   boldOnSearch,
   areArraysEqual,
   removeSubstring,
+  getAllowedForumAccessBasedOnRoleAndNpiDesignation,
+  getSemanticViewsCount
 };

@@ -4,9 +4,10 @@ import { generalResponse } from "../util/commonFunctions.js";
 const addToSheet = async (req, res) => {
   try {
     const data = Object.values(req.body);
+    const error="error while saving data to google sheet"
     await addValuesToSpreadsheet(data)
       .then((values) => {
-        if (!values) throw new Error("Bad request");
+        if (!values) throw new Error(error);
         generalResponse(res, 200, "OK", "success", values.data, false, false);
       })
       .catch((err) => {
@@ -14,7 +15,7 @@ const addToSheet = async (req, res) => {
           res,
           400,
           "error",
-          "Bad request",
+          error,
           err?.errors || err,
           true
         );

@@ -10,26 +10,40 @@ import {
   getPost,
   getAllPosts,
   addNewView,
+  updatePost,
+  addPrivatePostRequest,
+  getUserRequests,
+  bulkUpdateRequests,
+  followPost,
+  updatePostByUser,
+  pollVote,
 } from "../controllers/post.js";
 import {
   addCommentValidator,
   addReactionValidator,
+  addRequestValidator,
   addViewValidator,
+  bulkRequestUpdateValidator,
   createMetaLabelValidator,
-  createPostValidator,
+  createOrUpdatePostValidator,
+  followUnfollowPostValidator,
   getAllPostValidator,
   getPostCommentsValidator,
+  getRequestValidator,
   getUsersPostsValidator,
   searchMetaLabelValidator,
-  validateCategoryTag,
+  updatePostValidator,
+  validateCategoryFilter,
+  validatePollVote,
 } from "../middleware/validator/post.js";
+import { adminAuthValidation } from "../middleware/validator/user.js";
 
 const postRoute = Router();
 postRoute.post(
   "/create",
   userAuth,
-  createPostValidator,
-  validateCategoryTag,
+  createOrUpdatePostValidator,
+  validateCategoryFilter,
   createPost
 );
 postRoute.get("/:postId", userAuth, getPostCommentsValidator, getPost);
@@ -56,5 +70,51 @@ postRoute.get(
 );
 postRoute.get("/forum/all", userAuth, getAllPostValidator, getAllPosts);
 postRoute.get("/forum/user", userAuth, getUsersPostsValidator, getAllPosts);
+postRoute.put(
+  "/admin/update",
+  userAuth,
+  adminAuthValidation,
+  updatePostValidator,
+  updatePost
+);
+
+//private post requests
+postRoute.post(
+  "/private/create-request",
+  userAuth,
+  addRequestValidator,
+  addPrivatePostRequest
+);
+
+postRoute.get(
+  "/private/:postId/requests",
+  userAuth,
+  getRequestValidator,
+  getUserRequests
+);
+
+postRoute.post(
+  "/follow/:postId/:action",
+  userAuth,
+  followUnfollowPostValidator,
+  followPost
+);
+
+postRoute.put(
+  "/private/:postId/requests-update",
+  userAuth,
+  bulkRequestUpdateValidator,
+  bulkUpdateRequests
+);
+
+postRoute.put(
+  "/:postId",
+  userAuth,
+  createOrUpdatePostValidator,
+  validateCategoryFilter,
+  updatePostByUser
+);
+
+postRoute.put("/:postId/vote", userAuth, validatePollVote, pollVote);
 
 export default postRoute;

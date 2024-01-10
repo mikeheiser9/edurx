@@ -1,7 +1,14 @@
 import Joi from "joi";
-import { returnAppropriateError } from "../../util/commonFunctions.js";
 import {
+  generalResponse,
+  returnAppropriateError,
+} from "../../util/commonFunctions.js";
+import {
+  NOTIFICATION_TYPES,
   paginationValidation,
+  responseCodes,
+  responseTypes,
+  roles,
   userDocValidation,
   userDocumentTypes,
   userValidations,
@@ -19,10 +26,7 @@ const updateUserValidator = async (req, res, next) => {
         ],
       });
     }
-    req.body =
-      req.files?.length && req.body?.data
-        ? JSON.parse(req?.body?.data)
-        : req.body;
+    req.body = req.body?.data ? JSON.parse(req?.body?.data) : req.body;
     const schema = Joi.object({
       ...Object.keys(req.body).reduce((acc, key) => {
         if (userValidations[key]) {
@@ -35,7 +39,6 @@ const updateUserValidator = async (req, res, next) => {
     await schema.validateAsync(req.body);
     next();
   } catch (error) {
-    console.log(error);
     returnAppropriateError(res, error);
   }
 };
@@ -84,7 +87,6 @@ const getUserDocumentsValidator = async (req, res, next) => {
     });
     next();
   } catch (err) {
-    console.log(err);
     returnAppropriateError(res, err);
   }
 };
@@ -104,7 +106,6 @@ const userConnectionsValidator = async (req, res, next) => {
     });
     next();
   } catch (error) {
-    console.log("Failed to validate request", error);
     returnAppropriateError(res, error);
   }
 };
@@ -139,6 +140,41 @@ const searchUsersValidator = async (req, res, next) => {
   }
 };
 
+const adminAuthValidation = async (req, res, next) => {
+  try {
+    if (req.user?.role === roles[0]) await next();
+    else {
+      return generalResponse(
+        res,
+        responseCodes.UNAUTHORIZED,
+        responseTypes.UNAUTHORIZED,
+        "You are not authorized to perform this action",
+        null
+      );
+    }
+  } catch (error) {
+    returnAppropriateError(res, error);
+  }
+};
+
+const createAccountSettingsValidator = async (req, res, next) => {
+  try {
+    const schema = Joi.object({
+      allowedTypes: Joi.array()
+        .items(
+          Joi.string()
+            .required()
+            .valid(...Object.values(NOTIFICATION_TYPES.All))
+        )
+        .required(),
+    });
+    await schema.validateAsync(req.body);
+    next();
+  } catch (error) {
+    returnAppropriateError(res, error);
+  }
+};
+
 export {
   updateUserValidator,
   getUserProfileValidator,
@@ -147,4 +183,6 @@ export {
   userConnectionsValidator,
   getConnectionsValidator,
   searchUsersValidator,
+  adminAuthValidation,
+  createAccountSettingsValidator,
 };

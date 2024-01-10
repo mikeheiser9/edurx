@@ -1,78 +1,41 @@
 "use client";
 import { Button } from "@/components/button";
-import { useModal, useOutsideClick } from "@/hooks";
+import { useModal } from "@/hooks";
 import React, { useEffect, useState } from "react";
 import { AddPost } from "./components/addPost";
 import { axiosGet } from "@/axios/config";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faGear,
-  faPlusCircle,
-  faSearch,
-  faSignOut,
-  faUserAlt,
-} from "@fortawesome/free-solid-svg-icons";
-import { Select } from "@/components/select";
-import { roleBasedForum } from "@/util/constant";
-import { Chip } from "@/components/chip";
-import { LeftPanel } from "./components/leftPanel";
+import { faPlusCircle, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { responseCodes, roleAccess } from "@/util/constant";
 import { PostCard } from "./components/postCard";
 import InfiniteScroll from "@/components/infiniteScroll";
 import { PostModal } from "./components/postModal";
 import { requireAuthentication } from "@/components/requireAuthentication";
-import { DropDownPopover } from "./components/sections";
-import { faBell } from "@fortawesome/free-regular-svg-icons";
-import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
+import { selectUserDetail, setDraftCount } from "@/redux/ducks/user.duck";
+
+import { showToast } from "@/components/toast";
+import { updatePostByAPI } from "@/service/post.service";
+import { Select } from "@/components/select";
 import {
-  removeToken,
-  removeUserDetail,
-  selectUserDetail,
-} from "@/redux/ducks/user.duck";
-import Image from "next/image";
-import { getStaticImageUrl } from "@/util/helpers";
-
-const sortingOptions: { value: string; label: string }[] = [
-  {
-    label: "Newest",
-    value: "newest",
-  },
-  {
-    label: "Most Popular",
-    value: "popular",
-  },
-  {
-    label: "Trending",
-    value: "trending",
-  },
-];
-
-const tabMenuOptions = [
-  "Forum",
-  "Resources",
-  "My Edu-Rx",
-  "Events",
-  "EduRx Library",
-];
+  getSelectedForumFilters,
+  setSelectedFilter,
+} from "@/redux/ducks/forum.duck";
+import { getAllowedForumAccessBasedOnRoleAndNpiDesignation } from "@/util/helpers";
+import { getUserDraftCount } from "@/service/user.service";
+import DraftModal from "./components/draftModal";
+import { Chip } from "@/components/chip";
 
 const forumTabs = ["Forum Feed", "Your Posts", "Following"];
 
 const Page = () => {
-  const router = useRouter();
   const dispatch = useDispatch();
   const loggedInUser = useSelector(selectUserDetail);
   const addPostModal = useModal();
   const viewPostModal = useModal();
-  const [categoryList, setCategoryList] = useState([]);
-  const [categoryPagination, setCategoryPagination] = useState<PageDataState>({
-    page: 1,
-    totalRecords: 0,
-  });
-  const [selectedFilters, setSelectedFilters] = useState<FilterOptionsState>();
-  const [selectedCategories, setSelectedCategories] = useState<
-    TagCategoryType[]
-  >([]);
-  const [selectedTab, setSelectedTab] = useState<string>(tabMenuOptions[0]);
+  const selectedFilters: FilterOptionsState = useSelector(
+    getSelectedForumFilters
+  );
   const [selectedForumTab, setSelectedForumTab] = useState<string>(
     forumTabs[0]
   );
@@ -81,79 +44,80 @@ const Page = () => {
     page: 1,
     totalRecords: 0,
   });
+  const [showLoading, setShowLoading] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<string>("");
-  const [showDropdown, setshowDropdown] = useState<boolean>(false);
-  const dropDownRef = useOutsideClick(() => setshowDropdown(false));
 
-  const fetchCategories = async (page: number = 1) => {
-    try {
-      const response = await axiosGet("/post/category/search", {
-        params: {
-          name: "",
-          type: "category",
-          limit: 10,
-          page,
-        },
-      });
-      if (response.status === 200) {
-        setCategoryList(categoryList.concat(response?.data?.data?.records));
-        setCategoryPagination({
-          page: response?.data?.data?.currentPage,
-          totalRecords: response?.data?.data?.totalRecords,
-        });
-      }
-    } catch (error) {
-      console.error("Error processing category list", error);
-    }
-  };
+  const isAdmin = loggedInUser?.role === roleAccess.ADMIN;
+  let apiEndpoint: string = `/post/forum/${
+    selectedForumTab === forumTabs[1] ? "user" : "all"
+  }`;
 
   const handleFilters = (
     type: keyof FilterOptionsState,
     value: string | any[]
   ) => {
-    setSelectedFilters((preState) => {
-      return {
-        ...preState,
-        [type]: value,
-      };
-    });
+    dispatch(
+      setSelectedFilter({
+        ...selectedFilters,
+        [type]: selectedFilters?.[type] === value ? null : value,
+      })
+    );
   };
 
-  const fetchPosts = async (page: Number, useConcat: boolean = true) => {
+  const fetchPosts = async (
+    page: Number,
+    endPoint: string,
+    useConcat: boolean = true
+  ) => {
     try {
-      const response = await axiosGet("/post/forum/all", {
-        params: {
-          ...selectedFilters,
-          ...(selectedFilters?.categories?.length
-            ? {
-                categories: selectedFilters.categories
-                  .map((item) => item._id)
-                  .toString(),
-              }
-            : {}),
-          limit: 10,
-          page,
-        },
+      setShowLoading(true);
+      let payload = {
+        limit: 10,
+        page,
+      };
+      if (selectedFilters?.categories?.length) {
+        Object.assign(payload, {
+          categories: selectedFilters.categories
+            .map((item) => item?._id)
+            .toString(),
+        });
+      }
+      if (selectedFilters?.filters?.length) {
+        Object.assign(payload, {
+          filters: selectedFilters.filters.map((item) => item?._id).toString(),
+        });
+      }
+      if (selectedFilters?.forumType) {
+        Object.assign(payload, { forumType: selectedFilters.forumType });
+      }
+      if (selectedFilters?.sortBy) {
+        Object.assign(payload, { sortBy: selectedFilters.sortBy });
+      }
+      const response = await axiosGet(endPoint, {
+        params: payload,
       });
 
-      if (response?.status === 200) {
+      if (response?.status === responseCodes.SUCCESS) {
         setPosts(
           useConcat
             ? posts.concat(response?.data?.data?.posts?.data)
             : response?.data?.data?.posts?.data
         );
-        setPostPagination({
-          page: response?.data?.data?.posts?.metadata?.currentPage,
-          totalRecords: response?.data?.data?.posts?.metadata?.totalRecords,
+        setPostPagination((prev) => {
+          return {
+            page: response?.data?.data?.posts?.metadata?.currentPage,
+            totalRecords: response?.data?.data?.posts?.metadata?.totalRecords,
+          };
         });
       }
+      setShowLoading(false);
     } catch (error) {
       console.log("Error fetching posts", error);
     }
   };
 
   const loadMorePosts = async () => {
-    await fetchPosts(postPagination.page + 1);
+    await fetchPosts(postPagination.page + 1, apiEndpoint);
   };
 
   const onPostClick = (postId: string) => {
@@ -161,184 +125,188 @@ const Page = () => {
     setSelectedPostId(postId);
   };
 
-  const logOutUser = () => {
-    dispatch(removeUserDetail());
-    dispatch(removeToken());
+  const onDeletePost = async (postId: string) => {
+    try {
+      const response = await updatePostByAPI({
+        _id: postId,
+        isDeleted: true,
+      });
+      if (response.status === responseCodes.SUCCESS) {
+        showToast.success("Post deleted successfully");
+        // fetchPosts(1, false); // fetching posts again after deleting
+        setPosts(posts?.filter((p) => p?._id !== postId));
+      } else
+        throw new Error(response?.data?.message || "Unable to delete post");
+    } catch (error) {
+      showToast.error((error as Error)?.message || "Something went wrong");
+      console.log("Failed to delete post", error);
+    }
+  };
+
+  const onFlagPost = async (postId: string, flag: PostFlags | null) => {
+    try {
+      const response = await updatePostByAPI({
+        _id: postId,
+        flag: flag || null,
+      });
+      if (response.status === responseCodes.SUCCESS) {
+        let updatedPostIndex = posts?.findIndex((p) => p?._id === postId);
+        if (updatedPostIndex !== -1) {
+          posts[updatedPostIndex].flag = flag || null;
+        }
+        showToast.success(
+          flag ? `Post flagged as ${flag}` : "Post flag removed successfully"
+        );
+        setPosts((pre) => [...pre]);
+      } else
+        throw new Error(response?.data?.message || "Unable to update post");
+    } catch (error) {
+      console.log("Failed to update post", error);
+    }
   };
 
   useEffect(() => {
-    fetchPosts(1, false);
-  }, [selectedFilters]);
+    if (selectedForumTab === forumTabs[2]) return;
+    setPosts([]);
+    setPostPagination({
+      page: 1,
+      totalRecords: 0,
+    });
+    setTimeout(()=>{
+      fetchPosts(1, apiEndpoint, false);
+    },1000)
+  }, [selectedFilters, selectedForumTab]);
 
   useEffect(() => {
-    fetchCategories();
+    (async () => {
+      const res = await getUserDraftCount();
+      if (res?.data?.response_type == "Success") {
+        dispatch(setDraftCount(res?.data?.data));
+      }
+    })();
   }, []);
 
   return (
     <React.Fragment>
-      {addPostModal.isOpen && <AddPost addPostModal={addPostModal} />}
-      <PostModal viewPostModal={viewPostModal} postId={selectedPostId} />
-      <div className="flex p-4 gap-4 w-full h-screen overflow-hidden">
-        <LeftPanel
-          categoryList={categoryList}
-          handleFilters={handleFilters}
-          selectedFilters={selectedFilters}
-          sortingOptions={sortingOptions}
-          onLoadMore={() => fetchCategories(categoryPagination.page + 1)}
-          categoryPagination={categoryPagination}
-          setSelectedCategories={setSelectedCategories}
-          selectedCategories={selectedCategories}
+      {addPostModal.isOpen && (
+        <AddPost
+          addPostModal={addPostModal}
+          fetchPosts={() => fetchPosts(1, apiEndpoint, false)}
         />
-        <div className="flex-1 flex overflow-hidden flex-col gap-2">
-          <div className="flex relative bg-primary-dark gap-4 p-4 justify-center rounded-md">
-            {tabMenuOptions.map((item: string, index: number) => (
-              <label
-                key={index}
-                onClick={() => setSelectedTab(item)}
-                className={`text-white duration-500 ease-in-out transition-colors border text-sm rounded-md p-2 px-4 ${
-                  item === selectedTab ? "border-primary" : "border-white/50"
-                }`}
-              >
-                {item}
-              </label>
-            ))}
-            <div
-              className={`absolute transition-colors rounded-md ease-in-out duration-100 p-2 flex gap-2 flex-col right-4 ${
-                showDropdown ? "bg-primary-darker" : "bg-transparent"
-              }`}
-              ref={dropDownRef as any}
-            >
-              <div className="flex justify-end">
-                <span
-                  onClick={() => setshowDropdown(!showDropdown)}
-                  className={`flex ease-in-out duration-500 cursor-pointer ring-white border-primary overflow-hidden w-8 h-8 justify-center items-center text-primary rounded-full bg-white ${
-                    showDropdown ? "ring-2" : ""
-                  }`}
-                >
-                  {loggedInUser?.profile_img ? (
-                    <Image
-                      src={getStaticImageUrl(loggedInUser?.profile_img)}
-                      alt="user_profile_img"
-                      width={100}
-                      height={100}
-                    />
-                  ) : (
-                    <FontAwesomeIcon icon={faUserAlt} />
-                  )}
-                </span>
-              </div>
-              <DropDownPopover
-                itemClassName="px-1 text-sm flex items-center gap-2 cursor-pointer"
-                isVisible={showDropdown}
-                options={[
-                  {
-                    label: "Profile",
-                    icon: faUserAlt,
-                    onClick: () => router.push("profile"),
-                  },
-                  {
-                    label: "Notifications",
-                    icon: faBell,
-                  },
-                  {
-                    label: "Account",
-                    icon: faGear,
-                  },
-                  {
-                    label: "Logout",
-                    icon: faSignOut,
-                    onClick: logOutUser,
-                  },
-                ]}
-              />
-            </div>
-          </div>
-          <div className="flex justify-between">
-            <div className="flex justify-center items-center gap-2">
-              <span className="bg-primary-dark w-8 h-8 flex items-center justify-center rounded-md text-white">
-                <FontAwesomeIcon icon={faSearch} size="sm" />
-              </span>
-              <Button
-                onClick={addPostModal.openModal}
-                className="!w-auto border border-transparent ease-in-out duration-200 hover:border-primary hover:!bg-primary-dark bg-primary-dark text-white flex gap-2 justify-center items-center px-4"
-              >
-                <FontAwesomeIcon
-                  icon={faPlusCircle}
-                  className="text-primary"
-                  size="sm"
-                />
-                <span className="text-xs">New Post</span>
-              </Button>
-            </div>
-            <ul className="flex gap-6">
-              {forumTabs.map((item) => (
-                <li
-                  onClick={() => setSelectedForumTab(item)}
-                  className={`text-white ease-in-out duration-500 border-b-2 py-2 text-sm ${
-                    item === selectedForumTab
-                      ? "border-primary"
-                      : "border-transparent"
-                  }`}
-                  key={item}
-                >
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <div className="flex justify-center items-center gap-2">
-              <label htmlFor="forumType" className="text-white">
-                Viewing :
-              </label>
-              <Select
-                options={roleBasedForum[
-                  loggedInUser?.role as keyof typeof roleBasedForum
-                ]?.map((item) => {
-                  return {
-                    label: item,
-                    value: item,
-                  };
-                })}
-                onChange={(e) => handleFilters("forumType", e.target.value)}
-                value={selectedFilters?.forumType ?? "Choose a forum type"}
-                label="Choose a forum type"
-              />
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {selectedFilters?.categories?.map((item: TagCategoryType) => (
-              <Chip
-                key={item._id}
-                label={item.name}
-                // onSelect={() => onCipSelect(type, item)}
-                onClear={() => {
-                  const values =
-                    selectedFilters?.categories?.filter(
-                      (i: TagCategoryType) => i.name !== item.name
-                    ) ?? [];
-                  handleFilters("categories", values);
-                  setSelectedCategories(values);
-                }}
-                className="text-sm p-1 px-2 gap-1 flex items-center justify-center text-white/50 rounded-md"
-                isSelected
-              />
-            ))}
-          </div>
-          <InfiniteScroll
-            className="flex flex-col w-full h-full rounded-md gap-4"
-            callBack={loadMorePosts}
-            hasMoreData={posts.length < postPagination.totalRecords}
-            showLoading
+      )}
+      <DraftModal />
+      <PostModal viewPostModal={viewPostModal} postId={selectedPostId} />
+      <div className="flex justify-between items-center w-full x-large:mb-2 x-large:gap-y-4 flex-wrap ipad-under:mb-5 ipad-under:flex-col-reverse ipad-under:gap-4">
+        <div className="flex justify-center items-center gap-3 ipad-under:hidden">
+          <span className="bg-primary-dark w-8 h-8 flex items-center justify-center rounded-[5px] ">
+            <FontAwesomeIcon
+              icon={faSearch}
+              className="text-eduBlack text-[18px] bg-eduDarkGray p-[8px] rounded-[5px]"
+            />
+          </span> 
+          <Button
+            onClick={addPostModal.openModal}
+            className="!w-[125px] hover:!bg-eduBlack !h-[34px] !bg-eduDarkGray group text-eduBlack flex gap-3 justify-center items-center px-2 py-2 !border-none"
           >
-            {posts.map((post) => (
-              <PostCard
-                post={post}
-                key={post._id}
-                onPostClick={() => onPostClick(post?._id)}
-              />
-            ))}
-          </InfiniteScroll>
+            <FontAwesomeIcon
+              icon={faPlusCircle}
+              className="text-eduLightBlue group-hover:text-white text-[18px]"
+            />
+            <span className="text-[14px] font-body font-medium text-eduLightBlue group-hover:text-white">New Post</span>
+          </Button>
+        </div>
+        <ul className="flex gap-6 ipad-under:mx-auto">
+          {forumTabs.map((item) => (
+            <li
+              onClick={() => setSelectedForumTab(item)}
+              className={`text-eduBlack font-body font-medium ease-in-out duration-500 border-b-2 py-2 text-[14px] cursor-pointer ipad-under:text-xs ipad-under:py-1 ${
+                item === selectedForumTab
+                  ? "border-primary"
+                  : "border-transparent"
+              }`}
+              key={item}
+            >
+              {item}
+            </li>
+          ))}
+        </ul>
+        <div className="flex justify-center items-center gap-2">
+          <label
+            htmlFor="forumType"
+            className="text-eduBlack font-body text-[14px] font-medium ipad-under:hidden"
+          >
+            Viewing :
+          </label>
+          <Select
+            options={getAllowedForumAccessBasedOnRoleAndNpiDesignation(
+              loggedInUser?.role,
+              loggedInUser?.npi_designation
+            ).map((item) => {
+              return {
+                label: item,
+                value: item,
+              };
+            })}
+            onSelect={(e) => handleFilters("forumType", e?.value)}
+            onClear={() => handleFilters("forumType", "")}
+            value={selectedFilters?.forumType || "Change forum"}
+            wrapperClass="!w-[12rem] h-[34px]"
+          />
         </div>
       </div>
+      <div className="flex flex-wrap gap-2 mb-2">
+        {selectedFilters?.categories?.map((item: TagCategoryType) => (
+          <Chip
+            key={item._id}
+            label={item.name}
+            onClear={() => {
+              const values =
+                selectedFilters?.categories?.filter(
+                  (i: TagCategoryType) => i._id !== item._id
+                ) ?? [];
+              handleFilters("categories", values);
+            }}
+            className="bg-transparent border border-eduLightBlue  text-xs ipad-under:text-[8px] ipad-under:rounded-sm ipad-under:leading-normal ipad-under:py-1 px-2 leading-6 rounded-md gap-2"
+            isSelected
+          />
+        ))}
+        {selectedFilters?.filters?.map((item: TagCategoryType) => (
+          <Chip
+            key={item._id}
+            label={item.name}
+            onClear={() => {
+              const values =
+                selectedFilters?.filters?.filter(
+                  (i: TagCategoryType) => i._id !== item._id
+                ) ?? [];
+              handleFilters("filters", values);
+            }}
+            className="!bg-eduDarkGray border text-eduDarkBlue text-xs ipad-under:text-[8px] ipad-under:rounded-sm ipad-under:leading-normal ipad-under:py-1 px-2 leading-6 rounded-md gap-2"
+            isSelected
+          />
+        ))}
+      </div>
+      <InfiniteScroll
+        className="flex flex-col w-full h-full rounded-md gap-4"
+        callBack={loadMorePosts}
+        hasMoreData={posts?.length < postPagination.totalRecords}
+        showLoading={showLoading}
+      >
+        {posts?.map((post) => (
+          <div key={post._id}>
+            <PostCard
+              post={post}
+              key={post._id}
+              onPostClick={() => onPostClick(post?._id)}
+              userRole={loggedInUser?.role}
+              onDeletePost={isAdmin ? () => onDeletePost(post?._id) : undefined}
+              onFlagPost={isAdmin ? onFlagPost : undefined}
+              isPostOwner={post.userId == loggedInUser._id}
+              loggedUserId={loggedInUser._id}
+            />
+          </div>
+        ))}
+      </InfiniteScroll>
     </React.Fragment>
   );
 };

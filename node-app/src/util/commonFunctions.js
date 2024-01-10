@@ -104,7 +104,6 @@ export const findAndPaginate = async (
   limit = 10,
   options
 ) => {
-  console.log({ page, limit });
   if (!modal || typeof modal !== "function") {
     throw new Error("Invalid mongoose modal provided.");
   }
@@ -119,8 +118,6 @@ export const findAndPaginate = async (
     const count = await modal.countDocuments(query);
     const totalPages = Math.ceil(count / limit);
     const skippedPages = (page - 1) * limit;
-
-    console.log("at findAndPaginate", { count, skippedPages, totalPages });
 
     let findQuery = modal.find(query);
     if (options) {
@@ -142,5 +139,39 @@ export const findAndPaginate = async (
   } catch (error) {
     console.error("Error occurred during pagination:", error);
     return error;
+  }
+};
+
+export const getAllowedForumAccessBasedOnRoleAndNpiDesignation = (
+  role,
+  npiDesignation
+) => {
+  const listOfForum = ["All Forums"];
+  if (role == "student") {
+    listOfForum.push("Student");
+    return listOfForum;
+  } else if (role == "moderator" || role == "super_admin") {
+    return [
+      ...listOfForum,
+      "Dietetics & Nutrition",
+      "Medical professionals",
+      "RDN",
+      "NDTR",
+      "Student",
+    ];
+  } else {
+    let forumAccess = npiDesignation.map((designation) => {
+      if (designation == "RDN") {
+        return designation;
+      }
+      return designation;
+    });
+    forumAccess = [
+      ...listOfForum,
+      ...forumAccess,
+      "Dietetics & Nutrition",
+      "Medical professionals",
+    ];
+    return forumAccess;
   }
 };

@@ -1,5 +1,10 @@
 import { Schema, model } from "mongoose";
-import { forumTypes, postStatus, postType } from "../../util/constant.js";
+import {
+  forumTypes,
+  postFlags,
+  postStatus,
+  postType,
+} from "../../util/constant.js";
 
 const postSchema = new Schema(
   {
@@ -30,13 +35,20 @@ const postSchema = new Schema(
     content: String,
     categories: {
       type: [Schema.Types.ObjectId],
-      ref: "postCategoryTags",
+      ref: "postCategoryFilters",
     },
-    tags: {
+    // tags: {
+    //   type: [Schema.Types.ObjectId],
+    //   ref: "postCategoryFilters",
+    // },
+    filters: {
       type: [Schema.Types.ObjectId],
-      ref: "postCategoryTags",
+      ref: "postCategoryFilters",
     },
     votingLength: Number,
+    options: {
+      type: [Schema.Types.String],
+    },
     isPrivate: {
       type: Boolean,
       default: false,
@@ -51,7 +63,7 @@ const postSchema = new Schema(
     },
     flag: {
       type: String,
-      enum: ["Spam", "Inappropriate", "Other"], // Example flag options
+      enum: postFlags, // ["Spam", "Inappropriate", "Other"], // Example flag options
     },
   },
   {
@@ -113,10 +125,34 @@ postSchema.virtual("views", {
   localField: "_id",
   foreignField: "itemId",
   count: true,
-  justOne: false,
   match: {
     itemType: "post",
   },
+});
+
+postSchema.virtual("userAccessRequests", {
+  ref: "postRequest",
+  localField: "_id",
+  foreignField: "postId",
+});
+
+postSchema.virtual("userAccessRequestCount", {
+  ref: "postRequest",
+  localField: "_id",
+  foreignField: "postId",
+  count: true,
+});
+
+postSchema.virtual("votingInfo", {
+  ref: "pollPostVote",
+  localField: "_id",
+  foreignField: "postId",
+});
+
+postSchema.virtual("userPostFollowers", {
+  ref: "userConnections",
+  localField: "_id",
+  foreignField: "postId",
 });
 
 export const postModal = model("posts", postSchema);

@@ -1,16 +1,15 @@
 import { GoogleAuth } from "google-auth-library";
 import { google } from "googleapis";
-import authJson from "../metadata/googleSheets/keys.js";
 import { spreadsheetHeaders } from "../util/constant.js";
 
 const auth = new GoogleAuth({
   scopes: "https://www.googleapis.com/auth/spreadsheets",
   credentials: {
-    client_email: authJson.client_email,
-    private_key: authJson.private_key,
+    client_email: process.env.GOOGLE_SHEET_API_CLIENT_EMAIL,
+    private_key: process.env.GOOGLE_SHEET_API_PRIVATE_KEY,
   },
 });
-const spreadsheetId = "1gzoYustOkqXct1ZgJ2XhV3zL0-yoyzfQuHBgWmVedHE";
+const spreadsheetId = process.env.GOOGLE_SHEET_ID;
 const sheetName = "Sheet1";
 const service = google.sheets({ version: "v4", auth });
 
@@ -105,7 +104,7 @@ const addValuesToSpreadsheet = async (data) => {
   ) {
     await appendHeaders();
   }
-  const responce = await service.spreadsheets.values.append({
+  const response = await service.spreadsheets.values.append({
     spreadsheetId,
     resource,
     auth,
@@ -113,7 +112,7 @@ const addValuesToSpreadsheet = async (data) => {
     valueInputOption: "USER_ENTERED",
   });
 
-  return responce;
+  return response;
 };
 
 export {

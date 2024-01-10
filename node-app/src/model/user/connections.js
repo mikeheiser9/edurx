@@ -8,9 +8,12 @@ const userConnectionSchema = new Schema(
       required: true,
     },
     targetUserId: {
-      type: Types.ObjectId,
+      type: Types.ObjectId, // use can follow another user
       ref: "users",
-      required: true,
+    },
+    postId: {
+      type: Types.ObjectId, // user can follow posts as well
+      ref: "posts",
     },
   },
   {

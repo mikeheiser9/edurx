@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Hahmlet:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+.mantineTable .mantine-ScrollArea-viewport {
+  @apply flex flex-col justify-between min-h-[calc(100vh-283px)]
+}
+
+.mantineTable tbody tr td {
+  @apply p-3
+}
+.mantineTable thead tr th {
+  @apply capitalize
+}
+
+.mantine-ua81gg[data-active] {
+  @apply bg-red-500 text-white bg-[#A5A5A8] border-transparent;
+}
+
+.mantine-ua81gg[data-active]:not([data-disabled]):hover {
+  @apply bg-red-500;
+}
+
+.mantine-Menu-item:disabled {
+  @apply !text-red-500
+}
+.mantine-datatable {
+  @apply relative
+}
+
+.mantine-datatable-loader {
+  @apply relative
+}
+
+.mantine-datatable-loader-fetching {
+  @apply !absolute !bottom-0 !left-0 !right-0 p-2.5 items-end bg-transparent;
+}

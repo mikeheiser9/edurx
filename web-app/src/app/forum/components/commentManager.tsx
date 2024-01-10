@@ -8,13 +8,15 @@ import { selectUserDetail } from "@/redux/ducks/user.duck";
 import { getFullName } from "@/util/helpers";
 import MentionInput from "@/components/mentionInput";
 import { searchUserByAPI } from "@/service/user.service";
+import { responseCodes } from "@/util/constant";
+import { showToast } from "@/components/toast";
 
 interface CommentManagerProps {
-  post: any;
-  setPost: React.Dispatch<SetStateAction<any>>;
+  post: PostInterface;
+  setPost: React.Dispatch<SetStateAction<PostInterface | undefined>>;
   getPostById?: () => void;
   addReaction: (
-    reactionType: "like" | "dislike",
+    reactionType: "like" | "dislike" | null,
     targetType: "post" | "comment",
     targetId: string,
     parentId?: string
@@ -40,6 +42,7 @@ export const CommentManager = ({
       page: 1,
       totalRecords: 0,
     });
+  const [closeReplies, setCloseReplies] = useState(false);
 
   const onLoadMoreComment = async (page: number) => {
     try {
@@ -47,24 +50,28 @@ export const CommentManager = ({
         page: page,
         limit: 10,
       });
-      if (response?.status === 200) {
+      if (response?.status === responseCodes.SUCCESS) {
         let comments = response?.data?.data?.comments?.data;
         let totalRecords =
           response?.data?.data?.comments?.metadata?.totalRecords ?? 0;
-        setPost((preState: any) => {
+        setPost((preState) => {
           return {
-            ...preState,
+            ...(preState as PostInterface),
             comments: preState?.comments?.concat(comments),
           };
         });
         setcommentPagination({ page, totalRecords });
-      }
+      } else throw new Error("Unable to get comments");
     } catch (error) {
+      (error as Error)?.message && showToast.error((error as Error).message);
       console.log("Failed to load  comment", error);
     }
   };
 
-  const onCommentSubmit = async (commentData?: any) => {
+  const onCommentSubmit = async (
+    commentData?: any,
+    type?: "comment" | "reply"
+  ) => {
     try {
       if (!loggedInUser?._id) return;
       const payload = {
@@ -74,15 +81,16 @@ export const CommentManager = ({
         taggedUsers: getTaggedUserIds(),
         ...commentData,
       };
-      console.log(payload);
-      // return
-
       const response = await addNewComment(payload);
-      if (response?.status === 200) {
+      if (response?.status === responseCodes.SUCCESS) {
         setcommentText("");
         getPostById?.(); // It'll update UI after adding comment
-      }
+        if (type == "comment") {
+          setCloseReplies(true);
+        }
+      } else throw new Error("Comment submission failed");
     } catch (error) {
+      (error as Error)?.message && showToast.error((error as Error)?.message);
       console.log("Failed to add comment", error);
     }
   };
@@ -92,21 +100,25 @@ export const CommentManager = ({
     page: number = 1,
     useConcat: boolean = false
   ) => {
-    const response = await searchUserByAPI(searchKeyword, {
-      page,
-      limit: 10,
-    });
-    console.log(response);
-    if (response.status === 200) {
-      setUserSuggetions(
-        useConcat
-          ? userSuggetions?.concat(response?.data?.data?.records)
-          : response?.data?.data?.records
-      );
-      setUserSuggetionsPagination({
-        page: response.data?.data?.currentPage,
-        totalRecords: response?.data?.data?.totalRecords,
+    try {
+      const response = await searchUserByAPI(searchKeyword, {
+        page,
+        limit: 10,
       });
+      if (response.status === responseCodes.SUCCESS) {
+        setUserSuggetions(
+          useConcat
+            ? userSuggetions?.concat(response?.data?.data?.records)
+            : response?.data?.data?.records
+        );
+        setUserSuggetionsPagination({
+          page: response.data?.data?.currentPage,
+          totalRecords: response?.data?.data?.totalRecords,
+        });
+      } else throw new Error("Couldn't search user");
+    } catch (error) {
+      (error as Error)?.message && showToast?.error((error as Error)?.message);
+      console.log("Failed to search users", error);
     }
   };
 
@@ -153,52 +165,58 @@ export const CommentManager = ({
             userSuggetions?.length < userSuggetionsPagination?.totalRecords,
           callBack: loadMoreUsers,
           className:
-            "overflow-y-auto animate-fade-in-down max-h-[15em] text-white bg-primary-dark rounded-md rounded-t-none border-2 border-white/20 flex flex-auto flex-col gap-2 p-2",
+            "overflow-y-auto animate-fade-in-down max-h-[15em] text-eduBlack bg-eduDarkGray rounded-md rounded-t-none border-2 flex flex-auto flex-col gap-2 p-2",
           showLoading: true,
         }}
         textAreaProps={{
           label: (
-            <span className="text-white font-light text-xs">
-              Comment as{" "}
-              <b className="font-mono">
-                {post?.userId?.username ||
-                  getFullName(
-                    post?.userId?.first_name,
-                    post?.userId?.last_name,
-                    "_"
-                  )}
+            <span className="text-eduBlack text-[12px] font-body font-medium">
+              Comment as
+              <b className="font-body ml-[5px]">
+                {getFullName(
+                  loggedInUser?.first_name,
+                  loggedInUser?.last_name,
+                  "_"
+                )}
               </b>
             </span>
           ),
           style: {
-            minBlockSize: "4rem",
+            minBlockSize: "8rem",
           },
-          className: "text-xs w-full rounded-b-none rounded-t-md",
+          className:
+            "text-[16px] w-full rounded-t-md rounded-none p-4 !bg-eduDarkGray ipad-under:!bg-eduDarkGray text-eduBlack",
           placeholder: "What are your thoughts? (Type @ to mention a user)",
         }}
       />
-      <span className="bg-primary rounded-md -mt-1 p-1 flex justify-end rounded-t-none">
+      <span className="bg-eduLightBlue rounded-md p-2 flex justify-end rounded-t-none mt-[-10px]">
         <Button
           label="Comment"
-          className="text-xs bg-primary-darker !m-0 w-auto !rounded-xl text-primary self-end font-bold hover:!bg-primary-dark hover:text-white ease-in-out duration-300"
-          onClick={() => onCommentSubmit()}
+          className="!text-[12px] !m-0 w-[150px] ipad-under:!rounded ipad-under:!p-0.5 !rounded-[10px] text-white self-end border-white hover:!bg-eduBlack hover:text-white ease-in-out duration-300"
+          onClick={() => onCommentSubmit(null, "comment")}
         />
       </span>
-      <hr className="my-6 border-white/60 border rounded-md" />
+      <hr className="md:my-6 my-5 border-eduBlack/60 border-t rounded-md" />
       <div className="flex">
-        <span className="text-xl">{post?.commentCount} Responses</span>
+        <span className="md:text-[28px] text-base font-headers font-semibold">
+          {post?.commentCount} Responses
+        </span>
       </div>
       <InfiniteScroll
-        className="py-4 rounded-md h-full max-h-[50vh]"
-        hasMoreData={commentPagination?.totalRecords > post?.comments?.length}
+        className="py-4 rounded-[10px] h-full max-h-[50vh]"
+        hasMoreData={
+          commentPagination?.totalRecords > (post?.comments?.length ?? 0)
+        }
         callBack={() => onLoadMoreComment(commentPagination?.page + 1)}
       >
-        {post?.comments?.map((comment: any) => (
+        {post?.comments?.map((comment: Comment) => (
           <CommentCard
             comment={comment}
             key={comment?._id}
             onSubmitReply={onCommentSubmit}
             onCommentReaction={addReaction}
+            closeReplies={closeReplies}
+            setCloseReplies={setCloseReplies}
           />
         ))}
       </InfiniteScroll>

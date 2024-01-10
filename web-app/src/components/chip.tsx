@@ -1,4 +1,4 @@
-import { faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
+import { faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 
@@ -27,7 +27,7 @@ export const Chip = (props: props): React.ReactElement => {
       {props.isSelected && (
         <FontAwesomeIcon
           className="animate-scale-in cursor-pointer mr-1"
-          icon={faXmarkCircle}
+          icon={faX}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();

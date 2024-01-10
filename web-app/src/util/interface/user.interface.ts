@@ -1,9 +1,10 @@
-export interface userLoginField {
+type USER_ROLES = "super_admin" | "moderator" | "professional" | "student";
+interface userLoginField {
   email: string;
   password: string;
-}
+} 
 
-export interface commonRegistrationField extends userLoginField {
+interface commonRegistrationField extends userLoginField {
   first_name: string;
   last_name: string;
   email: string;
@@ -12,10 +13,9 @@ export interface commonRegistrationField extends userLoginField {
   role: string;
 }
 
-export interface professionalUserRegistrationField
-  extends commonRegistrationField {
+interface professionalUserRegistrationField extends commonRegistrationField {
   addresses: string[];
-  city: string;
+  city?: string;
   state: string;
   zip_code: string;
   npi_number: string;
@@ -25,7 +25,7 @@ export interface professionalUserRegistrationField
   organization: string;
 }
 
-export interface googleSheetPayload {
+interface googleSheetPayload {
   email: string;
   first_name: string;
   last_name: string;

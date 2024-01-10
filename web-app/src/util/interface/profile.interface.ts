@@ -9,14 +9,17 @@ interface profileSections {
 interface socials {
   instagram?: string;
   linkedin?: string;
-  twitter?: string;
+  x?: string;
   facebook?: string;
+  website?: string;
+  email?: string;
 }
 
 interface about {
   socials?: socials;
   personal_bio: string;
   contact_email: string;
+  username: string;
 }
 
 interface education {
@@ -47,6 +50,18 @@ interface userDocs {
 interface profileImages {
   banner_img: string | File;
   profile_img: string | File;
+  availableFor?: {
+    Mentorship: boolean;
+    Research: boolean;
+    Collaboration: boolean;
+  };
+  setAvailableFor?: React.Dispatch<
+    React.SetStateAction<{
+      Mentorship: boolean;
+      Research: boolean;
+      Collaboration: boolean;
+    }>
+  >;
 }
 
 interface userProfileInterface {
@@ -62,12 +77,13 @@ interface UserData {
   _id: string;
   first_name: string;
   last_name: string;
+
   email: string;
   role: "super_admin" | "moderator" | "professional" | "student";
   npi_number?: string;
   npi_designation?: string[];
-  followers?: number;
-  following?: number;
+  followers?: any[];
+  following?: any[];
   addresses?: string[];
   city?: string;
   state?: string;
@@ -77,6 +93,7 @@ interface UserData {
   educations?: education[];
   contact_email?: string;
   personal_bio?: string;
+  username: string;
   profile_img?: string;
   banner_img?: string;
   followersCount?: number;
@@ -87,6 +104,9 @@ interface UserData {
   certificates: certifications[];
   userPosts?: [];
   recentComments?: [];
+  Collaboration?: boolean;
+  Mentorship?: boolean;
+  Research?: boolean;
 }
 
 type certifications = userDocs;

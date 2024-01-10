@@ -6,11 +6,7 @@ import {
   userAlreadyExists,
   verifyConfirmationCode,
 } from "@/service/auth.service";
-import { validateField } from "@/util/constant";
-import {
-  commonRegistrationField,
-  userLoginField,
-} from "@/util/interface/user.interface";
+import { responseCodes, validateField } from "@/util/constant";
 import { Field, Form, Formik, FormikHelpers } from "formik";
 import React, { useState } from "react";
 import * as Yup from "yup";
@@ -22,7 +18,8 @@ import {
   ResendCodeTemplate,
   VerifyEmail,
 } from "../commonBlocks";
-import { Button } from "@/components/button";
+import { setToken, setUserDetail } from "@/redux/ducks/user.duck";
+import { useDispatch } from "react-redux";
 
 export default function () {
   const router = useRouter();
@@ -35,6 +32,7 @@ export default function () {
     password: false,
     confirmPassword: false,
   });
+  const dispatch = useDispatch();
   interface studentSignUpSchema extends commonRegistrationField {
     otp: string;
     isEduVerified: boolean;
@@ -66,22 +64,10 @@ export default function () {
 
   const validationSchema: Yup.AnyObject = [
     Yup.object({
-      password: password
-        .min(8, "Password must be at least 8 characters")
-        .max(25, "Password must be at most 25 characters")
-        .matches(
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/,
-          "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character"
-        ),
-      confirm_password: Yup.string()
-        .oneOf([Yup.ref("password")], "password must match")
-        .required("confirm password is required")
-        .min(8, "Password must be at least 8 characters")
-        .max(25, "Password must be at most 25 characters")
-        .matches(
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/,
-          "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character"
-        ),
+      password: password.required(),
+      confirm_password: password
+        .required("Confirm Password is required")
+        .oneOf([Yup.ref("password")], "Password must match"),
       first_name: stringPrefixJoiValidation.min(2).required(),
       last_name: stringPrefixJoiValidation.min(2).required(),
       email: Yup.string()
@@ -130,7 +116,8 @@ export default function () {
     };
     await userAlreadyExists(payload.email)
       .then(async (response) => {
-        const userRes = response.status === 200 && response.data.data;
+        const userRes =
+          response.status === responseCodes.SUCCESS && response.data.data;
         if (!userRes?.isExist && !userRes?.user) {
           // user is new and can proceed with .edu verification
           await verifyEduMail(values.email)
@@ -180,12 +167,13 @@ export default function () {
     };
     await verifyConfirmationCode(payload)
       .then((res) => {
-        if (res.status === 200) {
+        if (res.status === responseCodes.SUCCESS) {
           setCurrentStep((prevStep: number) => prevStep + 1);
           setTimeout(() => {
-            router.push("/");
-          }, 1000);
-        } else if (res.status === 401) {
+            dispatch(setToken(res.data.data.token));
+            dispatch(setUserDetail(res.data.data.details));
+          }, 1000 * 3);
+        } else if (res.status === responseCodes.NOT_ACCEPTABLE) {
           actions.setFieldError("otp", "Incorrect code, please try again");
         } else {
           setCommonErrorMessage("Something went wrong");
@@ -214,12 +202,12 @@ export default function () {
     await signUp(payload)
       .then((response) => {
         if (
-          response?.status === 200 &&
+          response?.status === responseCodes.SUCCESS &&
           response?.data?.response_type === "success"
         ) {
           setCurrentStep(3);
         } else if (
-          response?.status === 200 &&
+          response?.status === responseCodes.SUCCESS &&
           response?.data?.response_type === "error"
         ) {
           setCommonErrorMessage(response.data.message);
@@ -242,7 +230,7 @@ export default function () {
       email: values.email,
     })
       .then((res) => {
-        if (res.status === 200) {
+        if (res.status === responseCodes.SUCCESS) {
           setCurrentStep(3);
         }
       })
@@ -269,7 +257,7 @@ export default function () {
       // check if user already registered
       await handleUserExists(values, actions);
     } else if (currentStep === 1) {
-      if (!values.isEduVerified) return router.push("/");
+      if (!values.isEduVerified) return setCurrentStep(0);
       await handleSignUpProcess(values, actions);
     } else if (currentStep === 2) {
       // generate new verification code
@@ -286,16 +274,16 @@ export default function () {
 
   const UniversityInfo = (): React.JSX.Element => {
     return (
-      <div className="text-white px-6 text-center">
-        <p className="opacity-50 my-4">
-          if the information below is correct click next to continue sign up
-          process
+      <div className="px-6 text-center">
+        <p className="my-4 font-body text-[14px] text-eduBlack/60">
+          If the information below is correct click next to continue sign up
+          process.
         </p>
         <div className="py-6">
           <Field
             name="universityName"
             component={({ field }: formikField) => (
-              <span className="text-2xl">
+              <span className="text-[24px] font-headers text-eduBlack">
                 {field?.value?.replaceAll(",", " -")}
               </span>
             )}
@@ -304,9 +292,12 @@ export default function () {
         <Field
           name="email"
           component={({ field }: formikField) => (
-            <span className="opacity-50">
+            <span className="font-body text-[12px] text-eduBlack/60">
               email:{" "}
-              <a href={`mailto:${field.value}`} className="underline">
+              <a
+                href={`mailto:${field.value}`}
+                className="underline font-body text-[12px] text-eduBlack/60"
+              >
                 {field.value}
               </a>
             </span>
@@ -319,7 +310,7 @@ export default function () {
   const EduVerificationFailed = (): React.JSX.Element => {
     return (
       <div>
-        <p className="text-white px-8 opacity-50 text-center">
+        <p className="text-eduBlack/60 text-[14px] font-body px-8 text-center">
           It looks like the university associated with your .edu email address
           is not yet eligible for an EduRx account. Please come back soon to
           check again...
@@ -331,7 +322,7 @@ export default function () {
   const VerifyYourEmail = (): React.JSX.Element => {
     return (
       <React.Fragment>
-        <p className="text-white px-8 opacity-50 text-center">
+        <p className="text-eduBlack/60 text-[14px] font-body px-8 text-center">
           We need to verify your .edu email address. Click the “Send Code”
           button below to receive an email with a 6-digit code for email
           verification
@@ -341,7 +332,6 @@ export default function () {
   };
 
   const stepWiseRenderer = (
-    currentStep: number,
     values: studentSignUpSchema
   ): React.JSX.Element | null => {
     switch (currentStep) {
@@ -371,51 +361,54 @@ export default function () {
     }
   };
 
-  const getLabel = (step: number, values: studentSignUpSchema): string => {
-    return step === 0
-      ? "Register"
-      : step === 1 && !values.isEduVerified
-      ? "Go Back"
-      : step === 2
+  const getLabel = (values: studentSignUpSchema): string => {
+    return currentStep === 1 && !values.isEduVerified
+      ? "Back"
+      : currentStep === 2
       ? "Send Code"
-      : step === 3
+      : currentStep === 3
       ? "Submit"
       : "Next";
   };
 
-  const getHeadTitle = (step: number, values: studentSignUpSchema): string => {
-    return step === 1
+  const getHeadTitle = (values: studentSignUpSchema): string => {
+    return currentStep === 1
       ? values.isEduVerified
         ? "Confirm University"
         : "Oops... Something went wrong"
-      : step === 2
+      : currentStep === 2
       ? "Verify Email"
-      : step === 3
+      : currentStep === 3
       ? "Enter Verification Code"
-      : step === 4
+      : currentStep === 4
       ? "Creating Account"
       : "Create Student Account";
   };
-
   return (
     <React.Fragment>
-      <div className="flex justify-center p-4 bg-primary">
-        <button
-          onClick={() =>
-            currentStep > 0
-              ? setCurrentStep((prevStep: number) => prevStep - 1)
-              : router.back()
-          }
-          className={`text-2xl px-2 self-center ${
-            currentStep !== 0 && currentStep % 2 === 0
-              ? "opacity-50"
-              : "opacity-100"
-          }`}
-          disabled={currentStep !== 0 && currentStep % 2 === 0}
-        >
-          <BackArrowIcon />
-        </button>
-        <label className="text-xl flex-1 text-center self-center">
+      <div className="flex justify-center p-4 bg-eduDarkGray">
+        {![3, 4].includes(currentStep) && (
+          <button
+            onClick={() =>
+              currentStep > 0
+                ? currentStep == 2
+                  ? setCurrentStep(0)
+                  : setCurrentStep((prevStep: number) => prevStep - 1)
+                : router.back()
+            }
+            className={`text-2xl px-2 self-center ${
+              currentStep !== 0 && currentStep != 2 && currentStep % 2 === 0
+                ? "opacity-50"
+                : "opacity-100"
+            }`}
+            disabled={
+              currentStep !== 0 && currentStep != 2 && currentStep % 2 === 0
+            }
+          >
+            <BackArrowIcon />
+          </button>
+        )}
+        <label className="text-[16px] text-eduBlack flex-1 text-center font-body self-center">
           Register for Edu-Rx | Student Account
         </label>
       </div>
@@ -425,22 +418,40 @@ export default function () {
         validationSchema={validationSchema[currentStep]}
       >
         {({ isSubmitting, values, ...actions }) => (
-          <div className="flex flex-col items-center p-4">
-            <h1 className="text-white tracking-wider text-4xl my-4 font-serif font-semibold">
-              {getHeadTitle(currentStep, values)}
+          <div className="flex flex-col items-center p-4 bg-white">
+            <h1 className="text-3xl font-headers font-semibold">
+              {getHeadTitle(values)}
             </h1>
             <Form>
-              <div className="flex flex-col gap-4 m-[5%]">
-                {stepWiseRenderer(currentStep, values)}
+              <div className="flex flex-col gap-4 text-eduBlack m-8">
+                {stepWiseRenderer(values)}
               </div>
               <div className="m-2 flex justify-center">
-                <Button
+                <button
+                  className={`bg-eduLightGray border-eduBlack text-eduBlack font-[600] border-[2px] text-[16px] rounded-lg p-2 m-auto w-1/2 hover:bg-yellow-500  ease-in duration-300 !cursor-pointer ${
+                    (isSubmitting || !actions.isValid) &&
+                    "!opacity-[40%] hover:!bg-white hover:!cursor-not-allowed"
+                  }`}
                   type="submit"
                   hidden={currentStep === 4}
-                  disabled={isSubmitting}
-                  label={getLabel(currentStep, values)}
-                />
+                  disabled={isSubmitting || !actions.isValid}
+                >
+                  {getLabel(values)}
+                </button>
               </div>
+              {currentStep == 0 && (
+                <div className="text-center text-sm font-[500] opacity-40 pt-3">
+                  Already have an account?{" "}
+                  <span
+                    className="underline font-[700] cursor-pointer"
+                    onClick={() => {
+                      router.push("/signin");
+                    }}
+                  >
+                    Log In
+                  </span>
+                </div>
+              )}
               {currentStep === 3 && (
                 <ResendCodeTemplate
                   onClick={() => onResendCode(values, actions)}
@@ -448,7 +459,7 @@ export default function () {
               )}
               <span
                 hidden={!commonErrorMessage}
-                className="text-white flex place-content-center text-sm opacity-50 m-2 animate-fade-in-down"
+                className="text-red-500 flex place-content-center text-sm opacity-50 m-2 animate-fade-in-down"
               >
                 {commonErrorMessage}
               </span>

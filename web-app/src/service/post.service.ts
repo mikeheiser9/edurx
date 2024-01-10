@@ -1,4 +1,4 @@
-import { axiosGet, axiosPost } from "@/axios/config";
+import { axiosGet, axiosPost, axiosPut } from "@/axios/config";
 import { AxiosResponse } from "axios";
 
 const addNewPost = async <T>(payload: T): Promise<AxiosResponse> => {
@@ -27,10 +27,52 @@ const addUserReactionByAPI = async <T>(payload: T): Promise<AxiosResponse> => {
   return await axiosPost("/post/reaction", payload);
 };
 
+const updatePostByAPI = async <T>(payload: T): Promise<AxiosResponse> => {
+  return await axiosPut("/post/admin/update", payload);
+};
+
+const addPrivatePostRequest = async <T>(payload: T): Promise<AxiosResponse> => {
+  return await axiosPost("/post/private/create-request", payload);
+};
+
+const getPostRequests = async (
+  postId: string,
+  pagination: { page: number; limit: number }
+): Promise<AxiosResponse> => {
+  return await axiosGet(`/post/private/${postId}/requests`, {
+    params: pagination,
+  });
+};
+
+const updatePostRequestsByAPI = async (
+  postId: string,
+  payload: { _id: string; status: PostRequestStatus }[]
+): Promise<AxiosResponse> => {
+  return await axiosPut(`/post/private/${postId}/requests-update`, payload);
+};
+
+const followPost = async (postId: string, action: "add" | "remove") => {
+  return await axiosPost(`/post/follow/${postId}/${action}`, {});
+};
+
+const updatePostById = async <T>(postId: string, payload: T) => {
+  return axiosPut(`/post/${postId}`, payload);
+};
+
+const handleVoteOnPollPost = async (postId: string, payload:{option:string}) => {
+  return axiosPut(`/post/${postId}/vote`, payload);
+};
 export {
   addNewPost,
   getComments,
   addNewComment,
   addPostView,
   addUserReactionByAPI,
+  updatePostByAPI,
+  addPrivatePostRequest,
+  getPostRequests,
+  updatePostRequestsByAPI,
+  followPost,
+  updatePostById,
+  handleVoteOnPollPost,
 };

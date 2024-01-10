@@ -1,8 +1,4 @@
 import { axiosGet, axiosPost } from "@/axios/config";
-import {
-  googleSheetPayload,
-  userLoginField,
-} from "@/util/interface/user.interface";
 import axios, { AxiosPromise, AxiosResponse } from "axios";
 
 export const login = (data: userLoginField) => {

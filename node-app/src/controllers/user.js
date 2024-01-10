@@ -1,3 +1,9 @@
+import { Types } from "mongoose";
+import { userModel } from "../model/user/user.js";
+import {
+  deleteNotificationByCondition,
+  insertNotification,
+} from "../repository/notification.js";
 import {
   addRemoveConnections,
   getBasicProfile,
@@ -6,18 +12,24 @@ import {
   addNewDocument,
   getUsersDocs,
   searchUsersByName,
+  getUserConnections,
+  addUpdateAccountSettings,
+  getAccountSettingById,
 } from "../repository/user.js";
 import {
   generalResponse,
   getKeyValueFromFiles,
 } from "../util/commonFunctions.js";
+import { responseCodes, responseTypes } from "../util/constant.js";
+import { findDraftsByUserId } from "../repository/post.js";
+import { postModal } from "../model/post/post.js";
 
 const getUserProfile = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { isAuthCheck, usePopulate } = req.query;
+    const { isAuthCheck, usePopulate, editProfile } = req.query;
     if (isAuthCheck === "true" || isAuthCheck === true) {
-      // fething basic information for auth check only
+      // fetching basic information for auth check only
       const basicDetails = await getBasicProfile(userId);
       if (!basicDetails)
         return generalResponse(res, 400, "error", "user not found", null, true);
@@ -29,7 +41,121 @@ const getUserProfile = async (req, res) => {
         { user: basicDetails },
         false
       );
+    } else if (editProfile) {
+      const userDetail = await userModel.aggregate([
+        {
+          $match: {
+            _id: new Types.ObjectId(userId),
+          },
+        }, 
+        {
+          $project: {
+            first_name: 1,
+            last_name: 1,
+            username: 1,
+            email: 1,
+            role: 1,
+            npi_number: 1,
+            npi_designation: 1,
+            socials: 1,
+            personal_bio: 1,
+            profile_img: 1,
+            banner_img: 1,
+            verified_account: 1,
+            addresses: 1,
+            city: 1,
+            state: 1,
+            zip_code: 1,
+            contact_email: 1,
+            educations: 1,
+            Mentorship: 1,
+            Research: 1,
+            Collaboration: 1,
+          },
+        },
+        {
+          $lookup: {
+            from: "userdocs",
+            let: { uid: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  $and: [
+                    {
+                      $expr: { $eq: ["$userId", "$$uid"] },
+                    },
+                    {
+                      doc_type: "certificate",
+                    },
+                  ],
+                },
+              },
+              {
+                $project: {
+                  _id: 1,
+                  doc_id: 1,
+                  doc_image: 1,
+                  doc_name: 1,
+                  doc_type: 1,
+                  doc_url: 1,
+                  expiration_date: 1,
+                  has_no_expiry: 1,
+                  issue_date: 1,
+                  issuer_organization: 1,
+                  userId: 1,
+                },
+              },
+            ],
+            as: "certificates",
+          },
+        },
+        {
+          $lookup: {
+            from: "userdocs",
+            let: { uid: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  $and: [
+                    {
+                      $expr: { $eq: ["$userId", "$$uid"] },
+                    },
+                    {
+                      doc_type: "license",
+                    },
+                  ],
+                },
+              },
+              {
+                $project: {
+                  _id: 1,
+                  doc_id: 1,
+                  doc_image: 1,
+                  doc_name: 1,
+                  doc_type: 1,
+                  doc_url: 1,
+                  expiration_date: 1,
+                  has_no_expiry: 1,
+                  issue_date: 1,
+                  issuer_organization: 1,
+                  userId: 1,
+                },
+              },
+            ],
+            as: "licenses",
+          },
+        },
+      ]);
+      return generalResponse(
+        res,
+        200,
+        "OK",
+        "authenticated",
+        { user: userDetail },
+        false
+      );
     }
+    const loggedInUserId = req.user._id?.toString();
     const user = await getUserProfileById(
       userId,
       {
@@ -41,7 +167,8 @@ const getUserProfile = async (req, res) => {
           "verified_account",
         ],
       },
-      usePopulate === "true"
+      usePopulate === "true",
+      userId !== loggedInUserId && loggedInUserId
     );
     if (user) {
       return generalResponse(res, 200, "success", null, { user }, false);
@@ -62,15 +189,22 @@ const getUserProfile = async (req, res) => {
 
 const updateUserByID = async (req, res) => {
   try {
-    console.log(req.body);
     if (!req.body) throw new Error("Request body is required");
     const { userId } = req.body;
     const user = await updateProfileById(userId, {
       ...req.body,
+      ...req.body.availableFor,
       ...getKeyValueFromFiles(req.files),
     });
     if (!user) throw new Error("Could not update profile with id");
-    return generalResponse(res, 200, "success", null, { user }, false);
+    return generalResponse(
+      res,
+      200,
+      "success",
+      "update successful",
+      { user },
+      true
+    );
   } catch (error) {
     console.log(error);
     return generalResponse(
@@ -87,6 +221,13 @@ const updateUserByID = async (req, res) => {
 const addUpdateDocument = async (req, res, next) => {
   try {
     if (!req.body) throw new Error("Request body is required");
+    if (req.body._id) {
+      // remove the respective notification
+      await deleteNotificationByCondition({
+        notificationTypeId: req.body._id,
+        notificationType: "time_sensitive_notifications",
+      });
+    }
     const doc = await addNewDocument({
       ...req.body,
       ...getKeyValueFromFiles(req.files),
@@ -95,7 +236,7 @@ const addUpdateDocument = async (req, res, next) => {
       res,
       200,
       "OK",
-      "Document added successfully",
+      "Document added/updated successfully",
       doc,
       true
     );
@@ -147,17 +288,30 @@ const postConnections = async (req, res) => {
       action: req.params.action,
     });
     let message = typeof response === "string" ? response : null;
+    if (req.params.action == "add") {
+      const isExist = await getBasicProfile(req.body?.targetUserId);
+      if (!isExist) {
+        throw new Error("target user not exists...!");
+      }
+      const eventTime = new Date();
+      await insertNotification({
+        type: "user_followed_you",
+        sourceId: req.user._id,
+        destinationId: req.body?.targetUserId,
+        eventTime,
+      });
+    }
     return generalResponse(
       res,
       200,
       "OK",
       message
         ? message
-        : `Connection ${
-            req.params.action === "add" ? "added" : "removed"
+        : ` ${
+            req.params.action === "add" ? "Follow" : "Unfollow"
           } successfully`,
       !message ? response : null,
-      false
+      true
     );
   } catch (err) {
     console.log(err);
@@ -172,9 +326,26 @@ const postConnections = async (req, res) => {
   }
 };
 
+const getConnections = async (req, res) => {
+  try {
+    const { type, userId } = req.params;
+    const { page, limit } = req.query;
+    const response = await getUserConnections(userId, type, page, limit);
+    generalResponse(
+      res,
+      200,
+      "success",
+      `${type} fetched successfully`,
+      response
+    );
+  } catch (error) {
+    console.log(error);
+    generalResponse(res, 400, "error", "Something went wrong", error);
+  }
+};
+
 const searchUsers = async (req, res) => {
   try {
-    console.log(req.query);
     const { searchKeyword, page, limit } = req.query;
     const response = await searchUsersByName(searchKeyword, page, limit);
     return generalResponse(
@@ -190,6 +361,131 @@ const searchUsers = async (req, res) => {
   }
 };
 
+const createAccountSettings = async (req, res) => {
+  try {
+    const payload = {
+      userId: req.user._id,
+      ...req.body,
+    };
+    const response = await addUpdateAccountSettings(payload);
+    return generalResponse(
+      res,
+      responseCodes.SUCCESS,
+      responseTypes.OK,
+      "account settings created / updated successfully",
+      response,
+      true
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      responseCodes.ERROR,
+      responseTypes.ERROR,
+      "Something went wrong",
+      error,
+      true
+    );
+  }
+};
+
+const getAccountSettings = async (req, res) => {
+  try {
+    const response = await getAccountSettingById(req.user._id);
+    return generalResponse(
+      res,
+      responseCodes.SUCCESS,
+      responseTypes.OK,
+      "account settings fetched",
+      response
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      responseCodes.ERROR,
+      responseTypes.ERROR,
+      "Something went wrong",
+      error
+    );
+  }
+};
+
+const userDrafts = async (req, res) => {
+  try {
+    const page = req.query.page ? Number(req.query.page) : 1;
+    const limit = req.query.limit ? Number(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const UserDrafts = await findDraftsByUserId(req.user._id, skip, limit);
+    return generalResponse(
+      res,
+      responseCodes.SUCCESS,
+      responseTypes.SUCCESS,
+      "",
+      UserDrafts
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      responseCodes.ERROR,
+      responseTypes.ERROR,
+      error?.message,
+      null,
+      true
+    );
+  }
+};
+
+const userDraftsCount = async (req, res) => {
+  try {
+    const draftCount = await postModal.countDocuments({
+      userId: req.user._id,
+      isDeleted: false,
+      postStatus: "draft",
+    });
+    return generalResponse(
+      res,
+      responseCodes.SUCCESS,
+      responseTypes.SUCCESS,
+      "",
+      draftCount
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      responseCodes.ERROR,
+      responseTypes.ERROR,
+      error?.message,
+      null,
+      true
+    );
+  }
+};
+
+const userDraft = async (req, res) => {
+  try {
+    const deleteRes = await postModal.deleteOne({
+      userId: req.user._id,
+      postStatus: "draft",
+      _id: req.params.id,
+    });
+    return generalResponse(
+      res,
+      responseCodes.SUCCESS,
+      responseTypes.SUCCESS,
+      "",
+      { rowAffected: deleteRes.deletedCount }
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      responseCodes.ERROR,
+      responseTypes.ERROR,
+      error?.message,
+      null,
+      true
+    );
+  }
+};
+
 export {
   getUserProfile,
   updateUserByID,
@@ -197,4 +493,10 @@ export {
   getUsersDocuments,
   postConnections,
   searchUsers,
+  getConnections,
+  createAccountSettings,
+  getAccountSettings,
+  userDrafts,
+  userDraftsCount,
+  userDraft,
 };

@@ -1,16 +1,21 @@
-import { categoryTagModal } from "../model/post/categoryTag.js";
+import { categoryFilterModal } from "../model/post/categoryTag.js";
 import { commentModal } from "../model/post/comment.js";
+import { pollPostVoteModal } from "../model/post/pollPostVote.js";
 import { postModal } from "../model/post/post.js";
+import { postRequestModal } from "../model/post/postAccessRequest.js";
 import { reactionModal } from "../model/post/reaction.js";
 import { viewModal } from "../model/post/views.js";
-import { findAndPaginate } from "../util/commonFunctions.js";
+import {
+  findAndPaginate,
+  getAllowedForumAccessBasedOnRoleAndNpiDesignation,
+} from "../util/commonFunctions.js";
 import mongoose from "mongoose";
 
 const createNewPost = async (payload) => {
-  console.log(payload);
   const isExist = await postModal.findOne({
     title: payload.title,
     forumType: payload.forumType,
+    isDeleted: { $ne: true },
   });
   if (isExist)
     throw new Error(
@@ -20,14 +25,15 @@ const createNewPost = async (payload) => {
 };
 
 const findPostsByUserId = async (userId, page, limit) => {
-  const query = { userId };
-  const options = {
-    populate: [{ path: "categories" }],
-    sort: {
-      createdAt: 1,
-    },
-    // other options
-  };
+  const query = { userId, isDeleted: { $ne: true } },
+    options = {
+      populate: [{ path: "categories" }],
+      sort: {
+        createdAt: 1,
+      },
+      // other options
+    };
+
   return await findAndPaginate(
     postModal,
     query,
@@ -37,32 +43,36 @@ const findPostsByUserId = async (userId, page, limit) => {
   );
 };
 
-const searchCategoryTagByName = async (name, type, page, limit) => {
+const searchCategoryFilterByName = async (
+  name,
+  type,
+  page,
+  limit,
+  forumType
+) => {
   const query = {
     $and: [
       { name: { $regex: name, $options: "i" } },
       { isDeleted: { $ne: true } },
       { type },
+      { forumType: { $in: forumType } },
     ],
   };
 
   return await findAndPaginate(
-    categoryTagModal,
+    categoryFilterModal,
     query,
     page && Number(page),
     limit && Number(limit)
   );
 };
 
-const addCategoryTag = async (payload) => {
-  const isExist = await categoryTagModal.findOne(payload);
-  if (isExist)
-    throw new Error(`${payload.name} already exists in ${payload.type}`);
-  return await categoryTagModal.create(payload);
+const addCategoryFilter = async (payload) => {
+  return await categoryFilterModal.create(payload);
 };
 
 const validateObjectIds = async (objectIds) => {
-  return await categoryTagModal.count({
+  return await categoryFilterModal.count({
     _id: {
       $in: objectIds,
     },
@@ -75,8 +85,17 @@ const addReaction = async ({
   commentId,
   targetType,
   reactionType,
+  _id,
 }) => {
   try {
+    // if payload has _id and reactionType is null then reaction already exists delete reaction
+    if (_id && reactionType == null) {
+      const deletedReaction = await reactionModal.findByIdAndDelete(_id);
+      return {
+        data: deletedReaction,
+        message: `${targetType} reaction successfully removed`,
+      };
+    }
     const updatedReaction = await reactionModal.findOneAndUpdate(
       {
         userId,
@@ -195,28 +214,6 @@ const getCommentsByPostId = async (postId, page = 1, limit = 10, userId) => {
             {
               $unwind: "$userId",
             },
-            // {
-            //   $lookup: {
-            //     from: "users",
-            //     localField: "repliedTo",
-            //     foreignField: "_id",
-            //     as: "repliedTo",
-            //     pipeline: [
-            //       {
-            //         $project: {
-            //           email: 1,
-            //           first_name: 1,
-            //           last_name: 1,
-            //           username: 1,
-            //           role: 1,
-            //         },
-            //       },
-            //     ],
-            //   },
-            // },
-            // {
-            //   $unwind: "$repliedTo",
-            // },
             {
               $lookup: {
                 from: "users",
@@ -238,7 +235,7 @@ const getCommentsByPostId = async (postId, page = 1, limit = 10, userId) => {
               },
             },
             {
-              $sort: { createdAt: -1 },
+              $sort: { createdAt: 1 },
             },
           ],
         },
@@ -335,7 +332,7 @@ const getCommentsByPostId = async (postId, page = 1, limit = 10, userId) => {
       },
       // { $unwind: "$reactions" },
       {
-        $sort: { createdAt: -1 },
+        $sort: { createdAt: 1 },
       },
       {
         $facet: {
@@ -347,7 +344,6 @@ const getCommentsByPostId = async (postId, page = 1, limit = 10, userId) => {
 
     const result = await commentModal.aggregate(pipeline);
     const totalCount = result?.[0]?.metadata[0]?.totalCount || 0;
-    console.log(result);
 
     return {
       comments: {
@@ -389,107 +385,132 @@ const getPostById = async (postId, userId) => {
         "profile_img",
       ],
     };
-  return await postModal.findById({ _id: postId }).populate([
-    "commentCount",
-    "likeCount",
-    "dislikeCount",
-    "views",
-    userPopulator,
-    {
-      path: "tags",
-      select: ["name"],
-    },
-    {
-      path: "reactions",
-      select: ["reactionType", "targetType", "userId"],
-      match: { userId },
-    },
-    {
-      path: "categories",
-      select: ["name"],
-    },
-    {
-      path: "comments",
-      limit: 10,
-      options: {
-        sort: {
-          createdAt: -1,
-        },
+  return await postModal
+    .findOne({ _id: postId, isDeleted: { $ne: true } })
+    .populate([
+      "commentCount",
+      "likeCount",
+      "dislikeCount",
+      "views",
+      "userAccessRequestCount",
+      userPopulator,
+      {
+        path: "filters",
+        select: ["name"],
       },
-      match: {
-        parentId: null,
+      {
+        path: "userAccessRequests",
+        match: { userId },
       },
-      populate: [
-        userPopulator,
-        taggedUsers,
-        {
-          path: "reactions",
-          select: ["reactionType", "targetType", "userId"],
-          match: { userId },
-        },
-        {
-          path: "replies",
-          populate: [
-            userPopulator,
-            taggedUsers,
-            // "views",
-            "likeCount",
-            "dislikeCount",
-            // {
-            //   path: "repliedTo",
-            //   select: ["email", "first_name", "username", "last_name", "role"],
-            // },
-            {
-              path: "reactions",
-              select: ["reactionType", "targetType", "userId"],
-              match: { userId },
-            },
-          ],
-          options: {
-            sort: {
-              createdAt: -1,
-            },
+      {
+        path: "userPostFollowers",
+        match: { userId },
+      },
+      {
+        path: "reactions",
+        select: ["reactionType", "targetType", "userId"],
+        match: { userId },
+      },
+      {
+        path: "categories",
+        select: ["name"],
+      },
+      {
+        path: "comments",
+        limit: 10,
+        options: {
+          sort: {
+            createdAt: 1,
           },
         },
-        // "views",
-        "likeCount",
-        "dislikeCount",
-      ],
-    },
-  ]);
+        match: {
+          parentId: null,
+        },
+        populate: [
+          userPopulator,
+          taggedUsers,
+          {
+            path: "reactions",
+            select: ["reactionType", "targetType", "userId"],
+            match: { userId },
+          },
+          {
+            path: "replies",
+            populate: [
+              userPopulator,
+              taggedUsers,
+              // "views",
+              "likeCount",
+              "dislikeCount",
+              {
+                path: "reactions",
+                select: ["reactionType", "targetType", "userId"],
+                match: { userId },
+              },
+            ],
+            options: {
+              sort: {
+                createdAt: 1,
+              },
+            },
+          },
+          // "views",
+          "likeCount",
+          "dislikeCount",
+        ],
+      },
+      {
+        path: "votingInfo",
+        select: ["userId", "choosenOption"],
+      },
+    ]);
 };
 
 const getPosts = async ({
-  page = 1,
+  page = 1, // TODO: this should
   limit = 10,
   sortBy,
   forumType,
   categories,
   userId,
+  loggedInUser,
+  filters,
+  role,
+  npi_designation,
+  postStatus,
 }) => {
   try {
-    console.log(userId);
+    let forum = [];
+    if (!forumType || forumType === "All Forums") {
+      forum = getAllowedForumAccessBasedOnRoleAndNpiDesignation(
+        role,
+        npi_designation
+      );
+    }
     const skippedPages = (page - 1) * limit;
     const sortByQuery = {
       newest: { createdAt: -1 },
       trending: { views: -1 }, // Sort by the number of views in descending order
       popular: { likes: -1 }, // Sort by the number of likes in descending order
     };
+
     const query = {
-      ...(forumType ? { forumType } : {}),
-      ...(categories ? { categories: { $in: categories } } : {}),
       ...(userId ? { userId } : {}),
+      ...(forumType && forumType !== "All Forums"
+        ? { forumType }
+        : { forumType: { $in: forum } }),
+      ...(categories ? { categories: { $in: categories } } : {}),
+      ...(filters ? { filters: { $in: filters } } : {}),
+      isDeleted: { $ne: true },
+      postStatus,
     };
-
-    console.log("query", query);
-
     const pipeline = [
       {
         $match: query,
       },
       {
         $lookup: {
-          from: "postcategorytags",
+          from: "postcategoryfilters",
           localField: "categories",
           foreignField: "_id",
           as: "categoryData",
@@ -497,51 +518,12 @@ const getPosts = async ({
       },
       {
         $lookup: {
-          from: "postcategorytags",
-          localField: "tags",
+          from: "postcategoryfilters",
+          localField: "filters",
           foreignField: "_id",
-          as: "tags",
+          as: "filters",
         },
       },
-      {
-        $lookup: {
-          from: "users",
-          localField: "userId",
-          foreignField: "_id",
-          as: "userId",
-          pipeline: [
-            {
-              $lookup: {
-                from: "userconnections",
-                localField: "_id",
-                foreignField: "targetUserId",
-                as: "followings",
-                pipeline: [
-                  {
-                    $project: {
-                      userId: 1,
-                      targetUserId: 1,
-                    },
-                  },
-                ],
-              },
-            },
-            {
-              $addFields: {
-                followings: "$followings",
-              },
-            },
-            {
-              $project: {
-                email: 1,
-                role: 1,
-                followings: 1,
-              },
-            },
-          ],
-        },
-      },
-      { $unwind: "$userId" },
       {
         $lookup: {
           from: "views",
@@ -550,41 +532,97 @@ const getPosts = async ({
           as: "views",
         },
       },
-      {
-        $lookup: {
-          from: "reactions",
-          localField: "_id",
-          foreignField: "postId",
-          as: "reactions",
-          pipeline: [
-            {
-              $match: {
-                reactionType: "like",
-              },
-            },
-          ],
-        },
-      },
+      // {
+      //   $lookup: {
+      //     from: "comments",
+      //     let:{id:"$_id"},
+      //     pipeline: [
+      //       {
+      //         $match: {
+      //           $expr:{$eq: ["$postId","$$id"]},
+      //           'id.isDeleted':false
+      //         },
+      //       },
+      //     ],
+      //     as:"comments",
+      //   },
+      // }
       {
         $lookup: {
           from: "comments",
           localField: "_id",
           foreignField: "postId",
           as: "comments",
+          // pipeline: [
+          //   {
+          //     $match: {
+          //       isDeleted: false,
+          //     },
+          //   },
+          // ],
+        },
+      },
+      {
+        // join postrequest collection to check what is status of private post request
+        $lookup: {
+          from: "postrequests",
+          let: { postIdentifier: "$_id" },
           pipeline: [
             {
               $match: {
-                isDeleted: false,
+                $and: [
+                  {
+                    $expr: { $eq: ["$postId", "$$postIdentifier"] },
+                  },
+                  {
+                    userId: loggedInUser,
+                  },
+                ],
+              },
+            },
+            {
+              $project: {
+                userId: 1,
+                postId: 1,
+                status: 1,
               },
             },
           ],
+          as: "postRequests",
+        },
+      },
+      {
+        $lookup: {
+          // join userconnections to check logged user follows which post
+          from: "userconnections",
+          let: { postIdentifier: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $and: [
+                  {
+                    $expr: { $eq: ["$postId", "$$postIdentifier"] },
+                  },
+                  {
+                    userId: loggedInUser,
+                  },
+                ],
+              },
+            },
+            {
+              $project: {
+                userId: 1,
+                postId: 1,
+              },
+            },
+          ],
+          as: "userPostFollowList",
         },
       },
       {
         $addFields: {
           views: { $size: "$views" },
-          likes: { $size: "$reactions" },
-          comments: { $size: "$comments" },
+          commentCount: { $size: "$comments" },
           categories: "$categoryData",
         },
       },
@@ -637,10 +675,9 @@ const addViews = async (payload) => {
         upsert: true,
       },
     }));
-    console.log(JSON.stringify(operations));
 
     if (operations.length === 0) {
-      return null; // Return null when all views already exist
+      return null;
     }
 
     try {
@@ -667,11 +704,130 @@ const addViews = async (payload) => {
   }
 };
 
+const updatePostById = async (payload) => {
+  try {
+    const postId = payload?._id;
+    if (!postId) throw new Error("Post id is required");
+    return await postModal.findByIdAndUpdate(postId, payload);
+  } catch (error) {
+    return error;
+  }
+};
+
+const addPostAccessRequest = async ({ postId, userId, status }) => {
+  try {
+    const filter = { postId, userId },
+      update = {
+        $set: {
+          postId,
+          userId,
+          status,
+        },
+      },
+      options = {
+        upsert: true,
+        new: true,
+      };
+    return await postRequestModal.findOneAndUpdate(filter, update, options);
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+const getRequestsByPostId = async (postId, page, limit) => {
+  try {
+    const query = { postId },
+      options = {
+        populate: {
+          path: "userId",
+          select: ["first_name", "last_name", "username", "profile_img"],
+        },
+        sort: {
+          createdAt: -1,
+        },
+      };
+    return await findAndPaginate(
+      postRequestModal,
+      query,
+      page && Number(page),
+      limit && Number(limit),
+      options
+    );
+    // return await postRequestModal.find().populate({
+    //   path: "userId",
+    //   select: ["first_name", "last_name", "username", "profile_img"],
+    // });
+  } catch (error) {
+    return error;
+  }
+};
+
+const updatePostRequests = async (requestsToUpdate) => {
+  try {
+    const bulkOperations = requestsToUpdate.map((request) => ({
+      updateOne: {
+        filter: { _id: request._id },
+        update: { $set: { status: request.status } },
+      },
+    }));
+
+    return await postRequestModal.bulkWrite(bulkOperations);
+  } catch (error) {
+    console.error("Error updating documents:", error);
+  }
+};
+
+const findPostById = async (postId) => {
+  return await postModal.findById(postId);
+};
+
+const deletePostRequest = async (condition) => {
+  return await postRequestModal.deleteMany(condition);
+};
+
+const fetchFilters = async () => {
+  return await categoryFilterModal.find(
+    { type: "filter" },
+    {
+      name: 1,
+      type: 1,
+      _id: 1,
+    }
+  );
+};
+
+const deleteOnePostRequest = async (condition) => {
+  return await postRequestModal.deleteOne(condition);
+};
+
+const findCategoryOrPostByCondition = (payload) => {
+  return categoryFilterModal.findOne(payload);
+};
+
+const findDraftsByUserId = (userId, skip, limit) => {
+  return postModal
+    .find({
+      userId: userId,
+      isDeleted: false,
+      postStatus: "draft",
+    })
+    .populate("categories", "name _id")
+    .populate("filters", "name _id")
+    .sort({ publishedOn: -1 })
+    .skip(skip)
+    .limit(limit);
+};
+
+const updatePostByCondition = (condition, setData) => {
+  return postModal.updateOne(condition, setData);
+};
+
 export {
   createNewPost,
   findPostsByUserId,
-  searchCategoryTagByName,
-  addCategoryTag,
+  searchCategoryFilterByName,
+  addCategoryFilter,
   validateObjectIds,
   addReaction,
   addComment,
@@ -679,4 +835,15 @@ export {
   getPostById,
   getPosts,
   addViews,
+  updatePostById,
+  addPostAccessRequest,
+  getRequestsByPostId,
+  updatePostRequests,
+  findPostById,
+  deletePostRequest,
+  fetchFilters,
+  deleteOnePostRequest,
+  findCategoryOrPostByCondition,
+  findDraftsByUserId,
+  updatePostByCondition,
 };

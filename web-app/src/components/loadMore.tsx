@@ -15,7 +15,7 @@ export const LoadMore = ({
     ) : (
       <div
         onClick={onClick}
-        className="text-primary cursor-pointer animate-fade-in-down flex-col flex"
+        className="text-eduBlack cursor-pointer animate-fade-in-down flex-col flex"
       >
         <span>More</span>
         <FontAwesomeIcon icon={faChevronCircleDown} />

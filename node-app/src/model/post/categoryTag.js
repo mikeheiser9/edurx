@@ -1,27 +1,34 @@
 import { Schema, model } from "mongoose";
-import { postCategoryTagsTypes } from "../../util/constant.js";
+import { forumTypes, postCategoryFilterTypes } from "../../util/constant.js";
 
 const schema = new Schema(
   {
     name: {
       type: String,
       required: true,
-      unique: true,
     },
     type: {
       type: String,
-      enum: postCategoryTagsTypes,
+      enum: postCategoryFilterTypes,
       required: true,
     },
     // createdBy: {
     //   type: Schema.Types.ObjectId,
     //   ref: "user",
     // },
-    isDeleted: Boolean,
+    isDeleted: {
+      type:Boolean,
+      default:false
+    },
+    forumType: {
+      type: Schema.Types.String,
+      enum: forumTypes,
+      required: true,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-export const categoryTagModal = model("postCategoryTags", schema);
+export const categoryFilterModal = model("postCategoryFilters", schema);

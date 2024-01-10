@@ -10,7 +10,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserAlt } from "@fortawesome/free-solid-svg-icons";
 import { faXmarkCircle } from "@fortawesome/free-regular-svg-icons";
-import { useDebounce } from "@/hooks";
+import { useDebounce, useOutsideClick } from "@/hooks";
 
 interface InfiniteScrollProps {
   className?: string;
@@ -84,6 +84,7 @@ const MentionInput: React.FC<MentionInputProps> = ({
   //   bottom?: string | number;
   // }>();
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const containterRef = useOutsideClick(() => setShouldTrigger(false));
   const debouncedMentionValue = useDebounce(mentionValue, 1000);
 
   const makeTriggerRegex = (): RegExp => {
@@ -216,16 +217,14 @@ const MentionInput: React.FC<MentionInputProps> = ({
     return (
       <div
         onClick={() => !isSelected && handleSelection(item)}
-        className={`flex rounded-md gap-2 items-center p-1 px-2 ${
-          isSelected
-            ? "bg-white/30"
-            : selectedIndex === index
-            ? "bg-[#0F366D]"
-            : "bg-white/10"
+        className={`flex text-black rounded-md gap-2 items-center p-1 px-2 ${
+          isSelected || selectedIndex === index
+            ? "bg-eduLightBlue/60 text-white"
+            : "bg-white"
         }`}
         id={`${dataOptions?.primaryKey}_${item?._id}`}
       >
-        <span className="flex overflow-hidden w-7 h-7 justify-center items-center text-primary rounded-full bg-white">
+        <span className="flex overflow-hidden w-7 h-7 justify-center items-center text-white rounded-full bg-eduDarkGray">
           {item?.[dataOptions?.imageKey as keyof typeof item] ? (
             <Image
               src={getStaticImageUrl(item?.[dataOptions?.imageKey as string])}
@@ -237,11 +236,11 @@ const MentionInput: React.FC<MentionInputProps> = ({
             <FontAwesomeIcon icon={faUserAlt} />
           )}
         </span>
-        <span className="flex-col flex text-sm flex-1">
+        <span className="flex-col flex text-[12px] flex-1 font-body">
           {Array.isArray(dataOptions?.label)
             ? dataOptions?.label?.map((label: string) => `${item?.[label]} `)
             : item?.[dataOptions?.label as string]}
-          <span className="text-primary text-xs">
+          <span className="text-xs font-body">
             {triggerOn}
             {hightlightOnSearch
               ? boldOnSearch(
@@ -254,7 +253,7 @@ const MentionInput: React.FC<MentionInputProps> = ({
         {isSelected && onRemoveMention && (
           <FontAwesomeIcon
             icon={faXmarkCircle}
-            className="text-primary opacity-100 cursor-pointer animate-scale-in text-sm"
+            className="text-white opacity-100 cursor-pointer animate-scale-in text-sm"
             onClick={(e) => handleRemoveMention(e, item)}
           />
         )}
@@ -269,7 +268,7 @@ const MentionInput: React.FC<MentionInputProps> = ({
 
   return (
     <React.Fragment>
-      <div className="relative">
+      <div className="relative" ref={containterRef}>
         <TextArea
           value={value}
           onChange={handleInputChange}

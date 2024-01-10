@@ -1,4 +1,11 @@
-import { Formik, Form, FormikHelpers } from "formik";
+import {
+  Formik,
+  Form,
+  FormikHelpers,
+  FormikErrors,
+  FormikTouched,
+  FieldArray,
+} from "formik";
 import InputField from "@/components/input";
 import { Modal } from "@/components/modal";
 import { Select } from "@/components/select";
@@ -12,24 +19,35 @@ import {
   faPoll,
 } from "@fortawesome/free-solid-svg-icons";
 import React, { useCallback, useEffect, useState } from "react";
-import { ModalFooter, ModalHeader } from "../components/sections";
+import { ModalFooter, ModalHeader } from "./sections";
 import { TextEditor } from "./rich-editor";
 import { Chip } from "@/components/chip";
 import { axiosGet } from "@/axios/config";
 import { LoadMore } from "@/components/loadMore";
 import { Loader } from "../../signup/commonBlocks";
-import { boldOnSearch } from "@/util/helpers";
+import {
+  boldOnSearch,
+  getAllowedForumAccessBasedOnRoleAndNpiDesignation,
+} from "@/util/helpers";
 import { ToggleSwitch } from "@/components/toggleSwitch";
 import { postCreationValidation } from "@/util/validations/post";
-import { roleBasedForum } from "@/util/constant";
-import { addNewPost } from "@/service/post.service";
-import { useSelector } from "react-redux";
-import { selectUserDetail } from "@/redux/ducks/user.duck";
+import { postStatus, responseCodes } from "@/util/constant";
+import { addNewPost, updatePostById } from "@/service/post.service";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  selectDraftCount,
+  selectUserDetail,
+  setDraftCount,
+} from "@/redux/ducks/user.duck";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { showToast } from "@/components/toast";
+import { getUserDraftCount } from "@/service/user.service";
+import { uniqBy } from "lodash";
+import { Button } from "@/components/button";
 
-interface TagCategoryInput {
+interface filterCategoryInput {
   category?: string | boolean;
-  tag?: string | boolean;
+  filter?: string | boolean;
 }
 
 interface PageData {
@@ -39,71 +57,106 @@ interface PageData {
 
 interface CurrentPageRecords {
   category: PageData;
-  tag: PageData;
+  filter: PageData;
 }
 
-interface TagCategoryList {
+interface filterCategoryList {
   categories: [];
-  tags: [];
+  filters: [];
 }
 
-export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
+export interface formikInitialValueType {
+  forumType: ForumTypes;
+  postType: string;
+  title: string;
+  categories: never[];
+  filters: never[];
+  isPrivate: boolean;
+  content: string;
+  options: string[];
+  votingLength: number;
+}
+
+export const AddPost = ({
+  addPostModal,
+  fetchPosts,
+  postDetails,
+  getDrafts,
+  mode = "New",
+}: {
+  addPostModal: UseModalType;
+  fetchPosts?: () => Promise<void>;
+  postDetails?: CreatePostFormikInterface & { id: string };
+  getDrafts?: ((page?: number | undefined) => Promise<void>) | undefined;
+  mode?: PostModeType;
+}) => {
   const loggedInUser = useSelector(selectUserDetail);
-  const [commonMessage, setCommonMessage] = useState<string | null>(null);
-  const [pollOptionsCount, setPollOptionsCount] = useState<number>(2);
-  const [isLoading, setIsLoading] = useState<TagCategoryInput>({
-    tag: false,
+  const currentDraftCount = useSelector(selectDraftCount);
+  const [isLoading, setIsLoading] = useState<filterCategoryInput>({
+    filter: false,
     category: false,
   });
   const [searchText, setSearchText] = useState<{
     category: string;
-    tag: string;
+    filter: string;
   }>({
     category: "",
-    tag: "",
+    filter: "",
   });
-  const [tagCategoryList, setTagCategoryList] = useState<{
+  const [filterCategoryList, setFilterCategoryList] = useState<{
     categories: [];
-    tags: [];
-  }>({ categories: [], tags: [] });
+    filters: [];
+  }>({ categories: [], filters: [] });
   const [currentPage, setCurrentPage] = useState<CurrentPageRecords>({
     category: {
       page: 1,
       totalRecords: 0,
     },
-    tag: {
+    filter: {
       page: 1,
       totalRecords: 0,
     },
   });
-  const [selectedList, setSelectedList] = useState<TagCategoryList>({
-    categories: [],
-    tags: [],
-  });
 
-  const dropdownOptions = roleBasedForum[
-    loggedInUser?.role as keyof typeof roleBasedForum
-  ].map((item) => {
-    return {
-      value: item,
-      label: item,
-    };
+  const [selectedList, setSelectedList] = useState<filterCategoryList>({
+    categories: [],
+    filters: [],
   });
-  const intialFormikValues: CreatePostFormikInterface = {
+  const [forumSelected, setForumSelected] = useState<
+    ForumTypes | "Choose forum"
+  >("Choose forum");
+  const dispatch = useDispatch();
+
+  let tempDropdownOptions = getAllowedForumAccessBasedOnRoleAndNpiDesignation(
+    loggedInUser?.role,
+    loggedInUser?.npi_designation
+  )
+    .map((item) => {
+      return {
+        value: item,
+        label: item,
+      };
+    })
+    .filter((item) => item.label != "All Forums");
+  let dropdownOptions = [
+    { label: "Choose forum", value: "Choose forum" },
+    ...tempDropdownOptions,
+  ];
+  const [intialFormikValues, setIntialFormikValues] = useState<
+    formikInitialValueType | any
+  >({
     forumType: dropdownOptions[0].value as ForumTypes,
     postType: "post",
     title: "",
     categories: [],
-    tags: [],
+    filters: [],
     isPrivate: false,
     content: "",
-    options: [...Array(pollOptionsCount)].map((_) => ""),
-    votingLength: 3, //days
-  };
-
+    options: ["", ""],
+    votingLength: 3,
+  });
   const debouncedCategory = useDebounce(searchText.category, 1000);
-  const debouncedTag = useDebounce(searchText.tag, 1000);
-
+  const debouncedFilter = useDebounce(searchText.filter, 1000);
   const onSearch = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value } = e.target;
@@ -118,7 +171,12 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
   );
 
   const searchAPI = useCallback(
-    async (type: keyof TagCategoryInput, value: string, isIntial?: boolean) => {
+    async (
+      type: keyof filterCategoryInput,
+      value: string,
+      isIntial?: boolean,
+      forumType?: ForumTypes
+    ) => {
       try {
         setIsLoading((preState) => {
           return {
@@ -132,39 +190,31 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
             type: type,
             limit: 5,
             page: isIntial ? 1 : currentPage?.[type]?.page + 1,
+            forumType:
+              forumSelected == "Choose forum"
+                ? forumType
+                  ? forumType
+                  : intialFormikValues.forumType
+                : forumSelected,
           },
         });
-        if (response.status === 200) {
+        if (response.status === responseCodes.SUCCESS) {
           setIsLoading((preState) => {
             return {
               ...preState,
               [type]: false,
             };
           });
-          let key: keyof typeof tagCategoryList =
-            type === "category" ? "categories" : "tags";
-          let prevList = isIntial
-            ? selectedList[key]?.length
-              ? tagCategoryList?.[key]?.filter((item: TagCategoryType) =>
-                  selectedList?.[key]?.some((_id) => _id === item._id)
-                )
-              : []
-            : tagCategoryList?.[key];
-          let newRecords = response?.data?.data?.records?.filter(
-            (item: TagCategoryType) => {
-              if (selectedList?.[key]?.length) {
-                return selectedList?.[key]?.includes(item?._id as never)
-                  ? false
-                  : true;
-              }
-              return true;
-            }
-          );
+          let key: keyof typeof filterCategoryList =
+            type === "category" ? "categories" : "filters";
 
-          setTagCategoryList((preState) => {
+          setFilterCategoryList((preState) => {
             return {
               ...preState,
-              [key]: [...prevList, ...newRecords],
+              [key]: uniqBy(
+                [...preState[key], ...response?.data?.data?.records],
+                (obj) => obj._id
+              ),
             };
           });
           setCurrentPage((preState: CurrentPageRecords) => {
@@ -176,7 +226,7 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
               },
             };
           });
-        }
+        } else throw new Error("Unable to find tag category");
       } catch (error) {
         setIsLoading((preState) => {
           return {
@@ -184,13 +234,19 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
             [type]: false,
           };
         });
+        showToast.error(
+          (error as Error)?.message || "Unable to perform search"
+        );
         console.error("Error occurred during search:", error);
       }
     },
-    [currentPage, searchText, tagCategoryList]
+    [currentPage, searchText, filterCategoryList, forumSelected]
   );
 
-  const onChipSelect = (type: keyof TagCategoryList, item: TagCategoryType) => {
+  const onChipSelect = (
+    type: keyof filterCategoryList,
+    item: TagCategoryType
+  ) => {
     setSelectedList((preState) => {
       return {
         ...preState,
@@ -200,7 +256,7 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
   };
 
   const onChipeDelete = (
-    type: keyof TagCategoryList,
+    type: keyof filterCategoryList,
     item: TagCategoryType
   ) => {
     setSelectedList((preState) => {
@@ -218,75 +274,311 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
     actions,
     values,
   }: {
-    type: "categories" | "tags";
+    type: "categories" | "filters";
     actions: FormikHelpers<CreatePostFormikInterface>;
     values: CreatePostFormikInterface;
-  }) => (
-    <>
-      {isLoading?.[type === "categories" ? "category" : "tag"] ? (
-        <div className="flex flex-auto justify-center h-20">
-          <Loader />
-        </div>
-      ) : (
-        <div className="flex flex-wrap gap-2 flex-auto">
-          {tagCategoryList?.[type]?.length ? (
-            tagCategoryList?.[type]?.map((item: TagCategoryType) => (
-              <Chip
-                key={item?._id}
-                label={
-                  boldOnSearch(
-                    item?.name,
-                    searchText?.[type === "categories" ? "category" : "tag"]
-                  ) as string
-                }
-                onSelect={() => onChipSelect(type, item)}
-                onClear={() => onChipeDelete(type, item)}
-                isSelected={selectedList?.[type]?.some(
-                  (_id: string) => _id === item?._id
-                )}
-              />
-            ))
-          ) : (
-            <span className="text-white">No {type} found</span>
-          )}
-        </div>
-      )}
-    </>
+  }) => {
+    return (
+      <>
+        {isLoading?.[type === "categories" ? "category" : "filter"] ? (
+          <div className="flex flex-auto justify-center h-20">
+            <Loader />
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-2 flex-auto mt-1">
+            {filterCategoryList?.[type]?.length ? (
+              filterCategoryList?.[type]?.map((item: TagCategoryType) => (
+                <Chip
+                  key={item?._id}
+                  label={
+                    boldOnSearch(
+                      item?.name,
+                      searchText?.[
+                      type === "categories" ? "category" : "filter"
+                      ]
+                    ) as string
+                  }
+                  className={`${type === "categories"
+                      ? "bg-transparent border border-eduLightBlue "
+                      : "!bg-eduDarkGray"
+                  }  md:text-xs text-10px px-2 leading-6 rounded-md`}
+                  onSelect={() => onChipSelect(type, item)}
+                  onClear={() => onChipeDelete(type, item)}
+                  isSelected={selectedList?.[type]?.some(
+                    (_id: string) => _id === item?._id
+                  )}
+                />
+              ))
+            ) : (
+              <span className={`text-eduBlack ipad-under:text-10px`}>
+                {(values as any).forumType == "Choose forum"
+                  ? `choose forum type to view ${type}`
+                  : `No ${type} found`}
+              </span>
+            )}
+          </div>
+        )}
+      </>
+    );
+  };
+
+  const EditPostFooter = ({setFieldValue}:{setFieldValue: (field: string, value: string) => void}) => (
+    <div className="flex flex-col gap-2 py-3 bg-primary-dark">
+      <div className="flex justify-center gap-4">
+        <Button
+          label="Cancel"
+          className="!m-0 !bg-eduBlack text-white"
+          type="button"
+          onClick={addPostModal?.closeModal}
+        />
+        <Button
+          label="Update"
+          type="submit"
+          className={`!m-0 cursor-not-allowed`}
+          onMouseEnter={() => setFieldValue("postStatus", postStatus[1])}
+        />
+      </div>
+    </div>
   );
 
   const onSubmit = async (
     values: CreatePostFormikInterface,
     actions: FormikHelpers<CreatePostFormikInterface>
   ) => {
+    let isError = false;
+    const categoryLength = selectedList.categories.length;
+    if (categoryLength > 2) {
+      actions.setFieldError(
+        "categories",
+        "category field is required and maximum 2 is allowed"
+      );
+      isError = true;
+    }
+    if (selectedList.filters.length > 4) {
+      actions.setFieldError(
+        "filters",
+        "filter field is required and maximum 4 is allowed"
+      );
+      isError = true;
+    }
+    if (
+      (values as CreatePostFormikInterface & { postStatus: string })
+        .postStatus == "published"
+    ) {
+      if (categoryLength == 0) {
+        actions.setFieldError(
+          "categories",
+          "category field is required and maximum 2 is allowed"
+        );
+        isError = true;
+      }
+      if (values.content.replace(/<\/?[^>]+(>|$)/g, "").length == 0) {
+        actions.setFieldError("content", "This field is required");
+        isError = true;
+      }
+    }
+    if (
+      values.postType == "poll" &&
+      values.options.length > new Set(values.options).size
+    ) {
+      actions.setFieldError("options", "All options must be unique");
+      isError = true;
+    }
+    if (isError) {
+      return;
+    }
     const payload = {
       userId: loggedInUser?._id,
       ...values,
       postType: values.postType || "post",
       ...selectedList,
+      postStatus:
+        (values as any)?.postStatus
     };
-    console.log({ values });
 
-    await addNewPost(payload)
-      .then((response) => {
-        const message = response?.data?.message;
-        if (message) {
-          setCommonMessage(message);
-          setTimeout(() => {
-            setCommonMessage(null);
-            addPostModal?.closeModal();
-          }, 3000);
+    // when editing the post from the draft flow
+    if (postDetails) {
+      const updateApiRes = await updatePostById(postDetails.id, payload);
+      if (updateApiRes?.status === responseCodes.SUCCESS) {
+        if (
+          (values as CreatePostFormikInterface & { postStatus: string })
+            .postStatus == "published"
+        ) {
+          dispatch(setDraftCount(currentDraftCount - 1));
         }
-      })
-      .catch((err) => console.log("error", err));
+        getDrafts?.(1);
+        addPostModal?.closeModal();
+      }
+    } else {
+      await addNewPost(payload)
+        .then(async (response) => {
+          let message = response?.data?.message;
+          if (response?.status === responseCodes.SUCCESS) {
+            if (
+              (values as CreatePostFormikInterface & { postStatus: string })
+                .postStatus == "draft"
+            ) {
+              const res = await getUserDraftCount();
+              if (res?.data?.response_type == "Success") {
+                dispatch(setDraftCount(res?.data?.data));
+              }
+            }
+            addPostModal?.closeModal();
+            fetchPosts?.();
+          } else throw new Error(message || "Something went wrong");
+        })
+        .catch((err) => {
+          console.log("error", err);
+        });
+    }
   };
 
   useEffect(() => {
-    searchAPI("category", debouncedCategory, true);
-  }, [debouncedCategory]);
+    if (forumSelected != "Choose forum") {
+      searchAPI("category", debouncedCategory, true);
+    } else {
+      setFilterCategoryList((preState) => {
+        return {
+          ...preState,
+          categories: [],
+        };
+      });
+      setCurrentPage((preState: CurrentPageRecords) => {
+        return {
+          ...preState,
+          category: {
+            page: 1,
+            totalRecords: 0,
+          },
+        };
+      });
+    }
+  }, [debouncedCategory, forumSelected]);
 
   useEffect(() => {
-    searchAPI("tag", debouncedTag, true);
-  }, [debouncedTag]);
+    if (forumSelected != "Choose forum") {
+      searchAPI("filter", debouncedFilter, true);
+    } else {
+      setFilterCategoryList((preState) => {
+        return {
+          ...preState,
+          filters: [],
+        };
+      });
+      setCurrentPage((preState: CurrentPageRecords) => {
+        return {
+          ...preState,
+          filter: {
+            page: 1,
+            totalRecords: 0,
+          },
+        };
+      });
+    }
+  }, [debouncedFilter, forumSelected]);
+
+  useEffect(() => {
+    setSelectedList({
+      categories: [],
+      filters: [],
+    });
+    setFilterCategoryList({
+      categories: [],
+      filters: [],
+    });
+  }, [forumSelected]);
+
+  useEffect(() => {
+    // setup which run open in the Edit mode
+    if (postDetails) {
+      const {
+        forumType,
+        isPrivate,
+        votingLength,
+        title,
+        content,
+        postType,
+        categories,
+        filters,
+        options,
+      } = postDetails;
+
+      setIntialFormikValues({
+        categories: [],
+        content: content,
+        filters: [],
+        forumType: forumType,
+        options: options.length == 0 ? ["", ""] : options,
+        isPrivate: isPrivate,
+        postType: postType,
+        title: title,
+        votingLength: votingLength,
+      } as formikInitialValueType);
+      const categorySelected: string[] = categories?.map((category: any) => {
+        return category?._id;
+      });
+      const filterSelected: string[] = filters?.map((filter: any) => {
+        return filter?._id;
+      });
+      setSelectedList((preState: any) => {
+        return {
+          ...preState,
+          categories: categorySelected,
+          filters: filterSelected,
+        };
+      });
+      setFilterCategoryList((preState: any) => {
+        return {
+          ...preState,
+          categories: categories,
+          filters: filters,
+        };
+      });
+      searchAPI("category", debouncedCategory, true, forumType);
+      searchAPI("filter", debouncedFilter, true, forumType);
+    }
+  }, [postDetails?.id]);
+
+  const shouldDisable = (params: {
+    errors: FormikErrors<CreatePostFormikInterface>;
+    touched: FormikTouched<CreatePostFormikInterface>;
+    categoryFilter: filterCategoryList;
+  }) => {
+    const {
+      content: contentError,
+      forumType: forumTypeError,
+      title: titleError,
+      categories: categoriesError,
+      filters: filtersError,
+    } = params.errors;
+    const { categoryFilter } = params;
+    const {
+      content: contentTouched,
+      forumType: forumTypeTouched,
+      title: titleTouched,
+      categories: categoriesTouched,
+      filters: filtersTouched,
+    } = params.touched;
+    if ((titleError && titleTouched) || (forumTypeError && forumTypeTouched)) {
+      return true;
+    } else if (contentError && contentTouched) {
+      return true;
+    } else if (
+      categoriesError &&
+      categoriesTouched &&
+      (categoryFilter.categories.length == 0 ||
+        categoryFilter.categories.length > 2)
+    ) {
+      return true;
+    } else if (
+      filtersError &&
+      filtersTouched &&
+      (categoryFilter.filters.length == 0 || categoryFilter.filters.length > 4)
+    ) {
+      return true;
+    }
+    return false;
+  };
 
   return (
     <Formik
@@ -297,24 +589,41 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
     >
       {({ isSubmitting, values, ...actions }) => (
         <Modal
-          headerTitle="New Post"
           visible={addPostModal.isOpen}
           onClose={addPostModal.closeModal}
-          closeOnOutsideClick
-          customHeader={<ModalHeader />}
+          customHeader={
+            <ModalHeader
+              onClose={addPostModal.closeModal}
+              mode={postDetails?.id ? "Edit" : "New"}
+            />
+          }
           showFooter={false}
-          modalClassName="!rounded-xl"
+          modalClassName="md:!rounded-xl  ipad-under:!max-h-[100vh] ipad-under:w-full !rounded-none ipad-under:!min-h-[100vh] md:min-h-[auto] ipad-under:bg-eduLightGray"
+          modalBodyClassName="relative p-4 overflow-y-auto font-body overflow-hidden md:bg-white bg-eduLightGray"
         >
           <Form>
-            {/* {console.log(actions.errors)} */}
-            <div className="flex flex-col gap-4 p-2">
-              <div className="flex justify-between">
-                <Select
-                  name="forumType"
-                  label="Choose Group"
-                  options={dropdownOptions}
-                  useAsFormikField
-                />
+            <div className="flex flex-col gap-4 md:p-2 ">
+              <div className="flex justify-between gap-4">
+                <div className="flex md:flex-wrap flex-col md:flex-row gap-1 md:w-auto  w-1/2">
+                  <Select
+                    defaultValue="Choose Group"
+                    options={dropdownOptions}
+                    value={values?.forumType}
+                    onSelect={(e) => {
+                      actions.setFieldValue("forumType", e?.value);
+                      setForumSelected(e?.value);
+                    }}
+                    wrapperClass="md:!w-[12rem] w-full !text-xs mf:h-auto h-[30px]"
+                    optionClass="text-xs"
+                  />
+                  {actions?.touched.forumType && actions.errors.forumType ? (
+                    <span className="ml-1 md:text-xs text-10px font-body mt-1 first-letter:capitalize flex-shrink-0 opacity-50 text-[#FF0000] font-[500]">
+                      forum type is a required field
+                    </span>
+                  ) : null}
+                </div>
+                <div className="md:w-auto w-1/2">
+                <div className="md:block  ipad-under:top-1.5 ipad-under:left-4 ipad-under:fixed">
                 <ToggleSwitch
                   name="isPrivate"
                   off={{
@@ -326,19 +635,23 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
                     label: "private",
                   }}
                 />
-              </div>
-              <TabMenu
+                </div>
+                {/* TabMenu Hear */}
+                <TabMenu
+              tabContainerClass="flex md:gap-4 gap-2 md:hidden"
                 options={[
                   {
                     component() {
                       return (
-                        <>
-                          <InputField name="title" placeholder="Title" />
+                        <div className="gray-quill md:pb-0 pb-10 hidden">
+                          <InputField name="title" placeholder="Title" className="ipad-under:!bg-eduDarkGray" />
                           <TextEditor
                             value={values?.content}
                             setFieldValue={actions?.setFieldValue}
+                            error={actions.errors.content}
+                            isTouched={actions.touched.content}
                           />
-                        </>
+                        </div>
                       );
                     },
                     label: "Post",
@@ -347,84 +660,378 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
                   {
                     component() {
                       return (
-                        <>
-                          <InputField name="title" placeholder="Title" />
+                        <div className="gray-quill md:pb-0 pb-10 hidden">
+                          <InputField
+                            name="title"
+                            placeholder="Title"
+                            maxLength={130}
+                            className="ipad-under:!bg-eduDarkGray"
+                          />
                           <TextEditor
                             value={values.content}
                             setFieldValue={actions.setFieldValue}
+                            error={actions.errors.content}
+                            isTouched={actions.touched.content}
                           />
-                          <div className="gap-2 grid grid-cols-2">
-                            {[...Array(pollOptionsCount)].map((_, index) => (
-                              <div
-                                className="flex animate-scale-in gap-2"
-                                key={index}
-                              >
-                                <FontAwesomeIcon
-                                  size="lg"
-                                  icon={faGripVertical}
-                                  className="self-center text-white/50"
-                                />
-                                <InputField
-                                  name={`options.${index}`}
-                                  placeholder={`Option ${index + 1}`}
-                                  type="text"
-                                />
-                              </div>
-                            ))}
-                          </div>
-                          <div className="flex flex-auto items-center py-2 justify-between gap-2">
-                            <span
-                              onClick={() =>
-                                setPollOptionsCount((prev) => prev + 1)
-                              }
-                              className="text-white/80 font-bold inline-block text-xs cursor-pointer"
-                            >
-                              Add Option
+                          {actions?.touched.options &&
+                          actions.errors.options ? (
+                            <span className="ml-1 md:text-xs text-10px font-body mt-1 first-letter:capitalize flex-shrink-0 opacity-50 text-[#FF0000] font-[500]">
+                              {actions.errors.options}
                             </span>
-                            {pollOptionsCount > 2 && (
-                              <span
-                                onClick={() =>
-                                  setPollOptionsCount((prev) => prev - 1)
-                                }
-                                className="text-white/50 animate-scale-in inline-block mt-2 bg-gray-600 p-2 py-1 rounded-md text-xs cursor-pointer"
-                              >
-                                Remove
-                              </span>
+                          ) : null}
+                          <FieldArray
+                            name="options"
+                            render={(arrayHelpers) => (
+                              <div>
+                                {values.options && values.options.length > 0 ? (
+                                  <>
+                                    <div className="gap-2 grid md:grid-cols-2 grid-cols-1">
+                                      {values.options.map((option, index) => (
+                                        <div
+                                          className="flex animate-scale-in gap-2 md:w-auto w-full"
+                                          key={index}
+                                        >
+                                          <FontAwesomeIcon
+                                            size="lg"
+                                            icon={faGripVertical}
+                                            className="self-center text-eduBlack/60"
+                                          />
+                                          <InputField
+                                            name={`options.${index}`}
+                                            placeholder={`Option ${index + 1}`}
+                                            type="text"
+                                            className="w-full  ipad-under:!bg-eduDarkGray"
+                                            maxLength={80}
+                                            parentClass="w-full"
+                                          />
+                                        </div>
+                                      ))}
+                                    </div>
+                                    <div className="flex flex-auto items-center py-2 justify-between gap-2">
+                                      <div className="gap-2 flex items-center">
+                                        {values.options.length < 8 && (
+                                          <span
+                                            onClick={() =>
+                                              arrayHelpers.insert(
+                                                values.options.length + 1,
+                                                ""
+                                              )
+                                            }
+                                            className="text-eduBlack animate-scale-in inline-block mt-2  p-2 py-1 font-medium rounded-md md:text-xs text-10px cursor-pointer"
+                                          >
+                                            Add Option
+                                          </span>
+                                        )}
+                                        {values.options.length > 2 && (
+                                          <span
+                                            onClick={() =>
+                                              arrayHelpers.remove(
+                                                values.options.length - 1
+                                              )
+                                            }
+                                            className="text-eduBlack animate-scale-in inline-block mt-2 p-2 py-1 rounded-md font-medium md:text-xs text-10px cursor-pointer"
+                                          >
+                                            Remove
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div className="text-white md:text-xs text-10px flex gap-1 items-center">
+                                        <label
+                                          htmlFor="votingLength "
+                                          className="text-black"
+                                        >
+                                          Voting Length
+                                        </label>
+                                        <Select
+                                          options={[
+                                            { label: "1 Day", value: 1 },
+                                            { label: "3 Days", value: 3 },
+                                            { label: "5 Days", value: 5 },
+                                          ]}
+                                          onClear={() =>
+                                            actions.setFieldValue(
+                                              "votingLength",
+                                              0
+                                            )
+                                          }
+                                          // className="bg-transparent outline-none font-bold"
+                                          // optionClassName="text-black text-xs"
+                                          value={values?.votingLength}
+                                          defaultValue="Select"
+                                          onSelect={(e) =>
+                                            actions.setFieldValue(
+                                              "votingLength",
+                                              e.value
+                                            )
+                                          }
+                                          wrapperClass="text-black !w-[5rem] md:!text-xs !text-10px !font-semibold ipad-under:!bg-transparent"
+                                          optionClass="md:!text-xs !text-10px"
+                                        />
+                                      </div>
+                                    </div>
+                                  </>
+                                ) : (
+                                  ""
+                                )}
+                              </div>
                             )}
-                            <div className="text-white text-xs flex gap-1 items-center">
-                              <label htmlFor="votingLength">
-                                Voting Length
-                              </label>
-                              <Select
-                                options={[
-                                  { label: "1 Day", value: 1 },
-                                  { label: "3 Days", value: 3 },
-                                  { label: "5 Days", value: 5 },
-                                ]}
-                                className="bg-transparent outline-none font-bold"
-                                optionClassName="text-black text-xs"
-                                name="votingLength"
-                                id="votingLength"
-                                useAsFormikField
-                              />
-                            </div>
-                          </div>
-                        </>
+                          />
+                        </div>
                       );
                     },
                     label: "Poll",
                     icon: faPoll,
                   },
                 ]}
-                iconClass="opacity-100 text-white"
-                tabItemClass="bg-transparent p-1 text-white font-medium px-3 ease-in-out duration-300 text-xs rounded capitalize"
-                activeTabClass="ring-2 ring-primary outline-primary"
-                // componentWrapperClass="flex-auto"
+                iconClass="text-eduLightBlue"
+                tabItemClass="bg-eduDarkGray p-1 text-eduLightBlue font-normal px-3 ease-in-out duration-300 text-[10px] rounded-[5px] capitalize"
+                activeTabClass="ring-1 ring-eduLightBlue outline-eduLightBlue"
                 formikFieldName="postType"
               />
-              <div className="flex gap-2 flex-col">
-                <label className="text-white/50" htmlFor="categories">
-                  Categories
+                </div>
+              </div>
+              <div className="hidden ipad-under:block">
+              <div
+                className={`flex gap-4 grid-rows-2 ${
+                  (values as any)?.forumType == "Choose forum" &&
+                  "disabled cursor-not-allowed"
+                  }`}
+              >
+                <div className="w-full">
+                <label htmlFor="categories">
+                  Categories{" "}
+                  {actions?.touched.categories && actions.errors.categories ? (
+                    <span className="ml-1 md:text-xs text-10px font-body mt-1 first-letter:capitalize flex-shrink-0 opacity-50 text-[#FF0000] font-[500]">
+                      {actions.errors.categories}
+                    </span>
+                  ) : null}
+                </label>
+                <InputField
+                  name="category"
+                  placeholder="Search"
+                  type="search"
+                  onChange={onSearch}
+                  value={searchText?.category}
+                  isFormikField={false}
+                  parentClass="w-full"
+                  className="w-full ipad-under:!bg-eduDarkGray"
+                />
+                <ChipsTemplate
+                  type="categories"
+                  actions={actions}
+                  values={values}
+                />
+                {!isLoading?.category &&
+                  currentPage?.category?.totalRecords >
+                  filterCategoryList?.categories?.length && (
+                    <LoadMore
+                      isLoading={isLoading.category as boolean}
+                      onClick={() =>
+                        searchAPI("category", searchText?.category)
+                      }
+                    />
+                  )}
+                </div>
+                <div className="w-full">
+                <label className="text-eduBlack" htmlFor="categories">
+                  filter&nbsp;
+                  {actions?.touched.filters && actions.errors.filters ? (
+                    <span className="ml-1 md:text-xs text-10px font-body mt-1 first-letter:capitalize flex-shrink-0 opacity-50 text-[#FF0000] font-[500]">
+                      {actions.errors.filters}
+                    </span>
+                  ) : null}
+                </label>
+                <InputField
+                  name="filter"
+                  placeholder="Search"
+                  type="search"
+                  onChange={onSearch}
+                  value={searchText?.filter}
+                  isFormikField={false}
+                  parentClass="w-full"
+                  className="w-full ipad-under:!bg-eduDarkGray"
+                />
+                <ChipsTemplate
+                  type="filters"
+                  actions={actions}
+                  values={values}
+                />
+                {isLoading?.filter &&
+                  currentPage?.filter?.totalRecords >
+                    filterCategoryList?.filters?.length && (
+                    <LoadMore
+                      isLoading={isLoading.filter as boolean}
+                      onClick={() => searchAPI("filter", searchText?.filter)}
+                    />
+                  )}
+              </div>
+              </div>
+              </div>
+              <TabMenu
+              tabContainerClass="md:flex md:gap-4 gap-2 hidden"
+                options={[
+                  {
+                    component() {
+                      return (
+                        <div className="gray-quill md:pb-0 pb-10">
+                          <InputField name="title" placeholder="Title" className="ipad-under:!bg-eduDarkGray" />
+                          <TextEditor
+                            value={values?.content}
+                            setFieldValue={actions?.setFieldValue}
+                            error={actions.errors.content}
+                            isTouched={actions.touched.content}
+                          />
+                        </div>
+                      );
+                    },
+                    label: "Post",
+                    icon: faPlusCircle,
+                  },
+                  {
+                    component() {
+                      return (
+                        <div className="gray-quill md:pb-0 pb-10">
+                          <InputField
+                            name="title"
+                            placeholder="Title"
+                            maxLength={130}
+                            className="ipad-under:!bg-eduDarkGray"
+                          />
+                          <TextEditor
+                            value={values.content}
+                            setFieldValue={actions.setFieldValue}
+                            error={actions.errors.content}
+                            isTouched={actions.touched.content}
+                          />
+                          {actions?.touched.options &&
+                          actions.errors.options ? (
+                            <span className="ml-1 md:text-xs text-10px font-body mt-1 first-letter:capitalize flex-shrink-0 opacity-50 text-[#FF0000] font-[500]">
+                              {actions.errors.options}
+                            </span>
+                          ) : null}
+                          <FieldArray
+                            name="options"
+                            render={(arrayHelpers) => (
+                              <div className="pt-2">
+                                {values.options && values.options.length > 0 ? (
+                                  <>
+                                    <div className="gap-2 grid md:grid-cols-2 grid-cols-1">
+                                      {values.options.map((option, index) => (
+                                        <div
+                                          className="flex animate-scale-in gap-2 md:w-auto w-full"
+                                          key={index}
+                                        ><span className="inline-block pt-2">
+                                          <FontAwesomeIcon
+                                            size="lg"
+                                            icon={faGripVertical}
+                                            className="self-center text-eduBlack/60"
+                                          />
+                                          </span>
+                                          <InputField
+                                            name={`options.${index}`}
+                                            placeholder={`Option ${index + 1}`}
+                                            type="text"
+                                            className="w-full ipad-under:!bg-eduDarkGray"
+                                            maxLength={80}
+                                            parentClass="w-full"
+                                          />
+                                        </div>
+                                      ))}
+                                    </div>
+                                    <div className="flex flex-auto items-center py-2 justify-between gap-2">
+                                      <div className="gap-2 flex items-center">
+                                        {values.options.length < 8 && (
+                                          <span
+                                            onClick={() =>
+                                              arrayHelpers.insert(
+                                                values.options.length + 1,
+                                                ""
+                                              )
+                                            }
+                                            className="text-eduBlack animate-scale-in inline-block mt-2  p-2 py-1 font-medium rounded-md md:text-xs text-10px cursor-pointer"
+                                          >
+                                            Add Option
+                                          </span>
+                                        )}
+                                        {values.options.length > 2 && (
+                                          <span
+                                            onClick={() =>
+                                              arrayHelpers.remove(
+                                                values.options.length - 1
+                                              )
+                                            }
+                                            className="text-eduBlack animate-scale-in inline-block mt-2 p-2 py-1 rounded-md font-medium md:text-xs text-10px cursor-pointer"
+                                          >
+                                            Remove
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div className="text-white md:text-xs text-10px flex gap-1 items-center">
+                                        <label
+                                          htmlFor="votingLength "
+                                          className="text-black"
+                                        >
+                                          Voting Length
+                                        </label>
+                                        <Select
+                                          options={[
+                                            { label: "1 Day", value: 1 },
+                                            { label: "3 Days", value: 3 },
+                                            { label: "5 Days", value: 5 },
+                                          ]}
+                                          onClear={() =>
+                                            actions.setFieldValue(
+                                              "votingLength",
+                                              0
+                                            )
+                                          }
+                                          // className="bg-transparent outline-none font-bold"
+                                          // optionClassName="text-black text-xs"
+                                          value={values?.votingLength}
+                                          defaultValue="Select"
+                                          onSelect={(e) =>
+                                            actions.setFieldValue(
+                                              "votingLength",
+                                              e.value
+                                            )
+                                          }
+                                          wrapperClass="text-black !w-[5rem] md:!text-xs !text-10px !font-semibold ipad-under:!bg-transparent"
+                                          optionClass="md:!text-xs !text-10px"
+                                        />
+                                      </div>
+                                    </div>
+                                  </>
+                                ) : (
+                                  ""
+                                )}
+                              </div>
+                            )}
+                          />
+                        </div>
+                      );
+                    },
+                    label: "Poll",
+                    icon: faPoll,
+                  },
+                ]}
+                iconClass="text-eduLightBlue"
+                tabItemClass="bg-eduDarkGray p-1 text-eduLightBlue font-normal px-3 ease-in-out duration-300 text-[10px] rounded-[5px] capitalize"
+                activeTabClass="ring-1 ring-eduLightBlue outline-eduLightBlue"
+                formikFieldName="postType"
+              />
+              <div
+                className={`md:flex gap-2 flex-col hidden  ${
+                  (values as any)?.forumType == "Choose forum" &&
+                  "disabled cursor-not-allowed"
+                }`}
+              >
+                <label htmlFor="categories">
+                  Categories{" "}
+                  {actions?.touched.categories && actions.errors.categories ? (
+                    <span className="ml-1 md:text-xs text-10px font-body mt-1 first-letter:capitalize flex-shrink-0 opacity-50 text-[#FF0000] font-[500]">
+                      {actions.errors.categories}
+                    </span>
+                  ) : null}
                 </label>
                 <InputField
                   name="category"
@@ -441,7 +1048,7 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
                 />
                 {!isLoading?.category &&
                   currentPage?.category?.totalRecords >
-                    tagCategoryList?.categories?.length && (
+                    filterCategoryList?.categories?.length && (
                     <LoadMore
                       isLoading={isLoading.category as boolean}
                       onClick={() =>
@@ -449,32 +1056,51 @@ export const AddPost = ({ addPostModal }: { addPostModal: UseModalType }) => {
                       }
                     />
                   )}
-                <label className="text-white/50" htmlFor="categories">
-                  Tags
+                <label className="text-eduBlack" htmlFor="categories">
+                  filter&nbsp;
+                  {actions?.touched.filters && actions.errors.filters ? (
+                    <span className="ml-1 md:text-xs text-10px font-body mt-1 first-letter:capitalize flex-shrink-0 opacity-50 text-[#FF0000] font-[500]">
+                      {actions.errors.filters}
+                    </span>
+                  ) : null}
                 </label>
                 <InputField
-                  name="tag"
+                  name="filter"
                   placeholder="Search"
                   type="search"
                   onChange={onSearch}
-                  value={searchText?.tag}
+                  value={searchText?.filter}
                   isFormikField={false}
                 />
-                <ChipsTemplate type="tags" actions={actions} values={values} />
-                {isLoading?.tag &&
-                  currentPage?.tag?.totalRecords >
-                    tagCategoryList?.tags?.length && (
+                <ChipsTemplate
+                  type="filters"
+                  actions={actions}
+                  values={values}
+                />
+                {!isLoading?.filter &&
+                  currentPage?.filter?.totalRecords >
+                  filterCategoryList?.filters?.length && (
                     <LoadMore
-                      isLoading={isLoading.tag as boolean}
-                      onClick={() => searchAPI("tag", searchText?.tag)}
+                      isLoading={isLoading.filter as boolean}
+                      onClick={() => searchAPI("filter", searchText?.filter)}
                     />
                   )}
               </div>
             </div>
-            <ModalFooter
-              message={commonMessage}
+            {mode === "Edit" ? (
+              <EditPostFooter
               setFieldValue={actions.setFieldValue}
-            />
+              />
+            ) : (
+              <ModalFooter
+                setFieldValue={actions.setFieldValue}
+                disable={shouldDisable({
+                  errors: actions.errors,
+                  touched: actions.touched,
+                  categoryFilter: selectedList,
+                })}
+              />
+            )}
           </Form>
         </Modal>
       )}

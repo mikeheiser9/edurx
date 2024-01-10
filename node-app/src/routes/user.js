@@ -7,6 +7,12 @@ import {
   getUsersDocuments,
   updateUserByID,
   searchUsers,
+  getConnections,
+  createAccountSettings,
+  getAccountSettings,
+  userDrafts,
+  userDraftsCount,
+  userDraft,
 } from "../controllers/user.js";
 import {
   addDocumentValidator,
@@ -16,7 +22,14 @@ import {
   updateUserValidator,
   getConnectionsValidator,
   searchUsersValidator,
+  createAccountSettingsValidator,
 } from "../middleware/validator/user.js";
+import ResourceController from "../controllers/resource.js";
+import {
+  addResourceValidator,
+  validateIds,
+} from "../middleware/validator/resource.js";
+import { deletePostDraftValidator } from "../middleware/validator/post.js";
 
 const userRoute = Router();
 userRoute.get(
@@ -49,10 +62,23 @@ userRoute.post(
 userRoute.get(
   "/connections/:userId/:type",
   userAuth,
-  getConnectionsValidator
-  //getConnections // to be implemented
+  getConnectionsValidator,
+  getConnections
 );
 
 userRoute.get("/search", userAuth, searchUsersValidator, searchUsers);
+userRoute.post(
+  "/account-settings",
+  userAuth,
+  createAccountSettingsValidator,
+  createAccountSettings
+);
+userRoute.get("/account-settings", userAuth, getAccountSettings);
 
+userRoute.put("/:userId/saveResource", userAuth,ResourceController.saveResource);
+userRoute.delete("/:userId/unsaveResource", userAuth,ResourceController.unsaveResource);
+userRoute.get("/:userId/reading_list",userAuth,ResourceController.getReadingList);
+userRoute.get("/drafts", userAuth, userDrafts);
+userRoute.get("/drafts/count", userAuth, userDraftsCount);
+userRoute.delete("/draft/:id",userAuth,deletePostDraftValidator,userDraft)
 export default userRoute;

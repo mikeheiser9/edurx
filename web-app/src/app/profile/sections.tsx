@@ -1,4 +1,8 @@
-import { getFullName, getStaticImageUrl } from "@/util/helpers";
+import {
+  getFullName,
+  getSemanticViewsCount,
+  getStaticImageUrl,
+} from "@/util/helpers";
 import {
   faComments,
   faEdit,
@@ -6,38 +10,31 @@ import {
 } from "@fortawesome/free-regular-svg-icons";
 import {
   faChartColumn,
-  faFileInvoice,
   faLocationDot,
   faStethoscope,
-  faUser,
-  faXmark,
+  faX,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Image from "next/image";
 import instagram from "../../assets/icons/instagram.svg";
 import linkedin from "../../assets/icons/linkedin.svg";
-import twitter from "../../assets/icons/twitter.svg";
+import x from "../../assets/icons/twitter.svg";
+import email from "../../assets/icons/email.svg";
 import facebook from "../../assets/icons/facebook.svg";
-import eduIcon from "../../assets/icons/eduIcon.svg";
-import { npiToDefinition } from "@/util/constant";
+import { npiToDefinition, profileSections } from "@/util/constant";
 import moment from "moment";
 import { TabMenu } from "@/components/tabMenu";
 import { Button } from "@/components/button";
 import { LoadMore } from "@/components/loadMore";
+import replaceTaggedUsers from "../../components/replaceTags";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
 const socialMediaIcons: socials = {
   instagram,
   facebook,
-  twitter,
+  x,
   linkedin,
-};
-
-const profileSections: profileSections = {
-  about: "About",
-  education: "Education",
-  certifications: "Certifications",
-  licenses: "Licenses",
-  profileImages: "Profile Images",
+  email,
 };
 
 interface LastDocRefType {
@@ -48,21 +45,39 @@ interface LastDocRefType {
 const EditIcon = ({ onClick }: { onClick: () => void }) => (
   <FontAwesomeIcon
     icon={faEdit}
-    className="text-white z-10 cursor-pointer absolute right-0 m-4"
+    className="text-eduBlack z-10 cursor-pointer absolute right-0 m-4"
     onClick={onClick}
   />
+);
+
+const SocialIcon = ({ value, href }: { value: string; href: string }) => (
+  <a
+    className="bg-eduDarkBlue flex justify-center rounded-full md:h-7 md:w-7 md:p-0 w-5 h-5 p-1"
+    href={href}
+    target="_blank"
+    rel="noopener noreferrer"
+    title={value}
+  >
+    <Image
+      src={socialMediaIcons[value as keyof socials] as string}
+      className="invert"
+      alt={value}
+    />
+  </a>
 );
 
 const BasicInfo = ({
   userData,
   openModal,
+  buttonJsx,
 }: {
   userData: UserData;
   openModal?: () => void;
+  buttonJsx?: React.ReactElement;
 }): React.ReactElement => (
-  <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-lg">
+  <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-none">
     {openModal && <EditIcon onClick={openModal} />}
-    <div className="w-full hover:blur-sm duration-500 h-40 overflow-hidden bg-gradient-to-b from-primary/20 items-center justify-center flex">
+    <div className="w-full hover:blur-sm duration-500 h-40 overflow-hidden bg-eduDarkGray items-center justify-center flex">
       {userData?.banner_img ? (
         <Image
           src={getStaticImageUrl(userData?.banner_img)}
@@ -72,11 +87,11 @@ const BasicInfo = ({
           className="h-40 w-full object-cover"
         />
       ) : (
-        <FontAwesomeIcon icon={faImage} className="text-primary text-4xl" />
+        <FontAwesomeIcon icon={faImage} className="text-eduDarkBlue text-4xl" />
       )}
     </div>
-    <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8">
-      <div className="rounded-lg overflow-hidden flex items-center justify-center hover:blur-sm ease-in-out duration-500 bg-white -mt-[4rem] relative w-24 h-24">
+    <div className="p-6  xl:px-16 lg:px-12 md:px-10 px-4 bg-eduLightGray ipad-under:bg-white">
+      <div className="rounded-lg overflow-hidden flex items-center justify-center hover:blur-sm ease-in-out duration-500 bg-white -mt-[4rem] relative w-20 h-20 md:w-24 md:h-24">
         {userData?.profile_img ? (
           <Image
             src={getStaticImageUrl(userData?.profile_img)}
@@ -86,22 +101,26 @@ const BasicInfo = ({
             className="w-24 h-24 object-cover"
           />
         ) : (
-          <FontAwesomeIcon icon={faImage} className="text-primary text-4xl" />
+          <FontAwesomeIcon
+            icon={faImage}
+            className="text-eduDarkBlue text-4xl"
+          />
         )}
       </div>
       <div className="flex gap-2 mt-4">
         <div className="flex-1">
           <div className="flex gap-2 flex-col">
-            <span className="text-white capitalize">
+            <span className="text-eduBlack capitalize font-headers md:text-[24px] text-base">
               {getFullName(userData?.first_name, userData?.last_name)}
             </span>
-            <span className="text-white/50 text-xs">
+            <span className="text-eduBlack/60 md:text-base text-10px font-body">
               {userData?.role === "student" ? (
                 "Student "
               ) : (
                 <>
                   <FontAwesomeIcon icon={faLocationDot} className="me-2" />
-                  {userData?.city}, {userData?.state} •{" "}
+                  {/* {userData?.city}, {userData?.state && userData?.state}•{" "} */}
+                  {userData?.state && userData?.state}•{" "}
                   {userData?.npi_designation
                     ?.map((item: string) => {
                       if (item)
@@ -112,63 +131,100 @@ const BasicInfo = ({
                     ?.toString()}{" "}
                 </>
               )}
-              • Member Since{" "}
-              {userData?.joined ? moment(userData?.joined).year() : "-"}
+              {/* • Member Since{" "}
+              {userData?.joined ? moment(userData?.joined).year() : "-"} */}
             </span>
-            <span className="text-white/50 text-xs">
+            <span className="text-eduBlack/60 md:text-base text-10px font-body">
               <FontAwesomeIcon icon={faStethoscope} className="me-2" />
-              Licensed in: IL, TX, CA, FL
+              Licensed in: {userData?.state}
             </span>
-            <div className="flex text-white/50 text-xs gap-x-4">
-              <span>
-                <b className="text-white">{userData?.followingCount}</b>{" "}
-                Following
-              </span>
-              <span>
-                <b className="text-white">{userData?.followersCount}</b>{" "}
-                Followers
-              </span>
-            </div>
-            {userData?.socials && Object.keys(userData?.socials).length > 0 && (
-              <div className="flex gap-2">
-                {Object.keys(userData?.socials)?.map((item: string) => {
-                  if (
-                    userData?.socials?.[item as keyof socials]?.length &&
-                    socialMediaIcons?.[item as keyof socials]
-                  ) {
-                    return (
-                      <a
-                        className="bg-primary flex justify-center rounded-full h-7 w-7"
-                        key={item}
-                        href={`https://${item}.com/${
-                          userData?.socials?.[item as keyof socials]
-                        }`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title={item}
-                      >
-                        <Image
-                          src={
-                            socialMediaIcons[item as keyof socials] as string
-                          }
-                          alt={item}
-                        />
-                      </a>
-                    );
-                  }
-                })}
+            <div className="flex text-eduBlack md:text-xs text-10px gap-x-4 font-body justify-between">
+              <div>
+                <span className="font-body">
+                  <b className="text-eduBlack md:text-[12px] text-10px font-body">
+                    {userData?.followingCount}
+                  </b>{" "}
+                  Following
+                </span>
+                <span className="font-body">
+                  <b className="text-eduBlack md:text-[12px] text-10px font-body">
+                    &nbsp;&nbsp; {userData?.followersCount}
+                  </b>{" "}
+                  Followers
+                </span>
               </div>
-            )}
+            </div>
           </div>
         </div>
-        <div className="justify-self-end self-end">
-          <button
-            type="button"
-            className="border rounded-md p-2 hover:bg-primary w-auto px-4 font-medium text-sm text-primary border-primary bg-primary/10 hover:text-white transition-all ease-in-out duration-300"
-            onClick={openModal}
-          >
-            Edit Profile
-          </button>
+        {buttonJsx
+          ? buttonJsx
+          : openModal && (
+              <div className="justify-self-end self-start">
+                <button
+                  type="button"
+                  className="border md:rounded-[10px] rounded md:py-2 py-1 md:px-4 px-2 font-body md:text-[16px] text-xs md:w-[125px] w-[92px] text-eduBlack border-eduBlack hover:text-white hover:bg-eduBlack transition-colors ease-in-out duration-300"
+                  onClick={openModal}
+                >
+                  Edit Profile
+                </button>
+              </div>
+            )}
+      </div>
+      <div className="flex gap-2 justify-between flex-wrap mt-3">
+        <div className="flex md:gap-2 gap-1 SocialIconBlock pt-4">
+          {userData?.socials &&
+            Object.keys(userData?.socials)?.map((item: string) => {
+              if (
+                userData?.socials?.[item as keyof socials]?.length &&
+                socialMediaIcons?.[item as keyof socials]
+              ) {
+                return (
+                  <SocialIcon
+                    value={item as keyof socials}
+                    href={userData?.socials?.[item as keyof socials] || ""}
+                    key={item}
+                  />
+                );
+              }
+            })}
+          {userData?.contact_email && (
+            <SocialIcon
+              value="email"
+              href={`mailto:${userData?.contact_email}`}
+            />
+          )}
+        </div>
+
+        <div className="available-block ml-auto">
+          {(userData.Collaboration ||
+            userData.Mentorship ||
+            userData.Research) && (
+            <span className="relative block mb-3  text-eduBlack capitalize font-headers md:text-[18px] text-xs font-[600]">
+              Available For :{" "}
+            </span>
+          )}
+
+          {(userData.Collaboration ||
+            userData.Mentorship ||
+            userData.Research) && (
+            <div className="relative  flex md:gap-x-3 gap-x-1">
+              {userData.Collaboration && (
+                <span className="bg-eduDarkGray text-eduLightBlue px-2 py-1 md:text-sm text-[8px]">
+                  Collaboration
+                </span>
+              )}
+              {userData.Mentorship && (
+                <span className="bg-eduDarkGray text-eduLightBlue px-2 py-1 md:text-sm text-[8px]">
+                  Mentorship
+                </span>
+              )}
+              {userData.Research && (
+                <span className="bg-eduDarkGray text-eduLightBlue px-2 py-1 md:text-sm text-[8px]">
+                  Research
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -178,209 +234,470 @@ const BasicInfo = ({
 const About = ({
   personal_bio,
   openModal,
+  emptyBioMessage,
 }: {
   personal_bio: string | undefined;
   openModal?: () => void;
-}) => (
-  <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-lg">
-    {personal_bio && openModal && <EditIcon onClick={openModal} />}
-    <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-col gap-2">
-      <span className="text-white text-xl font-bold font-serif tracking-wide">
-        About
-      </span>
-      <p className="text-white/60 text-sm">
-        {personal_bio || "You don't have about / bio yet."}
-      </p>
-    </div>
-  </div>
-);
-
-const PostList = ({ posts }: { posts: [] | undefined }): React.ReactElement => (
-  <>
-    {posts?.length ? (
-      <div className="grid grid-cols-2 gap-2 ease-in-out transform duration-1000">
-        {posts.map((post: any) => (
-          <div className="flex gap-2" key={post?._id}>
-            <div className="w-14 h-14 bg-primary/80 rounded-md">
-              <Image src="edurxLogo.svg" width={200} height={200} alt="" />
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-white text-sm">{post?.title}</span>
-              <span className="text-xs text-white/50">
-                {post?.forumType} • Published on{" "}
-                {moment(post?.createdAt).format("DD/MM/YYYY")}
-              </span>
-              <div className="flex text-xs text-white/50 gap-2">
-                <FontAwesomeIcon icon={faComments} />
-                <span>{post?.commentCount} Comments</span>
-                <FontAwesomeIcon icon={faChartColumn} />
-                <span>{post?.views} views</span>
-              </div>
-            </div>
-          </div>
-        ))}
+  emptyBioMessage?: string;
+}) => {
+  const [showMore, setShowMore] = useState(false);
+  return (
+    <div className="p-4 px-4 xl:px-16 lg:px-12 md:px-10  bg-eduLightGray ipad-under:bg-white">
+      <div className="flex justify-between items-center md:mb-0 mb-3.5">
+        <span className="text-eduBlack md:text-[24px] text-base font-semibold font-headers tracking-wide">
+          About
+        </span>
+        {openModal && <EditIcon onClick={openModal} />}
       </div>
-    ) : (
-      <span className="text-white">You have no forum posts yet.</span>
-    )}
-  </>
-);
+      <div
+        className={` overflow-hidden flex-auto relative rounded-lg flex items-center ${
+          !showMore ? "h-[150px]" : "h-[300px] overflow-y-auto"
+        }`}
+      >
+        <div className="flex flex-col gap-2">
+          <p className="text-eduBlack/60 md:text-base text-xs font-body">
+            {personal_bio && personal_bio.length > 0
+              ? showMore
+                ? personal_bio
+                : personal_bio?.trim().substring(0, 470) + "..."
+              : ""}
+          </p>
+        </div>
+        {!personal_bio && (
+          <p className="text-eduBlack/60 pl-[34%]">{emptyBioMessage}</p>
+        )}
+      </div>
+      {personal_bio && personal_bio.length > 0 && (
+        <span
+          className="flex justify-center items-center font-[700] opacity-[50%] md:text-[0.8em] text-[9px] cursor-pointer"
+          onClick={() => setShowMore(!showMore)}
+        >
+          {showMore ? "Read Less" : "Read More"}
+        </span>
+      )}
+    </div>
+  );
+};
+
+const PostList = ({
+  posts,
+  noDataMessage,
+  profileModal,
+  setSelectedPostId,
+  showMore,
+}: {
+  posts: PostInterface[] | undefined;
+  noDataMessage: string;
+  profileModal?: UseModalType;
+  setSelectedPostId: Dispatch<SetStateAction<string>>;
+  showMore: boolean;
+}): React.ReactElement => {
+  let postToBeRendered: PostInterface[] | undefined = [];
+  if (!showMore && posts && posts.length > 0) {
+    postToBeRendered = posts.slice(0, 2);
+  } else {
+    postToBeRendered = posts;
+  }
+  return (
+    <>
+      {postToBeRendered?.length ? (
+        <div className="grid grid-cols-[1fr,22%] gap-3 animate-fade-in-down cursor-pointer">
+          {postToBeRendered.map((post) => (
+            <>
+              <div
+                className="w-[100%] flex flex-col"
+                key={post?._id}
+                onClick={() => {
+                  profileModal?.closeModal();
+                  setSelectedPostId(post?._id);
+                }}
+              >
+                <div className="flex flex-col gap-1">
+                  <span className="text-eduBlack md:text-[16px] md:leading-normal text-[11px] font-[500] font-headers capitalize">
+                    {post?.title && post?.title.length < 73
+                      ? post?.title
+                      : post?.title?.substring(0, 73) + "..."}
+                  </span>
+                </div>
+                <div className="md:text-[15px] md:leading-normal text-10px text-eduBlack/60 font-body">
+                  {post?.forumType} • Published on{" "}
+                  {moment(post?.createdAt).format("DD/MM/YYYY")}
+                </div>
+              </div>
+              <div className="flex md:text-[15px] text-10px text-eduBlack/60  font-body  justify-between">
+                <div className="flex md:gap-4 gap-1.5 text-eduLightBlue">
+                  <FontAwesomeIcon icon={faComments} />
+                  <span>
+                    {getSemanticViewsCount(Number(post?.commentCount))}
+                  </span>
+                </div>
+                <div className="flex md:gap-4 gap-1.5 text-eduLightBlue">
+                  <FontAwesomeIcon icon={faChartColumn} />
+                  <span>{getSemanticViewsCount(Number(post?.views))}</span>
+                </div>
+              </div>
+            </>
+          ))}
+        </div>
+      ) : (
+        <span className="text-eduBlack text-eduBlack/60 md:text-[16px] md:leading-normal text-10px font-body flex justify-center items-center">
+          {noDataMessage}
+        </span>
+      )}
+    </>
+  );
+};
 
 const CommentList = ({
   comments,
   profileImage,
+  noDataMessage,
+  setSelectedPostId,
+  showMore,
+  profileModal,
 }: {
-  comments: [] | undefined;
+  comments: Comment[] | undefined;
   profileImage?: string | undefined;
-}): React.ReactElement => (
-  <>
-    {comments?.length ? (
-      <div className="flex flex-auto flex-wrap gap-2 ease-in-out transform duration-1000">
-        {comments.map((comment: any) => (
-          <div className="flex gap-2 items-center" key={comment?._id}>
-            <div className="w-8 overflow-hidden h-8 text-white justify-center items-center flex bg-primary/80 rounded-full">
-              {profileImage ? (
-                <Image
-                  src={getStaticImageUrl(profileImage)}
-                  width={200}
-                  height={200}
-                  alt="user_img"
-                />
-              ) : (
-                <FontAwesomeIcon icon={faUser} />
-              )}
-            </div>
-            <span className="text-white text-sm">{comment?.content}</span>
-            <span className="text-xs text-white/50">
-              {/* {post?.forumType} • Published on{" "} */}•{" "}
-              {moment(comment?.createdAt).fromNow()} •
-            </span>
-            {/* <div className="flex text-xs text-white/50 gap-2">
+  noDataMessage: string;
+  setSelectedPostId: Dispatch<SetStateAction<string>>;
+  showMore: boolean;
+  profileModal: UseModalType | undefined;
+}): React.ReactElement => {
+  let commentsToBeRendered: Comment[] | undefined = [];
+  if (!showMore && comments && comments.length > 0) {
+    commentsToBeRendered = comments.slice(0, 2);
+  } else {
+    commentsToBeRendered = comments;
+  }
+  return (
+    <>
+      {commentsToBeRendered?.length ? (
+        <div className="flex flex-auto flex-col gap-2 animate-fade-in-down cursor-pointer">
+          {commentsToBeRendered.map((comment) => (
+            <div
+              className="flex flex-wrap flex-auto overflow-visible bg-eduDarkGray py-2 px-6 rounded-md gap-2 items-center"
+              key={comment?._id}
+              onClick={() => {
+                profileModal?.closeModal();
+                setSelectedPostId(comment?.postId as string);
+              }}
+            >
+              <div className="text-eduBlack relative text-[14px]">
+                {comment.content &&
+                  replaceTaggedUsers({
+                    content: comment.content,
+                    taggedUsers: comment?.taggedUsers ?? [],
+                    showCard: false,
+                  })}
+              </div>
+              <span className="text-eduBlack text-[14px] ipad-under:text-[12px]">
+                •
+              </span>
+              <span className="text-[12px] text-eduDarkBlue">
+                {moment(comment?.createdAt).fromNow()}
+              </span>
+              {/* <div className="flex text-xs text-eduBlack/50 gap-2">
               <FontAwesomeIcon icon={faChartColumn} />
               <span>{comment?.views} views</span>
             </div> */}
-          </div>
-        ))}
-      </div>
-    ) : (
-      <span className="text-white">You have no forum comments yet.</span>
-    )}
-  </>
-);
+            </div>
+          ))}
+        </div>
+      ) : (
+        <span className="text-eduBlack text-eduBlack/60 md:text-[16px] md:leading-normal text-10px font-body flex justify-center items-center">
+          {noDataMessage}
+        </span>
+      )}
+    </>
+  );
+};
 
 const Activity = ({
   posts,
   comments,
   profileImage,
+  noPostMessage,
+  noCommentMessage,
+  profileModal,
+  setSelectedPostId,
 }: {
   posts: [] | undefined;
   comments: [] | undefined;
   profileImage?: string | undefined;
-}): React.ReactElement => (
-  <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-lg lg:min-h-[12rem]">
-    <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-col gap-2">
-      <span className="text-white text-xl font-bold font-serif tracking-wide">
-        Activity
-      </span>
-      <TabMenu
-        options={[
-          {
-            label: "Posts",
-            component: () => <PostList posts={posts} />,
-          },
-          {
-            label: "Comments",
-            component: () => (
-              <CommentList comments={comments} profileImage={profileImage} />
-            ),
-          },
-        ]}
-        componentWrapperClass="py-2"
-      />
-    </div>
-  </div>
-);
+  noPostMessage: string;
+  noCommentMessage: string;
+  profileModal?: UseModalType;
+  setSelectedPostId: React.Dispatch<React.SetStateAction<string>>;
+}): React.ReactElement => {
+  const [showMore, setShowMore] = useState(false);
+  return (
+    <>
+      <div className="bg-eduLightGray py-2 ipad-under:bg-white">
+        <div
+          className={`bg-eduLightGray ipad-under:bg-white flex-auto relative rounded-lg lg:min-h-[12rem] overflow-hidden ${
+            !showMore ? "h-[150x]" : "h-[300px] overflow-y-auto"
+          }`}
+        >
+          <div className="p-4 px-4 xl:px-16 lg:px-12 md:px-10  flex flex-col gap-2">
+            <span className="text-eduBlack md:text-[24px] md:leading-normal text-base font-semibold font-headers tracking-wide">
+              Activity
+            </span>
+            <TabMenu
+              options={[
+                {
+                  label: "Posts",
+                  component: () => (
+                    <PostList
+                      posts={posts}
+                      noDataMessage={noPostMessage}
+                      profileModal={profileModal}
+                      setSelectedPostId={setSelectedPostId}
+                      showMore={showMore}
+                    />
+                  ),
+                },
+                {
+                  label: "Comments",
+                  component: () => (
+                    <CommentList
+                      comments={comments}
+                      profileImage={profileImage}
+                      noDataMessage={noCommentMessage}
+                      setSelectedPostId={setSelectedPostId}
+                      showMore={showMore}
+                      profileModal={profileModal}
+                    />
+                  ),
+                },
+              ]}
+              componentWrapperClass="py-2"
+            />
+          </div>
+        </div>
+
+        {((posts && posts?.length > 2) ||
+          (comments && comments?.length > 2)) && (
+          <span
+            className=" flex justify-center items-center text-center font-[700] opacity-[50%] text-[0.8em] cursor-pointer"
+            onClick={() => setShowMore(!showMore)}
+          >
+            {showMore ? "View Less" : "View More"}
+          </span>
+        )}
+      </div>
+    </>
+  );
+};
 
 const Education = ({
   educations,
   onEditClick,
+  noEducationMessage,
 }: {
   educations: education[] | undefined;
   onEditClick?: () => void;
-}): React.ReactElement => (
-  <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-lg lg:min-h-[12rem]">
-    {onEditClick && <EditIcon onClick={onEditClick} />}
-    <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-col gap-2">
-      <span className="text-white text-xl font-bold font-serif tracking-wide">
-        Education
-      </span>
-      {educations?.length ? (
-        educations?.map((value: education) => (
-          <div className="flex gap-4" key={value?._id || Date.now()}>
-            <div className="flex">
-              <Image src={eduIcon} alt={`${value?._id as string}alt`} />
-            </div>
-            <div className="flex flex-1 flex-col text-white gap-1">
-              <span className="text-base capitalize font-mono">
-                {value?.school_name || "-"}
-              </span>
-              <span className="text-white/50 text-xs">
-                {value?.field_of_study} - {value?.degree}
-              </span>
-              <div className="text-white/50 text-xs">
-                {moment(value?.start_date).format("YYYY")}
-                {" - "}
-                <span>
-                  {value?.is_in_progress
-                    ? "Present"
-                    : moment(value?.start_date).format("YYYY")}
-                </span>
-              </div>
-            </div>
+  noEducationMessage: string;
+}): React.ReactElement => {
+  const [showMore, setShowMore] = useState(false);
+  let educationsToBeRendered: education[] | undefined = [];
+  if (!showMore && educations && educations.length > 0) {
+    educationsToBeRendered = educations.slice(0, 2);
+  } else {
+    educationsToBeRendered = educations;
+  }
+  return (
+    <div className="bg-eduLightGray py-2 ipad-under:bg-white">
+      <div
+        className={`overflow-hidden flex-auto relative rounded-lg lg:min-h-[12rem] text-eduBlack `}
+      >
+        <div className="p-4 px-4 xl:px-16 lg:px-12 md:px-10  flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <span className="text-eduBlack md:text-[24px] md:leading-normal text-base font-semibold font-headers tracking-wide">
+              Education
+            </span>
+            {onEditClick && <EditIcon onClick={onEditClick} />}
           </div>
-        ))
-      ) : (
-        <span className="text-white">
-          You have not shared any education hisory yet.
+          <div
+            className={`flex-auto flex flex-col gap-2 pr-6 lg:min-h-[12rem] ${
+              !showMore
+                ? "h-auto justify-center"
+                : "h-[300px] overflow-y-auto justify-start"
+            }`}
+          >
+            {educationsToBeRendered &&
+              educationsToBeRendered?.length > 0 &&
+              educationsToBeRendered?.map((value: education) => (
+                <div className="flex gap-4 " key={value?._id || Date.now()}>
+                  <div className="flex flex-1 flex-col text-eduBlack gap-1">
+                    <span className="capitalize text-eduBlack md:text-[16px] md:leading-normal text-xs font-[500] font-headers">
+                      {value?.school_name || "-"}
+                    </span>
+                    <span className="text-eduBlack/60 md:text-[15px] text-10px font-body">
+                      {value?.field_of_study} - {value?.degree}
+                    </span>
+                    <div className="text-eduBlack/60 md:text-[15px] text-10px font-body">
+                      {moment(value?.start_date).format("YYYY")}
+                      {" - "}
+                      <span>
+                        {value?.is_in_progress
+                          ? "Present"
+                          : moment(value?.start_date).format("YYYY")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            {educationsToBeRendered?.length == 0 && (
+              <span className="text-eduBlack/60 text-[16px] font-body flex items-center justify-center ">
+                {noEducationMessage}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+      {educations && educations.length > 0 && (
+        <span
+          className="font-[700] opacity-[50%] md:text-[0.8em] text-[9px] cursor-pointer flex justify-center items-center"
+          onClick={() => setShowMore(!showMore)}
+        >
+          {showMore ? "View Less" : "View More"}
         </span>
       )}
     </div>
-  </div>
-);
+  );
+};
+
+const CertificateAndLicense = ({
+  type,
+  userData,
+  lastDocRef,
+  noDataMessage,
+  onEditClick,
+  isLoading,
+  onLoadMore,
+}: {
+  type: "licenses" | "certificates";
+  userData: UserData;
+  lastDocRef: LastDocRefType;
+  noDataMessage: string;
+  onEditClick: (() => void) | undefined;
+  isLoading: boolean;
+  onLoadMore: () => Promise<void>;
+}) => {
+  const [showMore, setShowMore] = useState(false);
+  let documentToBeRendered: userDocs[] | undefined = [];
+  if (!showMore && userData?.[type] && userData?.[type].length > 0) {
+    documentToBeRendered = userData?.[type].slice(0, 2);
+  } else {
+    documentToBeRendered = userData?.[type];
+  }
+  const countCompare =
+    type == "certificates"
+      ? userData.certificatesCount
+      : userData.licensesCount;
+  return (
+    <div className="bg-eduLightGray py-2 ipad-under:bg-white">
+      <div
+        className={` overflow-hidden flex-auto relative rounded-lg text-eduBlack`}
+      >
+        <div className="p-4 pl-4 xl:pl-16 lg:pl-12 md:pl-10  flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <span className="text-eduBlack md:text-[24px] md:leading-normal text-base font-headers font-semibold tracking-wide capitalize">
+              {type}
+            </span>
+            {onEditClick && <EditIcon onClick={onEditClick} />}
+          </div>
+          <div
+            className={`flex-auto flex flex-col gap-2 pr-6 lg:min-h-[12rem] ${
+              !showMore
+                ? "h-auto justify-center"
+                : "h-[300px] overflow-y-auto justify-start"
+            }`}
+          >
+            {documentToBeRendered?.length > 0 &&
+              documentToBeRendered?.map((value: userDocs) => (
+                <div className="flex gap-4 " key={value?._id || Date.now()}>
+                  <div className="flex flex-1 flex-col text-eduBlack gap-1">
+                    <span className="capitalize text-eduBlack md:text-[16px] md:leading-normal text-xs font-[500] font-headers">
+                      {value?.doc_name || "-"}
+                    </span>
+                    <span className="text-eduBlack/60 md:text-[15px] text-10px font-body">
+                      {value?.issuer_organization || "-"}
+                    </span>
+                    {value?.issue_date && (
+                      <span className="text-eduBlack/60 md:text-[12px] text-10px capitalize font-body">
+                        Issued {" "}
+                        {moment(value?.issue_date).format("DD/MM/YYYY") || "-"}
+                      </span>
+                    )}
+                    {(value?.doc_id?.length as number) > 0 && (
+                      <span className="text-eduBlack/60 md:text-[12px] text-10px capitalize font-body">
+                        Credential ID {value?.doc_id || "-"}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            {documentToBeRendered?.length == 0 && (
+              <span className="text-eduBlack/60 text-[16px] font-body flex items-center justify-center ">
+                {noDataMessage?.replaceAll("{type}", type)}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+      {showMore && userData?.[type]?.length < countCompare && (
+        <LoadMore isLoading={isLoading} onClick={onLoadMore} />
+      )}
+      {documentToBeRendered?.length > 0 && (
+        <span
+          className="font-[700] opacity-[50%] md:text-[0.8em] text-[9px] cursor-pointer flex justify-center items-center"
+          onClick={() => {
+            setShowMore(!showMore);
+          }}
+        >
+          {showMore ? "View Less" : "View More"}
+        </span>
+      )}
+    </div>
+  );
+};
 
 const DocList = ({
   type,
   userData,
   lastDocRef,
+  noDataMessage,
 }: {
   type: "licenses" | "certificates";
   userData: UserData;
   lastDocRef: LastDocRefType;
+  noDataMessage: string;
 }) => (
   <div className="flex flex-col gap-2 mt-4  h-auto max-h-[40vh] overflow-y-auto">
     {userData?.[type]?.length ? (
       userData?.[type]?.map((value: userDocs) => (
-        <div className="flex gap-x-6" key={value?._id || Date.now()}>
-          <div className="flex">
+        <div className="flex gap-x-6 gap-y-2" key={value?._id || Date.now()}>
+          {/* <div className="flex">
             <FontAwesomeIcon
               icon={faFileInvoice}
-              className="text-white w-10 h-10"
+              className="text-eduBlack w-10 h-10"
             />
-          </div>
-          <div className="flex flex-1 flex-col text-white gap-1">
-            <span className="text-base font-mono capitalize">
+          </div> */}
+          <div className="flex flex-1 flex-col text-eduBlack gap-1">
+            <span className="font-headers capitalize text-[14px]">
               {value?.doc_name || "-"}
             </span>
-            <span className="text-white/50 text-xs capitalize">
+            <span className="text-eduBlack/60 text-[12px] capitalize font-body">
               {value?.issuer_organization || "-"}
             </span>
             {value?.issue_date && (
-              <span className="text-white/50 text-xs">
-                Issued {value?.issue_date || "-"}
+              <span className="text-eduBlack/60 text-[12px] capitalize font-body">
+                Issued {moment(value?.issue_date).format("DD/MM/YYYY") || "-"}
               </span>
             )}
             {(value?.doc_id?.length as number) > 0 && (
-              <span className="text-white/50 text-xs">
+              <span className="text-eduBlack/60 text-[12px] capitalize font-body">
                 Credential ID {value?.doc_id || "-"}
               </span>
             )}
@@ -388,7 +705,9 @@ const DocList = ({
         </div>
       ))
     ) : (
-      <span className="text-white">You have not shared any {type} yet</span>
+      <span className="text-eduBlack">
+        {noDataMessage?.replaceAll("{type}", type)}
+      </span>
     )}
     <div ref={lastDocRef[type]} />
   </div>
@@ -400,31 +719,34 @@ const Documents = ({
   onLoadMore,
   isLoading,
   onEditClick,
+  noDataMessage,
 }: {
   userData: UserData;
   lastDocRef: LastDocRefType;
   onLoadMore(doc_type: string): void;
   isLoading: boolean;
   onEditClick?: () => void;
+  noDataMessage: string;
 }) => (
   <div className="bg-primary-dark overflow-hidden flex-auto relative rounded-lg lg:min-h-[12rem]">
     {(userData?.licenses?.length > 0 || userData?.certificates?.length > 0) &&
       onEditClick && <EditIcon onClick={onEditClick} />}
-    <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-auto gap-2 flex-wrap">
+    <div className="p-4 px-6 xl:px-16 lg:px-12 md:px-10 sm:px-8 flex flex-auto gap-2 flex-wrap bg-eduLightGray">
       <div className="flex-1">
-        <span className="text-white text-xl font-bold font-serif tracking-wide">
-          Certifications{" "}
-          {userData?.certificates?.length > 0 && (
+        <span className="text-eduBlack text-[24px] font-semibold font-headers tracking-wide">
+          Certifications
+          {/* {userData?.certificates?.length > 0 && (
             <span className="text-primary text-xs font-sans opacity-80">
               (Showing {userData?.certificates?.length} /{" "}
               {userData?.certificatesCount})
             </span>
-          )}
+          )} */}
         </span>
         <DocList
           userData={userData}
           lastDocRef={lastDocRef}
           type="certificates"
+          noDataMessage={noDataMessage}
         />
         {userData?.certificates?.length < userData?.certificatesCount && (
           <LoadMore
@@ -434,15 +756,20 @@ const Documents = ({
         )}
       </div>
       <div className="flex-1">
-        <span className="text-white text-xl font-bold font-serif">
-          Licenses{" "}
-          {userData?.licenses?.length > 0 && (
+        <span className="text-eduBlack text-[24px] font-semibold font-headers tracking-wide">
+          Licenses
+          {/* {userData?.licenses?.length > 0 && (
             <span className="text-primary text-xs font-sans opacity-80">
               (Showing {userData?.licenses?.length} / {userData?.licensesCount})
             </span>
-          )}
+          )} */}
         </span>
-        <DocList userData={userData} lastDocRef={lastDocRef} type="licenses" />
+        <DocList
+          userData={userData}
+          lastDocRef={lastDocRef}
+          type="licenses"
+          noDataMessage={noDataMessage}
+        />
         {userData?.licenses?.length < userData?.licensesCount && (
           <LoadMore
             isLoading={isLoading}
@@ -458,40 +785,47 @@ const ModalHeader = ({
   currentSection,
   closeModal,
   setCurrentSection,
+  setIsListView,
 }: {
   currentSection: keyof profileSections;
   closeModal: () => void;
   setCurrentSection(section: keyof profileSections): void;
+  setIsListView: React.Dispatch<React.SetStateAction<boolean>>;
 }) => (
   <>
-    <div className="flex p-3 items-center bg-primary">
-      <span className="text-xl font-medium justify-self-start">
+    <div className="flex p-3 items-center bg-eduDarkGray">
+      <span className="text-[22px] ipad-under:text-[16px] font-semibold justify-self-start font-headers text-eduBlack">
         {profileSections[currentSection] as string}
       </span>
       <FontAwesomeIcon
-        icon={faXmark}
+        icon={faX}
         onClick={closeModal}
-        className="cursor-pointer ml-auto"
+        className="ml-auto font-bold self-center cursor-pointer text-eduBlack"
       />
     </div>
-    <ul className="flex gap-4 justify-center px-8 py-4">
-      {Object.keys(profileSections).map((section: string, index: number) => (
-        <li
-          className={`flex items-center ${
-            currentSection === section
-              ? "text-primary"
-              : "text-white cursor-pointer"
-          }`}
-          key={section}
-          onClick={() => setCurrentSection(section as keyof profileSections)}
-        >
-          {profileSections[section as keyof profileSections]}
-          {index !== Object.keys(profileSections).length - 1 && (
-            <span className="w-2 h-2 rounded-full ml-4 bg-[#8F8F8E] inline-block" />
-          )}
-        </li>
-      ))}
-    </ul>
+    <div className="px-2">
+      <ul className="flex gap-2 md:justify-center px-8 py-4 font-body  overflow-auto">
+        {Object.keys(profileSections).map((section: string, index: number) => (
+          <li
+            className={`flex items-center font-body font-normal md:text-[14px] md:leading-normal text-xs whitespace-nowrap  ${
+              currentSection === section
+                ? "text-primary"
+                : "text-eduBlack cursor-pointer"
+            }`}
+            key={section}
+            onClick={() => {
+              setCurrentSection(section as keyof profileSections);
+              setIsListView(true);
+            }}
+          >
+            {profileSections[section as keyof profileSections]}
+            {index !== Object.keys(profileSections).length - 1 && (
+              <span className="w-2 h-2 rounded-full ml-4 bg-eduBlack inline-block" />
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
   </>
 );
 
@@ -501,43 +835,105 @@ const ModalFooter = ({
   isLoading,
   onLoadMore,
   isListView,
+  setSaveAndExitButtonPressed,
+  setCurrentSection,
+  closeModal,
 }: {
   userData: UserData;
   currentSection: keyof profileSections;
   isLoading: boolean;
   isListView: boolean;
   onLoadMore(doc_type: "license" | "certificate"): void;
-}) => (
-  <>
-    {currentSection === "licenses" &&
-      isListView &&
-      userData?.licenses.length < userData?.licensesCount && (
-        <LoadMore isLoading={isLoading} onClick={() => onLoadMore("license")} />
-      )}
-    {currentSection === "certifications" &&
-      isListView &&
-      userData?.certificates?.length < userData?.certificatesCount && (
-        <LoadMore
-          isLoading={isLoading}
-          onClick={() => onLoadMore("certificate")}
+  setSaveAndExitButtonPressed: React.Dispatch<React.SetStateAction<boolean>>;
+  setCurrentSection: React.Dispatch<
+    React.SetStateAction<keyof profileSections>
+  >;
+  closeModal?: () => void;
+}) => {
+  const saveAndNextButtonRef: any = useRef(null);
+  const nextButtonRef: any = useRef(null);
+
+  const changeProfileSubTab = (type?: string) => {
+    if (
+      ["education", "certifications", "licenses"].includes(currentSection) &&
+      isListView
+    ) {
+      if (type == "save_exit") {
+        closeModal?.();
+      } else {
+        setCurrentSection((currentSection) => {
+          if (currentSection == "about") {
+            return "education";
+          } else if (currentSection == "education") {
+            return "certifications";
+          } else if (currentSection == "certifications") {
+            return "licenses";
+          } else if (currentSection == "licenses") {
+            return "profileImages";
+          } else {
+            return "about";
+          }
+        });
+      }
+    }
+  };
+
+  return (
+    <>
+      {currentSection === "licenses" &&
+        isListView &&
+        userData?.licenses?.length < userData?.licensesCount && (
+          <LoadMore
+            isLoading={isLoading}
+            onClick={() => onLoadMore("license")}
+          />
+        )}
+      {currentSection === "certifications" &&
+        isListView &&
+        userData?.certificates?.length < userData?.certificatesCount && (
+          <LoadMore
+            isLoading={isLoading}
+            onClick={() => onLoadMore("certificate")}
+          />
+        )}
+      <div className="m-3 text-center">
+        <button
+          type="submit"
+          id="save_exit"
+          form={userData?._id}
+          className="hidden"
+          ref={saveAndNextButtonRef}
         />
-      )}
-    <div className="m-3 flex justify-center">
-      <Button
-        // disabled={
-        // (currentSection as keyof profileSections) === "profileImages"
-        // &&
-        // !values?.banner_img &&
-        // !values?.profile_img
-        // }
-        type="submit"
-        label="Save"
-        className="w-1/5"
-        form={userData?._id}
-      />
-    </div>
-  </>
-);
+        <button
+          type="submit"
+          className="hidden"
+          form={userData?._id}
+          ref={nextButtonRef}
+        ></button>
+        <Button
+          type="button"
+          label="Save & Exit"
+          className="!bg-eduDarkBlue text-white"
+          onClick={() => {
+            setSaveAndExitButtonPressed(true);
+            saveAndNextButtonRef?.current.click();
+            changeProfileSubTab("save_exit");
+          }}
+        />
+        <Button
+          type="button"
+          label="Next"
+          className="ml-[10px]"
+          onClick={() => {
+            setSaveAndExitButtonPressed(false);
+            nextButtonRef?.current.click();
+            changeProfileSubTab();
+          }}
+        />
+      </div>
+    </>
+  );
+};
 
 export {
   BasicInfo,
@@ -547,4 +943,5 @@ export {
   Education,
   ModalHeader,
   ModalFooter,
+  CertificateAndLicense,
 };

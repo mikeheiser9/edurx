@@ -33,17 +33,80 @@ module.exports = {
             transform: "scale(1)",
           },
         },
+        wiggle: {
+          "0%, 100%": { transform: "rotate(-10deg)" },
+          "50%": { transform: "rotate(10deg)" },
+        },
       },
       animation: {
         "fade-in-down": "fade-in-down .3s ease-out",
         "scale-in": "scale-in .3s ease-in-out",
+        wiggle: "wiggle 200ms ease-in-out",
       },
+      // colors: {
+      //   primary: "#FDCD26",
+      //   "primary-light": "#F8F8F8",
+      //   "primary-dark": "#20201E",
+      //   "primary-darker": "#000000",
+      // },
       colors: {
         primary: "#FDCD26",
-        "primary-light": "#F8F8F8",
-        "primary-dark": "#20201E",
-        "primary-darker": "#000000",
+        eduBlack: "#13222A",
+        eduLightBlue: "#0F366D",
+        eduDarkBlue: "#05233B",
+        eduYellow: "#FDCD26",
+        eduDarkGray: "#E7E5E2",
+        eduLightGray: "#F9F8F9",
       },
+      fontSize: {
+        '8px': '5px',
+        '10px': '10px',
+        h1: [
+          "40px",
+          {
+            lineHeight: "50px",
+          },
+        ],
+        h2: [
+          "32px",
+          {
+            lineHeight: "42px",
+          },
+        ],
+        modalHead: [
+          "25px",
+          {
+            lineHeight: "35px",
+          },
+        ],
+      },
+      colors:{
+        'primary': '#FDCD26',
+        'eduBlack': '#13222a',
+        'eduLightBlue': '#0f366d',
+        'eduDarkBlue': '#05233b',
+        'eduYellow': '#fdcd26',
+        'eduDarkGray': '#e7e5e2',
+        'eduLightGray': '#f9f8f9'
+      },
+      fontFamily:{
+        body: ['Poppins', 'sans-serif'],
+        headers: ['Hahmlet', 'serif']
+      },
+       screens: {
+        'x-large': {'max': '1305px'},
+        'large': {'max': '1280px'},
+        'medium': {'max': '1250px'},
+        'tl': {'max': '1169px'},
+        'tablet-lg': {'max': '1075px'},
+        'ipad': {'max': '820px'},
+        'ipad-under': {'max': '767px'},
+        'over-small': {'max': '665px'},
+        'small': {'max': '550px'},
+        'iphone': {'max': '450px'},
+        'iphone-sm': {'max': '375px'},
+        'xx-small': {'max': '360px'},
+       },
     },
   },
   plugins: [],

@@ -12,11 +12,12 @@ const userSchema = new Schema(
     npi_number: String,
     npi_designation: [String],
     socials: {
-      twitter: String,
+      x: String,
       linkedin: String,
-      instagram: String,
+      instagram: String, 
       facebook: String,
       email: String,
+      website: String,
     },
     personal_bio: String,
     profile_img: String,
@@ -40,6 +41,15 @@ const userSchema = new Schema(
         activities: String,
       },
     ],
+    Mentorship: { type: Boolean, default: false },
+    Research: { type: Boolean, default: false },
+    Collaboration: { type: Boolean, default: false },
+    reading_list: [ 
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'resource'
+      }
+    ]
   },
   {
     timestamps: { createdAt: "joined" },
@@ -103,6 +113,9 @@ userSchema.virtual("followingCount", {
   localField: "_id",
   foreignField: "userId",
   count: true,
+  match: {
+    postId: undefined,
+  },
 });
 
 userSchema.virtual("followersCount", {
@@ -110,6 +123,9 @@ userSchema.virtual("followersCount", {
   localField: "_id",
   foreignField: "targetUserId",
   count: true,
+  match: {
+    postId: undefined,
+  },
 });
 
 userSchema.virtual("licensesCount", {
@@ -146,6 +162,12 @@ userSchema.virtual("recentComments", {
       createdAt: -1,
     },
   },
+});
+
+userSchema.virtual("followers", {
+  ref: "userConnections",
+  localField: "_id",
+  foreignField: "targetUserId",
 });
 
 export const userModel = model("users", userSchema);
