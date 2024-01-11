@@ -134,7 +134,7 @@ export default function SignUp() {
     { fieldName: "organization", label: "Organization name" },
   ];
   const handleAskNpi = async (
-    actions: FormikHelpers<professionalAccountSignUpField>,
+    actions: FormikHelpers<professionalAccountSignUpField>, 
     npiNumber: string
   ) => {
     setIsLoading(true);
