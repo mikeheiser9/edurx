@@ -6,6 +6,7 @@ import {
 } from "../middleware/validator/auth.js";
 import {
   adminLogin,
+  deleteCategoryFilterById,
   deleteResourceById,
   deleteUserByAdmin,
   fetchCategoryAndFilters,
@@ -14,11 +15,15 @@ import {
   fetchUsersByAdmin,
   insertCategoryFilter,
   insertResource,
+  updateCategoryOrFilterById,
   updateResourceById,
   updateUserByAdmin,
 } from "../controllers/admin.js";
 import { userAuth } from "../middleware/passport/userAuth.js";
-import { addCategoryFilterValidator, addResourceValidator } from "../middleware/validator/resource.js";
+import {
+  addCategoryFilterValidator,
+  addResourceValidator,
+} from "../middleware/validator/resource.js";
 
 const adminRoutes = Router();
 adminRoutes.post("/login", signInFieldValidator, adminLogin);
@@ -34,7 +39,12 @@ adminRoutes.put(
 );
 
 // RESOURCES
-adminRoutes.get("/resource/resources", userAuth,checkIsSuperAdmin, fetchResourceByAdmin);
+adminRoutes.get(
+  "/resource/resources",
+  userAuth,
+  checkIsSuperAdmin,
+  fetchResourceByAdmin
+);
 adminRoutes.get(
   "/resource/category",
   userAuth,
@@ -64,7 +74,12 @@ adminRoutes.post(
 
 // CATEGORIES/ FILTERS
 
-adminRoutes.get("/categories", userAuth, checkIsSuperAdmin ,fetchCategoryAndFilters);
+adminRoutes.get(
+  "/categories",
+  userAuth,
+  checkIsSuperAdmin,
+  fetchCategoryAndFilters
+);
 adminRoutes.post(
   "/categories",
   userAuth,
@@ -72,18 +87,18 @@ adminRoutes.post(
   addCategoryFilterValidator,
   insertCategoryFilter
 );
-// adminRoutes.delete(
-//   "/categories",
-//   userAuth,
-//   checkIsSuperAdmin,
-//   deleteResourceById
-// );
-// adminRoutes.put(
-//   "/categories",
-//   userAuth,
-//   checkIsSuperAdmin,
-//   addResourceValidator,
-//   updateResourceById
-// );
+adminRoutes.delete(
+  "/categories",
+  userAuth,
+  checkIsSuperAdmin,
+  deleteCategoryFilterById
+);
+adminRoutes.put(
+  "/categories",
+  userAuth,
+  checkIsSuperAdmin,
+  addCategoryFilterValidator,
+  updateCategoryOrFilterById
+);
 
 export default adminRoutes;

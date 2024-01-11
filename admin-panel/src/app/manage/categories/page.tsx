@@ -17,6 +17,7 @@ import { TypeCategoryFilter } from "@/types/resource";
 import { FormikErrors } from "formik";
 import {
   addCategoryFilter,
+  deleteCategoryFilterById,
   getCategoryFilter,
   updateCategoryFilterById,
 } from "@/service/category.service";
@@ -119,14 +120,14 @@ const page = () => {
     setListLoader(false);
   };
 
-  //   const handleDelete = async (id: string | null) => {
-  //     if (id) {
-  //       const res = await deleteResourceById(id);
-  //       if (res && res.data.response_type === "success") {
-  //         resetResource();
-  //       }
-  //     }
-  //   };
+  const handleDelete = async (id: string | null) => {
+    if (id) {
+      const res = await deleteCategoryFilterById(id);
+      if (res && res.data.response_type === "success") {
+        resetCategoryFilter();
+      }
+    }
+  };
 
   //================================================================//
   //=======================  Function ==============================//
@@ -189,8 +190,9 @@ const page = () => {
           />
           <FiEdit
             onClick={() => {
-              // setSelectedCategoryFilter(records);
-              // setIsEditOpen(true);
+              setSelectedCategoryFilter(records);
+              setIsEditOpen(true);
+              setIsFormDisable(true)
             }}
           />
         </div>
@@ -224,13 +226,17 @@ const page = () => {
         isOpen={isDeleteOpen}
         confirmText="DELETE ACCOUNT"
         buttonsClassName="grid grid-rows-2 gap-4 w-[40%] "
-        title={`Are You Sure You want to Delete this ${selectedCategoryFilter && capitalize(selectedCategoryFilter.type)}?`}
+        title={`Are You Sure You want to Delete this ${
+          selectedCategoryFilter && capitalize(selectedCategoryFilter.type)
+        }?`}
         onClose={() => setIsDeleteOpen(false)}
         onConfirm={() => {
-          //   handleDelete(
-          //     selectedResource ? (selectedResource._id as string) : null
-          //   );
-          //   setIsDeleteOpen(false);
+          handleDelete(
+            selectedCategoryFilter
+              ? (selectedCategoryFilter._id as string)
+              : null
+          );
+          setIsDeleteOpen(false);
         }}
       />
 
