@@ -16,6 +16,8 @@ import {
   npiLookup,
   universityLookup,
   isUserExists,
+  sendVerificationCodeForForgetPassword,
+  verifyCodeForForget
 } from "../controllers/auth.js";
 
 const authRoute = Router();
@@ -38,6 +40,17 @@ authRoute.get(
   "/university_lookup",
   universityLookupValidator,
   universityLookup
+);
+// Forget Password
+authRoute.post(
+  "/forget/send_verification_code",
+  sendVerificationCodeFieldValidator,
+  sendVerificationCodeForForgetPassword
+);
+authRoute.post(
+  "/forget/verify_verification_code",
+  verifyCodeFieldValidator,
+  verifyCodeForForget
 );
 
 export default authRoute;

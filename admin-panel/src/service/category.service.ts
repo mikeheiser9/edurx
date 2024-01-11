@@ -15,7 +15,7 @@ export const deleteCategoryFilterById = (id: string) => {
 export const updateCategoryFilterById = (id: string, data: TypeCategoryFilter) => {
 return axiosPut(`/admin/categories`, data, {
     params: {
-      user_id: id,
+      category_id: id,
     },
   });
 };

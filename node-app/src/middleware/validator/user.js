@@ -175,6 +175,19 @@ const createAccountSettingsValidator = async (req, res, next) => {
   }
 };
 
+const forgetPasswordFieldValidator = async (req,res,next) => {
+  try {
+    const schema = Joi.object({
+      password: validateField.password.trim().min(8),
+      otp:validateField.stringPrefixJoiValidation.trim().required().min(6).max(6)
+    });
+    await schema.validateAsync(req.body);
+    next();
+  } catch (error) {
+    returnAppropriateError(res, error);
+  }
+}
+
 export {
   updateUserValidator,
   getUserProfileValidator,
@@ -185,4 +198,5 @@ export {
   searchUsersValidator,
   adminAuthValidation,
   createAccountSettingsValidator,
+  forgetPasswordFieldValidator
 };

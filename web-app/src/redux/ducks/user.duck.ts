@@ -1,16 +1,6 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { AppState } from "../store";
-interface userDetailsType {
-  _id: null | string;
-  first_name: null | string;
-  last_name: null | string;
-  email: null | string;
-  password: null | string;
-  role: null | string;
-  npi_designation: null | string;
-  verified_account: null | string;
-  joined: null | string;
-}
+
 interface initialStateType {
   token: string | null;
   details: userDetailsType | null;

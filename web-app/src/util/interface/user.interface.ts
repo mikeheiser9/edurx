@@ -32,3 +32,22 @@ interface googleSheetPayload {
   taxonomies: string;
   addresses: string;
 }
+
+interface userForgetPassword {
+  email:string;
+  otp:string;
+  password:string;
+  confirm_password?:string
+}
+
+interface userDetailsType {
+  _id?: null | string;
+  first_name: null | string;
+  last_name: null | string;
+  email: null | string;
+  password: null | string;
+  role: null | string;
+  npi_designation: null | string;
+  verified_account: null | string;
+  joined: null | string;
+}

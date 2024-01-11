@@ -156,7 +156,7 @@ const Select = ({
     }),
     multiValue: (base: any) => ({
       ...base,
-      background: "#FDCD27",
+      background: `${disabled ? "#b3b3b5" : "#FDCD27" }`,
       color: "#ffffff",
       fontWeight: 500,
       padding: "6px 8px",
@@ -164,7 +164,7 @@ const Select = ({
     }),
     multiValueLabel: (base: any) => ({
       ...base,
-      color: "#000",
+      color: `${disabled ? "#fff" : "#000" }`,
       padding: "0 !important",
       fontSize: 10,
     }),
@@ -172,7 +172,7 @@ const Select = ({
       ...base,
       padding: "0 !important",
       marginLeft: "5px",
-      background: "#cfb046 !important",
+      background: `${disabled ? "#DBDBDC" : "#cfb046 !important" }`,
     }),
   };
 

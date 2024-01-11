@@ -25,6 +25,16 @@ const updateUser = async (email, user) => {
     }
   );
 };
+
+const updateUserById = async (id, user) => {
+  return await userModel.findByIdAndUpdate(id,{...user}
+  );
+};
+
+const getUserDetailsById = async (id) => {
+  return await userModel.findById(id)
+}
+
 const storeUserRegistrationInfoInDb = async (info) => {
   return await new userModel(info).save();
 };
@@ -389,5 +399,7 @@ export {
   removeFollowPost,
   insertFollowPostMultiple,
   findFollowersOfPostById,
-  updateUserByCondition
+  updateUserByCondition,
+  updateUserById,
+  getUserDetailsById
 };

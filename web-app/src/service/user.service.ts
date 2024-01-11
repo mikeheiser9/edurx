@@ -65,9 +65,13 @@ const getUserDrafts = (page: number, limit: number) => {
   return axiosGet(`/user/drafts?page=${page}&limit=${limit}`);
 };
 
-const deleteDraftById=(id:string)=>{
-  return axiosDelete(`/user/draft/${id}`)
-}
+const deleteDraftById = (id: string) => {
+  return axiosDelete(`/user/draft/${id}`);
+};
+
+const updatePasswordById = (id: string, data: object) => {
+  return axiosPut(`/user/forget/${id}`, { ...data });
+};
 
 export {
   searchUserByAPI,
@@ -80,6 +84,6 @@ export {
   remindMeTomorrowTimeSensitiveNotificationById,
   getUserDraftCount,
   getUserDrafts,
-  deleteDraftById
+  deleteDraftById,
+  updatePasswordById,
 };
-
