@@ -178,7 +178,6 @@ export const signIn = async (req, res) => {
       );
     }
   } catch (error) {
-    console.log({ error });
     return generalResponse(
       res,
       400,
@@ -412,5 +411,163 @@ export const isUserExists = async (req, res) => {
     generalResponse(res, 200, "success", null, user);
   } catch (error) {
     generalResponse(res, 400, "error", "Something went wrong", error, true);
+  }
+};
+
+export const sendVerificationCodeForForgetPassword = async (req, res) => {
+  try {
+    req.body = trimFields(req.body);
+    const user = await findUserByEmail(req.body.email);
+    if (user) {
+      if (user.verified_account) {
+        const { mail, codeExpireTime, randomCode } =
+          prepareVerificationCodeForEmailConfirmation(
+            user.first_name + " " + user.last_name,
+            user.email
+          );
+        if (process.env.ENVIRONMENT == "production") {
+          sgMail
+            .send(mail)
+            .then(async (mailStatus) => {
+              if (mailStatus[0].statusCode == 202) {
+                user.verification_code = randomCode;
+                user.verification_code_expiry_time = codeExpireTime;
+                const update = await updateUser(req.body.email, user);
+                if (update) {
+                  return generalResponse(
+                    res,
+                    200,
+                    "success",
+                    "mail send to your email id, please confirm you email",
+                    null,
+                    false
+                  );
+                }
+                return generalResponse(
+                  res,
+                  400,
+                  "error",
+                  "something went wrong..!",
+                  null,
+                  true
+                );
+              }
+            })
+            .catch(() => {
+              return generalResponse(
+                res,
+                400,
+                "error",
+                "something went wrong with mail functionality....",
+                null,
+                true
+              );
+            });
+        } else {
+          user.verification_code = randomCode;
+          user.verification_code_expiry_time = codeExpireTime;
+          const update = await updateUser(user.email, user);
+          if (update) {
+            return generalResponse(
+              res,
+              200,
+              "success",
+              "during development mail is not sends, so go to the user collection and copy past verification_code field value in the verify account api to verify you account",
+              null,
+              false
+            );
+          }
+          return generalResponse(
+            res,
+            400,
+            "error",
+            "something went wrong..!.",
+            null,
+            true
+          );
+        }
+      } else {
+        generalResponse(
+          res,
+          400,
+          "error",
+          "Your account is not verified!!",
+          null,
+          true
+        );
+      }
+    } else {
+      generalResponse(
+        res,
+        400,
+        "error",
+        "User not exist with This Email!!",
+        null,
+        true
+      );
+    }
+  } catch (error) {
+    generalResponse(res, 400, "error", "something went wrong....", error, true);
+  }
+};
+
+export const verifyCodeForForget = async (req, res) => {
+  try {
+    req.body = trimFields(req.body);
+    const user = await findUserByEmail(req.body.email, {
+      type: "include",
+      attribute: [
+        "first_name",
+        "last_name",
+        "email",
+        "role",
+        "npi_designation",
+        "joined",
+        "verified_account",
+        "password",
+        "profile_img",
+        "verification_code_expiry_time",
+        "verification_code",
+      ],
+    });
+    const currentTime = new Date().getTime();
+    if (user) {
+      if (user.verified_account) {
+        if (
+          currentTime < user.verification_code_expiry_time &&
+          req.body.code == user.verification_code
+        ) {
+          const update = await updateUser(user.email, user);
+          if (update) {
+            // send token and details
+            user.password = "";
+            return generalResponse(
+              res,
+              200,
+              "success",
+              null,
+              { details: user },
+              true
+            );
+          }
+          throw { myError: "something went wrong...!" };
+        } else {
+          if (currentTime > user.verification_code_expiry_time) {
+            throw { myError: "Your code is expired...!" };
+          }
+          throw { myError: "Wrong code entered...!" };
+        }
+      } else {
+        throw { myError: "Your Account is not Verified!!" };
+      }
+    } else {
+      throw { myError: "User not exist with this Email!!" };
+    }
+  } catch (error) {
+    let myError = "something went wrong";
+    if (error?.myError) {
+      myError = error?.myError;
+    }
+    generalResponse(res, 400, "error", myError, error, true);
   }
 };

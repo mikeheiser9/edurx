@@ -13,6 +13,7 @@ import {
   userDrafts,
   userDraftsCount,
   userDraft,
+  updatePasswordById,
 } from "../controllers/user.js";
 import {
   addDocumentValidator,
@@ -23,6 +24,7 @@ import {
   getConnectionsValidator,
   searchUsersValidator,
   createAccountSettingsValidator,
+  forgetPasswordFieldValidator,
 } from "../middleware/validator/user.js";
 import ResourceController from "../controllers/resource.js";
 import {
@@ -81,4 +83,6 @@ userRoute.get("/:userId/reading_list",userAuth,ResourceController.getReadingList
 userRoute.get("/drafts", userAuth, userDrafts);
 userRoute.get("/drafts/count", userAuth, userDraftsCount);
 userRoute.delete("/draft/:id",userAuth,deletePostDraftValidator,userDraft)
+// forgetPassword
+userRoute.put("/forget/:userId", forgetPasswordFieldValidator,updatePasswordById);
 export default userRoute;
