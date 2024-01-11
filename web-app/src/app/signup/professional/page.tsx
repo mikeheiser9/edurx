@@ -141,7 +141,7 @@ export default function SignUp() {
     const npiRes = await npiNumberLookup(npiNumber as string);
     const res: {
       data: any;
-      isValid: boolean;
+      isValid: boolean; 
     } = {
       data: npiRes?.data?.data?.results?.[0] || null,
       isValid: npiRes?.data?.data?.result_count > 0,
