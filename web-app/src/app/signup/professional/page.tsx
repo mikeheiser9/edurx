@@ -125,7 +125,7 @@ export default function SignUp() {
         ...preState,
         [type]: !showPassword[type],
       };
-    });
+    }); 
 
   const npiReturnVariables = [
     { fieldName: "npiReturnFullName", label: "Full Name" },
