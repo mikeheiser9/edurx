@@ -134,14 +134,14 @@ export default function SignUp() {
     { fieldName: "organization", label: "Organization name" },
   ];
   const handleAskNpi = async (
-    actions: FormikHelpers<professionalAccountSignUpField>,
+    actions: FormikHelpers<professionalAccountSignUpField>, 
     npiNumber: string
   ) => {
     setIsLoading(true);
     const npiRes = await npiNumberLookup(npiNumber as string);
     const res: {
       data: any;
-      isValid: boolean;
+      isValid: boolean; 
     } = {
       data: npiRes?.data?.data?.results?.[0] || null,
       isValid: npiRes?.data?.data?.result_count > 0,

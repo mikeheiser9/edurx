@@ -71,7 +71,7 @@ export const Select = ({ value, options = [], icon, ...rest }: Props) => {
         </span>
       </button>
       {isOpen && (
-        <div className="absolute w-full z-10 bg-eduDarkGray rounded-b-md">
+        <div className="absolute w-full z-[100] bg-eduDarkGray rounded-b-md">
           <ul className="max-h-56 rounded-md py-1 ease-in-out transition-all text-base ipad-under:text-xs ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
             {options?.map((option, index) => (
               <li

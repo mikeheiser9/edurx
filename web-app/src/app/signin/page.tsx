@@ -217,6 +217,17 @@ export default function SignIn() {
                   )}
                   {!isVerificationPending &&
                     !accountCreationSucceedScreenOpen && (
+                      <>
+                      <div className="text-center text-sm font-[500] opacity-40">
+                        <span
+                          className="underline font-[700] cursor-pointer"
+                          onClick={() => {
+                            router.push("/forgetpassword");
+                          }}
+                        >
+                          Forget Password?
+                          </span>
+                      </div>
                       <div className="text-center text-sm font-[500] opacity-40 p-3">
                         Don't have account? &nbsp;
                         <span
@@ -228,6 +239,7 @@ export default function SignIn() {
                           Create one
                         </span>
                       </div>
+                      </>
                     )}
                   {commonMessage && (
                     <span className="capitalize font-medium text-red-500 text-sm text-center animate-fade-in-down">

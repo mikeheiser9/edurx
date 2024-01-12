@@ -23,6 +23,15 @@ export const generateVerificationCode = <T>(data: T) => {
   return axiosPost("/auth/send_verification_code", data);
 };
 
+export const generateVerificationCodeForForget = <T>(data: T) => {
+  return axiosPost("/auth/forget/send_verification_code", data);
+};
+
+export const verifyConfirmationCodeForForget = <T>(data: T) => {
+  return axiosPost("/auth/forget/verify_verification_code", data);
+};
+
+
 export const npiNumberLookup = async (
   npi_number: string
 ): Promise<AxiosResponse> => {

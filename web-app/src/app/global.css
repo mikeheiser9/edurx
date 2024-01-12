@@ -82,9 +82,9 @@ input:-webkit-autofill:active {
 } */
 
 .post-body p, .ql-container p, .ql-editor p {
-  font-size: 18px;
+  font-size: 14px;
   font-family: 'Poppins';
-  font-weight: 500 !important;
+  font-weight: 400 !important;
 }
 
 /* timeline styles */

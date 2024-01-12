@@ -5,10 +5,7 @@ import Label from "@/components/Label";
 import RadioBox from "@/components/RadioBox";
 import Select from "@/components/Select";
 import { TypeCategoryFilter } from "@/types/resource";
-import {
-  CATEGORYFILTER_TYPE,
-  validateField,
-} from "@/util/constant";
+import { CATEGORYFILTER_TYPE, validateField } from "@/util/constant";
 import { Form, Formik } from "formik";
 import React from "react";
 import * as Yup from "yup";
@@ -35,17 +32,6 @@ const EditCategoryFilterModal = ({
   loadMoreButton?: () => void;
   loadMoreLoader?: boolean;
 }) => {
-  const initialValues = {
-    name: selectedData ? selectedData.name : "",
-    forumType: selectedData ? selectedData.forumType : "",
-    type: selectedData ? selectedData.type : CATEGORYFILTER_TYPE.category,
-  };
-
-  const validationSchema: Yup.AnyObject = Yup.object({
-    name: stringPrefixJoiValidation.required().min(2),
-    type: stringPrefixJoiValidation.required().min(2),
-    forumType: Yup.array().min(1).required(),
-  });
 
   const options = [
     {
@@ -69,7 +55,27 @@ const EditCategoryFilterModal = ({
       value: "Student",
     },
   ];
-  
+
+  let forumType: unknown = "";
+
+  if (selectedData) {
+    forumType = options.filter(
+      (option) => option.value === selectedData.forumType
+    );
+  }
+
+  const initialValues = {
+    name: selectedData ? selectedData.name : "",
+    forumType: forumType,
+    type: selectedData ? selectedData.type : CATEGORYFILTER_TYPE.category,
+  };
+
+  const validationSchema: Yup.AnyObject = Yup.object({
+    name: stringPrefixJoiValidation.required().min(2),
+    type: stringPrefixJoiValidation.required().min(2),
+    forumType: Yup.array().min(1).required(),
+  });
+
   return (
     <div>
       <Dialog
@@ -86,7 +92,7 @@ const EditCategoryFilterModal = ({
           onSubmit={handleSubmit}
           validationSchema={validationSchema}
         >
-          {({ values, setFieldValue ,errors }) => (
+          {({ values, setFieldValue }) => (
             <Form>
               <Label title={"Type"} />
               <div className="flex gap-14">
@@ -100,7 +106,7 @@ const EditCategoryFilterModal = ({
                     setFieldValue("type", CATEGORYFILTER_TYPE.category)
                   }
                   isChecked={values["type"] == CATEGORYFILTER_TYPE.category}
-                  disabled={disableForm}
+                  disabled={selectedData ? true : disableForm}
                 />
                 <RadioBox
                   size="md"
@@ -112,19 +118,23 @@ const EditCategoryFilterModal = ({
                     setFieldValue("type", CATEGORYFILTER_TYPE.filter)
                   }
                   isChecked={values["type"] == CATEGORYFILTER_TYPE.filter}
-                  disabled={disableForm}
+                  disabled={selectedData ? true : disableForm}
                 />
               </div>
               <Input name="name" label="Name" disabled={disableForm} />
               <Select
-                disabled={disableForm}
+                disabled={selectedData ? true : disableForm}
                 label={"Forum Type"}
                 name="forumType"
                 isSearchable={false}
                 placeholder={"Select Forum Type"}
+                defaultValue={
+                  selectedData &&
+                  (forumType as { label: string; value: string })
+                }
                 options={options}
                 onChange={(e) => {
-                    setFieldValue("forumType",e);
+                  setFieldValue("forumType", e);
                 }}
                 isMulti
               />

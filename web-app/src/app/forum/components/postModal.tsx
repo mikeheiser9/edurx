@@ -470,7 +470,7 @@ export const PostModal = ({ postId, viewPostModal }: Props) => {
                       <div className="flex justify-between gap-1">
                         <div className="titleCategory">
                           <div className="pt-1 pb-3">
-                            <h2 className="text-eduBlack md:text-[28px] text-[15px] font-medium font-headers leading-none">
+                            <h2 className="text-eduBlack md:text-[20px] text-[15px] font-medium font-headers leading-none">
                               {post?.title}
                             </h2>
                           </div>

@@ -68,7 +68,7 @@ const [saved, setSaved] = useState(resource.isReadByUser);
                 </div>
                 </div>
                 <div className="">
-                    <h2 className="text-[22px] ipad-under:text-[15px] tablet-lg:text-[20px] ipad-under:leading-normal ipad-under:font-medium text-eduBlack  flex gap-2 items-center">{resource.title}</h2>
+                    <h2 className="text-[16px] ipad-under:text-[13px] tablet-lg:text-[14px] ipad-under:leading-normal ipad-under:font-medium text-eduBlack  flex gap-2 items-center">{resource.title}</h2>
                 </div>
                 <div className="flex flex-row flex-nowrap gap-2">
                     {resource?.tags?.map((tag) => (

@@ -14,6 +14,7 @@ import { categoryFilterModal } from "../model/post/categoryTag.js";
 import {
   addCategoryFilter,
   findCategoryOrPostByCondition,
+  updateCategoryFilterById,
 } from "../repository/post.js";
 
 // ADMIN
@@ -113,7 +114,6 @@ export const fetchUsersByAdmin = async (req, res) => {
       false
     );
   } catch (error) {
-    console.log({ error });
     return generalResponse(
       res,
       400,
@@ -383,7 +383,7 @@ export const deleteResourceById = async (req, res) => {
       res,
       400,
       "error",
-      "Something Went Wrong while Delete User.",
+      "Something Went Wrong while Delete Resource.",
       "",
       true
     );
@@ -518,6 +518,76 @@ export const insertCategoryFilter = async (req, res) => {
       400,
       "error",
       error ? error : "something went wrong!",
+      error,
+      true
+    );
+  }
+};
+
+export const deleteCategoryFilterById = async (req, res) => {
+  try {
+    await categoryFilterModal.findByIdAndUpdate(req.body.id, {
+      isDeleted: true,
+    });
+
+    return generalResponse(
+      res,
+      200,
+      "success",
+      "CategoryFilter Deleted Successfully!!",
+      null,
+      true
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      400,
+      "error",
+      "Something Went Wrong while Delete CategoryFilter.",
+      "",
+      true
+    );
+  }
+};
+
+export const updateCategoryOrFilterById = async (req, res) => {
+  try {
+    const { forumType, name, type } = req.body;
+    const { category_id } = req.query;
+    const categegoryOrFilterToBeInserted = [];
+    for (let i = 0; i < forumType.length; i++) {
+      const data = {
+        forumType: forumType[i].value,
+        name: name,
+        type: type,
+      };
+      categegoryOrFilterToBeInserted.push(data);
+      const res = await findCategoryOrPostByCondition({
+        ...data,
+        _id: { $ne: category_id },
+      });
+      if (res) {
+        throw `${type} is already exist with name or forum type`;
+      }
+    }
+    const response = await updateCategoryFilterById(
+      category_id,
+      categegoryOrFilterToBeInserted[0]
+    );
+    return generalResponse(
+      res,
+      200,
+      "success",
+      `${type} Updated successfully`,
+      null,
+      true
+    );
+  } catch (error) {
+    return generalResponse(
+      res,
+      400,
+      "error",
+      error ? error : "something went wrong in update categoryFilter!",
       error,
       true
     );

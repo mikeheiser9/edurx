@@ -15,6 +15,8 @@ import {
   getUserConnections,
   addUpdateAccountSettings,
   getAccountSettingById,
+  updateUserById,
+  getUserDetailsById,
 } from "../repository/user.js";
 import {
   generalResponse,
@@ -23,6 +25,8 @@ import {
 import { responseCodes, responseTypes } from "../util/constant.js";
 import { findDraftsByUserId } from "../repository/post.js";
 import { postModal } from "../model/post/post.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 const getUserProfile = async (req, res) => {
   try {
@@ -47,7 +51,7 @@ const getUserProfile = async (req, res) => {
           $match: {
             _id: new Types.ObjectId(userId),
           },
-        }, 
+        },
         {
           $project: {
             first_name: 1,
@@ -206,7 +210,6 @@ const updateUserByID = async (req, res) => {
       true
     );
   } catch (error) {
-    console.log(error);
     return generalResponse(
       res,
       400,
@@ -486,6 +489,53 @@ const userDraft = async (req, res) => {
   }
 };
 
+const updatePasswordById = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { password , otp }  = req.body;
+    const user = await getUserDetailsById(userId);
+    if (user) {
+      if(otp !== user.verification_code) throw "Verification Code is Not Matched!!"
+      if (user.verified_account) {
+        const pass = await bcrypt.hash(password, 10);
+        const update = await updateUserById(userId, {
+          ...user.toJSON(),
+          password: pass,
+        });
+        if (update) {
+          // send token and details
+          user.password = "";
+          const jwtPayload = { email: user.email, role: user.role };
+          const secret = process.env.JWT_SECRET || "my_jwt_secret";
+          const token = jwt.sign(jwtPayload, secret, { expiresIn: "2d" });
+          return generalResponse(
+            res,
+            200,
+            "success",
+            "Password Change Successfull!!",
+            { token, details: user },
+            true
+          );
+        }
+        throw { myError: "something went wrong...!" };
+      } else {
+        throw { myError: "Your Account is not Verified!!" };
+      }
+    } else {
+      throw { myError: "User not exist with this Email!!" };
+    }
+  } catch (error) {
+    return generalResponse(
+      res,
+      200,
+      "error",
+      error ? error : "Something Went Wrong",
+      null,
+      true
+    );
+  }
+};
+
 export {
   getUserProfile,
   updateUserByID,
@@ -499,4 +549,5 @@ export {
   userDrafts,
   userDraftsCount,
   userDraft,
+  updatePasswordById,
 };

@@ -191,7 +191,7 @@ export const PostCard = (props: Props) => {
             />
             </span>
             </div>
-            <span className="text-[22px] ipad-under:text-[15px] tablet-lg:text-[20px] ipad-under:leading-normal ipad-under:font-medium text-eduBlack font-headers flex gap-2 items-center">
+            <span className="text-[16px] ipad-under:text-[15px] tablet-lg:text-[15px] ipad-under:leading-normal ipad-under:font-medium text-eduBlack font-headers flex gap-2 items-center">
               <span>{`${post.title?.substring(0,120)} ${post.title && post.title?.length>120 ? '...' :""}`}</span>
               {post?.isPrivate && (
                 <span className="w-[20px] h-[20px] min-w-[20px] rounded-lg bg-eduYellow flex justify-center items-center">

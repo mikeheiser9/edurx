@@ -71,6 +71,10 @@ const addCategoryFilter = async (payload) => {
   return await categoryFilterModal.create(payload);
 };
 
+const updateCategoryFilterById = async (id, payload)=>{
+  return await categoryFilterModal.findByIdAndUpdate(id,payload);
+}
+
 const validateObjectIds = async (objectIds) => {
   return await categoryFilterModal.count({
     _id: {
@@ -846,4 +850,5 @@ export {
   findCategoryOrPostByCondition,
   findDraftsByUserId,
   updatePostByCondition,
+  updateCategoryFilterById
 };

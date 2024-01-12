@@ -515,14 +515,14 @@ const Page = () => {
                         )}
                       </div>
                       <div className="flex flex-col text-start gap-3">
-                        <span className="text-[20px] ipad-under:text-[11px] tablet-lg:text-[18px] text-eduBlack font-headers">
+                        <span className="text-[14px] ipad-under:text-[10px] tablet-lg:text-[12px] text-eduBlack font-headers">
                           {(notification.createdBy == loggedInUser._id
                             ? "You "
                             : notification.notificationFrom[0].username + " ") +
                             getSemanticDescriptionFromEventType(
                               notification.notificationType
                             )}
-                          <span className="opacity-[60%] ipad-under:text-10px">
+                          <span className="opacity-[60%] ipad-under:text-[10px] text-[10px]">
                             {" "}
                             <span>&#8226;</span>{" "}
                             {moment(notification?.eventTime).fromNow()}
@@ -530,7 +530,7 @@ const Page = () => {
                         </span>
                         {notification.notificationType.indexOf("comment") !=
                           -1 && (
-                          <span className="opacity-[60%] ipad-under:text-10px">
+                          <span className="opacity-[60%] ipad-under:text-10px text-[12px]">
                             "
                             {notification.commentsInfo[0].content.length > 311
                               ? notification.commentsInfo[0].content.substring(
@@ -543,7 +543,7 @@ const Page = () => {
                         )}
                         <div className="flex gap-6">
                           <Link
-                            className="text-eduLightBlue font-[600] underline"
+                            className="text-eduLightBlue font-[600] underline text-[12px]"
                             href={`#`}
                             onClick={() => {
                               setSelectedUserId(
@@ -559,7 +559,7 @@ const Page = () => {
                             ?.title ? (
                             <Link
                               href="#"
-                              className="text-eduBlack opacity-[60%] font-[600] underline"
+                              className="text-eduBlack opacity-[60%] font-[600] underline text-[12px]"
                               onClick={() => {
                                 setSelectedPostId(
                                   getPostTitle(notification)?.postId
@@ -624,7 +624,7 @@ const Page = () => {
                         )}
                       </div>
                       <div className="flex flex-col text-start gap-3">
-                        <div className="text-[20px] ipad-under:text-[11px] tablet-lg:text-[18px] text-eduBlack font-headers">
+                        <div className="text-[14px] ipad-under:text-[11px] tablet-lg:text-[18px] text-eduBlack font-body">
                           {(notification.createdBy == loggedInUser._id
                             ? "You "
                             : notification.notificationFrom?.[0]?.username +
@@ -632,7 +632,7 @@ const Page = () => {
                             getSemanticDescriptionFromEventType(
                               notification.notificationType
                             )}
-                          <span className="opacity-[60%] ipad-under:text-10px">
+                          <span className="opacity-[60%] ipad-under:text-[10px] text-[12px]">
                             {" "}
                             <span>&#8226;</span>{" "}
                             {moment(notification?.eventTime).fromNow()}
@@ -640,7 +640,7 @@ const Page = () => {
                         </div>
                         {notification.notificationType.indexOf("comment") !=
                           -1 && (
-                          <span className="opacity-[60%] ipad-under:text-10px">
+                          <span className="opacity-[60%] ipad-under:text-[10px] text-[12px]">
                             "
                             {notification.commentsInfo[0].content.length > 311
                               ? notification.commentsInfo[0].content.substring(
@@ -653,7 +653,7 @@ const Page = () => {
                         )}
                         <div className="flex gap-6 ipad-under:text-[11px] tablet-lg:text-[14px]">
                           <Link
-                            className="text-eduLightBlue font-[600] underline"
+                            className="text-eduLightBlue font-[600] underline text-[12px]"
                             href={`#`}
                             onClick={() => {
                               setSelectedUserId(
@@ -669,7 +669,7 @@ const Page = () => {
                             ?.title ? (
                             <Link
                               href="#"
-                              className="text-eduBlack opacity-[60%] font-[600] underline"
+                              className="text-eduBlack opacity-[60%] font-[600] underline text-[12px]"
                               onClick={() => {
                                 setSelectedPostId(
                                   getPostTitle(notification)?.postId
