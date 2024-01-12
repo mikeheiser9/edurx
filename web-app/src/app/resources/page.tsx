@@ -6,6 +6,7 @@ import { ResourceCard } from "./components/ResourceCard";
 import { getResources } from "@/service/resource.service";
 import InfiniteScroll from "@/components/infiniteScroll";
 import { setActiveLeftPanelTab } from "@/redux/ducks/forum.duck";
+import NoDataComponent from "@/components/noData";
 
 export default function Resources(props: any) {
   const dispatch = useDispatch();
@@ -31,10 +32,12 @@ export default function Resources(props: any) {
   const [resourceLoading, setResourceLoading] = useState(false);
   const [resourceCurrentPage, setResourceCurrentPage] = useState(1);
   const [showLoadMore, setShowLoadMore] = useState(false);
+  const [showNoData, setShowNoData] = useState(true)
   const pageResourcelimit = 5;
 
   const fetchResources = async (page: number = 1) => {
     setResourceLoading(true);
+    setShowNoData(true)
     try {
       const response = await getResources(page, 5, activeSubTab.key);
       if (response.data.response_type == "success") {
@@ -48,6 +51,7 @@ export default function Resources(props: any) {
     } catch (error) {
       console.log("Error fetching resource data ", error);
     }
+    setShowNoData(false)
     setResourceLoading(false);
   };
 
@@ -100,17 +104,12 @@ export default function Resources(props: any) {
       <ul className="flex gap-6 ipad-under:mx-auto justify-center items-center mb-4">
         {Object.values(resourceTabs).map((tab) => (
           <li
-            onClick={() => {
-              tab.key !== "news" && setActiveSubTab(tab);
-            }}
+            onClick={() => setActiveSubTab(tab)}
             className={`text-eduBlack font-body font-medium ease-in-out duration-500 border-b-2 py-2 text-[14px] cursor-pointer ipad-under:text-xs ipad-under:py-1 ${
               tab.key === activeSubTab.key
                 ? "border-primary"
                 : "border-transparent"
-            } ${
-              tab.key === "news" &&
-              "border-transparent !cursor-not-allowed text-gray-400"
-            }  `}
+            } `}
             key={tab.key}
           >
             {tab.label}
@@ -123,7 +122,7 @@ export default function Resources(props: any) {
         hasMoreData={showLoadMore}
         showLoading={resourceLoading}
       >
-        {resources.length > 0 &&
+        {resources.length > 0 ?
           resources?.map((resource, index) => (
             <div key={index}>
               <ResourceCard
@@ -132,7 +131,7 @@ export default function Resources(props: any) {
                 key={resource._id}
               />
             </div>
-          ))}
+          )): !showNoData &&  <NoDataComponent title={`No Data Found For ${activeSubTab.label} `}/>}
       </InfiniteScroll>
     </>
   );

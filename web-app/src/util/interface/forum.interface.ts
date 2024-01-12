@@ -131,7 +131,7 @@ interface CreatePostFormikInterface {
   categories: string[];
   filters: string[];
   isPrivate?: boolean;
-  content: string;
+  content: any;
   options: string[];
   votingLength: number; //days
 }

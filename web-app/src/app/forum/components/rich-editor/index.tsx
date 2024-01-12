@@ -40,8 +40,6 @@ export const TextEditor = ({
               { indent: "-1" },
               { indent: "+1" },
             ],
-            ["image", "code-block", "align"],
-            ["clean"],
           ],
         }}
         value={value}
