@@ -648,8 +648,8 @@ export const AddPost = ({
                           <TextEditor
                             value={values?.content}
                             setFieldValue={actions?.setFieldValue}
-                            error={actions.errors.content}
-                            isTouched={actions.touched.content}
+                            error={actions.errors.content as string}
+                            isTouched={actions.touched.content as boolean}
                           />
                         </div>
                       );
@@ -670,8 +670,8 @@ export const AddPost = ({
                           <TextEditor
                             value={values.content}
                             setFieldValue={actions.setFieldValue}
-                            error={actions.errors.content}
-                            isTouched={actions.touched.content}
+                            error={actions.errors.content as string}
+                            isTouched={actions.touched.content as boolean}
                           />
                           {actions?.touched.options &&
                           actions.errors.options ? (
@@ -878,8 +878,8 @@ export const AddPost = ({
                           <TextEditor
                             value={values?.content}
                             setFieldValue={actions?.setFieldValue}
-                            error={actions.errors.content}
-                            isTouched={actions.touched.content}
+                            error={actions.errors.content as string}
+                            isTouched={actions.touched.content as boolean}
                           />
                         </div>
                       );
@@ -900,8 +900,8 @@ export const AddPost = ({
                           <TextEditor
                             value={values.content}
                             setFieldValue={actions.setFieldValue}
-                            error={actions.errors.content}
-                            isTouched={actions.touched.content}
+                            error={actions.errors.content as string}
+                            isTouched={actions.touched.content as boolean}
                           />
                           {actions?.touched.options &&
                           actions.errors.options ? (

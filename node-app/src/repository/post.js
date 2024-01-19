@@ -634,7 +634,7 @@ const getPosts = async ({
         $unset: ["categoryData", "reactions"], // Remove the temporary fields
       },
       {
-        $sort: sortBy ? sortByQuery[sortBy] : { createdAt: 1 },
+        $sort: sortBy ? sortByQuery[sortBy] : { createdAt: -1 },
       },
       {
         $facet: {
@@ -642,6 +642,7 @@ const getPosts = async ({
           metadata: [{ $count: "totalCount" }],
         },
       },
+      
     ];
 
     const posts = await postModal.aggregate(pipeline);

@@ -162,7 +162,7 @@ export const PostCard = (props: Props) => {
       <div
         className="flex w-full p-4 rounded-[10px] bg-eduLightGray items-center justify-between"        
       >
-        <div onClick={onPostClick} className="w-full flex items-center justify-between gap-2 tablet-lg:gap-2.5 !cursor-pointer postcard tablet-lg:flex-wrap tablet-lg:flex-col z-10">
+        <div onClick={onPostClick} className="w-full flex justify-between gap-2 tablet-lg:gap-2.5 !cursor-pointer postcard tablet-lg:flex-wrap tablet-lg:flex-col z-10">
           <div className="flex-1 gap-4 tablet-lg:gap-2.5 flex-col flex">
             <div className="flex justify-between ipad-under:items-center gap-1">
             <span className="text-eduDarkBlue text-[12px] ipad-under:text-[11px] font-body">

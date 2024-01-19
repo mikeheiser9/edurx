@@ -39,7 +39,7 @@ export const ProgressBar = ({
     <div
       className={
         wrapperClass ||
-        "w-full bg-eduLightBlue rounded-md h-5 flex items-center"
+        "w-full bg-eduLightBlue rounded-md h-5 flex items-center text-[11px] text-white relative "
       }
       {...rest}
     >
@@ -51,8 +51,11 @@ export const ProgressBar = ({
           width: `${!animateProgress ? progress : currentProgress}%`,
         }}
       >
-        {label}
+        
       </span>
+     <span className="absolute z-20 line-clamp-1"> 
+       {label}
+       </span>
     </div>
   );
 };

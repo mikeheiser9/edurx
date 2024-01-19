@@ -32,7 +32,7 @@ class ResourceController {
       const userId = req.params.userId;
       const resourceId = req.body.resourceId;
 
-      const user = await userModel.findById(userId).select('reading_list');
+      const user = await userModel.findById(userId).select("reading_list");
       if (!user) {
         return res.status(404).send("User not found");
       }
@@ -45,10 +45,10 @@ class ResourceController {
       // Add resource to reading_list if not already present
       if (!user.reading_list.includes(resourceId)) {
         user.reading_list.push(resourceId);
-        await updateUserByCondition({_id:userId}, user)
+        await updateUserByCondition({ _id: userId }, user);
       }
 
-      return generalResponse(res, 200, "success", "",null, false);
+      return generalResponse(res, 200, "success", "", null, false);
     } catch (error) {
       res.status(500).send(error.message);
     }
@@ -58,13 +58,13 @@ class ResourceController {
     try {
       const { userId } = req.params;
       const { resourceId } = req.body;
-      const user = await userModel.findById(userId).select('reading_list');
+      const user = await userModel.findById(userId).select("reading_list");
       if (!user) return res.status(404).send("User not found");
 
       user.reading_list = user.reading_list.filter(
         (id) => id.toString() !== resourceId
       );
-      await updateUserByCondition({_id:userId}, user)
+      await updateUserByCondition({ _id: userId }, user);
       res.status(200).send("Resource removed from reading list");
     } catch (error) {
       res.status(500).send(error.message);
@@ -78,11 +78,26 @@ export const getResources = async (req, res) => {
     const limit = Number(req.query.limit);
     const skip = (pageNumber - 1) * limit;
     const filter = req.query.filter;
+    let isResource = null;
+    if (filter === "resources") isResource = true;
+    if (filter === "news") isResource = false;
+    if (filter === "reading_list") isResource = { $exists: true };
 
     const pipeline = [
       {
         $match: {
-          isDeleted: false,
+          $and: [
+            {
+              isDeleted: false,
+            },
+            {
+              $or: [
+                {
+                  isResource: isResource,
+                },
+              ],
+            },
+          ],
         },
       },
       {

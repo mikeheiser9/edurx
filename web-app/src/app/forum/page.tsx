@@ -25,6 +25,7 @@ import { getAllowedForumAccessBasedOnRoleAndNpiDesignation } from "@/util/helper
 import { getUserDraftCount } from "@/service/user.service";
 import DraftModal from "./components/draftModal";
 import { Chip } from "@/components/chip";
+import NoDataComponent from "@/components/noData";
 
 const forumTabs = ["Forum Feed", "Your Posts", "Following"];
 
@@ -292,7 +293,7 @@ const Page = () => {
         hasMoreData={posts?.length < postPagination.totalRecords}
         showLoading={showLoading}
       >
-        {posts?.map((post) => (
+        {posts.length > 0 ?  posts?.map((post) => (
           <div key={post._id}>
             <PostCard
               post={post}
@@ -305,7 +306,9 @@ const Page = () => {
               loggedUserId={loggedInUser._id}
             />
           </div>
-        ))}
+        )): 
+          <NoDataComponent title="No Data Found" /> 
+        }
       </InfiniteScroll>
     </React.Fragment>
   );
