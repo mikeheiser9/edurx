@@ -41,15 +41,23 @@ const GLBContent: React.FC = () => {
   const gltf = useGLTF('/models/domino.glb');
   const mouse = useLerpedMouse();
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   const [scrollPos, setScrollPos] = useState(0);
   const [shouldRotate, setShouldRotate] = useState(true);
   const prevScrollPos = useRef(0);
+  const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+
   
   let startYRotation = useRef(0);
 
   useEffect(() => {
     function handleResize() {
       setWindowWidth(window.innerWidth);
+      setWindowHeight(window.innerHeight);
+
+      // Update the camera's aspect ratio
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
     }
     
     function handleScroll() {
@@ -108,14 +116,76 @@ useEffect(() => {
 
   useEffect(() => {
   const model = gltf.scene;  
+  let yPosition = 0;
+  const xPosition = THREE.MathUtils.mapLinear(windowWidth, 0, window.innerWidth, 0, 0);
 
-  if (windowWidth <= 1600) {
-    model.scale.set(0.65, 0.65, 0.65);
-    model.position.set(0, 0.35, 0);
-  } else if (windowWidth >= 1601) {
+  if (windowWidth >= 821 && windowHeight >= 1300) {
+    model.scale.set(0.30, 0.30, 0.30);
+    yPosition = THREE.MathUtils.mapLinear(windowHeight, 0, window.innerHeight, 0, 1.8);
+  } else if (windowWidth >= 821 && windowHeight >= 1100) {
+    model.scale.set(0.30, 0.30, 0.30);
+    yPosition = THREE.MathUtils.mapLinear(windowHeight, 0, window.innerHeight, 0, 1.5);
+  } else if (windowWidth >= 821 && windowHeight >= 975) {
+    model.scale.set(0.40, 0.40, 0.40);
+    yPosition = THREE.MathUtils.mapLinear(windowHeight, 0, window.innerHeight, 0, 1);
+  } else if (windowWidth >= 821 && windowHeight >= 850) {
     model.scale.set(0.45, 0.45, 0.45);
-    model.position.set(0, 0.25, 0);
+    yPosition = THREE.MathUtils.mapLinear(windowHeight, 0, window.innerHeight, 0, 0.8);
+  } else if (windowWidth >= 821 && windowHeight >= 700) {
+    model.scale.set(0.50, 0.50, 0.50);
+    yPosition = THREE.MathUtils.mapLinear(windowHeight, 0, window.innerHeight, 0, 0.2);
+  } else if (windowWidth >= 821 && windowHeight >= 600) {
+    model.scale.set(0.50, 0.50, 0.50);
+    yPosition = THREE.MathUtils.mapLinear(windowHeight, 0, window.innerHeight, 0, -0.8);
+  } else if (windowWidth >= 821 && windowHeight >= 500) {
+    model.scale.set(0.50, 0.50, 0.50);
+    yPosition = THREE.MathUtils.mapLinear(windowHeight, 0, window.innerHeight, 0, -1.5);
+  } else if (windowWidth >= 821 && windowHeight >= 400) {
+    model.scale.set(0.8, 0.8, 0.8);
+    yPosition = THREE.MathUtils.mapLinear(windowHeight, 0, window.innerHeight, 0, -2.2);
+  } else if (windowWidth >= 821 && windowHeight >= 300) {
+    model.scale.set(0.8, 0.8, 0.8);
+    yPosition = THREE.MathUtils.mapLinear(windowHeight, 0, window.innerHeight, 0, -4.5);
+  } else if (windowWidth >= 360 && windowHeight >= 1280) {
+    model.scale.set(0.25, 0.25, 0.25);
+    yPosition = THREE.MathUtils.mapLinear(windowHeight, 0, window.innerHeight, 0, 2.4);
+  } else if (windowWidth >= 360 && windowHeight >= 1100) {
+    model.scale.set(0.3, 0.3, 0.3);
+    yPosition = THREE.MathUtils.mapLinear(windowHeight, 0, window.innerHeight, 0, 2.1);
+  } else if (windowWidth >= 360 && windowHeight >= 950) {
+    model.scale.set(0.3, 0.3, 0.3);
+    yPosition = THREE.MathUtils.mapLinear(windowHeight, 0, window.innerHeight, 0, 1.8);
+  } else if (windowWidth >= 360 && windowHeight >= 800) {
+    model.scale.set(0.35, 0.35, 0.35);
+    yPosition = THREE.MathUtils.mapLinear(windowHeight, 0, window.innerHeight, 0, 1.7);
+  } else if (windowWidth >= 360 && windowHeight >= 700) {
+    model.scale.set(0.40, 0.40, 0.40);
+    yPosition = THREE.MathUtils.mapLinear(windowHeight, 0, window.innerHeight, 0, 0.7);
+  } else if (windowWidth >= 360 && windowHeight >= 500) {
+    model.scale.set(0.45, 0.45, 0.45);
+    yPosition = THREE.MathUtils.mapLinear(windowHeight, 0, window.innerHeight, 0, 0.5);
+  } else {
+    model.scale.set(0.60, 0.60, 0.60);
   }
+
+  model.position.set(xPosition, yPosition, 0);
+
+  // Adjust the model's position based on windowWidth and windowHeight
+
+  // if (windowHeight >= 1200 && windowWidth <= 1024) {
+  //   yPosition = THREE.MathUtils.mapLinear(windowHeight, 0, window.innerHeight, 0, 2);
+  // } else if (windowHeight >= 1180 && windowWidth >= 820) {
+  //   yPosition = THREE.MathUtils.mapLinear(windowHeight, 0, window.innerHeight, 0, 2);
+  // } else if (windowHeight >= 800 && windowWidth >= 820) {
+  //   yPosition = THREE.MathUtils.mapLinear(windowHeight, 0, window.innerHeight, 0, 0.7);
+  // } else {
+  //   yPosition = THREE.MathUtils.mapLinear(windowHeight, 0, window.innerHeight, 0, 0);
+  // }
+  console.log('windowHeight:', windowHeight, 'windowWidth:', windowWidth);
+  console.log('yPosition:', yPosition);
+  console.log("scale: ", model.scale);
+
+
 
   dominoRef.current = model;
   scene.add(model);
@@ -148,22 +218,36 @@ useEffect(() => {
   });
 
   tlEnd.to(dominoRef.current.position, {
-    y: dominoRef.current.position.y - 3,
+    // y: windowHeight >= 800 ? dominoRef.current.position.y - 3.4 : dominoRef.current.position.y - 2.5,    
+    y: (() => {
+       if (windowHeight >= 1500) {
+        return dominoRef.current.position.y - 5;
+      } else if (windowHeight >= 1300){
+        return dominoRef.current.position.y - 4;
+      } else if (windowHeight >= 900) {
+        return dominoRef.current.position.y - 3.4;
+      } else if (windowHeight >= 600) {
+        return dominoRef.current.position.y - 2.5;
+      } else {
+        return dominoRef.current.position.y - 1.5;
+      }
+    })(),
     duration: 20,
-    ease: 'power4.out'
+    ease: 'power4.out',
   });
 
   tlEnd.to(dominoRef.current.scale, {
-    x: 0.25,
-    y: 0.25,
-    z: 0.25,
+    x: 0.20,
+    y: 0.20,
+    z: 0.20,
     duration: 20,
     ease: 'power4.out'
   }, "<");  
   return () => {
     scene.remove(model);
   };
-}, [gltf, scene, windowWidth]);
+}, [gltf, scene, windowWidth, windowHeight]);
+
 
 useEffect(() => {
   if (dominoRef.current) {

@@ -6,7 +6,7 @@ const date = new Date();
 
 export default function Footer() {
   return (
-    <div className='relative w-full h-[150px] flex flex-col items-center justify-between py-[20px]'>
+    <div className='relative w-full h-[150px] flex flex-col items-center justify-between py-[20px] mt-[100px]'>
         <div className='relative flex justify-center items-center w-full h-[80px]'>
             {/* <Image src={EduLogo} alt='Edu Logo' width={65} /> */}
         </div>

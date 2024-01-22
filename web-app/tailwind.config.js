@@ -101,7 +101,7 @@ module.exports = {
         'tablet-lg': {'max': '1075px'},
         'ipad': {'max': '820px'},
         'ipad-under': {'max': '767px'},
-        'over-small': {'max': '665px'},
+        'over-small': {'max': '665px'}, 
         'small': {'max': '550px'},
         'iphone': {'max': '450px'},
         'iphone-sm': {'max': '375px'},

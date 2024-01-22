@@ -81,7 +81,7 @@ export default function CompThree({onSignUp}:Props) {
     <div className='relative w-screen h-full flex flex-col justify-center items-center' ref={tlTrigCs}>
     <div className='w-full text-center flex flex-col justify-center items-center'>
       <div ref={introTitleCs}>
-        <h2 className='text-[50px] font-headers small:text-[40px] xx-small:text-[34px]'>Coming Soon</h2>
+        <h2 className='text-[50px] font-headers small:text-[40px] xx-small:text-[34px] tablet-lg:h-[50px]'>Coming Soon</h2>
       </div>
       <div ref={introSubTitleCs}>
         <h4 className='font-body font-semibold mt-[10px] text-[24px] small:text-[20px]'>Q1 2024</h4>
@@ -103,9 +103,9 @@ export default function CompThree({onSignUp}:Props) {
           className={'!padding-0'}
           iconStyle={{display: 'none'}}
         >
-          <div className={'relative w-full flex flex-col justify-start items-start tl:mt-[700px] ipad:mt-[550px] ipad-under:mt-[450px] small:mt-[350px] iphone:mt-[250px]'}>
+          <div className={'relative w-full flex flex-col justify-start items-start tl:mt-[700px] ipad:mt-[550px] ipad-under:mt-[450px] small:mt-[350px] iphone:mt-[350px]'}>
             <div className='relative w-full flex flex-row flex-nowrap justify-start items-center tl:text-center tl:justify-center'>
-              <h2 className='font-headers !text-[50px] small:!text-[40px] iphone:!text-[35px]'>CE Tracking</h2>
+              <h2 className='font-headers !text-[50px] small:!text-[40px] iphone:!text-[35px] tablet-lg:h-[50px] iphone:flex iphone:items-center'>CE Tracking</h2>
               <div className='border-dashed border-eduBlack border-2 w-[200px] absolute right-[-13%] tl:right-0 tl:left-[-4%] tl:w-[300px] tablet-lg:w-[150px] ipad-under:w-[100px] ipad-under:left-[-6%] small:left-[-8%] iphone:w-[50px] iphone:left-[-11%]'></div>
             </div>
             <div className='relative flex flex-col'>
@@ -139,7 +139,7 @@ export default function CompThree({onSignUp}:Props) {
               </div>
 
             </div>
-            <div className='absolute z-30 w-[700px] h-auto left-[120%] top-[15%] tl:top-[-120%] tl:left-[27%] tl:w-[800px] tl:h-[610px] tablet-lg:left-[20%] ipad:w-[700px] ipad:h-[550px] ipad:left-[5%] ipad:top-[-100%] ipad-under:top-[-85%] ipad-under:w-[600px] ipad-under:h-[450px] ipad-under:left-[13%] small:w-[400px] small:h-[300px] small:top-[-52%] small:left-[16%] iphone:w-[340px] iphone:h-[260px] iphone:top-[-44%] iphone:left-[3%] iphone-sm:top-[-43%] over-small:top-[-75%]' ref={ilTrigOneCs}>
+            <div className='absolute z-30 w-[700px] h-auto left-[120%] top-[15%] tl:top-[-120%] tl:left-[27%] tl:w-[800px] tl:h-[610px] tablet-lg:left-[20%] tablet-lg:top-[-130%] ipad:w-[650px] ipad:h-[550px] ipad:left-[12%] ipad:top-[-100%] ipad-under:top-[-85%] ipad-under:w-[550px] ipad-under:h-[450px] ipad-under:left-[21%] over-small:top-[-80%] small:w-[400px] small:h-[300px] small:top-[-58%] small:left-[16%] iphone:w-[305px] iphone:h-[260px] iphone:top-[-50%] iphone:left-[16%] iphone-sm:top-[-43%]' ref={ilTrigOneCs}>
               <div ref={imgOneCs}>
                 <Image
                   src={CeElement}
@@ -160,10 +160,10 @@ export default function CompThree({onSignUp}:Props) {
           iconStyle={{display: 'none'}}
         >
           <div id='endTrigger' className='absolute w-full'></div>
-          <div className='relative w-full flex flex-col justify-start items-start tl:mt-[700px] ipad:mt-[550px] ipad-under:mt-[450px] small:mt-[350px] iphone:mt-[250px]'>
+          <div className='relative w-full flex flex-col justify-start items-start tl:mt-[700px] ipad:mt-[550px] ipad-under:mt-[450px] small:mt-[350px] iphone:mt-[350px]'>
             <div className='relative w-full flex flex-row flex-nowrap justify-end items-center tl:text-center tl:justify-center'>
               <div className='border-dashed border-eduBlack border-2 w-[100px] absolute left-[-13%] tl:right-0 tl:left-[-4%] tl:w-[300px] ipad-under:w-[50px] ipad-under:left-[-6%] iphone:left-[-11%] tablet-lg:w-[130px] small:w-[30px] small:left-[-8%] x-large:w-[60px]'></div>
-              <h2 className='font-headers !text-[40px] ipad-under:!text-[35px] small:!text-[30px] iphone:!text-[26px] large:!text-[35px] xx-small:!text-[24px]'>EduRx Library</h2>
+              <h2 className='font-headers !text-[40px] ipad-under:!text-[35px] small:!text-[30px] iphone:!text-[26px] large:!text-[35px] xx-small:!text-[24px] tablet-lg:h-[50px] iphone:flex iphone:items-center'>EduRx Library</h2>
             </div>
             <div className='relative flex flex-col'>
               <div className='relative w-full h-full flex flex-col justify-between rounded-[15px] py-[50px] px-[35px] after:content-[" "] after:absolute after:w-full after:h-full after:left-0 after:top-0 after:z-10 after: after:rounded-[15px] after:bg-gradient-to-br after:from-white after:to-eduDarkGray after:blur-sm after:inner-shadow after:backdrop-blur-xl after:opacity-95 iphone:px-[15px] iphone:py-[20px] iphone:mt-[25px]'>
@@ -195,7 +195,7 @@ export default function CompThree({onSignUp}:Props) {
                 </div>
               </div>
             </div>
-            <div className='absolute w-[700px] h-auto top-[15%] right-[120%] tl:top-[-120%] tl:left-[27%] tl:w-[800px] tl:h-[610px] tablet-lg:left-[20%] ipad:w-[700px] ipad:h-[550px] ipad:left-[5%] ipad:top-[-90%] ipad-under:top-[-73%] ipad-under:w-[600px] ipad-under:h-[450px] ipad-under:left-[13%] small:w-[400px] small:h-[300px] small:top-[-53%] small:left-[16%] iphone:w-[340px] iphone:h-[260px] iphone:top-[-38%] iphone:left-[3%] iphone-sm:top-[-34%] xx-small:top-[-36%] over-small:top-[-68%]' ref={ilTrigTwoCs}>
+            <div className='absolute w-[700px] h-auto top-[15%] right-[120%] tl:top-[-120%] tl:left-[27%] tl:w-[800px] tl:h-[610px] tablet-lg:left-[20%] ipad:w-[650px] ipad:h-[550px] ipad:left-[12%] ipad:top-[-90%] ipad-under:top-[-73%] ipad-under:w-[550px] ipad-under:h-[450px] ipad-under:left-[21%] small:w-[400px] small:h-[300px] small:top-[-48%] small:left-[16%] iphone:w-[305px] iphone:h-[260px] iphone:top-[-40%] iphone:left-[16%] iphone-sm:top-[-34%] xx-small:top-[-36%] over-small:top-[-68%]' ref={ilTrigTwoCs}>
               <div ref={imgTwoCs}>
                 <Image 
                   src={libraryElement}

@@ -27,10 +27,8 @@ export default function RootLayout({
         {/* <meta name="twitter:card" content="summary_large_image" /> */}
 
         {/* <!--  Non-Essential, But Recommended --> */}
-        <meta property="og:description" content="Welcome to EduRx. Beta launching Q4 2023" />
-        <meta property="og:site_name" content="Welcome to EduRx. Beta launching Q4 2023" />
-        {/* <meta name="twitter:image:alt" content="Welcome to EduRx. Beta launching Q4 2023" /> */}
-
+        <meta property="og:description" content="Welcome to EduRx. Beta launching Q1 2024" />
+        <meta property="og:site_name" content="Welcome to EduRx. Beta launching Q1 2024" />
         {/* <!--  Non-Essential, But Required for Analytics --> */}
         <link rel="shortcut icon" href="/edurxLogo.svg" />
     </Head>

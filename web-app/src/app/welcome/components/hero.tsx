@@ -131,8 +131,8 @@ useEffect(() => {
               </h3>
             </div>
           </div>
-          <div className='relative'>
-            <Image src={SepTop} alt={'hero-btm-line'} className='rotate-180' ref={sepTwo} />
+          <div className='relative iphone:'>
+            <Image src={SepTop} alt={'hero-btm-line'} className='rotate-180 iphone:mt-[50px]' ref={sepTwo} />
           </div>
         </div>
       </div>

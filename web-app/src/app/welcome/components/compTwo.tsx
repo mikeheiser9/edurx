@@ -119,11 +119,11 @@ export default function CompTwo({onSignUp}:Props) {
   return (
     <div className='relative w-screen h-full flex flex-col justify-center items-center' ref={tlTrig}>
     <div className='w-full text-center flex flex-col justify-center items-center'>
-      <div ref={introTitle}>
-        <h2 className='text-[50px] font-headers small:text-[40px] xx-small:text-[34px]'>What We've Built</h2>
+      <div ref={introTitle} className='tablet-lg:h-[50px]'>
+        <h2 className='text-[50px] font-headers small:text-[40px] iphone:text-[36px] xx-small:text-[34px]'>What We've Built</h2>
       </div>
       <div ref={introSubTitle}>
-        <h4 className='font-body font-semibold mt-[10px] text-[24px] small:text-[20px]'>BETA LAUNCHING Q4 2023</h4>
+        <h4 className='font-body font-semibold mt-[10px] text-[24px] small:text-[20px]'>BETA LAUNCHING Q1 2024</h4>
       </div>
       <div className='relative w-full flex justify-center items-center'>
         <div className='relative w-[60%] mt-[20px] max-w-[1000px] small:max-w-[95%] small:w-[90%] after:content-[" "] after:absolute after:w-full after:h-full after:left-0 after:top-0 after:z-10 after: after:rounded-[15px] after:bg-eduLightGray after:blur-sm after:inner-shadow after:backdrop-blur-xl after:opacity-95'>
@@ -147,10 +147,10 @@ export default function CompTwo({onSignUp}:Props) {
           className={'!padding-0'}
           iconStyle={{display: 'none'}}
         >
-          <div className={'relative w-full flex flex-col justify-start items-start tl:mt-[700px] ipad:mt-[550px] ipad-under:mt-[450px] small:mt-[350px] iphone:mt-[250px]'}>
+          <div className={'relative w-full flex flex-col justify-start items-start tl:mt-[700px] ipad:mt-[550px] ipad-under:mt-[450px] small:mt-[350px] iphone:mt-[350px]'}>
             <div className='relative w-full flex flex-row flex-nowrap justify-start items-center tl:text-center tl:justify-center'>
               <div className='relative after:content-[" "] after:absolute after:w-full after:h-full after:left-0 after:top-0 after:z-10 after: after:rounded-[15px] after:bg-eduLightGray after:blur-sm after:inner-shadow after:backdrop-blur-xl after:opacity-95'>
-                <h2 className='relative z-30 font-headers !text-[50px] small:!text-[40px] iphone:!text-[35px] p-[10px]'>EduRx Hub</h2>
+                <h2 className='relative z-30 font-headers !text-[50px] small:!text-[40px] iphone:!text-[35px] p-[10px] tablet-lg:h-[50px]'>EduRx Hub</h2>
               </div>
               <div className='border-dashed border-eduBlack border-2 w-[200px] absolute right-[-13%] tl:right-0 tl:left-[-4%] tl:w-[300px] tablet-lg:w-[200px] ipad-under:w-[100px] ipad-under:left-[-6%] small:left-[-8%] iphone:w-[50px] iphone:left-[-11%]'></div>
             </div>
@@ -185,7 +185,7 @@ export default function CompTwo({onSignUp}:Props) {
               </div>
 
             </div>
-            <div className='absolute w-[700px] h-auto left-[120%] top-[15%] tl:top-[-120%] tl:left-[27%] tl:w-[800px] tl:h-[610px] tablet-lg:left-[20%] ipad:w-[700px] ipad:h-[550px] ipad:left-[5%] ipad:top-[-90%] ipad-under:top-[-70%] ipad-under:w-[600px] ipad-under:h-[450px] ipad-under:left-[13%] small:w-[400px] small:h-[300px] small:top-[-52%] small:left-[16%] iphone:w-[340px] iphone:h-[260px] iphone:top-[-40%] iphone:left-[3%] iphone-sm:top-[-35%]' ref={ilTrigOne}>
+            <div className='absolute w-[700px] h-auto left-[120%] top-[15%] tl:top-[-120%] tl:left-[27%] tl:w-[800px] tl:h-[610px] tablet-lg:left-[20%] ipad:w-[650px] ipad:h-[550px] ipad:left-[12%] ipad:top-[-90%] ipad-under:top-[-70%] ipad-under:w-[550px] ipad-under:h-[450px] ipad-under:left-[21%] ipad-under:mt-[-8%] over-small:top-[-62%] small:w-[400px] small:h-[300px] small:top-[-45%] small:left-[16%] iphone:w-[305px] iphone:h-[260px] iphone:top-[-40%] iphone:left-[16%] iphone-sm:top-[-35%]' ref={ilTrigOne}>
               <div ref={imgOne}>
                 <Image 
                   src={HubElement}
@@ -204,10 +204,10 @@ export default function CompTwo({onSignUp}:Props) {
           className='!padding-0 '
           iconStyle={{display: 'none'}}
         >
-          <div className='relative w-full flex flex-col justify-start items-start tl:mt-[700px] ipad:mt-[550px] ipad-under:mt-[450px] small:mt-[350px] iphone:mt-[250px]'>
+          <div className='relative w-full flex flex-col justify-start items-start tl:mt-[700px] ipad:mt-[550px] ipad-under:mt-[450px] small:mt-[350px] iphone:mt-[350px]'>
             <div className='relative w-full flex flex-row flex-nowrap justify-end items-center tl:text-center tl:justify-center'>
               <div className='border-dashed border-eduBlack border-2 w-[100px] absolute left-[-13%] tl:right-0 tl:left-[-4%] tl:w-[300px] ipad-under:w-[50px] ipad-under:left-[-6%] iphone:left-[-11%] tablet-lg:w-[130px] small:w-[30px] small:left-[-8%] x-large:w-[60px]'></div>
-              <h2 className='font-headers !text-[40px] ipad-under:!text-[35px] small:!text-[30px] iphone:!text-[26px] large:!text-[35px] xx-small:!text-[24px]'>Research + News Feed</h2>
+              <h2 className='font-headers !text-[40px] ipad-under:!text-[35px] small:!text-[30px] iphone:!text-[26px] large:!text-[35px] xx-small:!text-[24px] tablet-lg:h-[50px] iphone:flex iphone:items-center'>Research + News Feed</h2>
             </div>
             <div className='relative flex flex-col'>
               <div className='relative w-full h-full flex flex-col justify-between rounded-[15px] py-[50px] px-[35px] after:content-[" "] after:absolute after:w-full after:h-full after:left-0 after:top-0 after:z-10 after: after:rounded-[15px] after:bg-gradient-to-br after:from-white after:to-eduDarkGray after:blur-sm after:inner-shadow after:backdrop-blur-xl after:opacity-95 iphone:px-[15px] iphone:py-[20px] iphone:mt-[25px]'>
@@ -239,7 +239,7 @@ export default function CompTwo({onSignUp}:Props) {
                 </div>
               </div>
             </div>
-            <div className='absolute w-[700px] h-auto top-[15%] right-[120%] z-30 tl:top-[-120%] tl:left-[27%] tl:w-[800px] tl:h-[610px] tablet-lg:left-[20%] ipad:w-[700px] ipad:h-[550px] ipad:left-[5%] ipad:top-[-90%] ipad-under:top-[-70%] ipad-under:w-[600px] ipad-under:h-[450px] ipad-under:left-[13%] small:w-[400px] small:h-[300px] small:top-[-53%] small:left-[16%] iphone:w-[340px] iphone:h-[260px] iphone:top-[-40%] iphone:left-[3%] iphone-sm:top-[-37%] xx-small:top-[-36%]' ref={ilTrigTwo}>
+            <div className='absolute w-[700px] h-auto top-[15%] right-[120%] z-30 tl:top-[-120%] tl:left-[27%] tl:w-[800px] tl:h-[610px] tablet-lg:left-[20%] ipad:w-[650px] ipad:h-[550px] ipad:left-[12%] ipad:top-[-90%] ipad-under:top-[-73%] ipad-under:w-[550px] ipad-under:h-[450px] ipad-under:left-[21%] over-small:top-[-69%] small:w-[400px] small:h-[300px] small:top-[-48%] small:left-[16%] iphone:w-[305px] iphone:h-[260px] iphone:top-[-45%] iphone:left-[16%] iphone-sm:top-[-37%] xx-small:top-[-36%]' ref={ilTrigTwo}>
               <div ref={imgTwo}>
               <Image 
                 src={ResearchElement}
@@ -267,9 +267,9 @@ export default function CompTwo({onSignUp}:Props) {
           className='!padding-0 '
           iconStyle={{display: 'none'}}
         >
-          <div className='relative w-full flex flex-col justify-start items-start tl:mt-[700px] ipad:mt-[550px] ipad-under:mt-[450px] small:mt-[350px] iphone:mt-[250px]'>
+          <div className='relative w-full flex flex-col justify-start items-start tl:mt-[700px] ipad:mt-[550px] ipad-under:mt-[550px] small:mt-[400px] iphone:mt-[350px]'>
             <div className='relative w-full flex flex-row flex-nowrap justify-start items-center tl:text-center tl:justify-center'>
-              <h2 className='font-headers !text-[50px] small:!text-[40px] iphone:!text-[35px]'>Forums</h2>
+              <h2 className='font-headers !text-[50px] small:!text-[40px] iphone:!text-[35px] tablet-lg:h-[50px] iphone:flex iphone:items-center'>Forums</h2>
               <div className='border-dashed border-eduBlack border-2 w-[300px] absolute right-[-13%] medium:w-[200px] tl:right-0 tl:left-[-4%] tl:w-[300px] tablet-lg:w-[200px] ipad-under:w-[100px] ipad-under:left-[-6%] small:left-[-8%] iphone:w-[50px] iphone:left-[-11%]'></div>
             </div>
             <div className='relative flex flex-col'>
@@ -302,7 +302,7 @@ export default function CompTwo({onSignUp}:Props) {
                 </div>
               </div>
             </div>
-            <div className='absolute z-30 w-[700px] h-auto left-[120%] top-[15%] tl:top-[-120%] tl:left-[27%] tl:w-[800px] tl:h-[610px] tablet-lg:left-[20%] ipad:w-[650px] ipad:h-[500px] ipad:left-[12%] ipad:top-[-90%] ipad-under:top-[-70%] ipad-under:w-[500px] ipad-under:h-[400px] ipad-under:left-[27%] small:w-[400px] small:h-[300px] small:top-[-53%] small:left-[16%] iphone:w-[305px] iphone:h-[230px] iphone:top-[-42%] iphone:left-[11%] iphone-sm:top-[-40%]' ref={ilTrigThree}>
+            <div className='absolute z-30 w-[700px] h-auto left-[120%] top-[15%] tl:top-[-120%] tl:left-[27%] tl:w-[800px] tl:h-[610px] tablet-lg:left-[20%] ipad:w-[650px] ipad:h-[500px] ipad:left-[12%] ipad:top-[-96%] ipad-under:top-[-90%] ipad-under:w-[550px] ipad-under:h-[400px] ipad-under:left-[21%] over-small:top-[-87%] small:w-[400px] small:h-[300px] small:top-[-62%] small:left-[16%] iphone:w-[305px] iphone:h-[230px] iphone:top-[-50%] iphone:left-[16%] iphone-sm:top-[-40%]' ref={ilTrigThree}>
               <div ref={imgThree}>
               <Image 
                 src={ForumElement}
