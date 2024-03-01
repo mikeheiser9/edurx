@@ -423,9 +423,9 @@ export default function SignUp() {
         <p className="text-[14px] font-body text-eduBlack/60 text-center">
           EduRx is new and building! We are excited to be creating a hub for all
           medical professionals to come together. However we are not accepting
-          accounts for your specific taxonomy right now. Please enter your email
-          below to stay up to date with out latest news and find out when EduRx
-          launches for you!
+          accounts for your specific taxonomy right now. Please click submit if you wish to 
+          stay up to date with out latest news and find out when EduRx
+          launches for you!<br /> <br />Once submitted click the back arrow at the top left to return to the home page.
         </p>
       </div>
     );
@@ -548,7 +548,7 @@ export default function SignUp() {
     } else if (currentStep === 3) {
       return "Register";
     } else if (currentStep == 2) {
-      return "Back";
+      return "Submit Info";
     } else {
       return "Next";
     }

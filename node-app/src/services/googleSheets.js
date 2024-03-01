@@ -10,7 +10,7 @@ const auth = new GoogleAuth({
   },
 });
 const spreadsheetId = process.env.GOOGLE_SHEET_ID;
-const sheetName = "Sheet1";
+const sheetName = "eduRx-signups";
 const service = google.sheets({ version: "v4", auth });
 
 const getAuthToken = async () => {
@@ -55,7 +55,7 @@ const appendHeaders = async () => {
     spreadsheetId,
     resource,
     auth,
-    range: "Sheet1!1:1",
+    range: "eduRx-signups!1:1",
     valueInputOption: "USER_ENTERED",
   });
 };
@@ -94,7 +94,7 @@ const addValuesToSpreadsheet = async (data) => {
   const headersCells = await service.spreadsheets.values.get({
     spreadsheetId,
     auth,
-    range: "Sheet1!1:1",
+    range: "eduRx-signups!1:1",
   });
   if (
     !headersCells.data.values ||
@@ -108,7 +108,7 @@ const addValuesToSpreadsheet = async (data) => {
     spreadsheetId,
     resource,
     auth,
-    range: "Sheet1!1:1",
+    range: "eduRx-signups!1:1",
     valueInputOption: "USER_ENTERED",
   });
 

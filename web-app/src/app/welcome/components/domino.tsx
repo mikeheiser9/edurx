@@ -170,22 +170,9 @@ useEffect(() => {
 
   model.position.set(xPosition, yPosition, 0);
 
-  // Adjust the model's position based on windowWidth and windowHeight
-
-  // if (windowHeight >= 1200 && windowWidth <= 1024) {
-  //   yPosition = THREE.MathUtils.mapLinear(windowHeight, 0, window.innerHeight, 0, 2);
-  // } else if (windowHeight >= 1180 && windowWidth >= 820) {
-  //   yPosition = THREE.MathUtils.mapLinear(windowHeight, 0, window.innerHeight, 0, 2);
-  // } else if (windowHeight >= 800 && windowWidth >= 820) {
-  //   yPosition = THREE.MathUtils.mapLinear(windowHeight, 0, window.innerHeight, 0, 0.7);
-  // } else {
-  //   yPosition = THREE.MathUtils.mapLinear(windowHeight, 0, window.innerHeight, 0, 0);
-  // }
   console.log('windowHeight:', windowHeight, 'windowWidth:', windowWidth);
   console.log('yPosition:', yPosition);
   console.log("scale: ", model.scale);
-
-
 
   dominoRef.current = model;
   scene.add(model);

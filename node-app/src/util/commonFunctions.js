@@ -1,4 +1,5 @@
 import { isValidObjectId } from "mongoose";
+import 'dotenv/config.js';
 
 export const extractError = (errors) => {
   if (errors.details) {
@@ -33,9 +34,13 @@ export const generateRandomAlphanumericCharacterOfLengthTillTenDigit = (
 };
 
 export const prepareMail = (to, subject, text, html) => {
+  console.log('MAIL_FROM_ADDRESS:', process.env.mail_from_address);
   return {
     to,
-    from: process.env.MAIL_FROM_ADDRESS,
+    from: {
+      email: process.env.mail_from_address,
+      name: "EduRx Team"
+    },
     subject,
     text,
     html,

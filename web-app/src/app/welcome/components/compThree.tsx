@@ -84,7 +84,7 @@ export default function CompThree({onSignUp}:Props) {
         <h2 className='text-[50px] font-headers small:text-[40px] xx-small:text-[34px] tablet-lg:h-[50px]'>Coming Soon</h2>
       </div>
       <div ref={introSubTitleCs}>
-        <h4 className='font-body font-semibold mt-[10px] text-[24px] small:text-[20px]'>Q1 2024</h4>
+        <h4 className='font-body font-semibold mt-[10px] text-[24px] small:text-[20px]'>Q2 2024</h4>
       </div>
       <div className='relative w-[60%] mt-[20px] max-w-[1000px] small:max-w-[95%] small:w-[90%] after:content-[" "] after:absolute after:w-full after:h-full after:left-0 after:top-0 after:z-10 after: after:rounded-[15px] after:bg-eduLightGray after:blur-sm after:inner-shadow after:backdrop-blur-xl after:opacity-95'>
         <div className='relative z-30' ref={introTextCs}>

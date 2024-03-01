@@ -19,6 +19,7 @@ const ForgetPasswordField = (): React.JSX.Element => {
         placeholder="Email Address"
         type="email"
         maxLength={150}
+        className="w-full"
       />
     </React.Fragment>
   );

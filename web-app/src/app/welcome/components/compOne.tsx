@@ -105,7 +105,7 @@ export default function CompOne({onSignUp}: Props) {
                 </div>
                 <div className='flex flex-col w-full'>
                   <div className="w-[55px] h-[0px] border border-eduBlack z-20"></div>
-                  <p className='text-eduDarkBlue font-body text-[24px] z-20 mt-[15px] ipad-under:text-[12px] iphone:text-[13px] iphone:mt-[8px]'>View our forum demo & sign up today</p>
+                  <p className='text-eduDarkBlue font-body text-[24px] z-20 mt-[15px] ipad-under:text-[12px] iphone:text-[13px] iphone:mt-[8px]'>Request a forum demo</p>
                 </div>
               </div>
             </div>

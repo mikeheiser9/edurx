@@ -84,13 +84,14 @@ export const signUp = async (req, res) => {
               res,
               200,
               "success",
-              "mail send to your email id, please confirm your email",
+              "mail sent to your email id, please confirm your email",
               null,
               true
             );
           }
         })
-        .catch(() => {
+        .catch((error) => {
+          console.log('error sending mail ' + error)
           return generalResponse(
             res,
             400,
@@ -193,6 +194,7 @@ export const sendVerificationCode = async (req, res) => {
   try {
     req.body = trimFields(req.body);
     const user = await findUserByEmail(req.body.email);
+    console.log('user' + user);
     if (user) {
       if (!user.verified_account) {
         const { mail, codeExpireTime, randomCode } =
@@ -418,6 +420,7 @@ export const sendVerificationCodeForForgetPassword = async (req, res) => {
   try {
     req.body = trimFields(req.body);
     const user = await findUserByEmail(req.body.email);
+    console.log('user' + user);
     if (user) {
       if (user.verified_account) {
         const { mail, codeExpireTime, randomCode } =
@@ -453,7 +456,8 @@ export const sendVerificationCodeForForgetPassword = async (req, res) => {
                 );
               }
             })
-            .catch(() => {
+            .catch((error) => {
+              console.log('error sending mail ' + error);
               return generalResponse(
                 res,
                 400,

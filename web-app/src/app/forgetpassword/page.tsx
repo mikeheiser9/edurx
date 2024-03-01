@@ -254,11 +254,11 @@ const page = () => {
         validationSchema={validationSchema[currentStep]}
       >
         {({ isSubmitting, values, ...actions }) => (
-          <div className="flex flex-col items-center p-4 bg-white">
-            <h1 className="text-3xl font-headers font-semibold">
+          <div className="flex flex-col items-center p-4 bg-white w-full">
+            <h2 className="text-2xl font-headers font-semibold">
               {getHeadTitle()}
-            </h1>
-            <Form>
+            </h2>
+            <Form className="w-[80%]">
               <div className="flex flex-col gap-4 text-eduBlack m-8">
                 {stepWiseRenderer()}
               </div>
